@@ -1,390 +1,234 @@
 # CLAUDE.md
 
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+---
+
 # Project Context
 
-This project is an enterprise-grade API Registry and Integration Governance Platform.
+**mesh.atlas** is an enterprise-grade API Registry and Integration Governance Platform — a modern alternative to Backstage with a far stronger focus on governance, auditability, and enterprise architecture intelligence.
 
-The platform is being built as a modern alternative and competitor to Backstage, with a significantly stronger focus on:
+The platform acts as:
+- API Registry
+- Integration Registry
+- Event Catalog
+- Enterprise Architecture Metadata Hub
+- Integration Governance Platform
 
-- API governance
-- Integration governance
-- Auditability
-- Traceability
-- Enterprise architecture management
-- System dependency mapping
-- Integration lifecycle
-- Contract versioning
-- Compliance
-- Change accountability
-- Impact analysis
-- Event cataloging
-- Integration lineage
-
-The platform is NOT a CMDB.
-
-The platform must focus on:
-- business systems
-- APIs
-- integrations
-- events
-- contracts
-- ownership
-- governance
-- architecture metadata
-
-The platform must NOT become infrastructure inventory software.
-
-Do not model:
-- servers
-- IP addresses
-- CPU/RAM
-- infrastructure monitoring
-- Kubernetes runtime details
-- deployment metrics
-- infrastructure patching
-
-Those concerns belong to:
-- CMDB
-- Kubernetes
-- Prometheus
-- Grafana
-- ServiceNow
-- cloud providers
+The platform is **NOT** a CMDB, infrastructure inventory tool, or runtime monitoring platform. Do not model servers, IP addresses, CPU/RAM, Kubernetes runtime details, deployment metrics, or infrastructure patching. Those belong to Prometheus, Grafana, ServiceNow, and cloud providers.
 
 ---
 
 # Technology Stack
 
-Backend:
-- Java 21
-- Spring Boot 3
-- Spring Data JPA
-- Hibernate
-- PostgreSQL
-- Flyway
-- MapStruct
-- Maven
+| Layer | Technology |
+|---|---|
+| Backend runtime | Java 21, Spring Boot 4.x |
+| Persistence | Spring Data JPA, Hibernate, PostgreSQL, Flyway |
+| Mapping | MapStruct + Lombok |
+| Security | Spring Security OAuth2 Resource Server + Keycloak |
+| Frontend | Angular 21, Angular Material, Transloco (i18n) |
+| Frontend auth | keycloak-js (PKCE S256) |
+| Testing (BE) | H2 in-memory, Spring Boot Test |
+| Testing (FE) | vitest |
 
-Frontend:
-- Angular 19
-- Angular Material
-
-Architecture:
-- Modular monolith initially
-- Evolutionary architecture
-- Domain-driven design
-- Hexagonal architecture where appropriate
-- Metadata-driven architecture
-- Enterprise integration patterns
+Architecture: modular monolith → evolutionary DDD, hexagonal where appropriate, metadata-driven.
 
 ---
 
-# General Architectural Principles
+# Development Commands
 
-All generated code must follow enterprise-grade design principles.
+## Backend
 
-Priorities:
-1. Maintainability
-2. Extensibility
-3. Auditability
-4. Traceability
-5. Governance
-6. Explicit domain modeling
-7. Strong validation
-8. Transactional consistency
-9. Clear separation of concerns
-10. Backward compatibility
+Run from the `backend/` directory (uses `mvnw`):
 
-Avoid simplistic CRUD-only design.
+```bash
+# Build
+./mvnw clean package
 
-Always think in terms of:
-- enterprise metadata
-- governance
-- lifecycle
-- ownership
-- compliance
-- future extensibility
+# Run (requires local Keycloak + PostgreSQL — see Infrastructure below)
+./mvnw spring-boot:run
+
+# Run with dev profile
+./mvnw spring-boot:run -Dspring-boot.run.profiles=dev
+
+# Run all tests
+./mvnw test
+
+# Run a single test class
+./mvnw test -Dtest=MyTestClass
+
+# Run a single test method
+./mvnw test -Dtest=MyTestClass#myTestMethod
+```
+
+## Frontend
+
+Run from the `frontend/` directory:
+
+```bash
+# Install dependencies
+npm install
+
+# Dev server (standard, no SSL)
+npm start
+
+# Dev server (local HTTPS at https://atlas.ww.local:443 with proxy to backend)
+npm run start:local
+
+# Production build
+npm run build
+
+# Run tests (vitest)
+npm test
+```
 
 ---
 
-# Domain Principles
+# Local Infrastructure
 
-The platform manages:
-- IT systems
-- APIs
-- events
-- integrations
-- contracts
-- dependencies
-- ownership
-- architecture metadata
+All services run behind `.ww.local` DNS with self-signed SSL from a local CA.
 
-The central aggregate is usually:
-- ITSystem
-- API
-- Integration
+| Service | URL |
+|---|---|
+| Backend API | `https://localhost:8888/atlas` |
+| Frontend (local dev) | `https://atlas.ww.local:443` |
+| Keycloak | `https://keycloak.ww.local:8443` |
+| PostgreSQL | `postgresql.ww.local:5432` (db: `atlas`, schema: `atlas`) |
 
-All designs should support:
-- impact analysis
-- dependency graphs
-- audit trails
-- historical revisions
-- governance workflows
-- lifecycle management
+**Keycloak realm**: `atlas` — **client**: `mesh.atlas.web`  
+**Roles**: `ATLAS_USER`, `ATLAS_ADMIN` (resolved from both realm_access and resource_access JWT claims)
+
+Backend trusts Keycloak via `classpath:certs/ca.crt`. SSL keystore is `classpath:certs/keystore.p12`.
+
+---
+
+# Backend Architecture
+
+## Package Structure
+
+```
+pl.com.ww.mesh.atlas/
+├── Application.java
+├── api/              # REST controllers, organized by domain slice
+│   └── hello/        # Example: HelloController
+├── config/           # Spring @Configuration classes
+└── security/
+    └── auth/
+        ├── AuthenticatedUser.java        # Record: id, email, username, roles
+        ├── KeycloakGrantedAuthoritiesConverter.java  # JWT → GrantedAuthority
+        ├── UserContextHolder.java        # ThreadLocal holder
+        ├── UserContextService.java       # @Service wrapper
+        └── preauthorizers/
+            ├── AtlasRole.java            # Enum: ATLAS_ADMIN, ATLAS_USER
+            ├── IsAtlasAdmin.java         # Meta-annotation
+            └── IsAtlasUser.java          # Meta-annotation
+```
+
+## Security
+
+**Never use inline `@PreAuthorize`**. Always use the composed meta-annotations:
+- `@IsAtlasUser` — allows `ATLAS_USER` or `ATLAS_ADMIN`
+- `@IsAtlasAdmin` — allows `ATLAS_ADMIN` only
+
+Inject current user via `UserContextService.getCurrentUser()` which returns `AuthenticatedUser`.
+
+## Database Migrations
+
+Flyway scripts live in `backend/src/main/resources/db/migration/`.  
+Naming convention: `V0.XXXX__YYYYMMDD_description.sql` (e.g. `V0.0001__20260520_dictionary_framework.sql`).  
+Schema: `atlas`. All tables use UUIDs (`gen_random_uuid()`), explicit constraints, and FK indexes.
+
+## Testing
+
+Tests use H2 in-memory (Flyway disabled). Config in `backend/src/test/resources/application.properties`. Add `@SpringBootTest` or `@DataJpaTest` slices as appropriate.
 
 ---
 
 # Enterprise Dictionary Framework
 
-The application uses a GENERIC DICTIONARY FRAMEWORK.
+**The central extensibility mechanism for all configurable business values.**
 
-NEVER generate:
-- hardcoded enums for business dictionaries
-- dedicated tables for every dictionary
-- duplicated CRUD services for dictionaries
+Two tables: `dictionary_type` (code must match `^[A-Z][A-Z0-9_]*$`) and `dictionary_entry`.  
+Entries support: soft delete (`active`), display ordering, JSONB `metadata`, audit fields (`created_by`, `updated_by`).
 
-Use:
-- dictionary_type
-- dictionary_entry
+### Pre-seeded Dictionary Types
 
-Dictionary entries must:
-- support metadata
-- support audit
-- support soft delete
-- support localization in future
-- support multitenancy in future
-- support governance
+`SYSTEM_STATUS`, `LIFECYCLE_STAGE`, `BUSINESS_CRITICALITY`, `DATA_CLASSIFICATION`, `SYSTEM_TYPE`, `ARCHITECTURE_STYLE`, `API_STYLE`, `AUTHENTICATION_METHOD`, `INTEGRATION_PATTERN`, `PROTOCOL`, `MESSAGE_FORMAT`, `DEPLOYMENT_MODEL`, `RUNTIME_ENVIRONMENT`, `COMPLIANCE`
 
-Dictionary values are stored as entities and referenced using foreign keys.
+### Rules
 
-Use:
-- DictionaryEntryEntity
-- DictionaryTypeEntity
-
-Business entities must reference dictionary entries using ManyToOne relationships.
-
-Example:
-- system status
-- business criticality
-- architecture style
-- deployment model
-- integration pattern
-
-must reference DictionaryEntryEntity.
-
-Use validation annotations ensuring dictionary type correctness.
-
-Example:
-- @DictionaryType(dictionaryCode = "SYSTEM_STATUS")
-
-DO NOT use:
-- @Enumerated(EnumType.STRING)
-for business dictionaries.
-
-Enums are allowed ONLY for:
-- internal technical constants
-- non-configurable framework behavior
+- **NEVER** use `@Enumerated(EnumType.STRING)` for business dictionaries.
+- **NEVER** create dedicated tables per dictionary type.
+- Business entities reference `DictionaryEntryEntity` via `@ManyToOne`.
+- Validate dictionary type correctness with `@DictionaryType(dictionaryCode = "SYSTEM_STATUS")`.
+- Enums are only for internal technical constants (e.g. `AtlasRole`).
 
 ---
 
-# Auditability Requirements
+# Frontend Architecture
 
-Everything important must be auditable.
+## Structure
 
-All business entities must support:
-- createdAt
-- createdBy
-- updatedAt
-- updatedBy
-- optimistic locking
-- revision tracking
+```
+frontend/src/app/
+├── app.config.ts     # Providers: router, HTTP, animations, Transloco, AUTH init
+├── app.routes.ts     # Lazy-loaded routes under Shell
+├── core/
+│   ├── auth/         # AuthService (keycloak-js signals), authInterceptor (Bearer token), jwt.model.ts
+│   └── i18n/         # TranslocoHttpLoader (en/pl JSON assets)
+├── shared/
+│   ├── auth/         # Shared auth utilities
+│   ├── data-table/   # Reusable data table
+│   ├── dialogs/      # Reusable dialogs
+│   ├── navigation/   # Navigation helpers
+│   ├── services/     # Shared services
+│   └── toast/        # Toast notifications
+├── shell/            # App shell (navbar + sidenav layout)
+├── dashboard/        # Implemented feature
+├── settings/         # Implemented feature
+└── placeholder/      # Stub for: apis, environments, subscriptions, analytics, dictionaries, admin
+```
 
-Preferred approaches:
-- Hibernate Envers
-- revision journal tables
-- event sourcing where appropriate
+## Angular Patterns
 
-The platform must support:
-- historical reconstruction
-- change accountability
-- compliance reporting
+- **Standalone components only** — do NOT set `standalone: true` (it's the default in Angular v20+).
+- **Signals** for all state: `signal()`, `computed()`, `input()`, `output()`.
+- **Native control flow**: `@if`, `@for`, `@switch` — never `*ngIf`, `*ngFor`, `*ngSwitch`.
+- `ChangeDetectionStrategy.OnPush` on every component.
+- `inject()` for DI — not constructor injection.
+- No `ngClass` / `ngStyle` — use `class` and `style` bindings.
+- All routes are lazy-loaded.
+- All dropdowns and select fields must load values from backend dictionary APIs — never hardcoded.
 
-Never generate business entities without audit metadata.
+## Auth Flow
 
----
+`AuthService` initializes Keycloak JS on app boot (`APP_INITIALIZER`), enforces `login-required`, uses PKCE S256. The `authInterceptor` attaches the Bearer token to all API requests. Roles are read from both `realm_access` and `resource_access[clientId]` JWT claims.
 
-# Traceability Requirements
+## i18n
 
-The platform must support full traceability between:
-- systems
-- APIs
-- integrations
-- events
-- contracts
-- owners
-- environments
-
-Design all models with future graph traversal in mind.
-
----
-
-# Database Standards
-
-Use PostgreSQL-specific capabilities where beneficial:
-- JSONB
-- GIN indexes
-- full text search
-- pg_trgm
-- UUID identifiers
-
-Prefer UUIDs over numeric IDs.
-
-All tables should:
-- have explicit constraints
-- have indexes for lookup fields
-- use proper foreign keys
-- support future partitioning if applicable
+Transloco handles translations (en/pl). Translations loaded via `TranslocoHttpLoader`. Language persisted in `localStorage` under key `lang`.
 
 ---
 
-# API Design Standards
+# Architectural Principles
 
-REST APIs must:
-- use versioned URLs
-- use DTOs
-- never expose JPA entities directly
-- support pagination
-- support filtering
-- support sorting
+### Priorities (in order)
+1. Maintainability, Extensibility, Auditability, Traceability
+2. Governance, Explicit domain modeling, Strong validation
+3. Transactional consistency, Separation of concerns, Backward compatibility
 
-Use:
-- validation annotations
-- problem details responses
-- proper HTTP status codes
+### Audit Requirements
+All business entities must have: `createdAt`, `createdBy`, `updatedAt`, `updatedBy`, optimistic locking, revision tracking (Hibernate Envers preferred).
 
-Controllers should remain thin.
+### API Standards
+- Versioned URLs, DTOs only (Java records preferred), never expose JPA entities.
+- Pagination, filtering, sorting on all collection endpoints.
+- Problem Details responses, proper HTTP status codes.
+- Thin controllers — business logic in services.
 
-Business logic belongs in services/domain layer.
+### Domain Focus
+Central aggregates: `ITSystem`, `API`, `Integration`. All models must support: impact analysis, dependency graphs, audit trails, historical revisions, governance workflows.
 
----
-
-# Service Layer Standards
-
-Services must:
-- be transactional
-- validate domain rules
-- enforce governance constraints
-- enforce dictionary type correctness
-
-Avoid anemic domain models where possible.
-
----
-
-# Mapping Standards
-
-Use MapStruct for DTO mapping.
-
-DTOs should use Java records where possible.
-
-Never expose entities directly outside persistence layer.
-
----
-
-# Repository Standards
-
-Use Spring Data JPA repositories.
-
-Complex queries should use:
-- Specifications
-- Spring Data JPQL
-- dedicated query services
-
-Avoid massive repository interfaces.
-
----
-
-# Angular Frontend Standards
-
-Frontend should be:
-- metadata-driven
-- dictionary-driven
-- configurable
-- enterprise-oriented
-
-Forms should dynamically consume dictionaries from backend APIs.
-
-Avoid hardcoded dropdown values.
-
----
-
-# Coding Style
-
-Generated code must be:
-- production-grade
-- explicit
-- strongly typed
-- readable
-- maintainable
-- enterprise-oriented
-
-Avoid:
-- toy examples
-- oversimplified architecture
-- magic strings
-- hidden assumptions
-
-Always generate:
-- validations
-- constraints
-- indexes
-- transactional boundaries
-- error handling
-
----
-
-# Preferred Design Approach
-
-When generating solutions:
-- prefer extensibility over shortcuts
-- prefer metadata-driven approaches
-- prefer governance-friendly solutions
-- prefer audit-friendly models
-- prefer enterprise integration patterns
-
-Always think about:
-- future scale
-- future governance
-- future integrations
-- enterprise operations
-
----
-
-# What Makes This Platform Better Than Backstage
-
-The platform should aim to provide stronger capabilities than Backstage in:
-- integration governance
-- dependency tracking
-- impact analysis
-- auditability
-- API lifecycle management
-- event governance
-- enterprise metadata
-- compliance
-- change traceability
-- integration lineage
-- architecture governance
-
-Backstage-like developer portal features are useful, but enterprise governance capabilities are the primary differentiator.
-
----
-
-# Important Rule
-
-When unsure:
-- choose enterprise-grade design
-- choose extensibility
-- choose auditability
-- choose traceability
-- choose metadata-driven architecture
-
-Never choose simplistic implementations if enterprise-grade alternatives are appropriate.
+### When Unsure
+Choose enterprise-grade design, extensibility, auditability, traceability, and metadata-driven architecture over simplistic implementations.

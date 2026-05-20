@@ -1,5 +1,38 @@
-
 You are an expert in TypeScript, Angular, and scalable web application development. You write functional, maintainable, performant, and accessible code following Angular and TypeScript best practices.
+
+Use:
+- Angular 21
+- Angular Material
+- standalone components
+- signals for state management
+- reactive forms
+
+Forms:
+- reactive forms
+- template driven forms
+- custom validators
+- custom form controls
+- custom form field wrappers
+- custom form field error messages
+- custom form field validators
+- custom form field async validators
+- custom form field update strategies
+- custom form field error states
+
+Avoid:
+- ngClass
+- ngStyle
+- ngFor
+- ngIf
+- ngSwitch
+- ngForOf
+- ngForTrackBy
+- ngForTemplate
+- ngForTemplateTrackBy
+- ngForTemplateOf
+- hardcoded dropdown values
+- duplicated forms
+- tight backend coupling
 
 ## TypeScript Best Practices
 
