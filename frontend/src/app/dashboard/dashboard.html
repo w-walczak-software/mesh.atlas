@@ -1,0 +1,175 @@
+<ng-container *transloco="let t; scope: 'dashboard'; lang: lang()">
+  <div class="dashboard">
+    <div class="page-header">
+      <div class="page-title">
+        <h1 class="title">{{ t('dashboard.title') }}</h1>
+        <p class="subtitle">{{ t('dashboard.subtitle') }}</p>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button>
+          <mat-icon>download</mat-icon>
+          {{ t('dashboard.exportReport') }}
+        </button>
+        <button mat-flat-button>
+          <mat-icon>add</mat-icon>
+          {{ t('dashboard.registerApi') }}
+        </button>
+      </div>
+    </div>
+
+    <div class="kpi-grid">
+      @for (kpi of kpis; track kpi.labelKey) {
+        <mat-card class="kpi-card kpi-{{ kpi.color }}" appearance="outlined">
+          <mat-card-content>
+            <div class="kpi-header">
+              <span class="kpi-label">{{ t(kpi.labelKey) }}</span>
+              <div class="kpi-icon-wrap">
+                <mat-icon>{{ kpi.icon }}</mat-icon>
+              </div>
+            </div>
+            <div class="kpi-value">{{ kpi.value }}</div>
+            <div class="kpi-delta" [class.positive]="kpi.positive" [class.negative]="!kpi.positive">
+              <mat-icon>{{ kpi.positive ? 'trending_up' : 'trending_down' }}</mat-icon>
+              <span>{{ kpi.delta }}</span>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      }
+    </div>
+
+    <div class="content-grid">
+      <mat-card class="recent-card" appearance="outlined">
+        <mat-card-header>
+          <mat-card-title>{{ t('dashboard.recentApis.title') }}</mat-card-title>
+          <mat-card-subtitle>{{ t('dashboard.recentApis.subtitle') }}</mat-card-subtitle>
+          <div class="card-actions">
+            <button mat-button>{{ t('common.viewAll') }}</button>
+          </div>
+        </mat-card-header>
+        <mat-card-content class="recent-card-content">
+          <app-data-table [config]="apiTableConfig()" [data]="recentApis" [embedded]="true" />
+        </mat-card-content>
+      </mat-card>
+
+      <div class="side-cards">
+        <mat-card class="health-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>{{ t('dashboard.platformHealth.title') }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="health-list">
+              <div class="health-item">
+                <div class="health-dot ok"></div>
+                <span class="health-label">{{ t('dashboard.platformHealth.gateway') }}</span>
+                <span class="health-value ok">{{ t('dashboard.platformHealth.operational') }}</span>
+              </div>
+              <div class="health-item">
+                <div class="health-dot ok"></div>
+                <span class="health-label">{{ t('dashboard.platformHealth.registry') }}</span>
+                <span class="health-value ok">{{ t('dashboard.platformHealth.operational') }}</span>
+              </div>
+              <div class="health-item">
+                <div class="health-dot warn"></div>
+                <span class="health-label">{{ t('dashboard.platformHealth.audit') }}</span>
+                <span class="health-value warn">{{ t('dashboard.platformHealth.degraded') }}</span>
+              </div>
+              <div class="health-item">
+                <div class="health-dot ok"></div>
+                <span class="health-label">{{ t('dashboard.platformHealth.auth') }}</span>
+                <span class="health-value ok">{{ t('dashboard.platformHealth.operational') }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="quick-stats-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>{{ t('dashboard.apiCoverage.title') }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="stat-list">
+              <div class="stat-item">
+                <span class="stat-label">{{ t('dashboard.apiCoverage.documented') }}</span>
+                <div class="stat-bar-wrap">
+                  <div class="stat-bar" style="width: 87%"></div>
+                </div>
+                <span class="stat-pct">87%</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">{{ t('dashboard.apiCoverage.versioned') }}</span>
+                <div class="stat-bar-wrap">
+                  <div class="stat-bar" style="width: 94%"></div>
+                </div>
+                <span class="stat-pct">94%</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">{{ t('dashboard.apiCoverage.withSla') }}</span>
+                <div class="stat-bar-wrap">
+                  <div class="stat-bar stat-bar-warn" style="width: 61%"></div>
+                </div>
+                <span class="stat-pct">61%</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-label">{{ t('dashboard.apiCoverage.monitored') }}</span>
+                <div class="stat-bar-wrap">
+                  <div class="stat-bar" style="width: 78%"></div>
+                </div>
+                <span class="stat-pct">78%</span>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </div>
+
+    <mat-card class="toast-test-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>{{ t('dashboard.toastTest.title') }}</mat-card-title>
+        <mat-card-subtitle>{{ t('dashboard.toastTest.subtitle') }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="dialogs-btns">
+        <button mat-stroked-button class="toast-test-btn toast-test-btn--message" (click)="showToastMessage()">
+          <mat-icon>notifications</mat-icon>
+          {{ t('dashboard.toastTest.message') }}
+        </button>
+        <button mat-stroked-button class="toast-test-btn toast-test-btn--success" (click)="showToastSuccess()">
+          <mat-icon>check_circle</mat-icon>
+          {{ t('dashboard.toastTest.success') }}
+        </button>
+        <button mat-stroked-button class="toast-test-btn toast-test-btn--info" (click)="showToastInfo()">
+          <mat-icon>info</mat-icon>
+          {{ t('dashboard.toastTest.info') }}
+        </button>
+        <button mat-stroked-button class="toast-test-btn toast-test-btn--warn" (click)="showToastWarn()">
+          <mat-icon>warning</mat-icon>
+          {{ t('dashboard.toastTest.warn') }}
+        </button>
+        <button mat-stroked-button class="toast-test-btn toast-test-btn--error" (click)="showToastError()">
+          <mat-icon>error</mat-icon>
+          {{ t('dashboard.toastTest.error') }}
+        </button>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="dialogs-card" appearance="outlined">
+      <mat-card-header>
+        <mat-card-title>{{ t('dashboard.dialogTest.title') }}</mat-card-title>
+        <mat-card-subtitle>{{ t('dashboard.dialogTest.subtitle') }}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="dialogs-btns">
+        <button mat-stroked-button class="dlg-test-btn dlg-test-btn--info" (click)="showInfo()">
+          <mat-icon>info</mat-icon>
+          {{ t('dashboard.dialogTest.info') }}
+        </button>
+        <button mat-stroked-button class="dlg-test-btn dlg-test-btn--error" (click)="showError()">
+          <mat-icon>error</mat-icon>
+          {{ t('dashboard.dialogTest.error') }}
+        </button>
+        <button mat-stroked-button class="dlg-test-btn dlg-test-btn--question" (click)="showQuestion()">
+          <mat-icon>help</mat-icon>
+          {{ t('dashboard.dialogTest.question') }}
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</ng-container>

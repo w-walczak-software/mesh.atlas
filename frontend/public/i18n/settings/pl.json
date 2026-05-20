@@ -1,0 +1,9 @@
+{
+  "title": "Ustawienia",
+  "subtitle": "Konfiguracja aplikacji",
+  "language": {
+    "title": "Język",
+    "subtitle": "Wybierz język wyświetlania aplikacji",
+    "active": "Aktywny"
+  }
+}

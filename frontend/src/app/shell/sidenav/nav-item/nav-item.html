@@ -1,0 +1,51 @@
+<ng-container *transloco="let t; lang: lang()">
+  @if (hasChildren()) {
+    <button
+      class="nav-item parent"
+      [class.active]="isChildActive()"
+      [class.open]="expanded()"
+      [class.level-1]="level() === 1"
+      (click)="toggle()"
+      [attr.aria-expanded]="expanded()"
+      [matTooltip]="collapsed() ? t(item().label) : ''"
+      matTooltipPosition="right"
+      matRipple
+    >
+      <mat-icon class="nav-icon" aria-hidden="true">{{ item().icon }}</mat-icon>
+      @if (!collapsed()) {
+        <span class="nav-label">{{ t(item().label) }}</span>
+        <mat-icon class="expand-icon" aria-hidden="true">expand_more</mat-icon>
+      }
+    </button>
+
+    @if (!collapsed()) {
+      <div class="children-wrap" [class.open]="expanded()" aria-hidden="{{ !expanded() }}">
+        <ul class="children-inner" role="list">
+          @for (child of item().children; track child.id) {
+            <li role="listitem">
+              <app-nav-item [item]="child" [collapsed]="false" [level]="level() + 1" />
+            </li>
+          }
+        </ul>
+      </div>
+    }
+  } @else {
+    <a
+      class="nav-item leaf"
+      [class.level-1]="level() === 1"
+      [routerLink]="item().route"
+      routerLinkActive="active"
+      #rla="routerLinkActive"
+      [routerLinkActiveOptions]="{ exact: false }"
+      [attr.aria-current]="rla.isActive ? 'page' : null"
+      [matTooltip]="collapsed() ? t(item().label) : ''"
+      matTooltipPosition="right"
+      matRipple
+    >
+      <mat-icon class="nav-icon" aria-hidden="true">{{ item().icon }}</mat-icon>
+      @if (!collapsed()) {
+        <span class="nav-label">{{ t(item().label) }}</span>
+      }
+    </a>
+  }
+</ng-container>

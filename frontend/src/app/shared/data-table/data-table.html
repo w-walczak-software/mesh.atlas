@@ -1,0 +1,245 @@
+<div class="dt-wrapper">
+
+  <!-- Toolbar -->
+  <div class="dt-toolbar" [class.dt-toolbar--with-filter]="config().showFilter">
+    @if (config().showFilter) {
+      <div class="dt-filter-wrap">
+        <mat-icon class="dt-filter-icon">search</mat-icon>
+        <input
+          class="dt-filter-input"
+          type="text"
+          placeholder="Filter…"
+          [value]="rawFilter()"
+          (input)="onFilterInput($any($event.target).value)"
+          aria-label="Filter table"
+        />
+        @if (rawFilter()) {
+          <button class="dt-filter-clear" (click)="onFilterInput('')" aria-label="Clear filter">
+            <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+    }
+
+    <div class="dt-toolbar-actions">
+      <!-- Column visibility -->
+      <button mat-icon-button [matMenuTriggerFor]="colMenu" matTooltip="Column visibility" aria-label="Toggle column visibility">
+        <mat-icon>view_column</mat-icon>
+      </button>
+      <mat-menu #colMenu="matMenu" class="dt-col-menu">
+        @for (col of toggleableCols(); track col.key) {
+          <button mat-menu-item (click)="toggleColumnVisibility(col.key); $event.stopPropagation()">
+            <mat-icon>{{ isColumnVisible(col.key) ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+            <span>{{ col.label }}</span>
+          </button>
+        }
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Scrollable table container -->
+  <div class="dt-scroll">
+    <table class="dt-table" role="grid">
+      <thead class="dt-thead">
+        <tr class="dt-header-row">
+          @if (config().showCheckboxes) {
+            <th class="dt-th dt-th--check" scope="col">
+              <mat-checkbox
+                [checked]="allChecked()"
+                [indeterminate]="someChecked()"
+                (change)="toggleAll()"
+                aria-label="Select all rows"
+              />
+            </th>
+          }
+
+          @for (col of visibleColumns(); track col.key) {
+            <th
+              class="dt-th"
+              [class.dt-th--sortable]="col.sortable"
+              [class.dt-th--sorted]="isSortActive(col.key)"
+              [class.dt-th--drag-over]="isDragOver(col.key)"
+              [style.width]="col.width ?? ''"
+              scope="col"
+              [attr.aria-sort]="col.sortable ? (isSortActive(col.key) ? (sort().direction === 'asc' ? 'ascending' : 'descending') : 'none') : null"
+              draggable="true"
+              (dragstart)="onDragStart(col.key)"
+              (dragover)="onDragOver(col.key, $event)"
+              (drop)="onDrop(col.key)"
+              (dragend)="onDragEnd()"
+              (click)="sortBy(col.key)"
+            >
+              <span class="dt-th-inner">
+                <span class="dt-th-label">{{ col.label }}</span>
+                @if (col.sortable) {
+                  <mat-icon class="dt-sort-icon" [class.dt-sort-icon--active]="isSortActive(col.key)">
+                    {{ getSortIcon(col.key) }}
+                  </mat-icon>
+                }
+                <mat-icon class="dt-drag-handle" aria-hidden="true">drag_indicator</mat-icon>
+              </span>
+            </th>
+          }
+
+          @if (hasActions) {
+            <th class="dt-th dt-th--actions" scope="col">
+              <span class="dt-th-inner">
+                <span class="dt-th-label">{{ config().actionsLabel ?? '' }}</span>
+              </span>
+            </th>
+          }
+        </tr>
+      </thead>
+
+      <tbody class="dt-tbody">
+        @if (loading()) {
+          <tr class="dt-row dt-row--loading">
+            <td [attr.colspan]="colspanTotal()" class="dt-td dt-td--state">
+              <span class="dt-state-msg">Loading…</span>
+            </td>
+          </tr>
+        } @else if (!paginatedData().length) {
+          <tr class="dt-row dt-row--empty">
+            <td [attr.colspan]="colspanTotal()" class="dt-td dt-td--state">
+              <mat-icon>inbox</mat-icon>
+              <span class="dt-state-msg">No data</span>
+            </td>
+          </tr>
+        } @else {
+          @for (row of paginatedData(); track trackByRow($index, row)) {
+            <tr
+              class="dt-row"
+              [class.dt-row--selected]="isSelected(row)"
+              [class.dt-row--checked]="isChecked(row)"
+              [style]="getRowStyle(row)"
+              (click)="clickRow(row, $event)"
+              (dblclick)="dblClickRow(row)"
+              tabindex="0"
+              role="row"
+              [attr.aria-selected]="isSelected(row)"
+            >
+              @if (config().showCheckboxes) {
+                <td class="dt-td dt-td--check checkbox-cell" (click)="$event.stopPropagation()">
+                  <mat-checkbox
+                    [checked]="isChecked(row)"
+                    (change)="toggleCheck(row)"
+                    [attr.aria-label]="'Select row'"
+                  />
+                </td>
+              }
+              @for (col of visibleColumns(); track col.key) {
+                <td class="dt-td" [class]="col.cellClass ? col.cellClass(row) : ''">
+                  @let display = getDisplay(col, row);
+                  @if (display.icon; as icon) {
+                    <span
+                      class="dt-cell-icon"
+                      [class]="icon.colorClass ? 'dt-cell-icon--' + icon.colorClass : ''"
+                      [style]="icon.style ?? {}"
+                    >
+                      <mat-icon>{{ icon.name }}</mat-icon>
+                      @if (icon.label) {
+                        <span class="dt-cell-icon-label">{{ icon.label }}</span>
+                      }
+                    </span>
+                  } @else if (display.badge; as badge) {
+                    <span
+                      class="dt-badge"
+                      [class]="badge.colorClass ? 'dt-badge--' + badge.colorClass : ''"
+                      [style]="badge.style ?? {}"
+                    >{{ badge.label }}</span>
+                  } @else {
+                    {{ display.text }}
+                  }
+                </td>
+              }
+
+              @if (hasActions) {
+                <td class="dt-td dt-td--actions" (click)="$event.stopPropagation()">
+                  <button
+                    mat-icon-button
+                    class="dt-action-trigger"
+                    [matMenuTriggerFor]="rowMenu"
+                    aria-label="Row actions"
+                  >
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  <mat-menu #rowMenu="matMenu">
+                    @for (action of config().actions!; track action.label) {
+                      @if (isActionVisible(action, row)) {
+                        <button
+                          mat-menu-item
+                          class="dt-action-item"
+                          [class]="getActionColorClass(action)"
+                          [style]="getActionColorStyle(action)"
+                          [disabled]="isActionDisabled(action, row)"
+                          (click)="action.action(row)"
+                        >
+                          @if (action.icon) {
+                            <mat-icon>{{ action.icon }}</mat-icon>
+                          }
+                          <span>{{ action.label }}</span>
+                        </button>
+                      }
+                    }
+                  </mat-menu>
+                </td>
+              }
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Footer -->
+  <div class="dt-footer">
+    <span class="dt-row-count">
+      @if (totalItems() > 0) {
+        @if (hasPagination) {
+          {{ pageStart() }}–{{ pageEnd() }} of {{ totalItems() }} rows
+        } @else {
+          {{ totalItems() }} {{ totalItems() === 1 ? 'row' : 'rows' }}
+        }
+      } @else {
+        No rows
+      }
+    </span>
+
+    @if (hasPagination) {
+      <div class="dt-pagination">
+        <div class="dt-page-size">
+          <span class="dt-page-size-label">Rows per page:</span>
+          <button mat-button [matMenuTriggerFor]="sizeMenu" class="dt-page-size-btn">
+            {{ pageSize() }}
+            <mat-icon>arrow_drop_down</mat-icon>
+          </button>
+          <mat-menu #sizeMenu="matMenu">
+            @for (opt of pageSizeOptions; track opt) {
+              <button mat-menu-item (click)="setPageSize(opt)">{{ opt }}</button>
+            }
+          </mat-menu>
+        </div>
+
+        <div class="dt-page-nav">
+          <button
+            mat-icon-button
+            (click)="prevPage()"
+            [disabled]="pageIndex() === 0"
+            aria-label="Previous page"
+          >
+            <mat-icon>chevron_left</mat-icon>
+          </button>
+          <span class="dt-page-info">{{ pageIndex() + 1 }} / {{ totalPages() }}</span>
+          <button
+            mat-icon-button
+            (click)="nextPage()"
+            [disabled]="pageIndex() >= totalPages() - 1"
+            aria-label="Next page"
+          >
+            <mat-icon>chevron_right</mat-icon>
+          </button>
+        </div>
+      </div>
+    }
+  </div>
+</div>

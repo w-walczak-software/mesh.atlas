@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\DEV\\\\mesh-atlas.web\\\\mesh-atlas\\\\src\\\\app\")",
+      "Bash(dir \"C:\\\\DEV\\\\mesh-atlas.web\\\\mesh-atlas\")",
+      "Bash(dir *)",
+      "Bash(npm run *)",
+      "Bash(npm install *)",
+      "Bash(npm start *)",
+      "Bash(npx ng *)",
+      "Bash(Get-ChildItem -Path \"C:\\\\DEV\\\\mesh-atlas.web\\\\mesh-atlas\\\\src\" -Recurse -Include \"*.ts\", \"*.html\")",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "Bash(Sort-Object)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); build=d['projects']['mesh-atlas']['architect']['build']; print\\(json.dumps\\({'outputPath': build.get\\('options',{}\\).get\\('outputPath'\\), 'fileReplacements': build.get\\('configurations',{}\\)}, indent=2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./package.json'\\); const deps={...d.dependencies,...d.devDependencies}; console.log\\(JSON.stringify\\(Object.fromEntries\\(Object.entries\\(deps\\).filter\\(\\([k]\\)=>k.includes\\('keycloak'\\)||k.includes\\('@angular'\\)\\)\\),null,2\\)\\)\")",
+      "Bash(node -e \"const d=require\\('./angular.json'\\); const build=d.projects['mesh-atlas'].architect.build; console.log\\(JSON.stringify\\({configurations:Object.keys\\(build.configurations||{}\\), fileReplacements: build.configurations}, null,2\\)\\)\")",
+      "Bash(node -e \"console.log\\(require\\('./node_modules/keycloak-js/package.json'\\).version\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(grep -n \"setActiveLang\\\\|getActiveLang\\\\|langChanges\\\\|_lang\\\\b\\\\|lang\\\\$\" node_modules/@jsverse/transloco/fesm2022/jsverse-transloco.mjs)",
+      "Bash(Get-ChildItem -Recurse \"C:\\\\DEV\\\\mesh-atlas.web\\\\mesh-atlas\\\\public\\\\i18n\")",
+      "Bash(Select-Object FullName)",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('public/i18n/pl.json','utf8'\\)\\); console.log\\('OK'\\)\")",
+      "Bash(node -e 'JSON.parse\\(require\\('\\\\''fs'\\\\''\\).readFileSync\\('\\\\''__TRACKED_VAR__'\\\\'','\\\\''utf8'\\\\''\\)\\); console.log\\('\\\\''OK: __TRACKED_VAR__'\\\\''\\)')",
+      "Bash(node -e \"JSON.parse\\(require\\('fs'\\).readFileSync\\('public/i18n/dashboard/pl.json','utf8'\\)\\); console.log\\('OK: dashboard/pl.json'\\)\")"
+    ]
+  }
+}

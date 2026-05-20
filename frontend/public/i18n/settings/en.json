@@ -1,0 +1,9 @@
+{
+  "title": "Settings",
+  "subtitle": "Application configuration",
+  "language": {
+    "title": "Language",
+    "subtitle": "Choose the display language of the application",
+    "active": "Active"
+  }
+}

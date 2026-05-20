@@ -1,0 +1,18 @@
+<mat-sidenav-container class="shell-container" autosize>
+  <mat-sidenav
+    class="shell-sidenav"
+    [class.collapsed]="!isMobile() && state.collapsed()"
+    [mode]="isMobile() ? 'over' : 'side'"
+    [opened]="isMobile() ? state.mobileOpen() : true"
+    (openedChange)="isMobile() && state.mobileOpen.set($event)"
+  >
+    <app-sidenav [collapsed]="!isMobile() && state.collapsed()" />
+  </mat-sidenav>
+
+  <mat-sidenav-content class="shell-content">
+    <app-navbar (menuToggle)="onMenuToggle()" />
+    <main class="main-content">
+      <router-outlet />
+    </main>
+  </mat-sidenav-content>
+</mat-sidenav-container>

@@ -1,0 +1,79 @@
+<ng-container *transloco="let t; lang: lang()">
+  <header class="navbar" role="banner">
+    <div class="navbar-start">
+      <button
+        mat-icon-button
+        class="menu-btn"
+        (click)="menuToggle.emit()"
+        aria-label="Toggle navigation menu"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <div class="brand" aria-label="Mesh Atlas API Registry">
+        <div class="brand-icon" aria-hidden="true">
+          <mat-icon>hub</mat-icon>
+        </div>
+        <div class="brand-text">
+          <span class="brand-name">Mesh Atlas</span>
+          <span class="brand-tagline">API Registry</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="navbar-end">
+      <button
+        mat-icon-button
+        class="icon-btn"
+        (click)="theme.toggle()"
+        [matTooltip]="isDark() ? t('common.lightMode') : t('common.darkMode')"
+        matTooltipPosition="below"
+        [attr.aria-label]="isDark() ? t('common.lightMode') : t('common.darkMode')"
+      >
+        <mat-icon>{{ isDark() ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
+      @if (user(); as u) {
+        <button
+          mat-button
+          class="user-btn"
+          [matMenuTriggerFor]="userMenu"
+          [attr.aria-label]="'Account menu for ' + u.fullName"
+        >
+          <span class="user-btn-inner">
+            <span class="avatar" aria-hidden="true">{{ u.initials }}</span>
+            <span class="user-details" aria-hidden="true">
+              <span class="user-name">{{ u.fullName }}</span>
+              <span class="user-role">{{ u.roles[0] }}</span>
+            </span>
+            <mat-icon class="chevron" aria-hidden="true">expand_more</mat-icon>
+          </span>
+        </button>
+
+        <mat-menu #userMenu="matMenu" xPosition="before">
+          <div class="menu-header" mat-menu-item disabled>
+            <span class="menu-avatar">{{ u.initials }}</span>
+            <span class="menu-user-info">
+              <span class="menu-user-name">{{ u.fullName }}</span>
+              <span class="menu-user-email">{{ u.email }}</span>
+            </span>
+          </div>
+          <mat-divider />
+          <button mat-menu-item>
+            <mat-icon>person</mat-icon>
+            <span>{{ t('nav.profile') }}</span>
+          </button>
+          <button mat-menu-item (click)="router.navigate(['/settings'])">
+            <mat-icon>settings</mat-icon>
+            <span>{{ t('nav.settings') }}</span>
+          </button>
+          <mat-divider />
+          <button mat-menu-item class="logout-btn" (click)="auth.logout()">
+            <mat-icon>logout</mat-icon>
+            <span>{{ t('nav.logout') }}</span>
+          </button>
+        </mat-menu>
+      }
+    </div>
+  </header>
+</ng-container>

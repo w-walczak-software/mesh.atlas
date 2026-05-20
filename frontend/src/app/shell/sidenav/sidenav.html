@@ -1,0 +1,23 @@
+<nav
+  class="sidenav"
+  [class.collapsed]="collapsed()"
+  aria-label="Main navigation"
+>
+  <ul class="nav-list" role="list">
+    @for (item of items(); track item.id) {
+      <li role="listitem">
+        <app-nav-item [item]="item" [collapsed]="collapsed()" />
+      </li>
+    }
+  </ul>
+
+  <div class="sidenav-footer">
+    <div class="version-badge">
+      @if (!collapsed()) {
+        <span class="version-text">Mesh Atlas v1.0</span>
+      } @else {
+        <span class="version-dot" aria-hidden="true"></span>
+      }
+    </div>
+  </div>
+</nav>

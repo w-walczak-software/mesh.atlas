@@ -1,0 +1,143 @@
+.settings {
+  padding: 28px 32px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}
+
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 480px;
+}
+
+.settings-card {
+  mat-card-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 20px 20px 16px !important;
+  }
+
+  mat-card-content {
+    padding: 0 20px 20px !important;
+  }
+}
+
+.card-icon-wrap {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: var(--mat-sys-primary-container);
+  color: var(--mat-sys-on-primary-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+// Language list
+.lang-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.lang-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface);
+  cursor: pointer;
+  transition: background 120ms ease, border-color 120ms ease;
+  width: 100%;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    background: var(--mat-sys-surface-container-low);
+    border-color: var(--mat-sys-outline);
+  }
+
+  &--active {
+    border-color: var(--mat-sys-primary);
+    background: color-mix(in srgb, var(--mat-sys-primary-container) 35%, var(--mat-sys-surface));
+
+    &:hover {
+      background: color-mix(in srgb, var(--mat-sys-primary-container) 50%, var(--mat-sys-surface));
+    }
+  }
+}
+
+.lang-flag {
+  border-radius: 4px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.lang-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lang-native {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  line-height: 1.3;
+}
+
+.lang-label {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.lang-active-badge {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--mat-sys-on-primary-container);
+  background: var(--mat-sys-primary-container);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.lang-check {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-primary);
+  flex-shrink: 0;
+}

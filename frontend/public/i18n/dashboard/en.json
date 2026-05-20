@@ -1,0 +1,90 @@
+{
+  "title": "Dashboard",
+  "subtitle": "Overview of your API Registry platform",
+  "exportReport": "Export Report",
+  "registerApi": "Register API",
+  "recentApis": {
+    "title": "Recent APIs",
+    "subtitle": "Latest registered and updated APIs"
+  },
+  "platformHealth": {
+    "title": "Platform Health",
+    "gateway": "Gateway Services",
+    "registry": "Registry API",
+    "audit": "Audit Service",
+    "auth": "Auth Provider",
+    "operational": "Operational",
+    "degraded": "Degraded"
+  },
+  "apiCoverage": {
+    "title": "API Coverage",
+    "documented": "Documented",
+    "versioned": "Versioned",
+    "withSla": "With SLA",
+    "monitored": "Monitored"
+  },
+  "kpi": {
+    "registeredApis": "Registered APIs",
+    "activeEnvironments": "Active Environments",
+    "apiConsumers": "API Consumers",
+    "deprecatedApis": "Deprecated APIs"
+  },
+  "table": {
+    "apiName": "API Name",
+    "version": "Version",
+    "environment": "Environment",
+    "status": "Status",
+    "traffic": "Traffic"
+  },
+  "actions": {
+    "rowSelected": "Row selected",
+    "apiDetails": "API Details",
+    "apiDetailsBody": "Name: {{ name }}\nVersion: {{ version }}\nEnvironment: {{ environment }}\nStatus: {{ status }}\nCalls: {{ calls }}",
+    "view": "View details",
+    "edit": "Edit",
+    "editOpening": "Opening editor for {{ name }}",
+    "deprecate": "Deprecate",
+    "deprecateTitle": "Deprecate API",
+    "deprecateConfirm": "Mark \"{{ name }}\" as deprecated? Existing consumers will still have access.",
+    "deprecatedTitle": "Deprecated",
+    "deprecatedMsg": "{{ name }} has been deprecated.",
+    "delete": "Delete",
+    "deleteTitle": "Delete API",
+    "deleteConfirm": "Permanently delete \"{{ name }}\"? This cannot be undone.",
+    "deletedTitle": "Deleted",
+    "deletedMsg": "{{ name }} has been removed."
+  },
+  "toastTest": {
+    "title": "Toast Components",
+    "subtitle": "Notifications — top right corner",
+    "message": "Message",
+    "success": "Success",
+    "info": "Info",
+    "warn": "Warning",
+    "error": "Error",
+    "demo": {
+      "message":  { "title": "New message",          "body": "You received a new system notification." },
+      "success":  { "title": "Saved successfully",   "body": "API \"Payments Gateway v3.1.0\" has been updated." },
+      "info":     { "title": "Update available",     "body": "A new version of the API registry is ready to deploy." },
+      "warn":     { "title": "Expiration approaching","body": "Access token will expire in 15 minutes." },
+      "error":    { "title": "Sync error",           "body": "Failed to fetch data from the gateway. Please retry." }
+    }
+  },
+  "dialogTest": {
+    "title": "Dialog Components",
+    "subtitle": "Interactive dialog windows",
+    "info": "Information",
+    "error": "Error",
+    "question": "Question",
+    "demo": {
+      "info":     { "title": "Operation completed",  "body": "API \"Payments Gateway v3.1.0\" has been successfully registered in Mesh Atlas." },
+      "error":    { "title": "Connection error",     "body": "Cannot connect to the API gateway. Check network settings and try again." },
+      "question": {
+        "title": "Delete API",
+        "body":  "Are you sure you want to delete \"Payments Gateway v3.1.0\"? This cannot be undone.",
+        "deletedTitle": "Deleted",
+        "deletedBody":  "API has been removed from the registry."
+      }
+    }
+  }
+}

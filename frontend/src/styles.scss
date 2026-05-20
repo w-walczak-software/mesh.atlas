@@ -1,0 +1,339 @@
+@use '@angular/material' as mat;
+
+html {
+  height: 100%;
+  color-scheme: light;
+
+  @include mat.theme((
+    color: (
+      theme-type: light,
+      primary: mat.$violet-palette,
+      secondary: mat.$azure-palette,
+    ),
+    typography: Inter,
+    density: 0,
+  ));
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  @include mat.theme((
+    color: (
+      theme-type: dark,
+      primary: mat.$violet-palette,
+      secondary: mat.$azure-palette,
+    ),
+    typography: Inter,
+    density: 0,
+  ));
+}
+
+body {
+  background-color: var(--mat-sys-surface);
+  color: var(--mat-sys-on-surface);
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  height: 100%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+// Material Symbols Outlined mapping
+.mat-icon {
+  font-family: 'Material Symbols Outlined' !important;
+  font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+  font-size: 20px;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  user-select: none;
+  -webkit-font-feature-settings: 'liga';
+  font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+}
+
+// Smooth theme transition
+body,
+body * {
+  transition:
+    background-color 150ms ease,
+    color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease;
+}
+
+// === Toast custom color tokens ===
+:root {
+  --toast-success: #43a047;
+  --toast-success-bg: rgba(67, 160, 71, 0.12);
+  --toast-warn: #e65100;
+  --toast-warn-bg: rgba(230, 81, 0, 0.1);
+}
+
+html[data-theme='dark'] {
+  --toast-success: #81c784;
+  --toast-success-bg: rgba(129, 199, 132, 0.12);
+  --toast-warn: #ffb74d;
+  --toast-warn-bg: rgba(255, 183, 77, 0.1);
+}
+
+// === Toast layout ===
+.toast-container {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  z-index: 2000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: none;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+}
+
+.ti {
+  pointer-events: all;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 10px 17px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-left: 4px solid transparent;
+  background: color-mix(in srgb, var(--mat-sys-surface-container-high) 88%, transparent);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 1px 4px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+.ti-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+
+  .mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.ti-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding-top: 3px;
+}
+
+.ti-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  line-height: 1.3;
+}
+
+.ti-message {
+  margin: 0;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  line-height: 1.55;
+}
+
+.ti-close {
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mat-sys-on-surface-variant);
+  margin-top: 1px;
+  transition: background 150ms ease, color 150ms ease;
+
+  &:hover {
+    background: var(--mat-sys-surface-variant);
+    color: var(--mat-sys-on-surface);
+  }
+
+  .mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.ti-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  transform-origin: left;
+  animation: ti-shrink linear forwards;
+}
+
+@keyframes ti-shrink {
+  from { transform: scaleX(1); }
+  to   { transform: scaleX(0); }
+}
+
+// Type variants
+.ti--message {
+  border-left-color: var(--mat-sys-secondary);
+
+  .ti-icon {
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
+  }
+
+  .ti-progress { background: var(--mat-sys-secondary); }
+}
+
+.ti--success {
+  border-left-color: var(--toast-success);
+
+  .ti-icon {
+    background: var(--toast-success-bg);
+    color: var(--toast-success);
+  }
+
+  .ti-progress { background: var(--toast-success); }
+}
+
+.ti--info {
+  border-left-color: var(--mat-sys-primary);
+
+  .ti-icon {
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+  }
+
+  .ti-progress { background: var(--mat-sys-primary); }
+}
+
+.ti--warn {
+  border-left-color: var(--toast-warn);
+
+  .ti-icon {
+    background: var(--toast-warn-bg);
+    color: var(--toast-warn);
+  }
+
+  .ti-progress { background: var(--toast-warn); }
+}
+
+.ti--error {
+  border-left-color: var(--mat-sys-error);
+
+  .ti-icon {
+    background: var(--mat-sys-error-container);
+    color: var(--mat-sys-on-error-container);
+  }
+
+  .ti-progress { background: var(--mat-sys-error); }
+}
+
+// === Dialogs ===
+.dlg-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px 16px 24px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  h2.mat-mdc-dialog-title {
+    flex: 1;
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--mat-sys-on-surface);
+
+    &::before { display: none; }
+  }
+}
+
+.dlg-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+
+  .mat-icon {
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
+  }
+}
+
+.dlg-close {
+  flex-shrink: 0;
+  color: var(--mat-sys-on-surface-variant);
+  margin-right: -4px;
+}
+
+.mat-mdc-dialog-content.dlg-body {
+  padding: 20px 24px;
+  max-height: 60vh;
+}
+
+.dlg-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--mat-sys-on-surface-variant);
+  white-space: pre-line;
+}
+
+.mat-mdc-dialog-actions.dlg-actions {
+  padding: 8px 24px 20px;
+  min-height: unset;
+  gap: 8px;
+}
+
+// Global scrollbar
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--mat-sys-outline-variant);
+  border-radius: 3px;
+
+  &:hover {
+    background: var(--mat-sys-outline);
+  }
+}

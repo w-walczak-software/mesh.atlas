@@ -1,0 +1,51 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.sidenav {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  padding-top: 8px;
+}
+
+.nav-list {
+  flex: 1;
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidenav-footer {
+  flex-shrink: 0;
+  padding: 12px 8px;
+  border-top: 1px solid var(--mat-sys-outline-variant);
+}
+
+.version-badge {
+  display: flex;
+  justify-content: center;
+}
+
+.version-text {
+  font-size: 10px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  opacity: 0.6;
+  white-space: nowrap;
+}
+
+.version-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--mat-sys-outline-variant);
+  display: block;
+}

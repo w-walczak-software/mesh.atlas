@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "settings": "Ustawienia",
+    "logout": "Wyloguj",
+    "profile": "Mój profil",
+    "menu": {
+      "dashboard": "Panel główny",
+      "apis": "Rejestr API",
+      "apisAll": "Wszystkie API",
+      "apisVersions": "Wersje",
+      "apisConsumers": "Konsumenci",
+      "environments": "Środowiska",
+      "envList": "Wszystkie środowiska",
+      "envGateways": "Bramki",
+      "subscriptions": "Subskrypcje",
+      "analytics": "Analityka",
+      "analyticsUsage": "Użycie API",
+      "analyticsPerf": "Wydajność",
+      "dictionaries": "Słowniki",
+      "dictDocTypes": "Typy dokumentów",
+      "dictDomains": "Domeny",
+      "dictCategories": "Kategorie",
+      "admin": "Administracja",
+      "adminUsers": "Użytkownicy",
+      "adminRoles": "Role i uprawnienia",
+      "adminAudit": "Dziennik audytu"
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Anuluj",
+    "close": "Zamknij",
+    "save": "Zapisz",
+    "yes": "Tak",
+    "no": "Nie",
+    "loading": "Ładowanie…",
+    "noData": "Brak danych",
+    "viewAll": "Zobacz wszystkie",
+    "lightMode": "Przełącz na jasny motyw",
+    "darkMode": "Przełącz na ciemny motyw"
+  },
+  "errors": {
+    "default": "Wystąpił nieoczekiwany błąd.",
+    "network": "Błąd sieci. Sprawdź połączenie internetowe.",
+    "unauthorized": "Nie masz uprawnień do wykonania tej operacji.",
+    "forbidden": "Dostęp zabroniony.",
+    "notFound": "Żądany zasób nie został znaleziony.",
+    "conflict": "Wystąpił konflikt. Zasób mógł zostać zmodyfikowany.",
+    "validation": "Sprawdź formularz pod kątem błędów.",
+    "timeout": "Przekroczono czas oczekiwania. Spróbuj ponownie.",
+    "serverError": "Błąd serwera. Spróbuj ponownie później."
+  }
+}

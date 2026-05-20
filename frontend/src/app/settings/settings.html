@@ -1,0 +1,55 @@
+<ng-container *transloco="let t; scope: 'settings'; lang: activeLang()">
+  <div class="settings">
+    <div class="page-header">
+      <div class="page-title">
+        <h1 class="title">{{ t('settings.title') }}</h1>
+        <p class="subtitle">{{ t('settings.subtitle') }}</p>
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <mat-card appearance="outlined" class="settings-card">
+        <mat-card-header>
+          <div class="card-icon-wrap">
+            <mat-icon>language</mat-icon>
+          </div>
+          <div>
+            <mat-card-title>{{ t('settings.language.title') }}</mat-card-title>
+            <mat-card-subtitle>{{ t('settings.language.subtitle') }}</mat-card-subtitle>
+          </div>
+        </mat-card-header>
+        <mat-card-content>
+          <div class="lang-list" role="listbox" [attr.aria-label]="t('settings.language.title')">
+            @for (lang of languages; track lang.code) {
+              <button
+                class="lang-option"
+                [class.lang-option--active]="activeLang() === lang.code"
+                role="option"
+                [attr.aria-selected]="activeLang() === lang.code"
+                (click)="setLanguage(lang.code)"
+                matRipple
+              >
+                <img
+                  [ngSrc]="lang.flag"
+                  width="36"
+                  height="26"
+                  [alt]="lang.nativeLabel"
+                  class="lang-flag"
+                  priority
+                />
+                <div class="lang-info">
+                  <span class="lang-native">{{ lang.nativeLabel }}</span>
+                  <span class="lang-label">{{ lang.label }}</span>
+                </div>
+                @if (activeLang() === lang.code) {
+                  <span class="lang-active-badge">{{ t('settings.language.active') }}</span>
+                  <mat-icon class="lang-check">check_circle</mat-icon>
+                }
+              </button>
+            }
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</ng-container>

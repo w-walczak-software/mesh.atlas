@@ -1,0 +1,53 @@
+{
+  "nav": {
+    "settings": "Settings",
+    "logout": "Sign out",
+    "profile": "My Profile",
+    "menu": {
+      "dashboard": "Dashboard",
+      "apis": "API Registry",
+      "apisAll": "All APIs",
+      "apisVersions": "Versions",
+      "apisConsumers": "Consumers",
+      "environments": "Environments",
+      "envList": "All Environments",
+      "envGateways": "Gateways",
+      "subscriptions": "Subscriptions",
+      "analytics": "Analytics",
+      "analyticsUsage": "API Usage",
+      "analyticsPerf": "Performance",
+      "dictionaries": "Dictionaries",
+      "dictDocTypes": "Document Types",
+      "dictDomains": "Domains",
+      "dictCategories": "Categories",
+      "admin": "Administration",
+      "adminUsers": "Users",
+      "adminRoles": "Roles & Permissions",
+      "adminAudit": "Audit Log"
+    }
+  },
+  "common": {
+    "ok": "OK",
+    "cancel": "Cancel",
+    "close": "Close",
+    "save": "Save",
+    "yes": "Yes",
+    "no": "No",
+    "loading": "Loading…",
+    "noData": "No data",
+    "viewAll": "View all",
+    "lightMode": "Switch to light mode",
+    "darkMode": "Switch to dark mode"
+  },
+  "errors": {
+    "default": "An unexpected error occurred.",
+    "network": "Network error. Please check your connection.",
+    "unauthorized": "You are not authorized to perform this action.",
+    "forbidden": "Access denied.",
+    "notFound": "The requested resource was not found.",
+    "conflict": "A conflict occurred. The resource may have been modified.",
+    "validation": "Please check the form for errors.",
+    "timeout": "The request timed out. Please try again.",
+    "serverError": "A server error occurred. Please try again later."
+  }
+}
