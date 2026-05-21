@@ -32,7 +32,7 @@ The platform is **NOT** a CMDB, infrastructure inventory tool, or runtime monito
 | Testing (BE) | H2 in-memory, Spring Boot Test |
 | Testing (FE) | vitest |
 
-Architecture: modular monolith → evolutionary DDD, hexagonal where appropriate, metadata-driven.
+Architecture: modular monolith → evolutionary DDD, clean architecture, hexagonal where appropriate, metadata-driven.
 
 ---
 
@@ -110,9 +110,19 @@ Backend trusts Keycloak via `classpath:certs/ca.crt`. SSL keystore is `classpath
 ```
 pl.com.ww.mesh.atlas/
 ├── Application.java
-├── api/              # REST controllers, organized by domain slice
-│   └── hello/        # Example: HelloController
+├── dictionary/ #business package
+    └── api/ #REST controllers
+    └── application/
+        └── dto/  #dtos, request response dtos
+        └── mapper/  #mapstruct mappers
+        └── service/   #services                  
+    └── domain/   
+        └── model/ #entities
+        └── validation/ #validators            
+    └── infrastructure/  
+        └── persistance/ #jpa repositories    
 ├── config/           # Spring @Configuration classes
+└── global/ #global domain classes, advisors, handlers, exceptions
 └── security/
     └── auth/
         ├── AuthenticatedUser.java        # Record: id, email, username, roles
@@ -139,6 +149,34 @@ Flyway scripts live in `backend/src/main/resources/db/migration/`.
 Naming convention: `V0.XXXX__YYYYMMDD_description.sql` (e.g. `V0.0001__20260520_dictionary_framework.sql`).  
 Schema: `atlas`. All tables use UUIDs (`gen_random_uuid()`), explicit constraints, and FK indexes.
 
+## Entity Base Class
+
+All business entities extend `AuditableEntity`, which provides:
+- `version` (optimistic lock via `@Version`)
+- `createdAt`, `createdBy`, `updatedAt`, `updatedBy` (via Spring Data JPA `@EntityListeners(AuditingEntityListener.class)`)
+
+`JpaAuditingConfig` enables auditing globally. Entities use UUID PKs generated with `@GeneratedValue` and `@UuidGenerator`.
+
+## Exception Hierarchy
+
+```
+AtlasException (base, RuntimeException)
+├── AtlasDataNotFoundException   → 404
+├── AtlasDataFoundException      → 400
+├── AtlasDuplicateCodeException  → 409
+└── AtlasModificationException   → 400 (e.g., modifying system-defined entries)
+```
+
+`GlobalExceptionHandler` (`@RestControllerAdvice`) maps all these to RFC 7807 `ProblemDetail` responses. Always throw the appropriate domain exception from services — never return error DTOs or catch-and-swallow.
+
+## Soft Delete Convention
+
+Business data is never physically deleted. Services expose a `deactivate(UUID id)` method that sets `active = false`. Controllers map this to `DELETE /resource/{id}`. The repository provides filtered queries (`findAllByActive(boolean, Pageable)`).
+
+## MapStruct Update Mapping
+
+Update mappers must `@Mapping(target = "id", ignore = true)`, `@Mapping(target = "code", ignore = true)`, and `@Mapping(target = "systemDefined", ignore = true)` — these fields are immutable after creation.
+
 ## Testing
 
 Tests use H2 in-memory (Flyway disabled). Config in `backend/src/test/resources/application.properties`. Add `@SpringBootTest` or `@DataJpaTest` slices as appropriate.
@@ -161,8 +199,9 @@ Entries support: soft delete (`active`), display ordering, JSONB `metadata`, aud
 - **NEVER** use `@Enumerated(EnumType.STRING)` for business dictionaries.
 - **NEVER** create dedicated tables per dictionary type.
 - Business entities reference `DictionaryEntryEntity` via `@ManyToOne`.
-- Validate dictionary type correctness with `@DictionaryType(dictionaryCode = "SYSTEM_STATUS")`.
+- Validate dictionary type correctness on DTO fields with `@DictionaryType(dictionaryCode = "SYSTEM_STATUS")` (custom constraint in `dictionary/domain/validation/`).
 - Enums are only for internal technical constants (e.g. `AtlasRole`).
+- `metadata` column is JSONB — use for type-specific extended attributes without schema changes.
 
 ---
 
@@ -207,7 +246,13 @@ frontend/src/app/
 
 ## i18n
 
-Transloco handles translations (en/pl). Translations loaded via `TranslocoHttpLoader`. Language persisted in `localStorage` under key `lang`.
+Transloco handles translations (en/pl). Translations loaded via `TranslocoHttpLoader` from `assets/i18n/{lang}.json`. Language persisted in `localStorage` under key `lang`.
+
+## Shared UI Utilities
+
+- `ToastService` — `success()`, `info()`, `warn()`, `error()` — use for all user-facing feedback; never `alert()` or `console.log()`.
+- `DialogService` — `info()`, `error()`, `question()` — use for confirmations and error display.
+- `DataTableComponent` — reusable paginated table; use for all list views.
 
 ---
 
