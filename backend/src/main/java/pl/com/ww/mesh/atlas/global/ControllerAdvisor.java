@@ -1,6 +1,5 @@
 package pl.com.ww.mesh.atlas.global;
 
-
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,10 +7,8 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasDataFoundException;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasDataNotFoundException;
 import pl.com.ww.mesh.atlas.global.domain.exception.AtlasException;
-import pl.com.ww.mesh.atlas.global.domain.exception.UserNotFoundException;
+import pl.com.ww.mesh.atlas.security.auth.exception.UserNotFoundException;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -20,26 +17,8 @@ import java.util.Map;
 public class ControllerAdvisor {
     private static final String MESSAGE = "message";
     private static final String CODE = "code";
+    private static final String CONTEXT = "context";
 
-    @ExceptionHandler(AtlasDataFoundException.class)
-    public ResponseEntity<Object> handleFoundException(AtlasDataFoundException ex, WebRequest request) {
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put(MESSAGE, ex.getMessage());
-        body.put(CODE, ex.getTittle());
-
-        return new ResponseEntity<>(body, HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(AtlasDataNotFoundException.class)
-    public ResponseEntity<Object> handleNotFoundException(AtlasDataNotFoundException ex, WebRequest request) {
-
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put(MESSAGE, ex.getMessage());
-        body.put(CODE, ex.getTittle());
-
-        return new ResponseEntity<>(body, HttpStatus.NOT_FOUND);
-    }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<Object> handleDataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
@@ -56,9 +35,10 @@ public class ControllerAdvisor {
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put(MESSAGE, ex.getMessage());
-        body.put(CODE, ex.getTittle());
+        body.put(CODE, ex.getKey());
+        body.put(CONTEXT, ex.getContext());
 
-        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(body, ex.getStatus());
     }
 
     @ExceptionHandler(UserNotFoundException.class)

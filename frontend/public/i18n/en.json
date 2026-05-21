@@ -49,5 +49,8 @@
     "validation": "Please check the form for errors.",
     "timeout": "The request timed out. Please try again.",
     "serverError": "A server error occurred. Please try again later."
+  },
+  "dict": {
+    "notFound": "Dictionary not found."
   }
 }

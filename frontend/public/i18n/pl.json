@@ -49,5 +49,8 @@
     "validation": "Sprawdź formularz pod kątem błędów.",
     "timeout": "Przekroczono czas oczekiwania. Spróbuj ponownie.",
     "serverError": "Błąd serwera. Spróbuj ponownie później."
+  },
+  "dict": {
+    "notFound": "Słownik nie został znaleziony."
   }
 }

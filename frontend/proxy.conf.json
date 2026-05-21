@@ -1,7 +1,7 @@
 {
   "/atlas": {
     "target": "https://api.atlas.ww.local:8888",
-    "secure": true,
+    "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"
   }

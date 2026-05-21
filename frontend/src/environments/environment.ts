@@ -1,8 +1,9 @@
 export const environment = {
   production: false,
+  APIUrl: '/atlas',
   keycloak: {
     url: 'https://keycloak.ww.local:8443',
     realm: 'atlas',
-    clientId: 'mesh.altas.web',
+    clientId: 'mesh.atlas.web',
   },
 };

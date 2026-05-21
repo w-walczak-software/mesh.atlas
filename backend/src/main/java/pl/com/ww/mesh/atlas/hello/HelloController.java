@@ -8,14 +8,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasDataNotFoundException;
+import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryNotFoundException;
 import pl.com.ww.mesh.atlas.security.auth.UserContextService;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
 
 @Slf4j
 @RestController()
-@RequestMapping("/hello")
+@RequestMapping("/api/hello")
 @RequiredArgsConstructor
 public class HelloController {
 
@@ -34,7 +34,11 @@ public class HelloController {
     public String sayHello2(@PathVariable @NotNull @Validated String name) {
         var user = userContextService.getCurrentUser();
         log.info(user.id());
-        throw new AtlasDataNotFoundException("test.not.found");
+        try {
+            Thread.sleep(5000);
+        } catch (InterruptedException e) {
+        }
+        throw new AtlasDictionaryNotFoundException(name);
     }
 
 }

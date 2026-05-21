@@ -2,6 +2,7 @@ import { ApplicationConfig, APP_INITIALIZER, isDevMode, provideBrowserGlobalErro
 import { provideRouter, withComponentInputBinding } from '@angular/router';
 import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/auth/auth.interceptor';
+import { apiInterceptor } from './core/http/api.interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { provideTransloco } from '@jsverse/transloco';
 import { routes } from './app.routes';
@@ -16,7 +17,7 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes, withComponentInputBinding()),
-    provideHttpClient(withFetch(), withInterceptors([authInterceptor])),
+    provideHttpClient(withFetch(), withInterceptors([authInterceptor, apiInterceptor])),
     provideAnimationsAsync(),
     provideTransloco({
       config: {

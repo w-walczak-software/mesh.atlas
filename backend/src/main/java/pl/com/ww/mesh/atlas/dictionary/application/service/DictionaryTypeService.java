@@ -10,9 +10,9 @@ import pl.com.ww.mesh.atlas.dictionary.infrastructure.persistance.DictionaryType
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryTypeCreateRequest;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryTypeDto;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryTypeUpdateRequest;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasDataNotFoundException;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasDuplicateCodeException;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasModificationException;
+import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryNotFoundException;
+import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryDuplicateCodeException;
+import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryModificationException;
 import pl.com.ww.mesh.atlas.dictionary.application.mapper.DictionaryTypeMapper;
 
 import java.util.UUID;
@@ -36,20 +36,20 @@ public class DictionaryTypeService {
     public DictionaryTypeDto findById(UUID id) {
         return repository.findById(id)
                 .map(mapper::map)
-                .orElseThrow(() -> new AtlasDataNotFoundException("dic.type.not.found"));
+                .orElseThrow(() -> new AtlasDictionaryNotFoundException(id.toString()));
     }
 
     @Transactional(readOnly = true)
     public DictionaryTypeDto findByCode(String code) {
         return repository.findByCode(code)
                 .map(mapper::map)
-                .orElseThrow(() -> new AtlasDataNotFoundException("dic.type.not.found"));
+                .orElseThrow(() -> new AtlasDictionaryNotFoundException(code));
     }
 
     @Transactional
     public DictionaryTypeDto create(DictionaryTypeCreateRequest request) {
         if (repository.existsByCode(request.code())) {
-            throw new AtlasDuplicateCodeException("dic.type.found");
+            throw new AtlasDictionaryDuplicateCodeException(request.code());
         }
         DictionaryTypeEntity entity = mapper.map(request);
         return mapper.map(repository.save(entity));
@@ -58,7 +58,7 @@ public class DictionaryTypeService {
     @Transactional
     public DictionaryTypeDto update(UUID id, DictionaryTypeUpdateRequest request) {
         DictionaryTypeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new AtlasDataNotFoundException("dic.type.not.found"));
+                .orElseThrow(() -> new AtlasDictionaryNotFoundException(id.toString()));
         mapper.updateEntity(request, entity);
         return mapper.map(repository.save(entity));
     }
@@ -66,9 +66,9 @@ public class DictionaryTypeService {
     @Transactional
     public void deactivate(UUID id) {
         DictionaryTypeEntity entity = repository.findById(id)
-                .orElseThrow(() -> new AtlasDataNotFoundException("dic.type.not.found"));
+                .orElseThrow(() -> new AtlasDictionaryNotFoundException(id.toString()));
         if (entity.isSystemDefined()) {
-            throw new AtlasModificationException("dic.type.system.def.mod");
+            throw new AtlasDictionaryModificationException("SYSTEM defined");
         }
         entity.setActive(false);
         repository.save(entity);

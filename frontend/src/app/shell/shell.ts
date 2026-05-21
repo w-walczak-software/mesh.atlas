@@ -5,12 +5,13 @@ import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { map } from 'rxjs';
 import { ShellStateService } from '../shared/services/shell-state.service';
+import { LoadingOverlay } from '../shared/loading/loading-overlay';
 import { Navbar } from './navbar/navbar';
 import { Sidenav } from './sidenav/sidenav';
 
 @Component({
   selector: 'app-shell',
-  imports: [RouterOutlet, MatSidenavModule, Navbar, Sidenav],
+  imports: [RouterOutlet, MatSidenavModule, Navbar, Sidenav, LoadingOverlay],
   templateUrl: './shell.html',
   styleUrl: './shell.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
