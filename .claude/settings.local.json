@@ -8,7 +8,15 @@
       "Bash(Get-ChildItem -Path \"C:\\\\DEV\\\\mesh-atlas\" -Force)",
       "Bash(Select-Object Name, PSIsContainer)",
       "Bash(Format-Table -AutoSize)",
-      "Bash(Get-ChildItem *)"
+      "Bash(Get-ChildItem *)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(Get-ChildItem -Path \"C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\src\\\\app\\\\shared\\\\navigation\" -File 2>$null | ForEach-Object { $_.FullName })",
+      "Bash(grep *)",
+      "Bash(node -e \"const {toCamelCase} = require\\('/c/DEV/mesh-atlas/frontend/node_modules/@jsverse/utils'\\); console.log\\(toCamelCase\\('dictionary'\\)\\)\")",
+      "Bash(node -e \"const {toCamelCase} = require\\('C:/DEV/mesh-atlas/frontend/node_modules/@jsverse/utils'\\); console.log\\(toCamelCase\\('dictionary'\\)\\)\")",
+      "Bash(npx tsc *)",
+      "Bash(python3 *)",
+      "Bash(node *)"
     ]
   }
 }

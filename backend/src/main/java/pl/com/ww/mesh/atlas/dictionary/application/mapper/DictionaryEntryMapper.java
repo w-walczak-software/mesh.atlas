@@ -18,6 +18,7 @@ public interface DictionaryEntryMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "dictionaryType", ignore = true)
     @Mapping(target = "active", constant = "true")
+    @Mapping(target = "systemDefined", constant = "false")
     DictionaryEntryEntity map(DictionaryEntryCreateRequest request);
 
     @Mapping(target = "id", ignore = true)

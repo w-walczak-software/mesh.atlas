@@ -1,0 +1,17 @@
+<ng-container *transloco="let t; scope: 'dictionary'; lang: lang()">
+  <div class="dict-page">
+    <div class="page-header">
+      <div class="page-title">
+        <h1 class="title">{{ t('dictionary.page.types.title') }}</h1>
+        <p class="subtitle">{{ t('dictionary.page.types.subtitle') }}</p>
+      </div>
+    </div>
+
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+</ng-container>

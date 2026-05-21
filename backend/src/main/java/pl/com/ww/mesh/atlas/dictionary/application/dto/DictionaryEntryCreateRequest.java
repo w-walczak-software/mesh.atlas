@@ -21,7 +21,5 @@ public record DictionaryEntryCreateRequest(
         @Min(0)
         int displayOrder,
 
-        boolean systemDefined,
-
         Map<String, Object> metadata
 ) {}

@@ -37,7 +37,32 @@
     "noData": "Brak danych",
     "viewAll": "Zobacz wszystkie",
     "lightMode": "Przełącz na jasny motyw",
-    "darkMode": "Przełącz na ciemny motyw"
+    "darkMode": "Przełącz na ciemny motyw",
+    "validation": {
+      "required": "To pole jest wymagane.",
+      "maxlength": "Przekroczono maksymalną długość {{ max }} znaków.",
+      "min": "Minimalna wartość wynosi {{ min }}."
+    },
+    "error": {
+      "unexpected": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie."
+    },
+    "table": {
+      "filterPlaceholder": "Filtruj…",
+      "filterAriaLabel": "Filtruj tabelę",
+      "filterClear": "Wyczyść filtr",
+      "loading": "Ładowanie…",
+      "noData": "Brak danych",
+      "noRows": "Brak wierszy",
+      "rowCount": "{{ count }} wierszy",
+      "rowRange": "{{ from }}–{{ to }} z {{ total }} wierszy",
+      "rowsPerPage": "Wierszy na stronę:",
+      "columnVisibility": "Widoczność kolumn",
+      "prevPage": "Poprzednia strona",
+      "nextPage": "Następna strona",
+      "selectAll": "Zaznacz wszystkie wiersze",
+      "selectRow": "Zaznacz wiersz",
+      "rowActions": "Akcje wiersza"
+    }
   },
   "errors": {
     "default": "Wystąpił nieoczekiwany błąd.",

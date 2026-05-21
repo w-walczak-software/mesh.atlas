@@ -1,5 +1,74 @@
 {
-  "dict": {
-    "notFound": "Słownik nie został znaleziony."
+  "page": {
+    "types": {
+      "title": "Słowniki",
+      "subtitle": "Przeglądaj i edytuj typy słowników oraz ich wartości"
+    },
+    "entries": {
+      "title": "Wartości słownika",
+      "subtitle": "Przeglądaj i edytuj wartości wybranego słownika"
+    }
+  },
+  "type": {
+    "code": "Kod",
+    "name": "Nazwa",
+    "description": "Opis",
+    "systemDefined": "Systemowy",
+    "active": "Aktywny",
+    "createdAt": "Utworzono",
+    "createdBy": "Utworzył",
+    "updatedAt": "Zmodyfikowano",
+    "updatedBy": "Zmodyfikował"
+  },
+  "entry": {
+    "code": "Kod",
+    "typeCode": "Typ",
+    "name": "Nazwa",
+    "description": "Opis",
+    "displayOrder": "Kolejność",
+    "systemDefined": "Systemowy",
+    "active": "Aktywny",
+    "createdAt": "Utworzono",
+    "createdBy": "Utworzył"
+  },
+  "dialog": {
+    "editType": {
+      "title": "Edycja słownika",
+      "readonlyHint": "Kod i flaga systemowości są tylko do odczytu."
+    },
+    "addEntry": {
+      "title": "Nowa wartość słownika"
+    },
+    "editEntry": {
+      "title": "Edycja wartości słownika",
+      "readonlyHint": "Kod jest tylko do odczytu."
+    }
+  },
+  "action": {
+    "add": "Dodaj",
+    "edit": "Edytuj",
+    "deactivate": "Deaktywuj",
+    "viewEntries": "Pokaż wartości",
+    "back": "Wróć do listy"
+  },
+  "confirm": {
+    "deactivateType": "Czy na pewno chcesz deaktywować ten słownik?",
+    "deactivateEntry": "Czy na pewno chcesz deaktywować tę wartość słownika?"
+  },
+  "toast": {
+    "typeUpdated": "Słownik został zaktualizowany.",
+    "entryCreated": "Wartość słownika została dodana.",
+    "entryUpdated": "Wartość słownika została zaktualizowana.",
+    "typeDeactivated": "Słownik został deaktywowany.",
+    "entryDeactivated": "Wartość słownika została deaktywowana."
+  },
+  "badge": {
+    "active": "Aktywny",
+    "inactive": "Nieaktywny",
+    "system": "Systemowy",
+    "custom": "Własny"
+  },
+  "error": {
+    "duplicateCode": "Wartość o kodzie \"{{ code }}\" już istnieje w tym słowniku."
   }
 }

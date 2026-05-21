@@ -4,10 +4,11 @@ import { provideHttpClient, withFetch, withInterceptors } from '@angular/common/
 import { authInterceptor } from './core/auth/auth.interceptor';
 import { apiInterceptor } from './core/http/api.interceptor';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
-import { provideTransloco } from '@jsverse/transloco';
+import { provideTransloco, provideTranslocoFallbackStrategy } from '@jsverse/transloco';
 import { routes } from './app.routes';
 import { AuthService } from './core/auth/auth.service';
 import { TranslocoHttpLoader } from './core/i18n/transloco-loader';
+import { ScopeSafeFallbackStrategy } from './core/i18n/transloco-fallback.strategy';
 
 const savedLang = (() => {
   try { return localStorage.getItem('lang') ?? 'en'; } catch { return 'en'; }
@@ -29,6 +30,7 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader,
     }),
+    provideTranslocoFallbackStrategy(ScopeSafeFallbackStrategy),
     {
       provide: APP_INITIALIZER,
       useFactory: (auth: AuthService) => () => auth.init(),

@@ -1,5 +1,74 @@
 {
-  "dict" : {
-    "notFound": "Dictionary not found."
+  "page": {
+    "types": {
+      "title": "Dictionaries",
+      "subtitle": "Browse and edit dictionary types and their values"
+    },
+    "entries": {
+      "title": "Dictionary Values",
+      "subtitle": "Browse and edit values for the selected dictionary"
+    }
+  },
+  "type": {
+    "code": "Code",
+    "name": "Name",
+    "description": "Description",
+    "systemDefined": "System-defined",
+    "active": "Active",
+    "createdAt": "Created At",
+    "createdBy": "Created By",
+    "updatedAt": "Updated At",
+    "updatedBy": "Updated By"
+  },
+  "entry": {
+    "code": "Code",
+    "typeCode": "Type",
+    "name": "Name",
+    "description": "Description",
+    "displayOrder": "Display Order",
+    "systemDefined": "System-defined",
+    "active": "Active",
+    "createdAt": "Created At",
+    "createdBy": "Created By"
+  },
+  "dialog": {
+    "editType": {
+      "title": "Edit Dictionary",
+      "readonlyHint": "Code and system-defined fields are read-only."
+    },
+    "addEntry": {
+      "title": "New Dictionary Value"
+    },
+    "editEntry": {
+      "title": "Edit Dictionary Value",
+      "readonlyHint": "Code is read-only."
+    }
+  },
+  "action": {
+    "add": "Add",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "viewEntries": "View Values",
+    "back": "Back to List"
+  },
+  "confirm": {
+    "deactivateType": "Are you sure you want to deactivate this dictionary?",
+    "deactivateEntry": "Are you sure you want to deactivate this dictionary value?"
+  },
+  "toast": {
+    "typeUpdated": "Dictionary updated successfully.",
+    "entryCreated": "Dictionary value added successfully.",
+    "entryUpdated": "Dictionary value updated successfully.",
+    "typeDeactivated": "Dictionary deactivated.",
+    "entryDeactivated": "Dictionary value deactivated."
+  },
+  "badge": {
+    "active": "Active",
+    "inactive": "Inactive",
+    "system": "System",
+    "custom": "Custom"
+  },
+  "error": {
+    "duplicateCode": "A value with code \"{{ code }}\" already exists in this dictionary."
   }
 }

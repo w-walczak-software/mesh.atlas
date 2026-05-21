@@ -33,8 +33,8 @@ export const routes: Routes = [
       },
       {
         path: 'dictionaries',
-        loadComponent: () => import('./placeholder/placeholder').then(m => m.Placeholder),
-        data: { title: 'Dictionaries' },
+        loadChildren: () =>
+          import('./dictionary/dictionary.routes').then(m => m.dictionaryRoutes),
       },
       {
         path: 'admin',

@@ -1,0 +1,32 @@
+<ng-container *transloco="let t; scope: 'dictionary'; lang: lang()">
+  <div class="dict-page">
+    <div class="page-header">
+      <button
+        mat-icon-button
+        class="back-btn"
+        (click)="goBack()"
+        [attr.aria-label]="t('dictionary.action.back')"
+      >
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="page-title">
+        <h1 class="title">{{ t('dictionary.page.entries.title') }}</h1>
+        <p class="subtitle">
+          @if (typeInfo(); as type) {
+            <code class="type-code">{{ type.code }}</code>
+            <span>{{ type.name }}</span>
+          }
+        </p>
+      </div>
+    </div>
+
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+      [selectedItem]="selectedEntry()"
+      (rowSelect)="selectedEntry.set($event)"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+</ng-container>

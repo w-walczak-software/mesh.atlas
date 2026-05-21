@@ -5,36 +5,23 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="aac78dc7-a034-4487-aa74-c536144a72b5" name="Changes" comment="zmiany konfiguracyjne">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryEntryNotFoundException.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/i18n/dictionary/en.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/public/i18n/dictionary/pl.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/app/service/hello.service.ts" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/frontend/src/environments/release.info.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/CLAUDE.md" beforeDir="false" afterPath="$PROJECT_DIR$/backend/CLAUDE.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/service/DictionaryEntryService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/service/DictionaryEntryService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/service/DictionaryTypeService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/service/DictionaryTypeService.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/ControllerAdvisor.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/ControllerAdvisor.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/GlobalExceptionHandler.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/domain/exception/AtlasDataFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryDataFoundException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/domain/exception/AtlasDataNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryNotFoundException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/domain/exception/AtlasDuplicateCodeException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryDuplicateCodeException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/domain/exception/AtlasException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/domain/exception/AtlasException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/domain/exception/AtlasModificationException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryModificationException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/global/domain/exception/UserNotFoundException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/security/auth/exception/UserNotFoundException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/hello/HelloController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/hello/HelloController.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/angular.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/angular.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/proxy.conf.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/proxy.conf.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/dto/DictionaryEntryCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/dto/DictionaryEntryCreateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/mapper/DictionaryEntryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/mapper/DictionaryEntryMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryDuplicateCodeException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryDuplicateCodeException.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/i18n/dictionary/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/dictionary/en.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/i18n/dictionary/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/dictionary/pl.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/public/i18n/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/en.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/public/i18n/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/pl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/navigation.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/navigation.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/app.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.config.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/shell/shell.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shell/shell.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/shell/shell.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shell/shell.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/environments/environment.prod.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/environments/environment.prod.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/environments/environment.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/environments/environment.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/tsconfig.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/tsconfig.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.routes.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.models.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.models.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -239,7 +226,7 @@
       <option name="presentableId" value="Default" />
       <updated>1779279114341</updated>
       <workItem from="1779279115606" duration="18671000" />
-      <workItem from="1779311616706" duration="12784000" />
+      <workItem from="1779311616706" duration="22818000" />
     </task>
     <task id="LOCAL-00001" summary="zmiany konfiguracyjne">
       <option name="closed" value="true" />
@@ -257,7 +244,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779338054110</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="zmiany konfiguracyjne">
+      <option name="closed" value="true" />
+      <created>1779369708769</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1779369708769</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -266,5 +261,16 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="zmiany konfiguracyjne" />
     <option name="LAST_COMMIT_MESSAGE" value="zmiany konfiguracyjne" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/service/DictionaryEntryService.java</url>
+          <line>65</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

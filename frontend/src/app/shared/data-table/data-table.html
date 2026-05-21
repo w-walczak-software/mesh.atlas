@@ -1,21 +1,39 @@
 <div class="dt-wrapper">
 
   <!-- Toolbar -->
-  <div class="dt-toolbar" [class.dt-toolbar--with-filter]="config().showFilter">
+  <div class="dt-toolbar">
     @if (config().showFilter) {
       <div class="dt-filter-wrap">
         <mat-icon class="dt-filter-icon">search</mat-icon>
         <input
           class="dt-filter-input"
           type="text"
-          placeholder="Filter…"
+          [placeholder]="ui().filterPlaceholder"
           [value]="rawFilter()"
           (input)="onFilterInput($any($event.target).value)"
-          aria-label="Filter table"
+          [attr.aria-label]="ui().filterAriaLabel"
         />
         @if (rawFilter()) {
-          <button class="dt-filter-clear" (click)="onFilterInput('')" aria-label="Clear filter">
+          <button class="dt-filter-clear" (click)="onFilterInput('')" [attr.aria-label]="ui().filterClear">
             <mat-icon>close</mat-icon>
+          </button>
+        }
+      </div>
+    }
+
+    @if (config().toolbar?.length) {
+      <div class="dt-toolbar-btns">
+        @for (btn of config().toolbar!; track btn.label) {
+          <button
+            mat-stroked-button
+            [disabled]="btn.disabled ?? false"
+            [matTooltip]="btn.tooltip ?? ''"
+            (click)="btn.action()"
+          >
+            @if (btn.icon) {
+              <mat-icon>{{ btn.icon }}</mat-icon>
+            }
+            {{ btn.label }}
           </button>
         }
       </div>
@@ -23,7 +41,7 @@
 
     <div class="dt-toolbar-actions">
       <!-- Column visibility -->
-      <button mat-icon-button [matMenuTriggerFor]="colMenu" matTooltip="Column visibility" aria-label="Toggle column visibility">
+      <button mat-icon-button [matMenuTriggerFor]="colMenu" [matTooltip]="ui().columnVisibility" [attr.aria-label]="ui().columnVisibility">
         <mat-icon>view_column</mat-icon>
       </button>
       <mat-menu #colMenu="matMenu" class="dt-col-menu">
@@ -48,7 +66,7 @@
                 [checked]="allChecked()"
                 [indeterminate]="someChecked()"
                 (change)="toggleAll()"
-                aria-label="Select all rows"
+                [attr.aria-label]="ui().selectAll"
               />
             </th>
           }
@@ -95,14 +113,14 @@
         @if (loading()) {
           <tr class="dt-row dt-row--loading">
             <td [attr.colspan]="colspanTotal()" class="dt-td dt-td--state">
-              <span class="dt-state-msg">Loading…</span>
+              <span class="dt-state-msg">{{ ui().loading }}</span>
             </td>
           </tr>
         } @else if (!paginatedData().length) {
           <tr class="dt-row dt-row--empty">
             <td [attr.colspan]="colspanTotal()" class="dt-td dt-td--state">
               <mat-icon>inbox</mat-icon>
-              <span class="dt-state-msg">No data</span>
+              <span class="dt-state-msg">{{ ui().noData }}</span>
             </td>
           </tr>
         } @else {
@@ -123,7 +141,7 @@
                   <mat-checkbox
                     [checked]="isChecked(row)"
                     (change)="toggleCheck(row)"
-                    [attr.aria-label]="'Select row'"
+                    [attr.aria-label]="ui().selectRow"
                   />
                 </td>
               }
@@ -159,7 +177,7 @@
                     mat-icon-button
                     class="dt-action-trigger"
                     [matMenuTriggerFor]="rowMenu"
-                    aria-label="Row actions"
+                    [attr.aria-label]="ui().rowActions"
                   >
                     <mat-icon>more_vert</mat-icon>
                   </button>
@@ -193,22 +211,12 @@
 
   <!-- Footer -->
   <div class="dt-footer">
-    <span class="dt-row-count">
-      @if (totalItems() > 0) {
-        @if (hasPagination) {
-          {{ pageStart() }}–{{ pageEnd() }} of {{ totalItems() }} rows
-        } @else {
-          {{ totalItems() }} {{ totalItems() === 1 ? 'row' : 'rows' }}
-        }
-      } @else {
-        No rows
-      }
-    </span>
+    <span class="dt-row-count">{{ rowCountLabel() }}</span>
 
     @if (hasPagination) {
       <div class="dt-pagination">
         <div class="dt-page-size">
-          <span class="dt-page-size-label">Rows per page:</span>
+          <span class="dt-page-size-label">{{ ui().rowsPerPage }}</span>
           <button mat-button [matMenuTriggerFor]="sizeMenu" class="dt-page-size-btn">
             {{ pageSize() }}
             <mat-icon>arrow_drop_down</mat-icon>
@@ -225,7 +233,7 @@
             mat-icon-button
             (click)="prevPage()"
             [disabled]="pageIndex() === 0"
-            aria-label="Previous page"
+            [attr.aria-label]="ui().prevPage"
           >
             <mat-icon>chevron_left</mat-icon>
           </button>
@@ -234,7 +242,7 @@
             mat-icon-button
             (click)="nextPage()"
             [disabled]="pageIndex() >= totalPages() - 1"
-            aria-label="Next page"
+            [attr.aria-label]="ui().nextPage"
           >
             <mat-icon>chevron_right</mat-icon>
           </button>

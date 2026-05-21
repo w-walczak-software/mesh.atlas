@@ -88,35 +88,6 @@
       ]
     },
     {
-      "id": "dictionaries",
-      "label": "nav.menu.dictionaries",
-      "icon": "menu_book",
-      "roles": ["atlas_admin"],
-      "children": [
-        {
-          "id": "dict-doc-types",
-          "label": "nav.menu.dictDocTypes",
-          "icon": "description",
-          "route": "/dictionaries/document-types",
-          "roles": ["atlas_admin"]
-        },
-        {
-          "id": "dict-domains",
-          "label": "nav.menu.dictDomains",
-          "icon": "language",
-          "route": "/dictionaries/domains",
-          "roles": ["atlas_admin"]
-        },
-        {
-          "id": "dict-categories",
-          "label": "nav.menu.dictCategories",
-          "icon": "category",
-          "route": "/dictionaries/categories",
-          "roles": ["atlas_admin"]
-        }
-      ]
-    },
-    {
       "id": "admin",
       "label": "nav.menu.admin",
       "icon": "admin_panel_settings",
@@ -141,6 +112,13 @@
           "label": "nav.menu.adminAudit",
           "icon": "history_edu",
           "route": "/admin/audit",
+          "roles": ["atlas_admin"]
+        },
+        {
+          "id": "admin-dictionaries",
+          "label": "nav.menu.dictionaries",
+          "icon": "menu_book",
+          "route": "/dictionaries/types",
           "roles": ["atlas_admin"]
         }
       ]

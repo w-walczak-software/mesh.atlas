@@ -9,10 +9,10 @@ public class AtlasDictionaryDuplicateCodeException extends AtlasException {
     private static final String KEY = "dict.entryDuplicate";
 
     public AtlasDictionaryDuplicateCodeException(String context) {
-        super(String.format(MSG, context), KEY, context, HttpStatus.BAD_REQUEST);
+        super(String.format(MSG, context), KEY, context, HttpStatus.CONFLICT);
     }
 
     public AtlasDictionaryDuplicateCodeException() {
-        super(String.format(MSG, ""), KEY, null, HttpStatus.BAD_REQUEST);
+        super(String.format(MSG, ""), KEY, null, HttpStatus.CONFLICT);
     }
 }

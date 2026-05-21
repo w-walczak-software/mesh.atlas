@@ -106,11 +106,20 @@ export interface PaginationConfig {
   totalItems?: number;
 }
 
+export interface ToolbarButton {
+  label: string;
+  icon?: string;
+  disabled?: boolean;
+  tooltip?: string;
+  action: () => void;
+}
+
 export interface TableConfig<T extends object> {
   tableId: string;
   columns: ColumnDef<T>[];
   showCheckboxes?: boolean;
   showFilter?: boolean;
+  toolbar?: ToolbarButton[];
   pagination?: PaginationConfig;
   rowClick?: (row: T) => void;
   rowDblClick?: (row: T) => void;

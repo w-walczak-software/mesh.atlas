@@ -3,17 +3,20 @@ import {
   Component,
   computed,
   effect,
+  inject,
   input,
   OnDestroy,
   output,
   signal,
 } from '@angular/core';
+import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { TranslocoService } from '@jsverse/transloco';
 import { ActionDef, BadgeColor, CellDisplay, ColumnDef, IconConfig, PageEvent, PaginationConfig, SortDirection, SortState, TableConfig } from './data-table.models';
 
 const PREDEFINED_COLORS = new Set<BadgeColor>([
@@ -38,10 +41,45 @@ export class DataTable<T extends object> implements OnDestroy {
   readonly data = input<T[]>([]);
   readonly loading = input(false);
   readonly embedded = input(false);
+  readonly selectedItem = input<T | null>(null);
 
   readonly rowSelect = output<T | null>();
   readonly rowsSelect = output<T[]>();
   readonly pageChange = output<PageEvent>();
+
+  private readonly t = inject(TranslocoService);
+  private readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
+
+  protected readonly ui = computed(() => {
+    this.lang();
+    return {
+      filterPlaceholder: this.t.translate<string>('common.table.filterPlaceholder'),
+      filterAriaLabel: this.t.translate<string>('common.table.filterAriaLabel'),
+      filterClear: this.t.translate<string>('common.table.filterClear'),
+      loading: this.t.translate<string>('common.table.loading'),
+      noData: this.t.translate<string>('common.table.noData'),
+      rowsPerPage: this.t.translate<string>('common.table.rowsPerPage'),
+      columnVisibility: this.t.translate<string>('common.table.columnVisibility'),
+      prevPage: this.t.translate<string>('common.table.prevPage'),
+      nextPage: this.t.translate<string>('common.table.nextPage'),
+      selectAll: this.t.translate<string>('common.table.selectAll'),
+      selectRow: this.t.translate<string>('common.table.selectRow'),
+      rowActions: this.t.translate<string>('common.table.rowActions'),
+    };
+  });
+
+  protected readonly rowCountLabel = computed(() => {
+    this.lang();
+    const total = this.totalItems();
+    if (total === 0) return this.t.translate<string>('common.table.noRows');
+    const pg = this.config().pagination;
+    if (!pg) return this.t.translate<string>('common.table.rowCount', { count: total });
+    return this.t.translate<string>('common.table.rowRange', {
+      from: this.pageStart(),
+      to: this.pageEnd(),
+      total,
+    });
+  });
 
   protected readonly filterValue = signal('');
   protected readonly sort = signal<SortState>({ column: '', direction: null });
@@ -211,7 +249,7 @@ export class DataTable<T extends object> implements OnDestroy {
   }
 
   protected isSelected(row: T): boolean {
-    return this.selectedRow() === row;
+    return this.selectedRow() === row || this.selectedItem() === row;
   }
 
   protected isChecked(row: T): boolean {

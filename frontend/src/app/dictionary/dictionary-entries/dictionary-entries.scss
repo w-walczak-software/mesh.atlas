@@ -1,0 +1,49 @@
+.dict-page {
+  padding: 28px 32px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+
+.back-btn {
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.page-title {
+  flex: 1;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.type-code {
+  font-size: 12px;
+  font-family: monospace;
+  background: var(--mat-sys-surface-container);
+  padding: 2px 8px;
+  border-radius: 4px;
+  color: var(--mat-sys-on-surface);
+}

@@ -37,7 +37,32 @@
     "noData": "No data",
     "viewAll": "View all",
     "lightMode": "Switch to light mode",
-    "darkMode": "Switch to dark mode"
+    "darkMode": "Switch to dark mode",
+    "validation": {
+      "required": "This field is required.",
+      "maxlength": "Maximum length of {{ max }} characters exceeded.",
+      "min": "Minimum value is {{ min }}."
+    },
+    "error": {
+      "unexpected": "An unexpected error occurred. Please try again."
+    },
+    "table": {
+      "filterPlaceholder": "Filter…",
+      "filterAriaLabel": "Filter table",
+      "filterClear": "Clear filter",
+      "loading": "Loading…",
+      "noData": "No data",
+      "noRows": "No rows",
+      "rowCount": "{{ count }} rows",
+      "rowRange": "{{ from }}–{{ to }} of {{ total }} rows",
+      "rowsPerPage": "Rows per page:",
+      "columnVisibility": "Column visibility",
+      "prevPage": "Previous page",
+      "nextPage": "Next page",
+      "selectAll": "Select all rows",
+      "selectRow": "Select row",
+      "rowActions": "Row actions"
+    }
   },
   "errors": {
     "default": "An unexpected error occurred.",
