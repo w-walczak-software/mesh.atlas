@@ -10,20 +10,21 @@ import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.dictionary.infrastructure.persistance.DictionaryEntryRepository;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemCreateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemDto;
-import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest;
-import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerDto;
-import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerUpdateRequest;
+import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemSearchCriteria;
+import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemStatsDto;
+import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemSummaryDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemUpdateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.mapper.ItSystemMapper;
 import pl.com.ww.mesh.atlas.itsystem.application.mapper.ItSystemOwnerMapper;
 import pl.com.ww.mesh.atlas.itsystem.domain.exception.AtlasItSystemDuplicateCodeException;
 import pl.com.ww.mesh.atlas.itsystem.domain.exception.AtlasItSystemNotFoundException;
-import pl.com.ww.mesh.atlas.itsystem.domain.exception.AtlasItSystemOwnerNotFoundException;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemOwnerEntity;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemOwnerRepository;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
+import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemSpecification;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -39,11 +40,9 @@ public class ItSystemService {
     private final ItSystemOwnerMapper ownerMapper;
 
     @Transactional(readOnly = true)
-    public Page<ItSystemDto> findAll(Boolean active, Pageable pageable) {
-        Page<ItSystemEntity> page = (active != null)
-                ? repository.findAllByActive(active, pageable)
-                : repository.findAll(pageable);
-        return page.map(mapper::map);
+    public Page<ItSystemSummaryDto> findAll(ItSystemSearchCriteria criteria, Pageable pageable) {
+        return repository.findAll(new ItSystemSpecification(criteria), pageable)
+                .map(mapper::mapSummary);
     }
 
     @Transactional(readOnly = true)
@@ -72,8 +71,14 @@ public class ItSystemService {
                 request.deploymentModelId(), request.runtimeEnvironmentId());
         ItSystemEntity saved = repository.save(entity);
 
-        List<ItSystemOwnerCreateRequest> owners = request.owners() != null ? request.owners() : Collections.emptyList();
-        owners.forEach(ownerRequest -> createOwnerInternal(saved, ownerRequest));
+        List<pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest> owners =
+                request.owners() != null ? request.owners() : Collections.emptyList();
+        owners.forEach(ownerRequest -> {
+            ItSystemOwnerEntity owner = ownerMapper.map(ownerRequest);
+            owner.setItSystem(saved);
+            owner.setRole(resolveEntry(ownerRequest.roleId()));
+            ownerRepository.save(owner);
+        });
 
         return mapper.map(saved);
     }
@@ -98,55 +103,22 @@ public class ItSystemService {
         repository.save(entity);
     }
 
-    // ── Owner management ──────────────────────────────────────────────────────
-
     @Transactional(readOnly = true)
-    public List<ItSystemOwnerDto> findOwners(UUID systemId) {
-        if (!repository.existsById(systemId)) {
-            throw new AtlasItSystemNotFoundException(systemId.toString());
-        }
-        return ownerRepository.findByItSystemId(systemId)
-                .stream().map(ownerMapper::map).toList();
+    public ItSystemStatsDto getStats() {
+        long total = repository.count();
+        long addedLastMonth = repository.countByCreatedAtAfter(LocalDateTime.now().minusMonths(1));
+        return new ItSystemStatsDto(total, addedLastMonth);
     }
 
-    @Transactional
-    public ItSystemOwnerDto addOwner(UUID systemId, ItSystemOwnerCreateRequest request) {
-        ItSystemEntity system = repository.findById(systemId)
+    ItSystemEntity getSystemOrThrow(UUID systemId) {
+        return repository.findById(systemId)
                 .orElseThrow(() -> new AtlasItSystemNotFoundException(systemId.toString()));
-        return ownerMapper.map(createOwnerInternal(system, request));
     }
 
-    @Transactional
-    public ItSystemOwnerDto updateOwner(UUID systemId, UUID ownerId, ItSystemOwnerUpdateRequest request) {
-        if (!repository.existsById(systemId)) {
-            throw new AtlasItSystemNotFoundException(systemId.toString());
-        }
-        ItSystemOwnerEntity owner = ownerRepository.findById(ownerId)
-                .filter(o -> o.getItSystem().getId().equals(systemId))
-                .orElseThrow(() -> new AtlasItSystemOwnerNotFoundException(ownerId.toString()));
-        ownerMapper.updateEntity(request, owner);
-        owner.setRole(resolveEntry(request.roleId()));
-        return ownerMapper.map(ownerRepository.save(owner));
-    }
-
-    @Transactional
-    public void removeOwner(UUID systemId, UUID ownerId) {
-        if (!repository.existsById(systemId)) {
-            throw new AtlasItSystemNotFoundException(systemId.toString());
-        }
-        ItSystemOwnerEntity owner = ownerRepository.findById(ownerId)
-                .filter(o -> o.getItSystem().getId().equals(systemId))
-                .orElseThrow(() -> new AtlasItSystemOwnerNotFoundException(ownerId.toString()));
-        ownerRepository.delete(owner);
-    }
-
-    // ── Private helpers ───────────────────────────────────────────────────────
-
-    private ItSystemOwnerEntity createOwnerInternal(ItSystemEntity system, ItSystemOwnerCreateRequest request) {
-        ItSystemOwnerEntity owner = ownerMapper.map(request);
-        owner.setItSystem(system);
-        owner.setRole(resolveEntry(request.roleId()));
-        return ownerRepository.save(owner);
+    DictionaryEntryEntity resolveEntry(UUID id) {
+        if (id == null) return null;
+        return entryRepository.findById(id)
+                .orElseThrow(() -> new AtlasDictionaryEntryNotFoundException(id.toString()));
     }
 
     private void applyDictionaryRefs(ItSystemEntity entity,
@@ -162,11 +134,5 @@ public class ItSystemService {
         entity.setArchitectureStyle(resolveEntry(architectureStyleId));
         entity.setDeploymentModel(resolveEntry(deploymentModelId));
         entity.setRuntimeEnvironment(resolveEntry(runtimeEnvironmentId));
-    }
-
-    private DictionaryEntryEntity resolveEntry(UUID id) {
-        if (id == null) return null;
-        return entryRepository.findById(id)
-                .orElseThrow(() -> new AtlasDictionaryEntryNotFoundException(id.toString()));
     }
 }

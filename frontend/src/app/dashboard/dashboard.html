@@ -18,7 +18,7 @@
     </div>
 
     <div class="kpi-grid">
-      @for (kpi of kpis; track kpi.labelKey) {
+      @for (kpi of kpis(); track kpi.labelKey) {
         <mat-card class="kpi-card kpi-{{ kpi.color }}" appearance="outlined">
           <mat-card-content>
             <div class="kpi-header">

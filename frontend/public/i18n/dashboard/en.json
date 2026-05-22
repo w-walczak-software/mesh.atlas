@@ -25,6 +25,7 @@
   },
   "kpi": {
     "registeredApis": "Registered APIs",
+    "itSystems": "IT Systems",
     "activeEnvironments": "Active Environments",
     "apiConsumers": "API Consumers",
     "deprecatedApis": "Deprecated APIs"

@@ -1,0 +1,97 @@
+{
+  "title": "IT Systems",
+  "new": "New IT System",
+  "edit": "Edit IT System",
+  "search": {
+    "title": "Search",
+    "query": "Code / Name",
+    "ownerQuery": "Owner (name / email)",
+    "all": "All",
+    "activeOnly": "Active only",
+    "inactiveOnly": "Inactive only",
+    "activeLabel": "Activity",
+    "reset": "Reset",
+    "search": "Search"
+  },
+  "field": {
+    "code": "Code",
+    "name": "Name",
+    "description": "Description",
+    "documentationUrl": "Documentation URL",
+    "repositoryUrl": "Repository URL",
+    "status": "Status",
+    "lifecycleStage": "Lifecycle Stage",
+    "businessCriticality": "Business Criticality",
+    "dataClassification": "Data Classification",
+    "systemType": "System Type",
+    "architectureStyle": "Architecture Style",
+    "deploymentModel": "Deployment Model",
+    "runtimeEnvironment": "Runtime Environment",
+    "tags": "Tags",
+    "active": "Active"
+  },
+  "section": {
+    "basic": "Basic Information",
+    "classification": "Classification",
+    "classificationHint": "Required fields for system governance and reporting",
+    "technical": "Technical Details",
+    "technicalHint": "Optional architectural and infrastructure metadata",
+    "tags": "Tags",
+    "owners": "Owners"
+  },
+  "owner": {
+    "name": "Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "role": "Role",
+    "validFrom": "Valid From",
+    "validTo": "Valid To (optional)",
+    "add": "Add Owner",
+    "edit": "Edit Owner",
+    "delete": "Remove Owner",
+    "noOwners": "No owners assigned yet.",
+    "pendingHint": "Owners will be saved after the system is created."
+  },
+  "action": {
+    "new": "New IT System",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "addTag": "Add Tag",
+    "removeTag": "Remove tag"
+  },
+  "toolbar": {
+    "selectToEdit": "Select a row to edit",
+    "selectToDeactivate": "Select a row to deactivate",
+    "alreadyInactive": "This system is already inactive"
+  },
+  "confirm": {
+    "deactivate": "Are you sure you want to deactivate this IT system? It will no longer appear in active system lists.",
+    "deleteOwner": "Are you sure you want to remove this owner?"
+  },
+  "tags": {
+    "noTags": "No tags added. Tags help with filtering and discovery."
+  },
+  "toast": {
+    "created": "IT system created successfully.",
+    "updated": "IT system updated successfully.",
+    "deactivated": "IT system deactivated.",
+    "ownerAdded": "Owner added successfully.",
+    "ownerUpdated": "Owner updated successfully.",
+    "ownerDeleted": "Owner removed successfully.",
+    "createdOwnersFailed": "System created, but some owners could not be saved. You can add them manually."
+  },
+  "error": {
+    "duplicateCode": "An IT system with code \"{{ code }}\" already exists.",
+    "notFound": "IT system not found.",
+    "codePattern": "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores or hyphens.",
+    "invalidEmail": "Please enter a valid email address."
+  },
+  "badge": {
+    "active": "Active",
+    "inactive": "Inactive"
+  }
+}

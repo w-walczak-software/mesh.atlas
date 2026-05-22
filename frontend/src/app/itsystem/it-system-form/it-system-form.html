@@ -1,0 +1,349 @@
+<ng-container *transloco="let t; scope: 'itsystem'; lang: lang()">
+  <div class="form-page">
+
+    <!-- Sticky top bar -->
+    <div class="form-topbar">
+      <button mat-icon-button (click)="cancel()" [attr.aria-label]="t('itsystem.action.back')">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="form-topbar-info">
+        <h1 class="form-topbar-title">
+          {{ isEditMode() ? (system()?.name || t('itsystem.edit')) : t('itsystem.new') }}
+        </h1>
+        <span class="form-topbar-sub">{{ t('itsystem.title') }}</span>
+      </div>
+      <div class="form-topbar-actions">
+        <button mat-stroked-button type="button" (click)="cancel()">
+          {{ t('itsystem.action.cancel') }}
+        </button>
+        <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
+          <mat-icon>save</mat-icon>
+          {{ t('itsystem.action.save') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="form-content">
+      <form [formGroup]="form">
+
+        <!-- Basic Information -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--primary">
+              <mat-icon>inventory_2</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('itsystem.section.basic') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="field-row field-row--code-name">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.code') }}</mat-label>
+                <input matInput formControlName="code" [attr.aria-required]="true" />
+                <mat-icon matSuffix>tag</mat-icon>
+                @if (form.controls.code.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+                @if (form.controls.code.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
+                }
+                @if (form.controls.code.errors?.['pattern']) {
+                  <mat-error>{{ t('itsystem.error.codePattern') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.name') }}</mat-label>
+                <input matInput formControlName="name" [attr.aria-required]="true" />
+                @if (form.controls.name.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+                @if (form.controls.name.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>{{ t('itsystem.field.description') }}</mat-label>
+              <textarea matInput formControlName="description" rows="3"></textarea>
+              @if (form.controls.description.errors?.['maxlength']) {
+                <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="field-row field-row--equal">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.documentationUrl') }}</mat-label>
+                <input matInput formControlName="documentationUrl" />
+                <mat-icon matSuffix>open_in_new</mat-icon>
+                @if (form.controls.documentationUrl.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.repositoryUrl') }}</mat-label>
+                <input matInput formControlName="repositoryUrl" />
+                <mat-icon matSuffix>code</mat-icon>
+                @if (form.controls.repositoryUrl.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card>
+
+        <!-- Classification -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--secondary">
+              <mat-icon>label</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('itsystem.section.classification') }}</span>
+              <span class="card-head-subtitle">{{ t('itsystem.section.classificationHint') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="field-grid-3">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.status') }}</mat-label>
+                <mat-select formControlName="statusId" [attr.aria-required]="true">
+                  @for (item of statuses(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.statusId.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.lifecycleStage') }}</mat-label>
+                <mat-select formControlName="lifecycleStageId" [attr.aria-required]="true">
+                  @for (item of lifecycleStages(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.lifecycleStageId.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.businessCriticality') }}</mat-label>
+                <mat-select formControlName="businessCriticalityId" [attr.aria-required]="true">
+                  @for (item of businessCriticalities(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.businessCriticalityId.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.dataClassification') }}</mat-label>
+                <mat-select formControlName="dataClassificationId" [attr.aria-required]="true">
+                  @for (item of dataClassifications(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.dataClassificationId.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.systemType') }}</mat-label>
+                <mat-select formControlName="systemTypeId" [attr.aria-required]="true">
+                  @for (item of systemTypes(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+                @if (form.controls.systemTypeId.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card>
+
+        <!-- Technical Details -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--tertiary">
+              <mat-icon>settings</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('itsystem.section.technical') }}</span>
+              <span class="card-head-subtitle">{{ t('itsystem.section.technicalHint') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="field-grid-3">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.architectureStyle') }}</mat-label>
+                <mat-select formControlName="architectureStyleId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of architectureStyles(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.deploymentModel') }}</mat-label>
+                <mat-select formControlName="deploymentModelId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of deploymentModels(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.runtimeEnvironment') }}</mat-label>
+                <mat-select formControlName="runtimeEnvironmentId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of runtimeEnvironments(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card>
+
+        <!-- Tags -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon">
+              <mat-icon>local_offer</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('itsystem.section.tags') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="tags-input-row">
+              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
+                <mat-label>{{ t('itsystem.action.addTag') }}</mat-label>
+                <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
+                <mat-icon matSuffix>add_circle_outline</mat-icon>
+              </mat-form-field>
+              <button mat-stroked-button type="button" (click)="addTag()">
+                <mat-icon>add</mat-icon>
+                {{ t('itsystem.action.addTag') }}
+              </button>
+            </div>
+            @if (tags().length) {
+              <mat-chip-set aria-label="Tags">
+                @for (tag of tags(); track tag) {
+                  <mat-chip (removed)="removeTag(tag)">
+                    {{ tag }}
+                    <button matChipRemove [attr.aria-label]="t('itsystem.action.removeTag') + ' ' + tag">
+                      <mat-icon>cancel</mat-icon>
+                    </button>
+                  </mat-chip>
+                }
+              </mat-chip-set>
+            } @else {
+              <p class="field-hint">{{ t('itsystem.tags.noTags') }}</p>
+            }
+          </div>
+        </mat-card>
+
+      </form>
+
+      <!-- Owners -->
+      <mat-card appearance="outlined" class="form-card">
+        <div class="card-head card-head--with-action">
+          <div class="card-head-icon card-head-icon--owners">
+            <mat-icon>group</mat-icon>
+          </div>
+          <div class="card-head-text">
+            <span class="card-head-title">{{ t('itsystem.section.owners') }}</span>
+            @if (!isEditMode() && owners().length) {
+              <span class="card-head-subtitle">{{ t('itsystem.owner.pendingHint') }}</span>
+            }
+          </div>
+          <button mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
+            <mat-icon>person_add</mat-icon>
+            {{ t('itsystem.owner.add') }}
+          </button>
+        </div>
+
+        @if (owners().length) {
+          <table mat-table [dataSource]="owners()" class="owners-table">
+            <ng-container matColumnDef="name">
+              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.name') }}</th>
+              <td mat-cell *matCellDef="let row">
+                <div class="owner-cell">
+                  <div class="owner-avatar" aria-hidden="true">
+                    {{ row.firstName.charAt(0) }}{{ row.lastName.charAt(0) }}
+                  </div>
+                  <div class="owner-cell-info">
+                    <span class="owner-full-name">{{ row.firstName }} {{ row.lastName }}</span>
+                    <span class="owner-email">{{ row.email }}</span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.role') }}</th>
+              <td mat-cell *matCellDef="let row">
+                @if (row.role?.name) {
+                  <span class="role-badge">{{ row.role.name }}</span>
+                }
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="validFrom">
+              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.validFrom') }}</th>
+              <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validFrom }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="validTo">
+              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.validTo') }}</th>
+              <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validTo || '–' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let row" class="actions-cell">
+                <button mat-icon-button [matTooltip]="t('itsystem.owner.edit')" (click)="openEditOwnerDialog(row)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button color="warn" [matTooltip]="t('itsystem.owner.delete')" (click)="confirmDeleteOwner(row)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="ownerColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: ownerColumns;"></tr>
+          </table>
+        } @else {
+          <div class="owners-empty">
+            <mat-icon class="owners-empty-icon" aria-hidden="true">group_off</mat-icon>
+            <p class="owners-empty-text">{{ t('itsystem.owner.noOwners') }}</p>
+            <button mat-stroked-button type="button" (click)="openAddOwnerDialog()">
+              <mat-icon>person_add</mat-icon>
+              {{ t('itsystem.owner.add') }}
+            </button>
+          </div>
+        }
+      </mat-card>
+
+    </div>
+  </div>
+</ng-container>

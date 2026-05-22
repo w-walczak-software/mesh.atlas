@@ -1,7 +1,7 @@
 import { Injectable, signal, computed } from '@angular/core';
 import Keycloak from 'keycloak-js';
 import type { KeycloakTokenParsed } from 'keycloak-js';
-import { environment } from '../../../environments/environment';
+import { environment } from '@environments/environment';
 import type { AuthUser } from './jwt.model';
 
 @Injectable({ providedIn: 'root' })
@@ -41,6 +41,16 @@ export class AuthService {
 
   getToken(): string | undefined {
     return this.keycloak?.token;
+  }
+
+  async ensureFreshToken(): Promise<string | undefined> {
+    try {
+      await this.keycloak.updateToken(5);
+      return this.keycloak.token;
+    } catch {
+      this.keycloak.login();
+      return undefined;
+    }
   }
 
   private parseUser(parsed: KeycloakTokenParsed | undefined): AuthUser | null {

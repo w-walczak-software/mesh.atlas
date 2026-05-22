@@ -41,15 +41,19 @@
 // KPI Grid
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(5, 1fr);
   gap: 16px;
   margin-bottom: 24px;
 
-  @media (max-width: 1200px) {
+  @media (max-width: 1300px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 768px) {
     grid-template-columns: repeat(2, 1fr);
   }
 
-  @media (max-width: 640px) {
+  @media (max-width: 480px) {
     grid-template-columns: 1fr;
   }
 }
@@ -108,6 +112,11 @@
 .kpi-error .kpi-icon-wrap {
   background: var(--mat-sys-error-container);
   color: var(--mat-sys-on-error-container);
+}
+
+.kpi-surface .kpi-icon-wrap {
+  background: var(--mat-sys-surface-variant);
+  color: var(--mat-sys-on-surface-variant);
 }
 
 .kpi-value {

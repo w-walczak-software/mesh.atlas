@@ -4,24 +4,53 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="aac78dc7-a034-4487-aa74-c536144a72b5" name="Changes" comment="zmiany konfiguracyjne">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+    <list default="true" id="aac78dc7-a034-4487-aa74-c536144a72b5" name="Changes" comment="systemy IT">
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/api/ItSystemOwnerController.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/dto/ItSystemSearchCriteria.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/dto/ItSystemStatsDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/dto/ItSystemSummaryDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/service/ItSystemOwnerService.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/infrastructure/persistance/ItSystemSpecification.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/security/auth/preauthorizers/IsAtlasSystemOrAdmin.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/i18n/itsystem/en.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/public/i18n/itsystem/pl.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/core/i18n/date-locale.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/it-system-form/it-system-form.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/it-system-form/it-system-form.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/it-system-form/it-system-form.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/it-system-form/it-system-owner.dialog.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/it-systems/it-systems.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/it-systems/it-systems.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/it-systems/it-systems.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/itsystem.routes.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/model/itsystem.model.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/frontend/src/app/itsystem/service/itsystem.service.ts" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/logs/spring.log.2026-05-21.0.gz" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.claude/settings.local.json" beforeDir="false" afterPath="$PROJECT_DIR$/.claude/settings.local.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/582f3a7e-9618-4898-80ac-21919db3a3dd.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/582f3a7e-9618-4898-80ac-21919db3a3dd.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dataSources/582f3a7e-9618-4898-80ac-21919db3a3dd/storage_v2/_src_/database/atlas.i0SNBQ/schema/atlas.i0SNBQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dataSources/582f3a7e-9618-4898-80ac-21919db3a3dd/storage_v2/_src_/database/atlas.i0SNBQ/schema/atlas.i0SNBQ.meta" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/dto/DictionaryEntryCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/dto/DictionaryEntryCreateRequest.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/mapper/DictionaryEntryMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/application/mapper/DictionaryEntryMapper.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryDuplicateCodeException.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/dictionary/domain/exception/AtlasDictionaryDuplicateCodeException.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/i18n/dictionary/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/dictionary/en.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/public/i18n/dictionary/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/dictionary/pl.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/api/ItSystemController.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/api/ItSystemController.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/dto/ItSystemUpdateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/dto/ItSystemUpdateRequest.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/mapper/ItSystemMapper.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/mapper/ItSystemMapper.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/service/ItSystemService.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/application/service/ItSystemService.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/infrastructure/persistance/ItSystemRepository.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/itsystem/infrastructure/persistance/ItSystemRepository.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/security/auth/preauthorizers/AtlasRole.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/pl/com/ww/mesh/atlas/security/auth/preauthorizers/AtlasRole.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/i18n/dashboard/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/dashboard/en.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/public/i18n/dashboard/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/dashboard/pl.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/public/i18n/en.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/en.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/public/i18n/pl.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/i18n/pl.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/public/navigation.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/public/navigation.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/app.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.config.ts" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/app/app.routes.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.routes.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.models.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.models.ts" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.scss" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/shared/data-table/data-table.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/app.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/app.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/core/auth/auth.guard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/core/auth/auth.guard.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/core/auth/auth.interceptor.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/core/auth/auth.interceptor.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/core/auth/auth.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/core/auth/auth.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.scss" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/dashboard/dashboard.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/app/dictionary/service/dictionary-entry.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/app/dictionary/service/dictionary-entry.service.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -159,6 +188,7 @@
     <option name="configurationTypes">
       <set>
         <option value="SpringBootApplicationConfigurationType" />
+        <option value="js.build_tools.npm" />
       </set>
     </option>
     <option name="hiddenConfigurations">
@@ -226,7 +256,7 @@
       <option name="presentableId" value="Default" />
       <updated>1779279114341</updated>
       <workItem from="1779279115606" duration="18671000" />
-      <workItem from="1779311616706" duration="22818000" />
+      <workItem from="1779311616706" duration="35316000" />
     </task>
     <task id="LOCAL-00001" summary="zmiany konfiguracyjne">
       <option name="closed" value="true" />
@@ -252,7 +282,15 @@
       <option name="project" value="LOCAL" />
       <updated>1779369708769</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="zmiany konfiguracyjne">
+      <option name="closed" value="true" />
+      <created>1779390469321</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1779390469322</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -260,7 +298,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="zmiany konfiguracyjne" />
-    <option name="LAST_COMMIT_MESSAGE" value="zmiany konfiguracyjne" />
+    <MESSAGE value="systemy IT" />
+    <option name="LAST_COMMIT_MESSAGE" value="systemy IT" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

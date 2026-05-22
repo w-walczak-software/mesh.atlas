@@ -16,7 +16,21 @@
       "Bash(node -e \"const {toCamelCase} = require\\('C:/DEV/mesh-atlas/frontend/node_modules/@jsverse/utils'\\); console.log\\(toCamelCase\\('dictionary'\\)\\)\")",
       "Bash(npx tsc *)",
       "Bash(python3 *)",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Bash(./mvnw compile *)",
+      "Bash(\"C:/DEV/mesh-atlas/backend/mvnw.cmd\" compile *)",
+      "Read(//c/Program Files/**)",
+      "Read(//c/Program Files/Microsoft/**)",
+      "PowerShell(Get-ChildItem \"C:\\\\\" -ErrorAction SilentlyContinue | Where-Object {$_.Name -match \"jdk|java\" -or $_.Name -match \"21\"})",
+      "PowerShell(Get-ChildItem \"C:\\\\java\\\\\" | Select-Object Name; & \"C:\\\\java\\\\bin\\\\java.exe\" -version 2>&1)",
+      "PowerShell(Head *)",
+      "Bash(/c/java/bin/java -version)",
+      "Bash(JAVA_HOME=\"/c/java/jdk-21\" /c/java/jdk-21/bin/java *)",
+      "Bash(JAVA_HOME=/c/java/jdk-21 PATH=/c/java/jdk-21/bin:__TRACKED_VAR__ ./mvnw compile)",
+      "Bash(Test-Path *)",
+      "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; cat \"{}\"')",
+      "Bash(JAVA_HOME=/c/java/jdk-21 PATH=/c/java/jdk-21/bin:__TRACKED_VAR__ ./mvnw compile -q)",
+      "Bash(Select-Object FullName)"
     ]
   }
 }

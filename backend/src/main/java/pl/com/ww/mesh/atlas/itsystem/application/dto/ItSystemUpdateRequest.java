@@ -55,7 +55,5 @@ public record ItSystemUpdateRequest(
 
         List<String> tags,
 
-        Map<String, Object> metadata,
-
-        boolean active
+        Map<String, Object> metadata
 ) {}

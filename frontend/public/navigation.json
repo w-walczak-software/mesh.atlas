@@ -59,6 +59,13 @@
       ]
     },
     {
+      "id": "it-systems",
+      "label": "nav.menu.itSystems",
+      "icon": "hub",
+      "route": "/it-systems",
+      "roles": ["atlas_admin", "atlas_user"]
+    },
+    {
       "id": "subscriptions",
       "label": "nav.menu.subscriptions",
       "icon": "subscriptions",

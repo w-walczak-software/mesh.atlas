@@ -9,6 +9,14 @@ export class DictionaryEntryService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = `${environment.APIUrl}/api/v1`;
 
+  findByTypeCode(typeCode: string, active = true): Observable<DictionaryEntryDto[]> {
+    const params = new HttpParams().set('active', active);
+    return this.http.get<DictionaryEntryDto[]>(
+      `${this.apiUrl}/dictionary-types/${typeCode}/entries`,
+      { params },
+    );
+  }
+
   findByTypeIdPaged(typeId: string, active?: boolean, page = 0, size = 20): Observable<Page<DictionaryEntryDto>> {
     let params = new HttpParams().set('page', page).set('size', size).set('sort', 'displayOrder');
     if (active !== undefined) {

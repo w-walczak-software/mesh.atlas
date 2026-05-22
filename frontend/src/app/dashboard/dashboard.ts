@@ -9,7 +9,8 @@ import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { DataTable } from '@shared/data-table/data-table';
 import { TableConfig } from '@shared/data-table/data-table.models';
-import { HelloService } from '../service/hello.service';
+import { HelloService } from '@service/hello.service';
+import { ItSystemService } from '../itsystem/service/itsystem.service';
 
 interface KpiCard {
   labelKey: string;
@@ -17,7 +18,7 @@ interface KpiCard {
   delta: string;
   positive: boolean;
   icon: string;
-  color: 'primary' | 'secondary' | 'tertiary' | 'error';
+  color: 'primary' | 'secondary' | 'tertiary' | 'error' | 'surface';
 }
 
 interface RecentApi {
@@ -50,6 +51,8 @@ export class Dashboard {
   private readonly cdr = inject(ChangeDetectorRef);
 
   private readonly hello = inject(HelloService);
+  private readonly itSystemService = inject(ItSystemService);
+  private readonly itSystemStats = toSignal(this.itSystemService.getStats(), { initialValue: null });
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
 
@@ -57,40 +60,25 @@ export class Dashboard {
     this.t.langChanges$.pipe(takeUntilDestroyed()).subscribe(() => this.cdr.markForCheck());
   }
 
-  protected readonly kpis: KpiCard[] = [
-    {
-      labelKey: 'dashboard.kpi.registeredApis',
-      value: '142',
-      delta: '+8 this month',
-      positive: true,
-      icon: 'api',
-      color: 'primary',
-    },
-    {
-      labelKey: 'dashboard.kpi.activeEnvironments',
-      value: '12',
-      delta: '+1 this week',
-      positive: true,
-      icon: 'cloud',
-      color: 'secondary',
-    },
-    {
-      labelKey: 'dashboard.kpi.apiConsumers',
-      value: '1 847',
-      delta: '+124 this month',
-      positive: true,
-      icon: 'group',
-      color: 'tertiary',
-    },
-    {
-      labelKey: 'dashboard.kpi.deprecatedApis',
-      value: '23',
-      delta: '−5 since last month',
-      positive: false,
-      icon: 'warning',
-      color: 'error',
-    },
-  ];
+  protected readonly kpis = computed<KpiCard[]>(() => {
+    const stats = this.itSystemStats();
+    return [
+      { labelKey: 'dashboard.kpi.registeredApis', value: '142', delta: '+8 this month', positive: true, icon: 'api', color: 'primary' },
+      {
+        labelKey: 'dashboard.kpi.itSystems',
+        value: stats ? stats.total.toString() : '—',
+        delta: stats
+          ? (stats.addedLastMonth > 0 ? `+${stats.addedLastMonth} this month` : 'no new this month')
+          : '',
+        positive: (stats?.addedLastMonth ?? 0) > 0,
+        icon: 'dns',
+        color: 'surface',
+      },
+      { labelKey: 'dashboard.kpi.activeEnvironments', value: '12', delta: '+1 this week', positive: true, icon: 'cloud', color: 'secondary' },
+      { labelKey: 'dashboard.kpi.apiConsumers', value: '1 847', delta: '+124 this month', positive: true, icon: 'group', color: 'tertiary' },
+      { labelKey: 'dashboard.kpi.deprecatedApis', value: '23', delta: '−5 since last month', positive: false, icon: 'warning', color: 'error' },
+    ];
+  });
 
   protected readonly recentApis: RecentApi[] = [
     {

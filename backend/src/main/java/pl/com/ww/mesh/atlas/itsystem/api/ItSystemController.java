@@ -18,15 +18,14 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemCreateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemDto;
-import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest;
-import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerDto;
-import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerUpdateRequest;
+import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemSearchCriteria;
+import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemStatsDto;
+import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemSummaryDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemUpdateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.service.ItSystemService;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasSystemOrAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -36,17 +35,29 @@ public class ItSystemController {
 
     private final ItSystemService service;
 
-    // ── System CRUD ───────────────────────────────────────────────────────────
+    @GetMapping("/stats")
+    @IsAtlasUser
+    public ItSystemStatsDto getStats() {
+        return service.getStats();
+    }
 
     @GetMapping
     @IsAtlasUser
-    public Page<ItSystemDto> findAll(
+    public Page<ItSystemSummaryDto> findAll(
+            @RequestParam(required = false) String query,
+            @RequestParam(required = false) UUID statusId,
+            @RequestParam(required = false) UUID lifecycleStageId,
+            @RequestParam(required = false) UUID businessCriticalityId,
+            @RequestParam(required = false) UUID systemTypeId,
             @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String ownerQuery,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
-        return service.findAll(active, pageable);
+        var criteria = new ItSystemSearchCriteria(query, statusId, lifecycleStageId,
+                businessCriticalityId, systemTypeId, active, ownerQuery);
+        return service.findAll(criteria, pageable);
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
     @IsAtlasUser
     public ItSystemDto findById(@PathVariable UUID id) {
         return service.findById(id);
@@ -59,59 +70,24 @@ public class ItSystemController {
     }
 
     @PostMapping
-    @IsAtlasAdmin
+    @IsAtlasSystemOrAdmin
     @ResponseStatus(HttpStatus.CREATED)
     public ItSystemDto create(@Valid @RequestBody ItSystemCreateRequest request) {
         return service.create(request);
     }
 
-    @PutMapping("/{id}")
-    @IsAtlasAdmin
+    @PutMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
+    @IsAtlasSystemOrAdmin
     public ItSystemDto update(
             @PathVariable UUID id,
             @Valid @RequestBody ItSystemUpdateRequest request) {
         return service.update(id, request);
     }
 
-    @DeleteMapping("/{id}")
-    @IsAtlasAdmin
+    @DeleteMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
+    @IsAtlasSystemOrAdmin
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);
-    }
-
-    // ── Owner management ──────────────────────────────────────────────────────
-
-    @GetMapping("/{id}/owners")
-    @IsAtlasUser
-    public List<ItSystemOwnerDto> findOwners(@PathVariable UUID id) {
-        return service.findOwners(id);
-    }
-
-    @PostMapping("/{id}/owners")
-    @IsAtlasAdmin
-    @ResponseStatus(HttpStatus.CREATED)
-    public ItSystemOwnerDto addOwner(
-            @PathVariable UUID id,
-            @Valid @RequestBody ItSystemOwnerCreateRequest request) {
-        return service.addOwner(id, request);
-    }
-
-    @PutMapping("/{id}/owners/{ownerId}")
-    @IsAtlasAdmin
-    public ItSystemOwnerDto updateOwner(
-            @PathVariable UUID id,
-            @PathVariable UUID ownerId,
-            @Valid @RequestBody ItSystemOwnerUpdateRequest request) {
-        return service.updateOwner(id, ownerId, request);
-    }
-
-    @DeleteMapping("/{id}/owners/{ownerId}")
-    @IsAtlasAdmin
-    @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void removeOwner(
-            @PathVariable UUID id,
-            @PathVariable UUID ownerId) {
-        service.removeOwner(id, ownerId);
     }
 }

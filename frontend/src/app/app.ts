@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { ToastContainer } from './shared/toast/toast-container';
+import { ToastContainer } from '@shared/toast/toast-container';
+import { DateLocaleService } from '@core/i18n/date-locale.service';
 
 @Component({
   selector: 'app-root',
@@ -10,4 +11,8 @@ import { ToastContainer } from './shared/toast/toast-container';
     <app-toast-container />
   `,
 })
-export class App {}
+export class App {
+  constructor() {
+    inject(DateLocaleService);
+  }
+}

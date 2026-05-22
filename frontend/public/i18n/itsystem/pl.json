@@ -1,0 +1,97 @@
+{
+  "title": "Systemy IT",
+  "new": "Nowy system IT",
+  "edit": "Edytuj system IT",
+  "search": {
+    "title": "Wyszukiwanie",
+    "query": "Kod / Nazwa",
+    "ownerQuery": "Właściciel (imię / email)",
+    "all": "Wszystkie",
+    "activeOnly": "Tylko aktywne",
+    "inactiveOnly": "Tylko nieaktywne",
+    "activeLabel": "Aktywność",
+    "reset": "Resetuj",
+    "search": "Szukaj"
+  },
+  "field": {
+    "code": "Kod",
+    "name": "Nazwa",
+    "description": "Opis",
+    "documentationUrl": "URL dokumentacji",
+    "repositoryUrl": "URL repozytorium",
+    "status": "Status",
+    "lifecycleStage": "Etap cyklu życia",
+    "businessCriticality": "Krytyczność biznesowa",
+    "dataClassification": "Klasyfikacja danych",
+    "systemType": "Typ systemu",
+    "architectureStyle": "Styl architektury",
+    "deploymentModel": "Model wdrożenia",
+    "runtimeEnvironment": "Środowisko uruchomieniowe",
+    "tags": "Tagi",
+    "active": "Aktywny"
+  },
+  "section": {
+    "basic": "Informacje podstawowe",
+    "classification": "Klasyfikacja",
+    "classificationHint": "Wymagane pola dla zarządzania i raportowania",
+    "technical": "Szczegóły techniczne",
+    "technicalHint": "Opcjonalne metadane architektoniczne i infrastrukturalne",
+    "tags": "Tagi",
+    "owners": "Właściciele"
+  },
+  "owner": {
+    "name": "Imię i nazwisko",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "email": "Email",
+    "role": "Rola",
+    "validFrom": "Ważny od",
+    "validTo": "Ważny do (opcjonalnie)",
+    "add": "Dodaj właściciela",
+    "edit": "Edytuj właściciela",
+    "delete": "Usuń właściciela",
+    "noOwners": "Brak przypisanych właścicieli.",
+    "pendingHint": "Właściciele zostaną zapisani po utworzeniu systemu."
+  },
+  "action": {
+    "new": "Nowy system IT",
+    "edit": "Edytuj",
+    "deactivate": "Dezaktywuj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "back": "Wróć",
+    "addTag": "Dodaj tag",
+    "removeTag": "Usuń tag"
+  },
+  "toolbar": {
+    "selectToEdit": "Zaznacz wiersz, aby edytować",
+    "selectToDeactivate": "Zaznacz wiersz, aby dezaktywować",
+    "alreadyInactive": "Ten system jest już nieaktywny"
+  },
+  "confirm": {
+    "deactivate": "Czy na pewno chcesz dezaktywować ten system IT? Nie będzie on widoczny na liście aktywnych systemów.",
+    "deleteOwner": "Czy na pewno chcesz usunąć tego właściciela?"
+  },
+  "tags": {
+    "noTags": "Brak tagów. Tagi ułatwiają filtrowanie i wyszukiwanie."
+  },
+  "toast": {
+    "created": "System IT został pomyślnie utworzony.",
+    "updated": "System IT został pomyślnie zaktualizowany.",
+    "deactivated": "System IT został dezaktywowany.",
+    "ownerAdded": "Właściciel został dodany.",
+    "ownerUpdated": "Właściciel został zaktualizowany.",
+    "ownerDeleted": "Właściciel został usunięty.",
+    "createdOwnersFailed": "System został utworzony, ale nie udało się zapisać wszystkich właścicieli. Możesz dodać ich ręcznie."
+  },
+  "error": {
+    "duplicateCode": "System IT o kodzie \"{{ code }}\" już istnieje.",
+    "notFound": "System IT nie został znaleziony.",
+    "codePattern": "Kod musi zaczynać się wielką literą i zawierać tylko wielkie litery, cyfry, podkreślenia lub myślniki.",
+    "invalidEmail": "Wprowadź prawidłowy adres email."
+  },
+  "badge": {
+    "active": "Aktywny",
+    "inactive": "Nieaktywny"
+  }
+}
