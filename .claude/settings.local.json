@@ -30,7 +30,8 @@
       "Bash(Test-Path *)",
       "Bash(xargs -I{} sh -c 'echo \"=== {} ===\"; cat \"{}\"')",
       "Bash(JAVA_HOME=/c/java/jdk-21 PATH=/c/java/jdk-21/bin:__TRACKED_VAR__ ./mvnw compile -q)",
-      "Bash(Select-Object FullName)"
+      "Bash(Select-Object FullName)",
+      "Bash(git rm *)"
     ]
   }
 }
