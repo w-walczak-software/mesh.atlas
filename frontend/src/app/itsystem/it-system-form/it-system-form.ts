@@ -35,6 +35,10 @@ import {
   ItSystemOwnerDto,
 } from '../model/itsystem.model';
 import { ItSystemOwnerDialog } from './it-system-owner.dialog';
+import {
+  ItSystemIconPickerDialog,
+  IconPickerDialogData,
+} from '../it-system-icon-picker/it-system-icon-picker.dialog';
 
 @Component({
   selector: 'app-it-system-form',
@@ -90,6 +94,7 @@ export class ItSystemForm implements OnInit {
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
 
   protected readonly tags = signal<string[]>([]);
+  protected readonly icon = signal<string | null>(null);
 
   protected readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.maxLength(100),
@@ -226,6 +231,7 @@ export class ItSystemForm implements OnInit {
         scopeId: v.scopeId || null,
         tags: this.tags().length ? this.tags() : null,
         metadata: null,
+        icon: this.icon() || null,
       }).subscribe({
         next: () => {
           this.saving.set(false);
@@ -255,6 +261,7 @@ export class ItSystemForm implements OnInit {
         scopeId: v.scopeId || null,
         tags: this.tags().length ? this.tags() : null,
         metadata: null,
+        icon: this.icon() || null,
       }).subscribe({
         next: (created) => this.persistPendingOwners(created),
         error: (err: HttpErrorResponse) => {
@@ -267,6 +274,20 @@ export class ItSystemForm implements OnInit {
 
   protected cancel(): void {
     this.router.navigate(['/it-systems']);
+  }
+
+  protected openIconPicker(): void {
+    this.matDialog
+      .open(ItSystemIconPickerDialog, {
+        width: '700px',
+        maxWidth: '95vw',
+        data: { currentIcon: this.icon() } satisfies IconPickerDialogData,
+      })
+      .afterClosed()
+      .subscribe((result: string | null | undefined) => {
+        if (result === undefined) return;
+        this.icon.set(result);
+      });
   }
 
   protected openHistory(): void {
@@ -311,7 +332,7 @@ export class ItSystemForm implements OnInit {
       businessCriticality: tr('businessCriticality'), dataClassification: tr('dataClassification'),
       systemType: tr('systemType'), architectureStyle: tr('architectureStyle'),
       deploymentModel: tr('deploymentModel'), runtimeEnvironment: tr('runtimeEnvironment'),
-      scope: tr('scope'), tags: tr('tags'), active: tr('active'),
+      scope: tr('scope'), tags: tr('tags'), icon: tr('icon'), active: tr('active'),
       createdAt: tr('createdAt'), createdBy: tr('createdBy'),
       updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
     };
@@ -365,6 +386,7 @@ export class ItSystemForm implements OnInit {
       next: (sys) => {
         this.system.set(sys);
         this.tags.set(sys.tags ?? []);
+        this.icon.set(sys.icon ?? null);
         this.form.patchValue({
           code: sys.code,
           name: sys.name,

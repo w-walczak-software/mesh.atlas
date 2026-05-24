@@ -81,6 +81,12 @@ export class ItSystems implements OnInit {
     return {
       tableId: 'it-systems',
       columns: [
+        {
+          key: 'icon',
+          label: '',
+          width: '48px',
+          cellRender: (row) => row.icon ? { icon: { name: row.icon } } : { text: '' },
+        },
         { key: 'code', label: this.t.translate('itsystem.field.code'), width: '140px', sortable: true },
         { key: 'name', label: this.t.translate('itsystem.field.name'), sortable: true },
         {

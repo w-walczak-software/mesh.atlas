@@ -45,6 +45,25 @@
           </div>
 
           <div class="card-body">
+            <div class="icon-picker-field">
+              <span class="icon-picker-label">{{ t('itsystem.field.icon') }}</span>
+              <div class="icon-picker-control">
+                <div class="icon-preview" [class.icon-preview--has-icon]="icon()">
+                  <mat-icon class="icon-preview-icon">{{ icon() || 'category' }}</mat-icon>
+                </div>
+                <button mat-stroked-button type="button" (click)="openIconPicker()">
+                  <mat-icon>{{ icon() ? 'edit' : 'add_photo_alternate' }}</mat-icon>
+                  {{ icon() ? t('itsystem.iconPicker.change') : t('itsystem.iconPicker.choose') }}
+                </button>
+                @if (icon()) {
+                  <button mat-icon-button type="button" (click)="icon.set(null)"
+                          [matTooltip]="t('itsystem.iconPicker.clear')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+
             <div class="field-row field-row--code-name">
               <mat-form-field appearance="outline">
                 <mat-label>{{ t('itsystem.field.code') }}</mat-label>

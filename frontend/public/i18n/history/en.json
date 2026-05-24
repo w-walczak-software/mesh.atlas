@@ -11,7 +11,7 @@
   "type": {
     "ADDED": "Created",
     "MODIFIED": "Modified",
-    "DELETED": "Deactivated"
+    "DELETED": "Deleted"
   },
   "fields": {
     "id": "ID",
@@ -44,6 +44,10 @@
     "systemDefined": "System Defined",
     "displayOrder": "Display Order",
     "typeId": "Dictionary Type ID",
-    "typeCode": "Dictionary Type"
+    "typeCode": "Dictionary Type",
+    "attachments": "Attachments",
+    "icon": "Icon",
+    "fileName": "File Name",
+    "fileSize": "File Size"
   }
 }

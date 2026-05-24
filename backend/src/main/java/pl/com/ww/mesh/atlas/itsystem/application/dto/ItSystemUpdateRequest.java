@@ -58,5 +58,8 @@ public record ItSystemUpdateRequest(
 
         List<String> tags,
 
-        Map<String, Object> metadata
+        Map<String, Object> metadata,
+
+        @Size(max = 100)
+        String icon
 ) {}

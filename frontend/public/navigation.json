@@ -66,6 +66,13 @@
       "roles": ["atlas_admin", "atlas_user"]
     },
     {
+      "id": "data-domains",
+      "label": "nav.menu.dataDomains",
+      "icon": "schema",
+      "route": "/data-domains",
+      "roles": ["atlas_admin", "atlas_user"]
+    },
+    {
       "id": "subscriptions",
       "label": "nav.menu.subscriptions",
       "icon": "subscriptions",

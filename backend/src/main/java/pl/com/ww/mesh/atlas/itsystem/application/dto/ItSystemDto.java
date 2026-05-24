@@ -26,6 +26,7 @@ public record ItSystemDto(
         List<ItSystemOwnerDto> owners,
         List<String> tags,
         Map<String, Object> metadata,
+        String icon,
         boolean active,
         LocalDateTime createdAt,
         String createdBy,

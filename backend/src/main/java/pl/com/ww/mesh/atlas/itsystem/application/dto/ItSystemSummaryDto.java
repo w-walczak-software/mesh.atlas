@@ -8,6 +8,7 @@ public record ItSystemSummaryDto(
         UUID id,
         String code,
         String name,
+        String icon,
         DictionaryEntryRefDto status,
         DictionaryEntryRefDto lifecycleStage,
         DictionaryEntryRefDto businessCriticality,

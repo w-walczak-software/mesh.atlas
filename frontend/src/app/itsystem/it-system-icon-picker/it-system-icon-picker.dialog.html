@@ -1,0 +1,37 @@
+<ng-container *transloco="let t; scope: 'itsystem'">
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon class="title-icon">category</mat-icon>
+    {{ t('itsystem.iconPicker.title') }}
+  </h2>
+
+  <mat-dialog-content class="dialog-content">
+    @for (cat of categories; track cat.key) {
+      <div class="category-section">
+        <span class="category-label">{{ t('itsystem.iconPicker.category.' + cat.key) }}</span>
+        <div class="icon-grid">
+          @for (icon of cat.icons; track icon.name) {
+            <button
+              type="button"
+              class="icon-btn"
+              [class.selected]="selected() === icon.name"
+              [matTooltip]="icon.label"
+              matTooltipPosition="above"
+              (click)="select(icon.name)"
+              [attr.aria-label]="icon.label"
+              [attr.aria-pressed]="selected() === icon.name"
+            >
+              <mat-icon>{{ icon.name }}</mat-icon>
+            </button>
+          }
+        </div>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="cancel()">{{ t('itsystem.action.cancel') }}</button>
+    <button mat-flat-button (click)="confirm()" [disabled]="selected() === null">
+      {{ t('itsystem.iconPicker.select') }}
+    </button>
+  </mat-dialog-actions>
+</ng-container>

@@ -199,6 +199,57 @@
   }
 }
 
+// ─── Icon picker ──────────────────────────────────────────────────────────────
+
+.icon-picker-field {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 4px 0 8px;
+  border-bottom: 1px solid var(--mat-sys-surface-container-high);
+  margin-bottom: 4px;
+}
+
+.icon-picker-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--mat-sys-on-surface-variant);
+  min-width: 60px;
+}
+
+.icon-picker-control {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-preview {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  border: 2px dashed var(--mat-sys-outline-variant);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.45;
+  flex-shrink: 0;
+
+  &.icon-preview--has-icon {
+    border-style: solid;
+    border-color: var(--mat-sys-primary);
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+    opacity: 1;
+  }
+}
+
+.icon-preview-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
 // ─── Tags ─────────────────────────────────────────────────────────────────────
 
 .tags-input-row {

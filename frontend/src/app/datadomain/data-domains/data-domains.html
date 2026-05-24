@@ -1,0 +1,60 @@
+<ng-container *transloco="let t; scope: 'datadomain'; lang: lang()">
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">{{ t('datadomain.title') }}</h1>
+    </div>
+
+    <mat-expansion-panel class="search-panel" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>search</mat-icon>
+          {{ t('datadomain.search.title') }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearch()">
+        <div class="search-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ t('datadomain.search.query') }}</mat-label>
+            <input matInput formControlName="query" />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ t('datadomain.search.tag') }}</mat-label>
+            <input matInput formControlName="tag" />
+            <mat-icon matSuffix>local_offer</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('datadomain.search.activeLabel') }}</mat-label>
+            <mat-select formControlName="active">
+              <mat-option [value]="null">{{ t('datadomain.search.all') }}</mat-option>
+              <mat-option [value]="true">{{ t('datadomain.search.activeOnly') }}</mat-option>
+              <mat-option [value]="false">{{ t('datadomain.search.inactiveOnly') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="search-actions">
+          <button mat-stroked-button type="button" (click)="onReset()">
+            <mat-icon>clear</mat-icon>
+            {{ t('datadomain.search.reset') }}
+          </button>
+          <button mat-flat-button type="submit">
+            <mat-icon>search</mat-icon>
+            {{ t('datadomain.search.search') }}
+          </button>
+        </div>
+      </form>
+    </mat-expansion-panel>
+
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+      (pageChange)="onPageChange($event)"
+      (rowSelect)="selectedRow.set($event)"
+    />
+  </div>
+</ng-container>

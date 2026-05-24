@@ -11,7 +11,7 @@
   "type": {
     "ADDED": "Dodano",
     "MODIFIED": "Zmodyfikowano",
-    "DELETED": "Dezaktywowano"
+    "DELETED": "Usunięto"
   },
   "fields": {
     "id": "ID",
@@ -44,6 +44,10 @@
     "systemDefined": "Systemowy",
     "displayOrder": "Kolejność wyświetlania",
     "typeId": "ID Typu słownika",
-    "typeCode": "Typ słownika"
+    "typeCode": "Typ słownika",
+    "attachments": "Załączniki",
+    "icon": "Ikona",
+    "fileName": "Nazwa pliku",
+    "fileSize": "Rozmiar pliku"
   }
 }

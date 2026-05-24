@@ -49,7 +49,7 @@
                 <div class="card-body">
                   <table class="snapshot-table" aria-label="Revision snapshot">
                     <tbody>
-                      @for (pair of snapshotEntries(item.snap); track pair[0]) {
+                      @for (pair of snapshotEntries(item.snap, item.changed); track pair[0]) {
                         <tr [class.changed-row]="item.changed?.has(pair[0])">
                           <td class="field-name">
                             {{ fieldLabel(pair[0]) }}
@@ -57,7 +57,13 @@
                               <mat-icon class="changed-icon" [matTooltip]="t('history.fieldChanged')">edit</mat-icon>
                             }
                           </td>
-                          <td class="field-value">{{ displayValue(pair[1]) }}</td>
+                          <td class="field-value">
+                            @if (item.changed?.has(pair[0]) && item.prevSnap) {
+                              <span class="prev-value">{{ displayValue(item.prevSnap[pair[0]]) }}</span>
+                              <mat-icon class="change-arrow" aria-hidden="true">arrow_forward</mat-icon>
+                            }
+                            {{ displayValue(pair[1]) }}
+                          </td>
                         </tr>
                       }
                     </tbody>

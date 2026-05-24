@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { RevisionEntryDto } from './history.model';
+import { DataDomainAttachmentHistoryDto } from '../../datadomain/model/data-domain.model';
 
 @Injectable({ providedIn: 'root' })
 export class HistoryService {
@@ -30,6 +31,18 @@ export class HistoryService {
   getDictionaryTypeRevisions(id: string): Observable<RevisionEntryDto<unknown>[]> {
     return this.http.get<RevisionEntryDto<unknown>[]>(
       `${this.base}/api/v1/dictionary-types/${id}/revisions`,
+    );
+  }
+
+  getDataDomainRevisions(id: string): Observable<RevisionEntryDto<unknown>[]> {
+    return this.http.get<RevisionEntryDto<unknown>[]>(
+      `${this.base}/api/v1/data-domains/${id}/revisions`,
+    );
+  }
+
+  getDataDomainAttachmentHistory(id: string): Observable<DataDomainAttachmentHistoryDto[]> {
+    return this.http.get<DataDomainAttachmentHistoryDto[]>(
+      `${this.base}/api/v1/data-domains/${id}/attachment-history`,
     );
   }
 }

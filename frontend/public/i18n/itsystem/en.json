@@ -30,7 +30,26 @@
     "runtimeEnvironment": "Runtime Environment",
     "scope": "System Scope",
     "tags": "Tags",
+    "icon": "Icon",
     "active": "Active"
+  },
+  "iconPicker": {
+    "title": "Choose System Icon",
+    "choose": "Choose Icon",
+    "change": "Change Icon",
+    "clear": "Remove Icon",
+    "select": "Select",
+    "category": {
+      "business": "Business",
+      "finance": "Finance",
+      "data": "Data & Analytics",
+      "technical": "Technical & Integration",
+      "cloud": "Cloud & Infrastructure",
+      "operations": "Operations & Logistics",
+      "communication": "Communication",
+      "security": "Security & Compliance",
+      "support": "Support & Governance"
+    }
   },
   "section": {
     "basic": "Basic Information",

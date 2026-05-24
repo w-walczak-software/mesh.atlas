@@ -1,0 +1,85 @@
+{
+  "title": "Domeny Danych",
+  "new": "Nowa Domena Danych",
+  "edit": "Edytuj Domenę Danych",
+  "search": {
+    "title": "Wyszukiwanie",
+    "query": "Kod / Nazwa",
+    "tag": "Tag",
+    "all": "Wszystkie",
+    "activeOnly": "Tylko aktywne",
+    "inactiveOnly": "Tylko nieaktywne",
+    "activeLabel": "Aktywność",
+    "reset": "Resetuj",
+    "search": "Szukaj"
+  },
+  "field": {
+    "code": "Kod",
+    "name": "Nazwa",
+    "description": "Opis",
+    "documentationUrl": "URL dokumentacji",
+    "tags": "Tagi",
+    "attachments": "Załączniki",
+    "active": "Aktywna"
+  },
+  "section": {
+    "basic": "Informacje podstawowe",
+    "tags": "Tagi",
+    "attachments": "Załączniki",
+    "attachmentsHint": "Pliki dokumentacji, przykłady, schematy (PDF, DOCX, JSON itp.)"
+  },
+  "attachment": {
+    "upload": "Wgraj plik",
+    "download": "Pobierz",
+    "editDescription": "Edytuj opis",
+    "delete": "Usuń",
+    "fileName": "Nazwa pliku",
+    "description": "Opis",
+    "descriptionPlaceholder": "Opisz zawartość pliku (opcjonalnie)...",
+    "descriptionHint": "Opcjonalnie: krótki opis zawartości pliku.",
+    "contentType": "Typ",
+    "fileSize": "Rozmiar",
+    "uploadedAt": "Data wgrania",
+    "noAttachments": "Brak załączników. Wgraj pliki dokumentacji lub przykładów."
+  },
+  "action": {
+    "new": "Nowa Domena Danych",
+    "edit": "Edytuj",
+    "deactivate": "Dezaktywuj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "back": "Wróć",
+    "history": "Historia",
+    "addTag": "Dodaj tag",
+    "removeTag": "Usuń tag"
+  },
+  "toolbar": {
+    "selectToEdit": "Zaznacz wiersz, aby edytować",
+    "selectToDeactivate": "Zaznacz wiersz, aby dezaktywować",
+    "alreadyInactive": "Ta domena danych jest już nieaktywna"
+  },
+  "confirm": {
+    "deactivate": "Czy na pewno chcesz dezaktywować tę domenę danych?",
+    "deleteAttachment": "Czy na pewno chcesz usunąć ten załącznik? Tej operacji nie można cofnąć."
+  },
+  "tags": {
+    "noTags": "Brak tagów. Tagi ułatwiają filtrowanie i wyszukiwanie."
+  },
+  "toast": {
+    "created": "Domena danych została pomyślnie utworzona.",
+    "updated": "Domena danych została pomyślnie zaktualizowana.",
+    "deactivated": "Domena danych została dezaktywowana.",
+    "attachmentUploaded": "Plik został pomyślnie wgrany.",
+    "attachmentUpdated": "Opis załącznika został zapisany.",
+    "attachmentDeleted": "Załącznik został usunięty."
+  },
+  "error": {
+    "duplicateCode": "Domena danych o kodzie \"{{ code }}\" już istnieje.",
+    "notFound": "Domena danych nie została znaleziona.",
+    "codePattern": "Kod musi zaczynać się wielką literą i zawierać tylko wielkie litery, cyfry, podkreślenia lub myślniki."
+  },
+  "badge": {
+    "active": "Aktywna",
+    "inactive": "Nieaktywna"
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "title": "Data Domains",
+  "new": "New Data Domain",
+  "edit": "Edit Data Domain",
+  "search": {
+    "title": "Search",
+    "query": "Code / Name",
+    "tag": "Tag",
+    "all": "All",
+    "activeOnly": "Active only",
+    "inactiveOnly": "Inactive only",
+    "activeLabel": "Activity",
+    "reset": "Reset",
+    "search": "Search"
+  },
+  "field": {
+    "code": "Code",
+    "name": "Name",
+    "description": "Description",
+    "documentationUrl": "Documentation URL",
+    "tags": "Tags",
+    "attachments": "Attachments",
+    "active": "Active"
+  },
+  "section": {
+    "basic": "Basic Information",
+    "tags": "Tags",
+    "attachments": "Attachments",
+    "attachmentsHint": "Documentation files, examples, schemas (PDF, DOCX, JSON, etc.)"
+  },
+  "attachment": {
+    "upload": "Upload File",
+    "download": "Download",
+    "editDescription": "Edit description",
+    "delete": "Remove",
+    "fileName": "File Name",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the contents of this file (optional)...",
+    "descriptionHint": "Optional: briefly describe what this file contains.",
+    "contentType": "Type",
+    "fileSize": "Size",
+    "uploadedAt": "Uploaded At",
+    "noAttachments": "No attachments. Upload documentation or example files."
+  },
+  "action": {
+    "new": "New Data Domain",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "history": "History",
+    "addTag": "Add Tag",
+    "removeTag": "Remove tag"
+  },
+  "toolbar": {
+    "selectToEdit": "Select a row to edit",
+    "selectToDeactivate": "Select a row to deactivate",
+    "alreadyInactive": "This data domain is already inactive"
+  },
+  "confirm": {
+    "deactivate": "Are you sure you want to deactivate this data domain?",
+    "deleteAttachment": "Are you sure you want to remove this attachment? This action cannot be undone."
+  },
+  "tags": {
+    "noTags": "No tags added. Tags help with filtering and discovery."
+  },
+  "toast": {
+    "created": "Data domain created successfully.",
+    "updated": "Data domain updated successfully.",
+    "deactivated": "Data domain deactivated.",
+    "attachmentUploaded": "File uploaded successfully.",
+    "attachmentUpdated": "Attachment description saved.",
+    "attachmentDeleted": "Attachment removed."
+  },
+  "error": {
+    "duplicateCode": "A data domain with code \"{{ code }}\" already exists.",
+    "notFound": "Data domain not found.",
+    "codePattern": "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores or hyphens."
+  },
+  "badge": {
+    "active": "Active",
+    "inactive": "Inactive"
+  }
+}

@@ -133,6 +133,9 @@ public class ItSystemEntity extends AuditableEntity {
     @Column(name = "metadata", columnDefinition = "jsonb")
     private Map<String, Object> metadata;
 
+    @Column(name = "icon", length = 100)
+    private String icon;
+
     @Column(name = "active", nullable = false)
     private boolean active;
 }

@@ -16,6 +16,7 @@ export interface ItSystemSummaryDto {
   id: string;
   code: string;
   name: string;
+  icon: string | null;
   status: DictionaryEntryRef;
   lifecycleStage: DictionaryEntryRef;
   businessCriticality: DictionaryEntryRef;
@@ -56,6 +57,7 @@ export interface ItSystemDto {
   owners: ItSystemOwnerDto[];
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
+  icon: string | null;
   active: boolean;
   createdAt: string;
   createdBy: string;
@@ -80,6 +82,7 @@ export interface ItSystemCreateRequest {
   scopeId: string | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
+  icon: string | null;
 }
 
 export interface ItSystemUpdateRequest {
@@ -98,6 +101,7 @@ export interface ItSystemUpdateRequest {
   scopeId: string | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
+  icon: string | null;
 }
 
 export interface ItSystemOwnerCreateRequest {

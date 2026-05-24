@@ -30,7 +30,26 @@
     "runtimeEnvironment": "Środowisko uruchomieniowe",
     "scope": "Zasięg systemu",
     "tags": "Tagi",
+    "icon": "Ikona",
     "active": "Aktywny"
+  },
+  "iconPicker": {
+    "title": "Wybierz ikonę systemu",
+    "choose": "Wybierz ikonę",
+    "change": "Zmień ikonę",
+    "clear": "Usuń ikonę",
+    "select": "Wybierz",
+    "category": {
+      "business": "Biznesowe",
+      "finance": "Finanse",
+      "data": "Dane i analityka",
+      "technical": "Techniczne i integracja",
+      "cloud": "Chmura i infrastruktura",
+      "operations": "Operacje i logistyka",
+      "communication": "Komunikacja",
+      "security": "Bezpieczeństwo i zgodność",
+      "support": "Wsparcie i ład"
+    }
   },
   "section": {
     "basic": "Informacje podstawowe",

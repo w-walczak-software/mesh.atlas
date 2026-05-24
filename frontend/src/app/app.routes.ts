@@ -37,6 +37,11 @@ export const routes: Routes = [
           import('./itsystem/itsystem.routes').then(m => m.itsystemRoutes),
       },
       {
+        path: 'data-domains',
+        loadChildren: () =>
+          import('./datadomain/data-domain.routes').then(m => m.dataDomainRoutes),
+      },
+      {
         path: 'dictionaries',
         loadChildren: () =>
           import('./dictionary/dictionary.routes').then(m => m.dictionaryRoutes),

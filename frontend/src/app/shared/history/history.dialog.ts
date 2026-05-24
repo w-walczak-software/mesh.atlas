@@ -49,8 +49,13 @@ export class HistoryDialog {
       const prev = all[idx + 1];
       const snap = this.asRecord(entry.snapshot);
       const prevSnap = prev ? this.asRecord(prev.snapshot) : null;
-      const changed = prevSnap ? this.diffSnapshot(snap, prevSnap) : null;
-      return { entry, snap, changed };
+      // Only diff entries of the same kind; attachment entries are standalone events
+      const isAttachment = snap['_kind'] === 'attachment';
+      const prevIsAttachment = prevSnap?.['_kind'] === 'attachment';
+      const changed = (!isAttachment && prevSnap && !prevIsAttachment)
+        ? this.diffSnapshot(snap, prevSnap)
+        : null;
+      return { entry, snap, prevSnap, changed };
     });
   });
 
@@ -78,8 +83,15 @@ export class HistoryDialog {
     if (value === null || value === undefined) return '—';
     if (typeof value === 'boolean') return value ? this.t.translate('history.yes') : this.t.translate('history.no');
     if (typeof value === 'object') {
-      if (Array.isArray(value)) return value.length ? value.join(', ') : '—';
+      if (Array.isArray(value)) {
+        if (!value.length) return '—';
+        return value.map(item => this.displayValue(item)).join(', ');
+      }
       const obj = value as Record<string, unknown>;
+      if (obj['fileName'] !== undefined) {
+        const desc = obj['description'];
+        return desc ? `${obj['fileName']} (${desc})` : (obj['fileName'] as string);
+      }
       return obj['name'] as string ?? obj['code'] as string ?? JSON.stringify(value);
     }
     return String(value);
@@ -89,8 +101,15 @@ export class HistoryDialog {
     return this.data.fieldLabels?.[key] ?? key;
   }
 
-  protected snapshotEntries(snapshot: Record<string, unknown>): [string, unknown][] {
-    return Object.entries(snapshot).filter(([, v]) => !Array.isArray(v) || (v as unknown[]).length > 0);
+  protected snapshotEntries(
+    snapshot: Record<string, unknown>,
+    changed: Set<string> | null,
+  ): [string, unknown][] {
+    return Object.entries(snapshot).filter(([key, v]) => {
+      if (key.startsWith('_')) return false;
+      if (!Array.isArray(v)) return v !== null && v !== undefined && v !== '';
+      return (v as unknown[]).length > 0 || (changed?.has(key) ?? false);
+    });
   }
 
   private asRecord(value: unknown): Record<string, unknown> {
