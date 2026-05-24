@@ -53,6 +53,9 @@ public record ItSystemUpdateRequest(
         @DictionaryType(dictionaryCode = "RUNTIME_ENVIRONMENT")
         UUID runtimeEnvironmentId,
 
+        @DictionaryType(dictionaryCode = "SYSTEM_SCOPE")
+        UUID scopeId,
+
         List<String> tags,
 
         Map<String, Object> metadata

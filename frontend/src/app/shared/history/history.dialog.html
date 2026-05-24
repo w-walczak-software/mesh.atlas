@@ -1,0 +1,77 @@
+<ng-container *transloco="let t; scope: 'history'">
+  <h2 mat-dialog-title class="dialog-title">
+    <mat-icon class="title-icon">history</mat-icon>
+    {{ t('history.title') }}: {{ data.title }}
+  </h2>
+
+  <mat-dialog-content class="dialog-content">
+    @if (data.entries.length === 0) {
+      <div class="empty-state">
+        <mat-icon>history_toggle_off</mat-icon>
+        <p>{{ t('history.noRevisions') }}</p>
+      </div>
+    } @else {
+      <div class="timeline">
+        @for (item of entries(); track item.entry.revisionNumber) {
+          <div class="timeline-item" [class.expanded]="expandedRev() === item.entry.revisionNumber">
+            <div class="timeline-connector">
+              <div class="connector-line"></div>
+              <div class="connector-dot {{ revClass(item.entry.revisionType) }}">
+                <mat-icon>{{ revIcon(item.entry.revisionType) }}</mat-icon>
+              </div>
+            </div>
+
+            <div class="timeline-card" (click)="toggle(item.entry.revisionNumber)" role="button" [attr.aria-expanded]="expandedRev() === item.entry.revisionNumber">
+              <div class="card-header">
+                <div class="rev-meta">
+                  <span class="rev-type-badge {{ revClass(item.entry.revisionType) }}">
+                    {{ t('history.type.' + item.entry.revisionType) }}
+                  </span>
+                  <span class="rev-timestamp">
+                    {{ item.entry.revisionTimestamp | date:'dd.MM.yyyy, HH:mm:ss' }}
+                  </span>
+                </div>
+                <div class="rev-actor">
+                  <mat-icon class="actor-icon">person</mat-icon>
+                  <span class="actor-name">{{ item.entry.username ?? t('history.unknownUser') }}</span>
+                  @if (item.changed && item.changed.size > 0) {
+                    <span class="changed-count" [matTooltip]="t('history.changedFields', { n: item.changed.size })">
+                      {{ item.changed.size }} {{ t('history.changes') }}
+                    </span>
+                  }
+                </div>
+                <mat-icon class="expand-icon">
+                  {{ expandedRev() === item.entry.revisionNumber ? 'expand_less' : 'expand_more' }}
+                </mat-icon>
+              </div>
+
+              @if (expandedRev() === item.entry.revisionNumber) {
+                <div class="card-body">
+                  <table class="snapshot-table" aria-label="Revision snapshot">
+                    <tbody>
+                      @for (pair of snapshotEntries(item.snap); track pair[0]) {
+                        <tr [class.changed-row]="item.changed?.has(pair[0])">
+                          <td class="field-name">
+                            {{ fieldLabel(pair[0]) }}
+                            @if (item.changed?.has(pair[0])) {
+                              <mat-icon class="changed-icon" [matTooltip]="t('history.fieldChanged')">edit</mat-icon>
+                            }
+                          </td>
+                          <td class="field-value">{{ displayValue(pair[1]) }}</td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                </div>
+              }
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="ref.close()">{{ t('history.close') }}</button>
+  </mat-dialog-actions>
+</ng-container>

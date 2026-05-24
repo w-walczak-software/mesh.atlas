@@ -19,6 +19,8 @@ import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryCreateRequ
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryDto;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryUpdateRequest;
 import pl.com.ww.mesh.atlas.dictionary.application.service.DictionaryEntryService;
+import pl.com.ww.mesh.atlas.dictionary.application.service.DictionaryRevisionService;
+import pl.com.ww.mesh.atlas.global.audit.RevisionEntryDto;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
@@ -30,6 +32,7 @@ import java.util.UUID;
 public class DictionaryEntryController {
 
     private final DictionaryEntryService service;
+    private final DictionaryRevisionService revisionService;
 
     /**
      * Returns a flat list of entries for a given dictionary type code.
@@ -82,5 +85,11 @@ public class DictionaryEntryController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);
+    }
+
+    @GetMapping("/api/v1/dictionary-entries/{id}/revisions")
+    @IsAtlasUser
+    public List<RevisionEntryDto<DictionaryEntryDto>> getRevisions(@PathVariable UUID id) {
+        return revisionService.getEntryRevisions(id);
     }
 }

@@ -24,6 +24,8 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
 import { DialogService } from '@shared/dialogs/dialog.service';
+import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
+import { HistoryService } from '@shared/history/history.service';
 import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
 import { ItSystemService } from '../service/itsystem.service';
@@ -57,6 +59,7 @@ import { ItSystemOwnerDialog } from './it-system-owner.dialog';
 })
 export class ItSystemForm implements OnInit {
   private readonly service = inject(ItSystemService);
+  private readonly historyService = inject(HistoryService);
   private readonly entryService = inject(DictionaryEntryService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -83,6 +86,7 @@ export class ItSystemForm implements OnInit {
   protected readonly architectureStyles = signal<DictionaryEntryDto[]>([]);
   protected readonly deploymentModels = signal<DictionaryEntryDto[]>([]);
   protected readonly runtimeEnvironments = signal<DictionaryEntryDto[]>([]);
+  protected readonly systemScopes = signal<DictionaryEntryDto[]>([]);
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
 
   protected readonly tags = signal<string[]>([]);
@@ -102,6 +106,7 @@ export class ItSystemForm implements OnInit {
     architectureStyleId: [null as string | null],
     deploymentModelId: [null as string | null],
     runtimeEnvironmentId: [null as string | null],
+    scopeId: [null as string | null],
     newTag: [''],
   });
 
@@ -218,6 +223,7 @@ export class ItSystemForm implements OnInit {
         architectureStyleId: v.architectureStyleId || null,
         deploymentModelId: v.deploymentModelId || null,
         runtimeEnvironmentId: v.runtimeEnvironmentId || null,
+        scopeId: v.scopeId || null,
         tags: this.tags().length ? this.tags() : null,
         metadata: null,
       }).subscribe({
@@ -246,6 +252,7 @@ export class ItSystemForm implements OnInit {
         architectureStyleId: v.architectureStyleId || null,
         deploymentModelId: v.deploymentModelId || null,
         runtimeEnvironmentId: v.runtimeEnvironmentId || null,
+        scopeId: v.scopeId || null,
         tags: this.tags().length ? this.tags() : null,
         metadata: null,
       }).subscribe({
@@ -260,6 +267,64 @@ export class ItSystemForm implements OnInit {
 
   protected cancel(): void {
     this.router.navigate(['/it-systems']);
+  }
+
+  protected openHistory(): void {
+    const id = this.systemId();
+    if (!id) return;
+    const systemName = this.system()?.name ?? id;
+    this.historyService.getItSystemRevisions(id).subscribe(entries => {
+      this.matDialog.open(HistoryDialog, {
+        data: {
+          title: systemName,
+          entries,
+          fieldLabels: this.buildItSystemFieldLabels(),
+        } satisfies HistoryDialogData,
+        maxWidth: '800px',
+        width: '95vw',
+      });
+    });
+  }
+
+  protected openOwnerHistory(owner: ItSystemOwnerDto): void {
+    const systemId = this.systemId();
+    if (!systemId) return;
+    this.historyService.getItSystemOwnerRevisions(systemId, owner.id).subscribe(entries => {
+      this.matDialog.open(HistoryDialog, {
+        data: {
+          title: `${owner.firstName} ${owner.lastName}`,
+          entries,
+          fieldLabels: this.buildOwnerFieldLabels(),
+        } satisfies HistoryDialogData,
+        maxWidth: '800px',
+        width: '95vw',
+      });
+    });
+  }
+
+  private buildItSystemFieldLabels(): Record<string, string> {
+    const tr = (k: string) => this.t.translate<string>('history.fields.' + k);
+    return {
+      id: tr('id'), code: tr('code'), name: tr('name'), description: tr('description'),
+      documentationUrl: tr('documentationUrl'), repositoryUrl: tr('repositoryUrl'),
+      status: tr('status'), lifecycleStage: tr('lifecycleStage'),
+      businessCriticality: tr('businessCriticality'), dataClassification: tr('dataClassification'),
+      systemType: tr('systemType'), architectureStyle: tr('architectureStyle'),
+      deploymentModel: tr('deploymentModel'), runtimeEnvironment: tr('runtimeEnvironment'),
+      scope: tr('scope'), tags: tr('tags'), active: tr('active'),
+      createdAt: tr('createdAt'), createdBy: tr('createdBy'),
+      updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
+    };
+  }
+
+  private buildOwnerFieldLabels(): Record<string, string> {
+    const tr = (k: string) => this.t.translate<string>('history.fields.' + k);
+    return {
+      id: tr('id'), role: tr('role'), firstName: tr('firstName'), lastName: tr('lastName'),
+      email: tr('email'), validFrom: tr('validFrom'), validTo: tr('validTo'),
+      active: tr('active'), createdAt: tr('createdAt'), createdBy: tr('createdBy'),
+      updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
+    };
   }
 
   private persistPendingOwners(created: ItSystemDto): void {
@@ -314,6 +379,7 @@ export class ItSystemForm implements OnInit {
           architectureStyleId: sys.architectureStyle?.id ?? null,
           deploymentModelId: sys.deploymentModel?.id ?? null,
           runtimeEnvironmentId: sys.runtimeEnvironment?.id ?? null,
+          scopeId: sys.scope?.id ?? null,
         });
         this.form.controls.code.disable();
         this.loading.set(false);
@@ -339,6 +405,7 @@ export class ItSystemForm implements OnInit {
     this.entryService.findByTypeCode('ARCHITECTURE_STYLE').subscribe(e => this.architectureStyles.set(e));
     this.entryService.findByTypeCode('DEPLOYMENT_MODEL').subscribe(e => this.deploymentModels.set(e));
     this.entryService.findByTypeCode('RUNTIME_ENVIRONMENT').subscribe(e => this.runtimeEnvironments.set(e));
+    this.entryService.findByTypeCode('SYSTEM_SCOPE').subscribe(e => this.systemScopes.set(e));
     this.entryService.findByTypeCode('SYSTEM_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
   }
 

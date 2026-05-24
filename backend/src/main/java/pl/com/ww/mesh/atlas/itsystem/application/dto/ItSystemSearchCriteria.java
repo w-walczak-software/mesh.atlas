@@ -9,5 +9,6 @@ public record ItSystemSearchCriteria(
         UUID businessCriticalityId,
         UUID systemTypeId,
         Boolean active,
-        String ownerQuery
+        String ownerQuery,
+        String tag
 ) {}

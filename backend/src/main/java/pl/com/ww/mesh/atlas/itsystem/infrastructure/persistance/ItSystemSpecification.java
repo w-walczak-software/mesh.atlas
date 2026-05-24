@@ -6,6 +6,8 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.hibernate.query.criteria.HibernateCriteriaBuilder;
+import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.NonNull;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
@@ -49,6 +51,15 @@ public class ItSystemSpecification implements Specification<ItSystemEntity> {
         }
         if (criteria.active() != null) {
             predicates.add(cb.equal(root.get("active"), criteria.active()));
+        }
+
+        if (StringUtils.hasText(criteria.tag())) {
+            HibernateCriteriaBuilder hcb = (HibernateCriteriaBuilder) cb;
+            JpaRoot<ItSystemEntity> jpaRoot = (JpaRoot<ItSystemEntity>) root;
+            predicates.add(hcb.like(
+                    cb.lower(hcb.cast(jpaRoot.get("tags"), String.class)),
+                    "%\"" + criteria.tag().toLowerCase() + "\"%"
+            ));
         }
 
         if (StringUtils.hasText(criteria.ownerQuery())) {

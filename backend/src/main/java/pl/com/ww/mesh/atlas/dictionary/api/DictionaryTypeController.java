@@ -19,10 +19,13 @@ import org.springframework.web.bind.annotation.RestController;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryTypeCreateRequest;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryTypeDto;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryTypeUpdateRequest;
+import pl.com.ww.mesh.atlas.dictionary.application.service.DictionaryRevisionService;
 import pl.com.ww.mesh.atlas.dictionary.application.service.DictionaryTypeService;
+import pl.com.ww.mesh.atlas.global.audit.RevisionEntryDto;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -31,6 +34,7 @@ import java.util.UUID;
 public class DictionaryTypeController {
 
     private final DictionaryTypeService service;
+    private final DictionaryRevisionService revisionService;
 
     @GetMapping
     @IsAtlasUser
@@ -71,5 +75,11 @@ public class DictionaryTypeController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);
+    }
+
+    @GetMapping("/{id}/revisions")
+    @IsAtlasUser
+    public List<RevisionEntryDto<DictionaryTypeDto>> getRevisions(@PathVariable UUID id) {
+        return revisionService.getTypeRevisions(id);
     }
 }

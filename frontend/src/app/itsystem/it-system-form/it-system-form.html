@@ -13,6 +13,12 @@
         <span class="form-topbar-sub">{{ t('itsystem.title') }}</span>
       </div>
       <div class="form-topbar-actions">
+        @if (isEditMode()) {
+          <button mat-icon-button type="button" (click)="openHistory()"
+                  [matTooltip]="t('itsystem.action.history')" aria-label="Change history">
+            <mat-icon>history</mat-icon>
+          </button>
+        }
         <button mat-stroked-button type="button" (click)="cancel()">
           {{ t('itsystem.action.cancel') }}
         </button>
@@ -170,6 +176,16 @@
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
               </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('itsystem.field.scope') }}</mat-label>
+                <mat-select formControlName="scopeId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of systemScopes(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
             </div>
           </div>
         </mat-card>
@@ -320,6 +336,11 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row" class="actions-cell">
+                @if (isEditMode()) {
+                  <button mat-icon-button [matTooltip]="t('itsystem.owner.history')" (click)="openOwnerHistory(row)">
+                    <mat-icon>history</mat-icon>
+                  </button>
+                }
                 <button mat-icon-button [matTooltip]="t('itsystem.owner.edit')" (click)="openEditOwnerDialog(row)">
                   <mat-icon>edit</mat-icon>
                 </button>

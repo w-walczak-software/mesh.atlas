@@ -52,6 +52,7 @@ export interface ItSystemDto {
   architectureStyle: DictionaryEntryRef | null;
   deploymentModel: DictionaryEntryRef | null;
   runtimeEnvironment: DictionaryEntryRef | null;
+  scope: DictionaryEntryRef | null;
   owners: ItSystemOwnerDto[];
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
@@ -76,6 +77,7 @@ export interface ItSystemCreateRequest {
   architectureStyleId: string | null;
   deploymentModelId: string | null;
   runtimeEnvironmentId: string | null;
+  scopeId: string | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
 }
@@ -93,6 +95,7 @@ export interface ItSystemUpdateRequest {
   architectureStyleId: string | null;
   deploymentModelId: string | null;
   runtimeEnvironmentId: string | null;
+  scopeId: string | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
 }
@@ -128,6 +131,7 @@ export interface ItSystemSearchParams {
   systemTypeId?: string;
   active?: boolean;
   ownerQuery?: string;
+  tag?: string;
   page?: number;
   size?: number;
   sort?: string;

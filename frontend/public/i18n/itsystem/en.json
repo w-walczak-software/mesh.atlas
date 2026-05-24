@@ -6,6 +6,7 @@
     "title": "Search",
     "query": "Code / Name",
     "ownerQuery": "Owner (name / email)",
+    "tag": "Tag",
     "all": "All",
     "activeOnly": "Active only",
     "inactiveOnly": "Inactive only",
@@ -27,6 +28,7 @@
     "architectureStyle": "Architecture Style",
     "deploymentModel": "Deployment Model",
     "runtimeEnvironment": "Runtime Environment",
+    "scope": "System Scope",
     "tags": "Tags",
     "active": "Active"
   },
@@ -50,6 +52,7 @@
     "add": "Add Owner",
     "edit": "Edit Owner",
     "delete": "Remove Owner",
+    "history": "Owner Change History",
     "noOwners": "No owners assigned yet.",
     "pendingHint": "Owners will be saved after the system is created."
   },
@@ -61,7 +64,8 @@
     "cancel": "Cancel",
     "back": "Back",
     "addTag": "Add Tag",
-    "removeTag": "Remove tag"
+    "removeTag": "Remove tag",
+    "history": "Change History"
   },
   "toolbar": {
     "selectToEdit": "Select a row to edit",

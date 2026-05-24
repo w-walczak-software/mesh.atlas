@@ -67,6 +67,7 @@ export class ItSystems implements OnInit {
   protected readonly searchForm = this.fb.group({
     query: [''],
     ownerQuery: [''],
+    tag: [''],
     statusId: [null as string | null],
     lifecycleStageId: [null as string | null],
     businessCriticalityId: [null as string | null],
@@ -199,6 +200,7 @@ export class ItSystems implements OnInit {
       size: this.pageSize(),
       query: v.query || undefined,
       ownerQuery: v.ownerQuery || undefined,
+      tag: v.tag || undefined,
       statusId: v.statusId || undefined,
       lifecycleStageId: v.lifecycleStageId || undefined,
       businessCriticalityId: v.businessCriticalityId || undefined,

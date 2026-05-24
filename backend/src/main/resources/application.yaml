@@ -51,9 +51,15 @@ spring:
   jpa:
     open-in-view: false
     properties:
+      "[org.hibernate.envers.default_schema]": aud
       hibernate:
         format_sql: true
         default_schema: atlas
+        envers:
+          audit_table_suffix: _aud
+          revision_field_name: rev
+          revision_type_field_name: revtype
+          store_data_at_delete: true
 
   flyway:
     baseline-on-migrate: true

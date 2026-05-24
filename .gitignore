@@ -1,1 +1,2 @@
-/logs/spring.log
+/logs/*
+/backend/logs/*

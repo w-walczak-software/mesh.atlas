@@ -9,6 +9,8 @@ import { DataTable } from '@shared/data-table/data-table';
 import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
+import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
+import { HistoryService } from '@shared/history/history.service';
 import { DictionaryTypeService } from '../service/dictionary-type.service';
 import { DictionaryTypeDto } from '../model/dictionary.model';
 import { EditTypeDialog } from './edit-type.dialog';
@@ -23,6 +25,7 @@ import { EditTypeDialog } from './edit-type.dialog';
 })
 export class DictionaryTypes {
   private readonly service = inject(DictionaryTypeService);
+  private readonly historyService = inject(HistoryService);
   private readonly router = inject(Router);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
@@ -84,6 +87,11 @@ export class DictionaryTypes {
           action: (row) => this.openEditDialog(row),
         },
         {
+          label: this.t.translate('dictionary.action.history'),
+          icon: 'history',
+          action: (row) => this.openTypeHistory(row),
+        },
+        {
           label: this.t.translate('dictionary.action.deactivate'),
           icon: 'block',
           color: 'error',
@@ -119,6 +127,30 @@ export class DictionaryTypes {
   private viewEntries(row: DictionaryTypeDto): void {
     this.service.lastSelectedId.set(row.id);
     this.router.navigate(['/dictionaries/types', row.id, 'entries']);
+  }
+
+  private openTypeHistory(row: DictionaryTypeDto): void {
+    this.historyService.getDictionaryTypeRevisions(row.id).subscribe(entries => {
+      this.matDialog.open(HistoryDialog, {
+        data: {
+          title: `${row.code} – ${row.name}`,
+          entries,
+          fieldLabels: this.buildTypeFieldLabels(),
+        } satisfies HistoryDialogData,
+        maxWidth: '800px',
+        width: '95vw',
+      });
+    });
+  }
+
+  private buildTypeFieldLabels(): Record<string, string> {
+    const tr = (k: string) => this.t.translate<string>('history.fields.' + k);
+    return {
+      id: tr('id'), code: tr('code'), name: tr('name'), description: tr('description'),
+      systemDefined: tr('systemDefined'), active: tr('active'),
+      createdAt: tr('createdAt'), createdBy: tr('createdBy'),
+      updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
+    };
   }
 
   private openEditDialog(row: DictionaryTypeDto): void {

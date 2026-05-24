@@ -15,12 +15,17 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.global.domain.common.AuditableEntity;
 
 import java.time.LocalDate;
 import java.util.UUID;
 
+@Audited
+@AuditTable(value = "it_system_owner_aud", schema = "aud")
 @Getter
 @Setter
 @Builder
@@ -35,11 +40,13 @@ public class ItSystemOwnerEntity extends AuditableEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "it_system_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_it_system_owner_system"))
     private ItSystemEntity itSystem;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "role_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_it_system_owner_role"))

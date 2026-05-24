@@ -17,12 +17,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.type.SqlTypes;
 import pl.com.ww.mesh.atlas.global.domain.common.AuditableEntity;
 
 import java.util.Map;
 import java.util.UUID;
 
+@Audited
+@AuditTable(value = "dictionary_entry_aud", schema = "aud")
 @Getter
 @Setter
 @Builder
@@ -40,6 +45,7 @@ public class DictionaryEntryEntity extends AuditableEntity {
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(
             name = "dictionary_type_id",

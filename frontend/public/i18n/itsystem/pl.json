@@ -6,6 +6,7 @@
     "title": "Wyszukiwanie",
     "query": "Kod / Nazwa",
     "ownerQuery": "Właściciel (imię / email)",
+    "tag": "Tag",
     "all": "Wszystkie",
     "activeOnly": "Tylko aktywne",
     "inactiveOnly": "Tylko nieaktywne",
@@ -27,6 +28,7 @@
     "architectureStyle": "Styl architektury",
     "deploymentModel": "Model wdrożenia",
     "runtimeEnvironment": "Środowisko uruchomieniowe",
+    "scope": "Zasięg systemu",
     "tags": "Tagi",
     "active": "Aktywny"
   },
@@ -50,6 +52,7 @@
     "add": "Dodaj właściciela",
     "edit": "Edytuj właściciela",
     "delete": "Usuń właściciela",
+    "history": "Historia zmian właściciela",
     "noOwners": "Brak przypisanych właścicieli.",
     "pendingHint": "Właściciele zostaną zapisani po utworzeniu systemu."
   },
@@ -61,7 +64,8 @@
     "cancel": "Anuluj",
     "back": "Wróć",
     "addTag": "Dodaj tag",
-    "removeTag": "Usuń tag"
+    "removeTag": "Usuń tag",
+    "history": "Historia zmian"
   },
   "toolbar": {
     "selectToEdit": "Zaznacz wiersz, aby edytować",

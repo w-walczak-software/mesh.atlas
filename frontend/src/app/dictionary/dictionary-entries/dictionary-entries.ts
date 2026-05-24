@@ -9,6 +9,8 @@ import { DataTable } from '@shared/data-table/data-table';
 import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
+import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
+import { HistoryService } from '@shared/history/history.service';
 import { DictionaryTypeService } from '../service/dictionary-type.service';
 import { DictionaryEntryService } from '../service/dictionary-entry.service';
 import { DictionaryEntryDto, DictionaryTypeDto } from '../model/dictionary.model';
@@ -28,6 +30,7 @@ export class DictionaryEntries {
 
   private readonly typeService = inject(DictionaryTypeService);
   private readonly entryService = inject(DictionaryEntryService);
+  private readonly historyService = inject(HistoryService);
   private readonly router = inject(Router);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
@@ -107,6 +110,11 @@ export class DictionaryEntries {
           action: (row) => this.openEditDialog(row),
         },
         {
+          label: this.t.translate('dictionary.action.history'),
+          icon: 'history',
+          action: (row) => this.openEntryHistory(row),
+        },
+        {
           label: this.t.translate('dictionary.action.deactivate'),
           icon: 'block',
           color: 'error',
@@ -152,6 +160,31 @@ export class DictionaryEntries {
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  private openEntryHistory(row: DictionaryEntryDto): void {
+    this.historyService.getDictionaryEntryRevisions(row.id).subscribe(entries => {
+      this.matDialog.open(HistoryDialog, {
+        data: {
+          title: `${row.typeCode} / ${row.code} – ${row.name}`,
+          entries,
+          fieldLabels: this.buildEntryFieldLabels(),
+        } satisfies HistoryDialogData,
+        maxWidth: '800px',
+        width: '95vw',
+      });
+    });
+  }
+
+  private buildEntryFieldLabels(): Record<string, string> {
+    const tr = (k: string) => this.t.translate<string>('history.fields.' + k);
+    return {
+      id: tr('id'), typeId: tr('typeId'), typeCode: tr('typeCode'),
+      code: tr('code'), name: tr('name'), description: tr('description'),
+      displayOrder: tr('displayOrder'), active: tr('active'), systemDefined: tr('systemDefined'),
+      createdAt: tr('createdAt'), createdBy: tr('createdBy'),
+      updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
+    };
   }
 
   private openAddDialog(): void {

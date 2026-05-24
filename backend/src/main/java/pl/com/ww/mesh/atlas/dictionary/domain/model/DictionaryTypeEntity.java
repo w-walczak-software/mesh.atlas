@@ -12,10 +12,14 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
 import pl.com.ww.mesh.atlas.global.domain.common.AuditableEntity;
 
 import java.util.UUID;
 
+@Audited
+@AuditTable(value = "dictionary_type_aud", schema = "aud")
 @Getter
 @Setter
 @Builder

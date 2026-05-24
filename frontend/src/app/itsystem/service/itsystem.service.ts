@@ -32,6 +32,7 @@ export class ItSystemService {
     if (params.systemTypeId) httpParams = httpParams.set('systemTypeId', params.systemTypeId);
     if (params.active !== undefined) httpParams = httpParams.set('active', params.active);
     if (params.ownerQuery) httpParams = httpParams.set('ownerQuery', params.ownerQuery);
+    if (params.tag) httpParams = httpParams.set('tag', params.tag);
     return this.http.get<Page<ItSystemSummaryDto>>(this.baseUrl, { params: httpParams });
   }
 

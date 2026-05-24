@@ -22,6 +22,7 @@ public record ItSystemDto(
         DictionaryEntryRefDto architectureStyle,
         DictionaryEntryRefDto deploymentModel,
         DictionaryEntryRefDto runtimeEnvironment,
+        DictionaryEntryRefDto scope,
         List<ItSystemOwnerDto> owners,
         List<String> tags,
         Map<String, Object> metadata,

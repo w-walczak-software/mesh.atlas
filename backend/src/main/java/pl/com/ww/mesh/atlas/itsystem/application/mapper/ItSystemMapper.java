@@ -14,6 +14,9 @@ public interface ItSystemMapper {
 
     ItSystemDto map(ItSystemEntity entity);
 
+    @Mapping(target = "owners", expression = "java(java.util.List.of())")
+    ItSystemDto mapSnapshot(ItSystemEntity entity);
+
     ItSystemSummaryDto mapSummary(ItSystemEntity entity);
 
     @Mapping(target = "id", ignore = true)
@@ -27,6 +30,7 @@ public interface ItSystemMapper {
     @Mapping(target = "architectureStyle", ignore = true)
     @Mapping(target = "deploymentModel", ignore = true)
     @Mapping(target = "runtimeEnvironment", ignore = true)
+    @Mapping(target = "scope", ignore = true)
     ItSystemEntity map(ItSystemCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -41,5 +45,6 @@ public interface ItSystemMapper {
     @Mapping(target = "architectureStyle", ignore = true)
     @Mapping(target = "deploymentModel", ignore = true)
     @Mapping(target = "runtimeEnvironment", ignore = true)
+    @Mapping(target = "scope", ignore = true)
     void updateEntity(ItSystemUpdateRequest request, @MappingTarget ItSystemEntity entity);
 }

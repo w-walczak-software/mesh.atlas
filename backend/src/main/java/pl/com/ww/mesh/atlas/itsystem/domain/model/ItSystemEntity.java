@@ -19,6 +19,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditTable;
+import org.hibernate.envers.Audited;
+import org.hibernate.envers.NotAudited;
+import org.hibernate.envers.RelationTargetAuditMode;
 import org.hibernate.type.SqlTypes;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.global.domain.common.AuditableEntity;
@@ -28,6 +32,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+@Audited
+@AuditTable(value = "it_system_aud", schema = "aud")
 @Getter
 @Setter
 @Builder
@@ -60,46 +66,61 @@ public class ItSystemEntity extends AuditableEntity {
     @Column(name = "repository_url", columnDefinition = "TEXT")
     private String repositoryUrl;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "status_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_it_system_status"))
     private DictionaryEntryEntity status;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "lifecycle_stage_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_it_system_lifecycle_stage"))
     private DictionaryEntryEntity lifecycleStage;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "business_criticality_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_it_system_business_criticality"))
     private DictionaryEntryEntity businessCriticality;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "data_classification_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_it_system_data_classification"))
     private DictionaryEntryEntity dataClassification;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "system_type_id", nullable = false,
             foreignKey = @ForeignKey(name = "fk_it_system_type"))
     private DictionaryEntryEntity systemType;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "architecture_style_id",
             foreignKey = @ForeignKey(name = "fk_it_system_architecture_style"))
     private DictionaryEntryEntity architectureStyle;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "deployment_model_id",
             foreignKey = @ForeignKey(name = "fk_it_system_deployment_model"))
     private DictionaryEntryEntity deploymentModel;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "runtime_environment_id",
             foreignKey = @ForeignKey(name = "fk_it_system_runtime_environment"))
     private DictionaryEntryEntity runtimeEnvironment;
 
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "scope_id",
+            foreignKey = @ForeignKey(name = "fk_it_system_scope"))
+    private DictionaryEntryEntity scope;
+
+    @NotAudited
     @OneToMany(mappedBy = "itSystem", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
     private List<ItSystemOwnerEntity> owners = new ArrayList<>();

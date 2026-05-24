@@ -68,7 +68,7 @@ public class ItSystemService {
         applyDictionaryRefs(entity, request.statusId(), request.lifecycleStageId(),
                 request.businessCriticalityId(), request.dataClassificationId(),
                 request.systemTypeId(), request.architectureStyleId(),
-                request.deploymentModelId(), request.runtimeEnvironmentId());
+                request.deploymentModelId(), request.runtimeEnvironmentId(), request.scopeId());
         ItSystemEntity saved = repository.save(entity);
 
         List<pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest> owners =
@@ -91,7 +91,7 @@ public class ItSystemService {
         applyDictionaryRefs(entity, request.statusId(), request.lifecycleStageId(),
                 request.businessCriticalityId(), request.dataClassificationId(),
                 request.systemTypeId(), request.architectureStyleId(),
-                request.deploymentModelId(), request.runtimeEnvironmentId());
+                request.deploymentModelId(), request.runtimeEnvironmentId(), request.scopeId());
         return mapper.map(repository.save(entity));
     }
 
@@ -125,7 +125,7 @@ public class ItSystemService {
             UUID statusId, UUID lifecycleStageId,
             UUID businessCriticalityId, UUID dataClassificationId,
             UUID systemTypeId, UUID architectureStyleId,
-            UUID deploymentModelId, UUID runtimeEnvironmentId) {
+            UUID deploymentModelId, UUID runtimeEnvironmentId, UUID scopeId) {
         entity.setStatus(resolveEntry(statusId));
         entity.setLifecycleStage(resolveEntry(lifecycleStageId));
         entity.setBusinessCriticality(resolveEntry(businessCriticalityId));
@@ -134,5 +134,6 @@ public class ItSystemService {
         entity.setArchitectureStyle(resolveEntry(architectureStyleId));
         entity.setDeploymentModel(resolveEntry(deploymentModelId));
         entity.setRuntimeEnvironment(resolveEntry(runtimeEnvironmentId));
+        entity.setScope(resolveEntry(scopeId));
     }
 }

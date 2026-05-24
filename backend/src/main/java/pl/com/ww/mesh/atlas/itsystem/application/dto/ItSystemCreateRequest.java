@@ -63,6 +63,9 @@ public record ItSystemCreateRequest(
         @DictionaryType(dictionaryCode = "RUNTIME_ENVIRONMENT")
         UUID runtimeEnvironmentId,
 
+        @DictionaryType(dictionaryCode = "SYSTEM_SCOPE")
+        UUID scopeId,
+
         @Valid
         List<ItSystemOwnerCreateRequest> owners,
 

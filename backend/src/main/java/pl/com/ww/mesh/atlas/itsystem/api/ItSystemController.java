@@ -51,9 +51,10 @@ public class ItSystemController {
             @RequestParam(required = false) UUID systemTypeId,
             @RequestParam(required = false) Boolean active,
             @RequestParam(required = false) String ownerQuery,
+            @RequestParam(required = false) String tag,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         var criteria = new ItSystemSearchCriteria(query, statusId, lifecycleStageId,
-                businessCriticalityId, systemTypeId, active, ownerQuery);
+                businessCriticalityId, systemTypeId, active, ownerQuery, tag);
         return service.findAll(criteria, pageable);
     }
 
