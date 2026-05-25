@@ -24,7 +24,10 @@ import pl.com.ww.mesh.atlas.global.audit.RevisionTypeDto;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -124,20 +127,25 @@ public class DataDomainRevisionService {
         AuditReader reader = AuditReaderFactory.get(entityManager);
 
         // DefaultAuditStrategy stores dataDomain_id = NULL for DEL revisions, so
-        // filtering by relatedId("dataDomain") misses them. Collect attachment IDs
-        // from ADD/MOD revisions first, then query all revisions by those IDs.
+        // filtering by relatedId("dataDomain") misses them. Step 1: collect non-DEL
+        // revisions and build a last-known-state map for data restoration on DEL rows.
         @SuppressWarnings("unchecked")
         List<Object[]> linked = reader.createQuery()
                 .forRevisionsOfEntity(DataDomainAttachmentEntity.class, false, false)
                 .add(AuditEntity.relatedId("dataDomain").eq(domainId))
+                .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 
-        Set<UUID> attachmentIds = linked.stream()
-                .map(row -> ((DataDomainAttachmentEntity) row[0]).getId())
-                .collect(Collectors.toSet());
-
-        if (attachmentIds.isEmpty()) {
+        if (linked.isEmpty()) {
             return List.of();
+        }
+
+        Map<UUID, DataDomainAttachmentEntity> lastKnownState = new LinkedHashMap<>();
+        Set<UUID> attachmentIds = new LinkedHashSet<>();
+        for (Object[] row : linked) {
+            DataDomainAttachmentEntity entity = (DataDomainAttachmentEntity) row[0];
+            attachmentIds.add(entity.getId());
+            lastKnownState.putIfAbsent(entity.getId(), entity);
         }
 
         var disjunction = AuditEntity.disjunction();
@@ -150,16 +158,25 @@ public class DataDomainRevisionService {
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 
-        return rows.stream().map(this::toAttachmentHistoryDto).toList();
+        return rows.stream().map(row -> toAttachmentHistoryDto(row, lastKnownState)).toList();
     }
 
-    private DataDomainAttachmentHistoryDto toAttachmentHistoryDto(Object[] row) {
+    private DataDomainAttachmentHistoryDto toAttachmentHistoryDto(Object[] row,
+                                                                    Map<UUID, DataDomainAttachmentEntity> lastKnownState) {
         DataDomainAttachmentEntity entity = (DataDomainAttachmentEntity) row[0];
         AtlasRevisionEntity rev = (AtlasRevisionEntity) row[1];
         RevisionType revType = (RevisionType) row[2];
         String timestamp = Instant.ofEpochMilli(rev.getRevtstmp())
                 .atOffset(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+        // DefaultAuditStrategy stores only the PK for DEL revisions; restore data
+        // from the last known non-DEL snapshot so fileName/description are preserved.
+        if (revType == RevisionType.DEL && entity.getFileName() == null) {
+            DataDomainAttachmentEntity last = lastKnownState.get(entity.getId());
+            if (last != null) entity = last;
+        }
+
         return new DataDomainAttachmentHistoryDto(
                 rev.getRev(),
                 mapType(revType).name(),

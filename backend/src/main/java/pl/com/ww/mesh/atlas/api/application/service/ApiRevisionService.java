@@ -29,7 +29,10 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -206,22 +209,29 @@ public class ApiRevisionService {
         AuditReader reader = AuditReaderFactory.get(entityManager);
 
         // DefaultAuditStrategy stores api_id = NULL for DEL revisions, so filtering
-        // by relatedId("api") misses them. We first collect all attachment IDs from
-        // ADD/MOD revisions (where api_id is set), then query all revisions by those IDs.
+        // by relatedId("api") misses them. Step 1: collect non-DEL revisions (where
+        // api_id is set) and build a last-known-state map for data restoration.
         @SuppressWarnings("unchecked")
         List<Object[]> linked = reader.createQuery()
                 .forRevisionsOfEntity(ApiAttachmentEntity.class, false, false)
                 .add(AuditEntity.relatedId("api").eq(apiId))
+                .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 
-        Set<UUID> attachmentIds = linked.stream()
-                .map(row -> ((ApiAttachmentEntity) row[0]).getId())
-                .collect(Collectors.toSet());
-
-        if (attachmentIds.isEmpty()) {
+        if (linked.isEmpty()) {
             return List.of();
         }
 
+        // Rows are desc by rev — putIfAbsent keeps the most recent snapshot per attachment.
+        Map<UUID, ApiAttachmentEntity> lastKnownState = new LinkedHashMap<>();
+        Set<UUID> attachmentIds = new LinkedHashSet<>();
+        for (Object[] row : linked) {
+            ApiAttachmentEntity entity = (ApiAttachmentEntity) row[0];
+            attachmentIds.add(entity.getId());
+            lastKnownState.putIfAbsent(entity.getId(), entity);
+        }
+
+        // Step 2: fetch all revisions including DEL for the collected attachment IDs.
         var disjunction = AuditEntity.disjunction();
         attachmentIds.forEach(id -> disjunction.add(AuditEntity.id().eq(id)));
 
@@ -232,16 +242,24 @@ public class ApiRevisionService {
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 
-        return rows.stream().map(this::toAttachmentHistoryDto).toList();
+        return rows.stream().map(row -> toAttachmentHistoryDto(row, lastKnownState)).toList();
     }
 
-    private ApiAttachmentHistoryDto toAttachmentHistoryDto(Object[] row) {
+    private ApiAttachmentHistoryDto toAttachmentHistoryDto(Object[] row,
+                                                            Map<UUID, ApiAttachmentEntity> lastKnownState) {
         ApiAttachmentEntity entity = (ApiAttachmentEntity) row[0];
         AtlasRevisionEntity rev = (AtlasRevisionEntity) row[1];
         RevisionType revType = (RevisionType) row[2];
         String timestamp = Instant.ofEpochMilli(rev.getRevtstmp())
                 .atOffset(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+        // DefaultAuditStrategy stores only the PK for DEL revisions; restore data
+        // from the last known non-DEL snapshot so fileName/description are preserved.
+        if (revType == RevisionType.DEL && entity.getFileName() == null) {
+            ApiAttachmentEntity last = lastKnownState.get(entity.getId());
+            if (last != null) entity = last;
+        }
 
         DictionaryEntryEntity contractType = resolveEntry(entity.getContractType());
 
