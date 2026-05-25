@@ -49,10 +49,10 @@ export class HistoryDialog {
       const prev = all[idx + 1];
       const snap = this.asRecord(entry.snapshot);
       const prevSnap = prev ? this.asRecord(prev.snapshot) : null;
-      // Only diff entries of the same kind; attachment entries are standalone events
-      const isAttachment = snap['_kind'] === 'attachment';
-      const prevIsAttachment = prevSnap?.['_kind'] === 'attachment';
-      const changed = (!isAttachment && prevSnap && !prevIsAttachment)
+      // Entries with _kind (attachment, owner, …) are standalone events — never diffed
+      const isStandalone = snap['_kind'] !== undefined;
+      const prevIsStandalone = prevSnap?.['_kind'] !== undefined;
+      const changed = (!isStandalone && prevSnap && !prevIsStandalone)
         ? this.diffSnapshot(snap, prevSnap)
         : null;
       return { entry, snap, prevSnap, changed };

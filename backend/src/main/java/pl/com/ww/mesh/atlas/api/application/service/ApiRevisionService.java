@@ -11,9 +11,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.TransportLayerRefDto;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiAttachmentEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiOwnerEntity;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.global.audit.AtlasRevisionEntity;
@@ -28,7 +30,9 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -158,13 +162,73 @@ public class ApiRevisionService {
     }
 
     @Transactional(readOnly = true)
-    public List<ApiAttachmentHistoryDto> getAttachmentHistory(UUID apiId) {
+    public List<ApiOwnerHistoryDto> getOwnerHistory(UUID apiId) {
         AuditReader reader = AuditReaderFactory.get(entityManager);
 
         @SuppressWarnings("unchecked")
         List<Object[]> rows = reader.createQuery()
-                .forRevisionsOfEntity(ApiAttachmentEntity.class, false, true)
+                .forRevisionsOfEntity(ApiOwnerEntity.class, false, true)
                 .add(AuditEntity.relatedId("api").eq(apiId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return rows.stream().map(this::toOwnerHistoryDto).toList();
+    }
+
+    private ApiOwnerHistoryDto toOwnerHistoryDto(Object[] row) {
+        ApiOwnerEntity entity = (ApiOwnerEntity) row[0];
+        AtlasRevisionEntity rev = (AtlasRevisionEntity) row[1];
+        RevisionType revType = (RevisionType) row[2];
+        String timestamp = Instant.ofEpochMilli(rev.getRevtstmp())
+                .atOffset(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+        DictionaryEntryEntity role = resolveEntry(entity.getRole());
+
+        return new ApiOwnerHistoryDto(
+                rev.getRev(),
+                mapType(revType).name(),
+                timestamp,
+                rev.getUsername(),
+                rev.getUserId(),
+                entity.getId(),
+                entity.getFirstName(),
+                entity.getLastName(),
+                entity.getEmail(),
+                role != null ? role.getName() : null,
+                entity.getValidFrom() != null ? entity.getValidFrom().toString() : null,
+                entity.getValidTo() != null ? entity.getValidTo().toString() : null
+        );
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApiAttachmentHistoryDto> getAttachmentHistory(UUID apiId) {
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+
+        // DefaultAuditStrategy stores api_id = NULL for DEL revisions, so filtering
+        // by relatedId("api") misses them. We first collect all attachment IDs from
+        // ADD/MOD revisions (where api_id is set), then query all revisions by those IDs.
+        @SuppressWarnings("unchecked")
+        List<Object[]> linked = reader.createQuery()
+                .forRevisionsOfEntity(ApiAttachmentEntity.class, false, false)
+                .add(AuditEntity.relatedId("api").eq(apiId))
+                .getResultList();
+
+        Set<UUID> attachmentIds = linked.stream()
+                .map(row -> ((ApiAttachmentEntity) row[0]).getId())
+                .collect(Collectors.toSet());
+
+        if (attachmentIds.isEmpty()) {
+            return List.of();
+        }
+
+        var disjunction = AuditEntity.disjunction();
+        attachmentIds.forEach(id -> disjunction.add(AuditEntity.id().eq(id)));
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = reader.createQuery()
+                .forRevisionsOfEntity(ApiAttachmentEntity.class, false, true)
+                .add(disjunction)
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 

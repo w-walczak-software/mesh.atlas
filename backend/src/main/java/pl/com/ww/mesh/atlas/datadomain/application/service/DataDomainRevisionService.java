@@ -6,6 +6,7 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.datadomain.application.dto.DataDomainAttachmentDto;
@@ -24,7 +25,9 @@ import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -75,7 +78,7 @@ public class DataDomainRevisionService {
                 entity.getName(),
                 entity.getDescription(),
                 entity.getDocumentationUrl(),
-                mapEntry(entity.getGroup()),
+                mapEntry(resolveEntry(entity.getGroup())),
                 entity.getTags(),
                 entity.getMetadata(),
                 entity.isActive(),
@@ -85,6 +88,14 @@ public class DataDomainRevisionService {
                 entity.getUpdatedAt(),
                 entity.getUpdatedBy()
         );
+    }
+
+    // Envers creates delegate proxies for NOT_AUDITED @ManyToOne relations that query the AUD table.
+    // We bypass this by reading the proxy's identifier and loading directly from the live table.
+    private DictionaryEntryEntity resolveEntry(DictionaryEntryEntity proxy) {
+        if (!(proxy instanceof HibernateProxy hp)) return proxy;
+        UUID id = (UUID) hp.getHibernateLazyInitializer().getIdentifier();
+        return id != null ? entityManager.find(DictionaryEntryEntity.class, id) : null;
     }
 
     private DictionaryEntryRefDto mapEntry(DictionaryEntryEntity entry) {
@@ -112,10 +123,30 @@ public class DataDomainRevisionService {
     public List<DataDomainAttachmentHistoryDto> getAttachmentHistory(UUID domainId) {
         AuditReader reader = AuditReaderFactory.get(entityManager);
 
+        // DefaultAuditStrategy stores dataDomain_id = NULL for DEL revisions, so
+        // filtering by relatedId("dataDomain") misses them. Collect attachment IDs
+        // from ADD/MOD revisions first, then query all revisions by those IDs.
+        @SuppressWarnings("unchecked")
+        List<Object[]> linked = reader.createQuery()
+                .forRevisionsOfEntity(DataDomainAttachmentEntity.class, false, false)
+                .add(AuditEntity.relatedId("dataDomain").eq(domainId))
+                .getResultList();
+
+        Set<UUID> attachmentIds = linked.stream()
+                .map(row -> ((DataDomainAttachmentEntity) row[0]).getId())
+                .collect(Collectors.toSet());
+
+        if (attachmentIds.isEmpty()) {
+            return List.of();
+        }
+
+        var disjunction = AuditEntity.disjunction();
+        attachmentIds.forEach(id -> disjunction.add(AuditEntity.id().eq(id)));
+
         @SuppressWarnings("unchecked")
         List<Object[]> rows = reader.createQuery()
                 .forRevisionsOfEntity(DataDomainAttachmentEntity.class, false, true)
-                .add(AuditEntity.relatedId("dataDomain").eq(domainId))
+                .add(disjunction)
                 .addOrder(AuditEntity.revisionNumber().desc())
                 .getResultList();
 

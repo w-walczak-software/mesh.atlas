@@ -6,6 +6,7 @@ import org.hibernate.envers.AuditReader;
 import org.hibernate.envers.AuditReaderFactory;
 import org.hibernate.envers.RevisionType;
 import org.hibernate.envers.query.AuditEntity;
+import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.global.audit.AtlasRevisionEntity;
@@ -61,7 +62,7 @@ public class TransportLayerRevisionService {
 
     private TransportLayerDto buildSnapshot(TransportLayerEntity entity) {
         ItSystemRefDto itSystemRef = null;
-        ItSystemEntity sys = entity.getItSystem();
+        ItSystemEntity sys = resolveProxy(entity.getItSystem(), ItSystemEntity.class);
         if (sys != null) {
             itSystemRef = new ItSystemRefDto(sys.getId(), sys.getCode(), sys.getName(), sys.getIcon());
         }
@@ -87,5 +88,13 @@ public class TransportLayerRevisionService {
             case MOD -> RevisionTypeDto.MODIFIED;
             case DEL -> RevisionTypeDto.DELETED;
         };
+    }
+
+    // Envers creates delegate proxies for NOT_AUDITED @ManyToOne relations that query the AUD table.
+    // We bypass this by reading the proxy's identifier and loading directly from the live table.
+    private <T> T resolveProxy(T proxy, Class<T> type) {
+        if (!(proxy instanceof HibernateProxy hp)) return proxy;
+        UUID id = (UUID) hp.getHibernateLazyInitializer().getIdentifier();
+        return id != null ? entityManager.find(type, id) : null;
     }
 }

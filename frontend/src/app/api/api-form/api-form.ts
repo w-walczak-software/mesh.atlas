@@ -412,7 +412,8 @@ export class ApiForm implements OnInit {
     forkJoin({
       api: this.historyService.getApiRevisions(id),
       attachments: this.historyService.getApiAttachmentHistory(id),
-    }).subscribe(({ api, attachments }) => {
+      owners: this.historyService.getApiOwnerHistory(id),
+    }).subscribe(({ api, attachments, owners }) => {
       const attachmentEntries: RevisionEntryDto<unknown>[] = attachments.map(a => ({
         revisionNumber: a.revisionNumber,
         revisionType: a.revisionType as RevisionType,
@@ -421,7 +422,15 @@ export class ApiForm implements OnInit {
         userId: a.userId,
         snapshot: { _kind: 'attachment', fileName: a.fileName, description: a.description, contractType: a.contractTypeName },
       }));
-      const allEntries = [...api, ...attachmentEntries]
+      const ownerEntries: RevisionEntryDto<unknown>[] = owners.map(o => ({
+        revisionNumber: o.revisionNumber,
+        revisionType: o.revisionType as RevisionType,
+        revisionTimestamp: o.revisionTimestamp,
+        username: o.username,
+        userId: o.userId,
+        snapshot: { _kind: 'owner', firstName: o.firstName, lastName: o.lastName, email: o.email, role: o.roleName, validFrom: o.validFrom, validTo: o.validTo },
+      }));
+      const allEntries = [...api, ...attachmentEntries, ...ownerEntries]
         .sort((a, b) => b.revisionNumber - a.revisionNumber);
       this.matDialog.open(HistoryDialog, {
         data: {
@@ -452,6 +461,8 @@ export class ApiForm implements OnInit {
       createdAt: tr('createdAt'), createdBy: tr('createdBy'),
       updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
       fileName: tr('fileName'), attachments: tr('attachments'),
+      firstName: tr('firstName'), lastName: tr('lastName'), email: tr('email'),
+      role: tr('role'), validFrom: tr('validFrom'), validTo: tr('validTo'),
     };
   }
 

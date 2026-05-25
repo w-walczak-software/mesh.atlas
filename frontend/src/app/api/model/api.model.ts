@@ -176,6 +176,21 @@ export interface ApiOwnerUpdateRequest {
   validTo: string | null;
 }
 
+export interface ApiOwnerHistoryDto {
+  revisionNumber: number;
+  revisionType: string;
+  revisionTimestamp: string;
+  username: string | null;
+  userId: string | null;
+  ownerId: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  roleName: string | null;
+  validFrom: string | null;
+  validTo: string | null;
+}
+
 export interface ApiAttachmentHistoryDto {
   revisionNumber: number;
   revisionType: string;

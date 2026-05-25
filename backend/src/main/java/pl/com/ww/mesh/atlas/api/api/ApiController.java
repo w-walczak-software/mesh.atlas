@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
@@ -98,6 +99,12 @@ public class ApiController {
     @IsAtlasUser
     public List<RevisionEntryDto<ApiDto>> getRevisions(@PathVariable UUID id) {
         return revisionService.getRevisions(id);
+    }
+
+    @GetMapping(UUID_REGEX + "/owner-history")
+    @IsAtlasUser
+    public List<ApiOwnerHistoryDto> getOwnerHistory(@PathVariable UUID id) {
+        return revisionService.getOwnerHistory(id);
     }
 
     @GetMapping(UUID_REGEX + "/attachment-history")
