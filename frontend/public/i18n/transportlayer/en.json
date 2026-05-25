@@ -1,0 +1,72 @@
+{
+  "title": "Transport Layers",
+  "new": "New Transport Layer",
+  "edit": "Edit Transport Layer",
+  "search": {
+    "title": "Search",
+    "query": "Code / Name",
+    "all": "All",
+    "activeOnly": "Active only",
+    "inactiveOnly": "Inactive only",
+    "activeLabel": "Activity",
+    "reset": "Reset",
+    "search": "Search"
+  },
+  "field": {
+    "code": "Code",
+    "name": "Name",
+    "description": "Description",
+    "icon": "Icon",
+    "color": "Color",
+    "itSystem": "IT System",
+    "active": "Active"
+  },
+  "iconPicker": {
+    "choose": "Choose Icon",
+    "change": "Change Icon",
+    "clear": "Remove Icon"
+  },
+  "colorPicker": {
+    "choose": "Choose Color",
+    "change": "Change Color",
+    "clear": "Remove Color"
+  },
+  "section": {
+    "basic": "Basic Information",
+    "itSystem": "IT System Assignment",
+    "itSystemHint": "Optionally assign the IT system that implements this transport layer"
+  },
+  "action": {
+    "new": "New Transport Layer",
+    "edit": "Edit",
+    "deactivate": "Deactivate",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "history": "Change History"
+  },
+  "toolbar": {
+    "selectToEdit": "Select a row to edit",
+    "selectToDeactivate": "Select a row to deactivate",
+    "alreadyInactive": "This transport layer is already inactive"
+  },
+  "confirm": {
+    "deactivate": "Are you sure you want to deactivate this transport layer? It will no longer appear in active lists."
+  },
+  "toast": {
+    "created": "Transport layer created successfully.",
+    "updated": "Transport layer updated successfully.",
+    "deactivated": "Transport layer deactivated."
+  },
+  "error": {
+    "duplicateCode": "A transport layer with code \"{{ code }}\" already exists.",
+    "notFound": "Transport layer not found.",
+    "codePattern": "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores or hyphens."
+  },
+  "badge": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "itSystemNone": "— No IT system —",
+  "itSystemIconNote": "The IT system's icon will be shown when the IT system has an icon assigned."
+}

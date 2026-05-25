@@ -1,0 +1,179 @@
+<ng-container *transloco="let t; scope: 'transportlayer'; lang: lang()">
+  <div class="form-page">
+
+    <!-- Sticky top bar -->
+    <div class="form-topbar">
+      <button mat-icon-button (click)="cancel()" [attr.aria-label]="t('transportlayer.action.back')">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="form-topbar-info">
+        <h1 class="form-topbar-title">
+          {{ isEditMode() ? (layer()?.name || t('transportlayer.edit')) : t('transportlayer.new') }}
+        </h1>
+        <span class="form-topbar-sub">{{ t('transportlayer.title') }}</span>
+      </div>
+      <div class="form-topbar-actions">
+        @if (isEditMode()) {
+          <button mat-icon-button type="button" (click)="openHistory()"
+                  [matTooltip]="t('transportlayer.action.history')" aria-label="Change history">
+            <mat-icon>history</mat-icon>
+          </button>
+        }
+        <button mat-stroked-button type="button" (click)="cancel()">
+          {{ t('transportlayer.action.cancel') }}
+        </button>
+        <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
+          <mat-icon>save</mat-icon>
+          {{ t('transportlayer.action.save') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Main content -->
+    <div class="form-content">
+      <form [formGroup]="form">
+
+        <!-- Basic Information -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--primary">
+              <mat-icon>alt_route</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('transportlayer.section.basic') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <!-- Icon picker -->
+            <div class="icon-picker-field">
+              <span class="icon-picker-label">{{ t('transportlayer.field.icon') }}</span>
+              <div class="icon-picker-control">
+                <div class="icon-preview" [class.icon-preview--has-icon]="effectiveIcon()">
+                  <mat-icon class="icon-preview-icon">{{ effectiveIcon() || 'alt_route' }}</mat-icon>
+                </div>
+                <button mat-stroked-button type="button" (click)="openIconPicker()">
+                  <mat-icon>{{ icon() ? 'edit' : 'add_photo_alternate' }}</mat-icon>
+                  {{ icon() ? t('transportlayer.iconPicker.change') : t('transportlayer.iconPicker.choose') }}
+                </button>
+                @if (icon()) {
+                  <button mat-icon-button type="button" (click)="icon.set(null)"
+                          [matTooltip]="t('transportlayer.iconPicker.clear')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <!-- Color picker -->
+            <div class="color-picker-field">
+              <span class="color-picker-label">{{ t('transportlayer.field.color') }}</span>
+              <div class="color-picker-control">
+                <input #colorInput type="color" class="hidden-color-input"
+                       [value]="color() ?? '#3b82f6'"
+                       (input)="onColorInput($event)" />
+                <div class="color-swatch"
+                     [class.color-swatch--set]="color()"
+                     [style.background-color]="color() ?? null"
+                     (click)="colorInput.click()"
+                     role="button"
+                     tabindex="0"
+                     (keydown.enter)="colorInput.click()"
+                     [attr.aria-label]="t('transportlayer.colorPicker.choose')">
+                  @if (!color()) {
+                    <mat-icon class="color-swatch-placeholder">palette</mat-icon>
+                  }
+                </div>
+                <button mat-stroked-button type="button" (click)="colorInput.click()">
+                  <mat-icon>{{ color() ? 'edit' : 'palette' }}</mat-icon>
+                  {{ color() ? t('transportlayer.colorPicker.change') : t('transportlayer.colorPicker.choose') }}
+                </button>
+                @if (color()) {
+                  <span class="color-hex">{{ color() }}</span>
+                  <button mat-icon-button type="button" (click)="color.set(null)"
+                          [matTooltip]="t('transportlayer.colorPicker.clear')">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+            </div>
+
+            <div class="field-row field-row--code-name">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('transportlayer.field.code') }}</mat-label>
+                <input matInput formControlName="code" [attr.aria-required]="true" />
+                <mat-icon matSuffix>tag</mat-icon>
+                @if (form.controls.code.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+                @if (form.controls.code.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
+                }
+                @if (form.controls.code.errors?.['pattern']) {
+                  <mat-error>{{ t('transportlayer.error.codePattern') }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('transportlayer.field.name') }}</mat-label>
+                <input matInput formControlName="name" [attr.aria-required]="true" />
+                @if (form.controls.name.errors?.['required']) {
+                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                }
+                @if (form.controls.name.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>{{ t('transportlayer.field.description') }}</mat-label>
+              <textarea matInput formControlName="description" rows="3"></textarea>
+              @if (form.controls.description.errors?.['maxlength']) {
+                <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </mat-card>
+
+        <!-- IT System Assignment -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--secondary">
+              <mat-icon>hub</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('transportlayer.section.itSystem') }}</span>
+              <span class="card-head-subtitle">{{ t('transportlayer.section.itSystemHint') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>{{ t('transportlayer.field.itSystem') }}</mat-label>
+              <mat-select formControlName="itSystemId">
+                <mat-option [value]="null">{{ t('transportlayer.itSystemNone') }}</mat-option>
+                @for (sys of itSystems(); track sys.id) {
+                  <mat-option [value]="sys.id">
+                    @if (sys.icon) {
+                      <mat-icon>{{ sys.icon }}</mat-icon>
+                    }
+                    {{ sys.code }} – {{ sys.name }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            @if (selectedItSystem()?.icon) {
+              <p class="field-note">
+                <mat-icon>info_outline</mat-icon>
+                {{ t('transportlayer.itSystemIconNote') }}
+              </p>
+            }
+          </div>
+        </mat-card>
+
+      </form>
+    </div>
+  </div>
+</ng-container>

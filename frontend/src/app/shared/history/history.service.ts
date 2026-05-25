@@ -45,4 +45,16 @@ export class HistoryService {
       `${this.base}/api/v1/data-domains/${id}/attachment-history`,
     );
   }
+
+  getTransportLayerRevisions(id: string): Observable<RevisionEntryDto<unknown>[]> {
+    return this.http.get<RevisionEntryDto<unknown>[]>(
+      `${this.base}/api/v1/transport-layers/${id}/revisions`,
+    );
+  }
+
+  getApiRevisions(id: string): Observable<RevisionEntryDto<unknown>[]> {
+    return this.http.get<RevisionEntryDto<unknown>[]>(
+      `${this.base}/api/v1/apis/${id}/revisions`,
+    );
+  }
 }

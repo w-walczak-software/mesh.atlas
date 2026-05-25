@@ -73,6 +73,13 @@
       "roles": ["atlas_admin", "atlas_user"]
     },
     {
+      "id": "transport-layers",
+      "label": "nav.menu.transportLayers",
+      "icon": "alt_route",
+      "route": "/transport-layers",
+      "roles": ["atlas_admin", "atlas_user"]
+    },
+    {
       "id": "subscriptions",
       "label": "nav.menu.subscriptions",
       "icon": "subscriptions",

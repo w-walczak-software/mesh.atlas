@@ -1,0 +1,72 @@
+{
+  "title": "Warstwy Transportowe",
+  "new": "Nowa warstwa transportowa",
+  "edit": "Edytuj warstwę transportową",
+  "search": {
+    "title": "Szukaj",
+    "query": "Kod / Nazwa",
+    "all": "Wszystkie",
+    "activeOnly": "Tylko aktywne",
+    "inactiveOnly": "Tylko nieaktywne",
+    "activeLabel": "Aktywność",
+    "reset": "Resetuj",
+    "search": "Szukaj"
+  },
+  "field": {
+    "code": "Kod",
+    "name": "Nazwa",
+    "description": "Opis",
+    "icon": "Ikona",
+    "color": "Kolor",
+    "itSystem": "System IT",
+    "active": "Aktywna"
+  },
+  "iconPicker": {
+    "choose": "Wybierz ikonę",
+    "change": "Zmień ikonę",
+    "clear": "Usuń ikonę"
+  },
+  "colorPicker": {
+    "choose": "Wybierz kolor",
+    "change": "Zmień kolor",
+    "clear": "Usuń kolor"
+  },
+  "section": {
+    "basic": "Informacje podstawowe",
+    "itSystem": "Przypisanie systemu IT",
+    "itSystemHint": "Opcjonalnie wskaż system IT implementujący tę warstwę transportową"
+  },
+  "action": {
+    "new": "Nowa warstwa transportowa",
+    "edit": "Edytuj",
+    "deactivate": "Dezaktywuj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "back": "Wróć",
+    "history": "Historia zmian"
+  },
+  "toolbar": {
+    "selectToEdit": "Wybierz wiersz, aby edytować",
+    "selectToDeactivate": "Wybierz wiersz, aby dezaktywować",
+    "alreadyInactive": "Ta warstwa transportowa jest już nieaktywna"
+  },
+  "confirm": {
+    "deactivate": "Czy na pewno chcesz dezaktywować tę warstwę transportową? Nie będzie wyświetlana na listach aktywnych."
+  },
+  "toast": {
+    "created": "Warstwa transportowa została utworzona.",
+    "updated": "Warstwa transportowa została zaktualizowana.",
+    "deactivated": "Warstwa transportowa została dezaktywowana."
+  },
+  "error": {
+    "duplicateCode": "Warstwa transportowa o kodzie \"{{ code }}\" już istnieje.",
+    "notFound": "Warstwa transportowa nie została znaleziona.",
+    "codePattern": "Kod musi zaczynać się wielką literą i zawierać tylko wielkie litery, cyfry, podkreślenia lub myślniki."
+  },
+  "badge": {
+    "active": "Aktywna",
+    "inactive": "Nieaktywna"
+  },
+  "itSystemNone": "— Brak systemu IT —",
+  "itSystemIconNote": "Ikona systemu IT zostanie wyświetlona, jeśli system IT ma przypisaną ikonę."
+}

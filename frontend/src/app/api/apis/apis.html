@@ -1,0 +1,90 @@
+<ng-container *transloco="let t; scope: 'api'; lang: lang()">
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">{{ t('api.title') }}</h1>
+    </div>
+
+    <mat-expansion-panel class="search-panel" [expanded]="true">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          <mat-icon>search</mat-icon>
+          {{ t('api.search.title') }}
+        </mat-panel-title>
+      </mat-expansion-panel-header>
+
+      <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearch()">
+        <div class="search-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ t('api.search.query') }}</mat-label>
+            <input matInput formControlName="query" />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ t('api.search.tag') }}</mat-label>
+            <input matInput formControlName="tag" />
+            <mat-icon matSuffix>local_offer</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('api.field.status') }}</mat-label>
+            <mat-select formControlName="statusId">
+              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+              @for (item of statuses(); track item.id) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('api.field.type') }}</mat-label>
+            <mat-select formControlName="typeId">
+              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+              @for (item of types(); track item.id) {
+                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('api.field.sourceSystem') }}</mat-label>
+            <mat-select formControlName="sourceSystemId">
+              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+              @for (sys of itSystems(); track sys.id) {
+                <mat-option [value]="sys.id">{{ sys.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('api.search.activeLabel') }}</mat-label>
+            <mat-select formControlName="active">
+              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+              <mat-option [value]="true">{{ t('api.search.activeOnly') }}</mat-option>
+              <mat-option [value]="false">{{ t('api.search.inactiveOnly') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="search-actions">
+          <button mat-stroked-button type="button" (click)="onReset()">
+            <mat-icon>clear</mat-icon>
+            {{ t('api.search.reset') }}
+          </button>
+          <button mat-flat-button type="submit">
+            <mat-icon>search</mat-icon>
+            {{ t('api.search.search') }}
+          </button>
+        </div>
+      </form>
+    </mat-expansion-panel>
+
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+      (pageChange)="onPageChange($event)"
+      (rowSelect)="selectedRow.set($event)"
+    />
+  </div>
+</ng-container>

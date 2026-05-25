@@ -13,8 +13,8 @@ export const routes: Routes = [
       },
       {
         path: 'apis',
-        loadComponent: () => import('./placeholder/placeholder').then(m => m.Placeholder),
-        data: { title: 'API Registry' },
+        loadChildren: () =>
+          import('./api/api.routes').then(m => m.apiRoutes),
       },
       {
         path: 'environments',
@@ -35,6 +35,11 @@ export const routes: Routes = [
         path: 'it-systems',
         loadChildren: () =>
           import('./itsystem/itsystem.routes').then(m => m.itsystemRoutes),
+      },
+      {
+        path: 'transport-layers',
+        loadChildren: () =>
+          import('./transportlayer/transportlayer.routes').then(m => m.transportLayerRoutes),
       },
       {
         path: 'data-domains',

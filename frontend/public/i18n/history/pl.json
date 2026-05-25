@@ -47,7 +47,26 @@
     "typeCode": "Typ słownika",
     "attachments": "Załączniki",
     "icon": "Ikona",
+    "color": "Kolor",
+    "itSystem": "System IT",
     "fileName": "Nazwa pliku",
-    "fileSize": "Rozmiar pliku"
+    "fileSize": "Rozmiar pliku",
+    "apiVersion": "Wersja API",
+    "type": "Typ",
+    "sourceSystem": "System źródłowy",
+    "targetSystem": "System docelowy",
+    "transportLayer": "Warstwa transportowa",
+    "protocol": "Protokół",
+    "authenticationMethod": "Metoda uwierzytelniania",
+    "securityPolicy": "Polityka bezpieczeństwa",
+    "integrationPattern": "Wzorzec integracji",
+    "messageFormat": "Format wiadomości",
+    "slaResponseTimeMs": "Czas odpowiedzi SLA (ms)",
+    "slaUptimePct": "Dostępność SLA (%)",
+    "slaTier": "Poziom SLA",
+    "slaDescription": "Opis SLA",
+    "contractType": "Typ kontraktu",
+    "contractUrl": "URL kontraktu",
+    "dataDomains": "Domeny danych"
   }
 }

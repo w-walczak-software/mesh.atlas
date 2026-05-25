@@ -1,0 +1,116 @@
+{
+  "title": "API Registry",
+  "new": "New API",
+  "edit": "Edit API",
+  "search": {
+    "title": "Search",
+    "query": "Code / Name",
+    "tag": "Tag",
+    "all": "All",
+    "activeOnly": "Active only",
+    "inactiveOnly": "Inactive only",
+    "activeLabel": "Activity",
+    "reset": "Reset",
+    "search": "Search"
+  },
+  "field": {
+    "code": "Code",
+    "name": "Name",
+    "description": "Description",
+    "apiVersion": "API Version",
+    "status": "Status",
+    "type": "Type",
+    "sourceSystem": "Source System",
+    "targetSystem": "Target System",
+    "transportLayer": "Transport Layer",
+    "protocol": "Protocol",
+    "authenticationMethod": "Authentication Method",
+    "securityPolicy": "Security Policy",
+    "integrationPattern": "Integration Pattern",
+    "messageFormat": "Message Format",
+    "slaResponseTimeMs": "Response Time",
+    "slaUptimePct": "Uptime",
+    "slaTier": "SLA Tier",
+    "slaDescription": "SLA Description",
+    "contractType": "Contract Type",
+    "contractUrl": "Contract URL",
+    "documentationUrl": "Documentation URL",
+    "tags": "Tags",
+    "dataDomains": "Data Domains",
+    "active": "Active"
+  },
+  "section": {
+    "basic": "Basic Information",
+    "classification": "Status & Classification",
+    "classificationHint": "Lifecycle status and API type",
+    "integration": "Integration",
+    "integrationHint": "Source and target systems connected by this API",
+    "protocolSecurity": "Protocol & Security",
+    "protocolSecurityHint": "Communication protocol and security configuration",
+    "sla": "SLA",
+    "slaHint": "Service Level Agreement parameters",
+    "contract": "Contract & Documentation",
+    "contractHint": "API specification and documentation links",
+    "tags": "Tags",
+    "dataDomains": "Data Domains",
+    "dataDomainsHint": "Data domains covered by this API",
+    "owners": "Owners"
+  },
+  "badge": {
+    "active": "Active",
+    "inactive": "Inactive"
+  },
+  "action": {
+    "new": "New API",
+    "edit": "Edit",
+    "save": "Save",
+    "cancel": "Cancel",
+    "back": "Back",
+    "deactivate": "Deactivate",
+    "history": "Change History",
+    "addTag": "Add Tag",
+    "removeTag": "Remove tag"
+  },
+  "toolbar": {
+    "selectToEdit": "Select an API to edit",
+    "selectToDeactivate": "Select an API to deactivate",
+    "alreadyInactive": "API is already inactive"
+  },
+  "tags": {
+    "noTags": "No tags added yet."
+  },
+  "owner": {
+    "name": "Name",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "role": "Role",
+    "validFrom": "Valid From",
+    "validTo": "Valid To (optional)",
+    "add": "Add Owner",
+    "edit": "Edit Owner",
+    "delete": "Remove Owner",
+    "noOwners": "No owners assigned yet.",
+    "pendingHint": "Owners will be saved after the API is created."
+  },
+  "toast": {
+    "created": "API created successfully.",
+    "updated": "API updated successfully.",
+    "deactivated": "API deactivated.",
+    "ownerAdded": "Owner added.",
+    "ownerUpdated": "Owner updated.",
+    "ownerDeleted": "Owner removed.",
+    "createdOwnersFailed": "API created, but some owners could not be saved."
+  },
+  "error": {
+    "notFound": "API not found.",
+    "duplicateCode": "An API with code \"{{ code }}\" already exists.",
+    "codePattern": "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores, or hyphens.",
+    "invalidEmail": "Please enter a valid email address.",
+    "uptimePctRange": "Uptime must be between 0 and 100."
+  },
+  "confirm": {
+    "deactivate": "Are you sure you want to deactivate this API? It will no longer be visible in the active registry.",
+    "deleteOwner": "Are you sure you want to remove this owner?"
+  }
+}

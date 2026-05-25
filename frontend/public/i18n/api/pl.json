@@ -1,0 +1,116 @@
+{
+  "title": "Rejestr API",
+  "new": "Nowe API",
+  "edit": "Edycja API",
+  "search": {
+    "title": "Wyszukiwanie",
+    "query": "Kod / Nazwa",
+    "tag": "Tag",
+    "all": "Wszystkie",
+    "activeOnly": "Tylko aktywne",
+    "inactiveOnly": "Tylko nieaktywne",
+    "activeLabel": "Aktywność",
+    "reset": "Resetuj",
+    "search": "Szukaj"
+  },
+  "field": {
+    "code": "Kod",
+    "name": "Nazwa",
+    "description": "Opis",
+    "apiVersion": "Wersja API",
+    "status": "Status",
+    "type": "Typ",
+    "sourceSystem": "System źródłowy",
+    "targetSystem": "System docelowy",
+    "transportLayer": "Warstwa transportowa",
+    "protocol": "Protokół",
+    "authenticationMethod": "Metoda uwierzytelniania",
+    "securityPolicy": "Polityka bezpieczeństwa",
+    "integrationPattern": "Wzorzec integracji",
+    "messageFormat": "Format wiadomości",
+    "slaResponseTimeMs": "Czas odpowiedzi",
+    "slaUptimePct": "Dostępność",
+    "slaTier": "Poziom SLA",
+    "slaDescription": "Opis SLA",
+    "contractType": "Typ kontraktu",
+    "contractUrl": "URL kontraktu",
+    "documentationUrl": "URL dokumentacji",
+    "tags": "Tagi",
+    "dataDomains": "Domeny danych",
+    "active": "Aktywne"
+  },
+  "section": {
+    "basic": "Podstawowe informacje",
+    "classification": "Status i klasyfikacja",
+    "classificationHint": "Status cyklu życia i typ API",
+    "integration": "Integracja",
+    "integrationHint": "Systemy źródłowy i docelowy połączone przez to API",
+    "protocolSecurity": "Protokół i bezpieczeństwo",
+    "protocolSecurityHint": "Protokół komunikacyjny i konfiguracja bezpieczeństwa",
+    "sla": "SLA",
+    "slaHint": "Parametry umowy o poziomie usług",
+    "contract": "Kontrakt i dokumentacja",
+    "contractHint": "Specyfikacja API i linki do dokumentacji",
+    "tags": "Tagi",
+    "dataDomains": "Domeny danych",
+    "dataDomainsHint": "Domeny danych obsługiwane przez to API",
+    "owners": "Właściciele"
+  },
+  "badge": {
+    "active": "Aktywne",
+    "inactive": "Nieaktywne"
+  },
+  "action": {
+    "new": "Nowe API",
+    "edit": "Edytuj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "back": "Wróć",
+    "deactivate": "Dezaktywuj",
+    "history": "Historia zmian",
+    "addTag": "Dodaj tag",
+    "removeTag": "Usuń tag"
+  },
+  "toolbar": {
+    "selectToEdit": "Wybierz API do edycji",
+    "selectToDeactivate": "Wybierz API do dezaktywacji",
+    "alreadyInactive": "API jest już nieaktywne"
+  },
+  "tags": {
+    "noTags": "Nie dodano żadnych tagów."
+  },
+  "owner": {
+    "name": "Imię i nazwisko",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "email": "Email",
+    "role": "Rola",
+    "validFrom": "Ważne od",
+    "validTo": "Ważne do (opcjonalnie)",
+    "add": "Dodaj właściciela",
+    "edit": "Edytuj właściciela",
+    "delete": "Usuń właściciela",
+    "noOwners": "Brak przypisanych właścicieli.",
+    "pendingHint": "Właściciele zostaną zapisani po utworzeniu API."
+  },
+  "toast": {
+    "created": "API zostało utworzone.",
+    "updated": "API zostało zaktualizowane.",
+    "deactivated": "API zostało dezaktywowane.",
+    "ownerAdded": "Właściciel dodany.",
+    "ownerUpdated": "Właściciel zaktualizowany.",
+    "ownerDeleted": "Właściciel usunięty.",
+    "createdOwnersFailed": "API utworzone, ale niektórych właścicieli nie udało się zapisać."
+  },
+  "error": {
+    "notFound": "Nie znaleziono API.",
+    "duplicateCode": "API o kodzie \"{{ code }}\" już istnieje.",
+    "codePattern": "Kod musi zaczynać się wielką literą i zawierać tylko wielkie litery, cyfry, podkreślenia lub myślniki.",
+    "invalidEmail": "Podaj prawidłowy adres email.",
+    "uptimePctRange": "Dostępność musi być w zakresie 0–100."
+  },
+  "confirm": {
+    "deactivate": "Czy na pewno chcesz dezaktywować to API? Nie będzie widoczne w aktywnym rejestrze.",
+    "deleteOwner": "Czy na pewno chcesz usunąć tego właściciela?"
+  }
+}
