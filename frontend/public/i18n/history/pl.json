@@ -67,6 +67,8 @@
     "slaDescription": "Opis SLA",
     "contractType": "Typ kontraktu",
     "contractUrl": "URL kontraktu",
-    "dataDomains": "Domeny danych"
+    "dataDomains": "Domeny danych",
+    "environments": "Środowiska",
+    "group": "Grupa"
   }
 }

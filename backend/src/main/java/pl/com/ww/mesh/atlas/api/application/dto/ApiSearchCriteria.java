@@ -10,5 +10,6 @@ public record ApiSearchCriteria(
         Boolean active,
         UUID sourceSystemId,
         UUID targetSystemId,
-        String tag
+        String tag,
+        UUID environmentId
 ) {}

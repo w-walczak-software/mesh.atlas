@@ -34,6 +34,16 @@
               <mat-option [value]="false">{{ t('datadomain.search.inactiveOnly') }}</mat-option>
             </mat-select>
           </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('datadomain.search.group') }}</mat-label>
+            <mat-select formControlName="groupId">
+              <mat-option [value]="null">{{ t('datadomain.search.all') }}</mat-option>
+              @for (group of groups(); track group.id) {
+                <mat-option [value]="group.id">{{ group.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
         </div>
 
         <div class="search-actions">

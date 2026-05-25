@@ -49,6 +49,7 @@ public interface ApiMapper {
     @Mapping(target = "owners", ignore = true)
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "dataDomains", ignore = true)
+    @Mapping(target = "environments", ignore = true)
     ApiEntity map(ApiCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -69,5 +70,6 @@ public interface ApiMapper {
     @Mapping(target = "owners", ignore = true)
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "dataDomains", ignore = true)
+    @Mapping(target = "environments", ignore = true)
     void updateEntity(ApiUpdateRequest request, @MappingTarget ApiEntity entity);
 }

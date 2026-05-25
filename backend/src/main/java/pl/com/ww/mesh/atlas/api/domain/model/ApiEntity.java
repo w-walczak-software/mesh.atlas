@@ -181,6 +181,17 @@ public class ApiEntity extends AuditableEntity {
     @Builder.Default
     private List<DataDomainEntity> dataDomains = new ArrayList<>();
 
+    @NotAudited
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "api_environment",
+            schema = "atlas",
+            joinColumns = @JoinColumn(name = "api_id"),
+            inverseJoinColumns = @JoinColumn(name = "dictionary_entry_id")
+    )
+    @Builder.Default
+    private List<DictionaryEntryEntity> environments = new ArrayList<>();
+
     @Column(name = "active", nullable = false)
     private boolean active;
 }

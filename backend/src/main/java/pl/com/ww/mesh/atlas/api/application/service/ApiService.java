@@ -74,8 +74,8 @@ public class ApiService {
                 request.integrationPatternId(), request.messageFormatId(),
                 request.slaTierId(), request.contractTypeId());
 
-        List<DataDomainEntity> domains = resolveDataDomains(request.dataDomainIds());
-        entity.getDataDomains().addAll(domains);
+        entity.getDataDomains().addAll(resolveDataDomains(request.dataDomainIds()));
+        entity.getEnvironments().addAll(resolveEnvironments(request.environmentIds()));
 
         return mapper.map(apiRepository.save(entity));
     }
@@ -91,6 +91,8 @@ public class ApiService {
 
         entity.getDataDomains().clear();
         entity.getDataDomains().addAll(resolveDataDomains(request.dataDomainIds()));
+        entity.getEnvironments().clear();
+        entity.getEnvironments().addAll(resolveEnvironments(request.environmentIds()));
 
         return mapper.map(apiRepository.save(entity));
     }
@@ -136,6 +138,13 @@ public class ApiService {
             return Collections.emptyList();
         }
         return new ArrayList<>(dataDomainRepository.findAllById(ids));
+    }
+
+    private List<DictionaryEntryEntity> resolveEnvironments(List<UUID> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        return new ArrayList<>(entryRepository.findAllById(ids));
     }
 
     private void applyFkRefs(ApiEntity entity,

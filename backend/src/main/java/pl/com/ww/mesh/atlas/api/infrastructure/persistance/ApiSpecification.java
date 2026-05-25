@@ -2,6 +2,8 @@ package pl.com.ww.mesh.atlas.api.infrastructure.persistance;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
@@ -67,6 +69,12 @@ public class ApiSpecification implements Specification<ApiEntity> {
                     cb.lower(hcb.cast(jpaRoot.get("tags"), String.class)),
                     "%\"" + criteria.tag().toLowerCase() + "\"%"
             ));
+        }
+
+        if (criteria.environmentId() != null) {
+            query.distinct(true);
+            Join<Object, Object> envJoin = root.join("environments", JoinType.INNER);
+            predicates.add(cb.equal(envJoin.get("id"), criteria.environmentId()));
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));

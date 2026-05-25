@@ -57,5 +57,6 @@ public record ApiCreateRequest(
         String documentationUrl,
 
         List<String> tags,
-        List<UUID> dataDomainIds
+        List<UUID> dataDomainIds,
+        List<UUID> environmentIds
 ) {}

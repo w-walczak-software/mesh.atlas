@@ -97,6 +97,7 @@ export interface ApiDto {
   documentationUrl: string | null;
   tags: string[] | null;
   dataDomains: DataDomainRef[];
+  environments: DictionaryEntryRef[];
   active: boolean;
   createdAt: string;
   createdBy: string;
@@ -128,6 +129,7 @@ export interface ApiCreateRequest {
   documentationUrl: string | null;
   tags: string[] | null;
   dataDomainIds: string[] | null;
+  environmentIds: string[] | null;
 }
 
 export interface ApiUpdateRequest {
@@ -153,6 +155,7 @@ export interface ApiUpdateRequest {
   documentationUrl: string | null;
   tags: string[] | null;
   dataDomainIds: string[] | null;
+  environmentIds: string[] | null;
 }
 
 export interface ApiOwnerCreateRequest {
@@ -173,6 +176,18 @@ export interface ApiOwnerUpdateRequest {
   validTo: string | null;
 }
 
+export interface ApiAttachmentHistoryDto {
+  revisionNumber: number;
+  revisionType: string;
+  revisionTimestamp: string;
+  username: string | null;
+  userId: string | null;
+  fileName: string;
+  description: string | null;
+  contractTypeId: string | null;
+  contractTypeName: string | null;
+}
+
 export interface ApiSearchParams {
   query?: string;
   statusId?: string;
@@ -182,6 +197,7 @@ export interface ApiSearchParams {
   sourceSystemId?: string;
   targetSystemId?: string;
   tag?: string;
+  environmentId?: string;
   page?: number;
   size?: number;
   sort?: string;

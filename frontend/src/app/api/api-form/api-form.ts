@@ -6,6 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
+import { SlicePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -19,13 +20,16 @@ import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
 import { DialogService } from '@shared/dialogs/dialog.service';
+import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
 import { HistoryService } from '@shared/history/history.service';
+import { RevisionEntryDto, RevisionType } from '@shared/history/history.model';
 import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
 import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
@@ -35,12 +39,15 @@ import { TransportLayerService } from '../../transportlayer/service/transport-la
 import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
 import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
-import { ApiDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
+import { ApiAttachmentDto, ApiDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
 import { ApiOwnerDialog, ApiOwnerDialogData } from './api-owner.dialog';
+import { ApiUploadDialog, ApiUploadDialogData, ApiUploadDialogResult } from '../api-upload-dialog/api-upload-dialog';
+import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachmentDialogResult } from '../api-edit-attachment-dialog/api-edit-attachment-dialog';
 
 @Component({
   selector: 'app-api-form',
   imports: [
+    SlicePipe,
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,
@@ -53,6 +60,7 @@ import { ApiOwnerDialog, ApiOwnerDialogData } from './api-owner.dialog';
     MatDialogModule,
     MatTableModule,
     MatTooltipModule,
+    MatProgressBarModule,
   ],
   providers: [provideTranslocoScope('api')],
   templateUrl: './api-form.html',
@@ -70,18 +78,24 @@ export class ApiForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
   private readonly dialogs = inject(DialogService);
+  private readonly auth = inject(AuthService);
   private readonly matDialog = inject(MatDialog);
   private readonly t = inject(TranslocoService);
   private readonly fb = inject(FormBuilder);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
+  protected readonly canWrite = computed(() =>
+    this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
+  );
 
   private readonly apiId = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.apiId() !== null);
   protected readonly saving = signal(false);
   protected readonly loading = signal(false);
+  protected readonly uploading = signal(false);
   protected readonly api = signal<ApiDto | null>(null);
   protected readonly owners = signal<ApiOwnerDto[]>([]);
+  protected readonly attachments = signal<ApiAttachmentDto[]>([]);
 
   protected readonly statuses = signal<DictionaryEntryDto[]>([]);
   protected readonly types = signal<DictionaryEntryDto[]>([]);
@@ -93,9 +107,20 @@ export class ApiForm implements OnInit {
   protected readonly slaTiers = signal<DictionaryEntryDto[]>([]);
   protected readonly contractTypes = signal<DictionaryEntryDto[]>([]);
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
+  protected readonly environments = signal<DictionaryEntryDto[]>([]);
   protected readonly itSystems = signal<ItSystemSummaryDto[]>([]);
   protected readonly transportLayers = signal<TransportLayerSummaryDto[]>([]);
   protected readonly dataDomains = signal<DataDomainSummaryDto[]>([]);
+
+  protected readonly domainGroups = signal<DictionaryEntryDto[]>([]);
+  protected readonly selectedGroupId = signal<string | null>(null);
+  protected readonly filteredDomains = computed(() => {
+    const gid = this.selectedGroupId();
+    const all = this.dataDomains();
+    if (!gid) return all;
+    if (gid === '__NO_GROUP__') return all.filter(d => !d.group);
+    return all.filter(d => d.group?.id === gid);
+  });
 
   protected readonly tags = signal<string[]>([]);
 
@@ -123,10 +148,12 @@ export class ApiForm implements OnInit {
     contractUrl: ['', Validators.maxLength(2000)],
     documentationUrl: ['', Validators.maxLength(2000)],
     dataDomainIds: [[] as string[]],
+    environmentIds: [[] as string[]],
     newTag: [''],
   });
 
   protected readonly ownerColumns = ['name', 'role', 'validFrom', 'validTo', 'actions'];
+  protected readonly attachmentColumns = ['fileName', 'contractType', 'description', 'fileSize', 'createdAt', 'actions'];
 
   ngOnInit(): void {
     this.loadDictionaries();
@@ -135,6 +162,7 @@ export class ApiForm implements OnInit {
       this.apiId.set(id);
       this.loadApi(id);
       this.loadOwners(id);
+      this.loadAttachments(id);
     } else {
       this.form.controls.code.enable();
     }
@@ -218,6 +246,105 @@ export class ApiForm implements OnInit {
     );
   }
 
+  protected triggerFileUpload(input: HTMLInputElement): void {
+    input.click();
+  }
+
+  protected onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files?.length) return;
+    const file = input.files[0];
+    input.value = '';
+
+    this.matDialog.open(ApiUploadDialog, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: { fileName: file.name, contractTypes: this.contractTypes() } satisfies ApiUploadDialogData,
+    }).afterClosed().subscribe((result: ApiUploadDialogResult | null) => {
+      if (result === null || result === undefined) return;
+      this.uploadFile(file, result.description, result.contractTypeId);
+    });
+  }
+
+  private uploadFile(file: File, description: string | null, contractTypeId: string | null): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.uploading.set(true);
+    this.service.uploadAttachment(id, file, description, contractTypeId).subscribe({
+      next: () => {
+        this.uploading.set(false);
+        this.toast.success(this.t.translate('api.toast.attachmentUploaded'));
+        this.loadAttachments(id);
+      },
+      error: () => {
+        this.uploading.set(false);
+        this.toast.error(this.t.translate('common.error.unexpected'));
+      },
+    });
+  }
+
+  protected downloadAttachment(attachment: ApiAttachmentDto): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.service.downloadAttachment(id, attachment.id).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = attachment.fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+      },
+    });
+  }
+
+  protected editAttachment(attachment: ApiAttachmentDto): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.matDialog.open(ApiEditAttachmentDialog, {
+      width: '560px',
+      maxWidth: '95vw',
+      data: {
+        fileName: attachment.fileName,
+        currentDescription: attachment.description,
+        currentContractTypeId: attachment.contractType?.id ?? null,
+        contractTypes: this.contractTypes(),
+      } satisfies ApiEditAttachmentDialogData,
+    }).afterClosed().subscribe((result: ApiEditAttachmentDialogResult | null) => {
+      if (result === null || result === undefined) return;
+      this.service.updateAttachment(id, attachment.id, result.description, result.contractTypeId).subscribe({
+        next: () => {
+          this.toast.success(this.t.translate('api.toast.attachmentUpdated'));
+          this.loadAttachments(id);
+        },
+        error: () => this.toast.error(this.t.translate('common.error.unexpected')),
+      });
+    });
+  }
+
+  protected confirmDeleteAttachment(attachment: ApiAttachmentDto): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.dialogs.question(
+      this.t.translate('api.attachment.delete'),
+      this.t.translate('api.confirm.deleteAttachment'),
+      () => {
+        this.service.deleteAttachment(id, attachment.id).subscribe({
+          next: () => {
+            this.toast.success(this.t.translate('api.toast.attachmentDeleted'));
+            this.loadAttachments(id);
+          },
+        });
+      },
+    );
+  }
+
+  protected formatFileSize(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
   protected save(): void {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -248,6 +375,7 @@ export class ApiForm implements OnInit {
       documentationUrl: v.documentationUrl || null,
       tags: this.tags().length ? this.tags() : null,
       dataDomainIds: (v.dataDomainIds ?? []).length ? v.dataDomainIds : null,
+      environmentIds: (v.environmentIds ?? []).length ? v.environmentIds : null,
     };
 
     if (this.isEditMode()) {
@@ -281,11 +409,24 @@ export class ApiForm implements OnInit {
     const id = this.apiId();
     if (!id) return;
     const apiName = this.api()?.name ?? id;
-    this.historyService.getApiRevisions(id).subscribe(entries => {
+    forkJoin({
+      api: this.historyService.getApiRevisions(id),
+      attachments: this.historyService.getApiAttachmentHistory(id),
+    }).subscribe(({ api, attachments }) => {
+      const attachmentEntries: RevisionEntryDto<unknown>[] = attachments.map(a => ({
+        revisionNumber: a.revisionNumber,
+        revisionType: a.revisionType as RevisionType,
+        revisionTimestamp: a.revisionTimestamp,
+        username: a.username,
+        userId: a.userId,
+        snapshot: { _kind: 'attachment', fileName: a.fileName, description: a.description, contractType: a.contractTypeName },
+      }));
+      const allEntries = [...api, ...attachmentEntries]
+        .sort((a, b) => b.revisionNumber - a.revisionNumber);
       this.matDialog.open(HistoryDialog, {
         data: {
           title: apiName,
-          entries,
+          entries: allEntries,
           fieldLabels: this.buildFieldLabels(),
         } satisfies HistoryDialogData,
         maxWidth: '800px',
@@ -306,9 +447,11 @@ export class ApiForm implements OnInit {
       slaResponseTimeMs: tr('slaResponseTimeMs'), slaUptimePct: tr('slaUptimePct'),
       slaTier: tr('slaTier'), slaDescription: tr('slaDescription'),
       contractType: tr('contractType'), contractUrl: tr('contractUrl'),
-      documentationUrl: tr('documentationUrl'), tags: tr('tags'), active: tr('active'),
+      documentationUrl: tr('documentationUrl'), tags: tr('tags'),
+      environments: tr('environments'), active: tr('active'),
       createdAt: tr('createdAt'), createdBy: tr('createdBy'),
       updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
+      fileName: tr('fileName'), attachments: tr('attachments'),
     };
   }
 
@@ -373,6 +516,7 @@ export class ApiForm implements OnInit {
           contractUrl: api.contractUrl ?? '',
           documentationUrl: api.documentationUrl ?? '',
           dataDomainIds: api.dataDomains.map(d => d.id),
+          environmentIds: (api.environments ?? []).map(e => e.id),
         });
         this.form.controls.code.disable();
         this.loading.set(false);
@@ -389,6 +533,10 @@ export class ApiForm implements OnInit {
     this.service.findOwners(id).subscribe(owners => this.owners.set(owners));
   }
 
+  private loadAttachments(id: string): void {
+    this.service.findAttachments(id).subscribe(list => this.attachments.set(list));
+  }
+
   private loadDictionaries(): void {
     this.entryService.findByTypeCode('API_STATUS').subscribe(e => this.statuses.set(e));
     this.entryService.findByTypeCode('API_TYPE').subscribe(e => this.types.set(e));
@@ -400,6 +548,7 @@ export class ApiForm implements OnInit {
     this.entryService.findByTypeCode('SLA_TIER').subscribe(e => this.slaTiers.set(e));
     this.entryService.findByTypeCode('CONTRACT_TYPE').subscribe(e => this.contractTypes.set(e));
     this.entryService.findByTypeCode('API_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
+    this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
     this.itSystemService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
       page => this.itSystems.set(page.content),
     );
@@ -409,6 +558,7 @@ export class ApiForm implements OnInit {
     this.dataDomainService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
       page => this.dataDomains.set(page.content),
     );
+    this.entryService.findByTypeCode('DATA_DOMAIN_GROUP').subscribe(e => this.domainGroups.set(e));
   }
 
   private handleError(err: HttpErrorResponse): void {

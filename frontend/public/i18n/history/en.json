@@ -67,6 +67,8 @@
     "contractType": "Contract Type",
     "contractUrl": "Contract URL",
     "documentationUrl": "Documentation URL",
-    "dataDomains": "Data Domains"
+    "dataDomains": "Data Domains",
+    "environments": "Environments",
+    "group": "Group"
   }
 }

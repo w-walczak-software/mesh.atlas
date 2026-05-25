@@ -5,6 +5,7 @@ import jakarta.validation.constraints.Size;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 public record DataDomainUpdateRequest(
 
@@ -17,6 +18,8 @@ public record DataDomainUpdateRequest(
 
         @Size(max = 2000)
         String documentationUrl,
+
+        UUID groupId,
 
         List<String> tags,
 

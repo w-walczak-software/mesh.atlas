@@ -21,6 +21,9 @@ import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
 import pl.com.ww.mesh.atlas.datadomain.infrastructure.persistance.DataDomainAttachmentRepository;
 import pl.com.ww.mesh.atlas.datadomain.infrastructure.persistance.DataDomainRepository;
 import pl.com.ww.mesh.atlas.datadomain.infrastructure.persistance.DataDomainSpecification;
+import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryEntryNotFoundException;
+import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
+import pl.com.ww.mesh.atlas.dictionary.infrastructure.persistance.DictionaryEntryRepository;
 import pl.com.ww.mesh.atlas.global.domain.exception.AtlasException;
 import pl.com.ww.mesh.atlas.security.auth.UserContextHolder;
 
@@ -36,6 +39,7 @@ public class DataDomainService {
     private final DataDomainRepository repository;
     private final DataDomainAttachmentRepository attachmentRepository;
     private final DataDomainMapper mapper;
+    private final DictionaryEntryRepository entryRepository;
 
     @Transactional(readOnly = true)
     public Page<DataDomainSummaryDto> findAll(DataDomainSearchCriteria criteria, Pageable pageable) {
@@ -63,6 +67,7 @@ public class DataDomainService {
             throw new AtlasDataDomainDuplicateCodeException(request.code());
         }
         DataDomainEntity entity = mapper.map(request);
+        entity.setGroup(resolveEntry(request.groupId()));
         return mapper.map(repository.save(entity));
     }
 
@@ -71,6 +76,7 @@ public class DataDomainService {
         DataDomainEntity entity = repository.findById(id)
                 .orElseThrow(() -> new AtlasDataDomainNotFoundException(id.toString()));
         mapper.updateEntity(request, entity);
+        entity.setGroup(resolveEntry(request.groupId()));
         return mapper.map(repository.save(entity));
     }
 
@@ -151,5 +157,11 @@ public class DataDomainService {
     private DataDomainEntity loadDomain(UUID domainId) {
         return repository.findById(domainId)
                 .orElseThrow(() -> new AtlasDataDomainNotFoundException(domainId.toString()));
+    }
+
+    private DictionaryEntryEntity resolveEntry(UUID id) {
+        if (id == null) return null;
+        return entryRepository.findById(id)
+                .orElseThrow(() -> new AtlasDictionaryEntryNotFoundException(id.toString()));
     }
 }

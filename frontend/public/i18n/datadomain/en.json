@@ -10,6 +10,7 @@
     "activeOnly": "Active only",
     "inactiveOnly": "Inactive only",
     "activeLabel": "Activity",
+    "group": "Group",
     "reset": "Reset",
     "search": "Search"
   },
@@ -18,6 +19,7 @@
     "name": "Name",
     "description": "Description",
     "documentationUrl": "Documentation URL",
+    "group": "Group",
     "tags": "Tags",
     "attachments": "Attachments",
     "active": "Active"

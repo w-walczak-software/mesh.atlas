@@ -10,6 +10,7 @@
     "activeOnly": "Tylko aktywne",
     "inactiveOnly": "Tylko nieaktywne",
     "activeLabel": "Aktywność",
+    "group": "Grupa",
     "reset": "Resetuj",
     "search": "Szukaj"
   },
@@ -18,6 +19,7 @@
     "name": "Nazwa",
     "description": "Opis",
     "documentationUrl": "URL dokumentacji",
+    "group": "Grupa",
     "tags": "Tagi",
     "attachments": "Załączniki",
     "active": "Aktywna"

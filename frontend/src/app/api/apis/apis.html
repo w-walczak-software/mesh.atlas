@@ -57,6 +57,16 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('api.field.environments') }}</mat-label>
+            <mat-select formControlName="environmentId">
+              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+              @for (env of environments(); track env.id) {
+                <mat-option [value]="env.id">{{ env.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
             <mat-label>{{ t('api.search.activeLabel') }}</mat-label>
             <mat-select formControlName="active">
               <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>

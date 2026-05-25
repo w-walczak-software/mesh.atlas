@@ -1,5 +1,7 @@
 package pl.com.ww.mesh.atlas.datadomain.application.dto;
 
+import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
+
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -11,6 +13,7 @@ public record DataDomainDto(
         String name,
         String description,
         String documentationUrl,
+        DictionaryEntryRefDto group,
         List<String> tags,
         Map<String, Object> metadata,
         boolean active,

@@ -33,6 +33,7 @@ public record ApiDto(
         String documentationUrl,
         List<String> tags,
         List<DataDomainRefDto> dataDomains,
+        List<DictionaryEntryRefDto> environments,
         boolean active,
         LocalDateTime createdAt,
         String createdBy,

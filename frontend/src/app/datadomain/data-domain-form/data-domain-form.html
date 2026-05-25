@@ -89,6 +89,16 @@
                 <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
               }
             </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ t('datadomain.field.group') }}</mat-label>
+              <mat-select formControlName="groupId">
+                <mat-option [value]="null">–</mat-option>
+                @for (group of groups(); track group.id) {
+                  <mat-option [value]="group.id">{{ group.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
           </div>
         </mat-card>
 

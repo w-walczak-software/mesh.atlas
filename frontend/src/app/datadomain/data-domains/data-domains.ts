@@ -14,6 +14,8 @@ import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { AuthService } from '@core/auth/auth.service';
+import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
+import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
 import { DataDomainService } from '../service/data-domain.service';
 import { DataDomainSearchParams, DataDomainSummaryDto } from '../model/data-domain.model';
 
@@ -37,6 +39,7 @@ import { DataDomainSearchParams, DataDomainSummaryDto } from '../model/data-doma
 })
 export class DataDomains implements OnInit {
   private readonly service = inject(DataDomainService);
+  private readonly entryService = inject(DictionaryEntryService);
   private readonly router = inject(Router);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
@@ -52,6 +55,7 @@ export class DataDomains implements OnInit {
   protected readonly data = signal<DataDomainSummaryDto[]>([]);
   protected readonly loading = signal(false);
   protected readonly selectedRow = signal<DataDomainSummaryDto | null>(null);
+  protected readonly groups = signal<DictionaryEntryDto[]>([]);
   private readonly totalItems = signal(0);
   private readonly pageIndex = signal(0);
   private readonly pageSize = signal(20);
@@ -60,6 +64,7 @@ export class DataDomains implements OnInit {
     query: [''],
     tag: [''],
     active: [null as boolean | null],
+    groupId: [null as string | null],
   });
 
   protected readonly tableConfig = computed<TableConfig<DataDomainSummaryDto>>(() => {
@@ -73,6 +78,12 @@ export class DataDomains implements OnInit {
           key: 'description',
           label: this.t.translate('datadomain.field.description'),
           cellRender: (row) => ({ text: row.description ?? '' }),
+        },
+        {
+          key: 'group',
+          label: this.t.translate('datadomain.field.group'),
+          width: '160px',
+          cellRender: (row) => ({ text: row.group?.name ?? '' }),
         },
         {
           key: 'active',
@@ -137,6 +148,7 @@ export class DataDomains implements OnInit {
   });
 
   ngOnInit(): void {
+    this.entryService.findByTypeCode('DATA_DOMAIN_GROUP').subscribe(e => this.groups.set(e));
     this.load();
   }
 
@@ -167,6 +179,7 @@ export class DataDomains implements OnInit {
       query: v.query || undefined,
       tag: v.tag || undefined,
       active: v.active ?? undefined,
+      groupId: v.groupId || undefined,
     };
     this.service.findAll(params).subscribe({
       next: (page) => {

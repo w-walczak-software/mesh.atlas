@@ -14,6 +14,8 @@ import pl.com.ww.mesh.atlas.datadomain.application.dto.DataDomainDto;
 import pl.com.ww.mesh.atlas.datadomain.application.mapper.DataDomainMapper;
 import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainAttachmentEntity;
 import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
+import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
+import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.global.audit.AtlasRevisionEntity;
 import pl.com.ww.mesh.atlas.global.audit.RevisionEntryDto;
 import pl.com.ww.mesh.atlas.global.audit.RevisionTypeDto;
@@ -73,6 +75,7 @@ public class DataDomainRevisionService {
                 entity.getName(),
                 entity.getDescription(),
                 entity.getDocumentationUrl(),
+                mapEntry(entity.getGroup()),
                 entity.getTags(),
                 entity.getMetadata(),
                 entity.isActive(),
@@ -82,6 +85,11 @@ public class DataDomainRevisionService {
                 entity.getUpdatedAt(),
                 entity.getUpdatedBy()
         );
+    }
+
+    private DictionaryEntryRefDto mapEntry(DictionaryEntryEntity entry) {
+        if (entry == null) return null;
+        return new DictionaryEntryRefDto(entry.getId(), entry.getCode(), entry.getName());
     }
 
     private RevisionEntryDto<DataDomainDto> toDto(Object[] row, DataDomainDto snapshot) {

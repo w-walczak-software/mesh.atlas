@@ -25,6 +25,7 @@ export class DataDomainService {
     if (params.query) httpParams = httpParams.set('query', params.query);
     if (params.tag) httpParams = httpParams.set('tag', params.tag);
     if (params.active !== undefined) httpParams = httpParams.set('active', params.active);
+    if (params.groupId) httpParams = httpParams.set('groupId', params.groupId);
     return this.http.get<Page<DataDomainSummaryDto>>(this.baseUrl, { params: httpParams });
   }
 

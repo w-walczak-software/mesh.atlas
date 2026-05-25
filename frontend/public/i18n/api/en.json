@@ -37,6 +37,9 @@
     "documentationUrl": "Documentation URL",
     "tags": "Tags",
     "dataDomains": "Data Domains",
+    "domainGroup": "Filter by Group",
+    "domainGroupNone": "No group",
+    "environments": "Environments",
     "active": "Active"
   },
   "section": {
@@ -51,10 +54,29 @@
     "slaHint": "Service Level Agreement parameters",
     "contract": "Contract & Documentation",
     "contractHint": "API specification and documentation links",
+    "attachments": "Attachments",
+    "attachmentsHint": "API contracts, specifications, schemas and documentation files",
     "tags": "Tags",
+    "environments": "Environments",
+    "environmentsHint": "Deployment environments where this API is available",
     "dataDomains": "Data Domains",
     "dataDomainsHint": "Data domains covered by this API",
     "owners": "Owners"
+  },
+  "attachment": {
+    "upload": "Upload File",
+    "download": "Download",
+    "edit": "Edit",
+    "editAttachment": "Edit Attachment",
+    "delete": "Remove",
+    "fileName": "File Name",
+    "contractType": "Contract Type",
+    "description": "Description",
+    "descriptionPlaceholder": "Describe the file contents...",
+    "descriptionHint": "Optional: briefly describe the document purpose or version",
+    "fileSize": "Size",
+    "uploadedAt": "Uploaded At",
+    "noAttachments": "No attachments yet."
   },
   "badge": {
     "active": "Active",
@@ -100,7 +122,10 @@
     "ownerAdded": "Owner added.",
     "ownerUpdated": "Owner updated.",
     "ownerDeleted": "Owner removed.",
-    "createdOwnersFailed": "API created, but some owners could not be saved."
+    "createdOwnersFailed": "API created, but some owners could not be saved.",
+    "attachmentUploaded": "File uploaded successfully.",
+    "attachmentUpdated": "Attachment saved.",
+    "attachmentDeleted": "Attachment removed."
   },
   "error": {
     "notFound": "API not found.",
@@ -111,6 +136,7 @@
   },
   "confirm": {
     "deactivate": "Are you sure you want to deactivate this API? It will no longer be visible in the active registry.",
-    "deleteOwner": "Are you sure you want to remove this owner?"
+    "deleteOwner": "Are you sure you want to remove this owner?",
+    "deleteAttachment": "Are you sure you want to remove this attachment? This action cannot be undone."
   }
 }

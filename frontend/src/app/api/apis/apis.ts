@@ -64,6 +64,7 @@ export class Apis implements OnInit {
 
   protected readonly statuses = signal<DictionaryEntryDto[]>([]);
   protected readonly types = signal<DictionaryEntryDto[]>([]);
+  protected readonly environments = signal<DictionaryEntryDto[]>([]);
   protected readonly itSystems = signal<ItSystemSummaryDto[]>([]);
 
   protected readonly searchForm = this.fb.group({
@@ -72,6 +73,7 @@ export class Apis implements OnInit {
     statusId: [null as string | null],
     typeId: [null as string | null],
     sourceSystemId: [null as string | null],
+    environmentId: [null as string | null],
     active: [null as boolean | null],
   });
 
@@ -209,6 +211,7 @@ export class Apis implements OnInit {
       statusId: v.statusId || undefined,
       typeId: v.typeId || undefined,
       sourceSystemId: v.sourceSystemId || undefined,
+      environmentId: v.environmentId || undefined,
       active: v.active ?? undefined,
     };
     this.service.findAll(params).subscribe({
@@ -224,6 +227,7 @@ export class Apis implements OnInit {
   private loadDictionaries(): void {
     this.entryService.findByTypeCode('API_STATUS').subscribe(e => this.statuses.set(e));
     this.entryService.findByTypeCode('API_TYPE').subscribe(e => this.types.set(e));
+    this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
     this.itSystemService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
       page => this.itSystems.set(page.content),
     );

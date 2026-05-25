@@ -37,6 +37,9 @@
     "documentationUrl": "URL dokumentacji",
     "tags": "Tagi",
     "dataDomains": "Domeny danych",
+    "domainGroup": "Filtruj po grupie",
+    "domainGroupNone": "Bez grupy",
+    "environments": "Środowiska",
     "active": "Aktywne"
   },
   "section": {
@@ -51,10 +54,29 @@
     "slaHint": "Parametry umowy o poziomie usług",
     "contract": "Kontrakt i dokumentacja",
     "contractHint": "Specyfikacja API i linki do dokumentacji",
+    "attachments": "Załączniki",
+    "attachmentsHint": "Kontrakty API, specyfikacje, schematy i pliki dokumentacji",
     "tags": "Tagi",
+    "environments": "Środowiska",
+    "environmentsHint": "Środowiska wdrożeniowe, w których dostępne jest to API",
     "dataDomains": "Domeny danych",
     "dataDomainsHint": "Domeny danych obsługiwane przez to API",
     "owners": "Właściciele"
+  },
+  "attachment": {
+    "upload": "Wgraj plik",
+    "download": "Pobierz",
+    "edit": "Edytuj",
+    "editAttachment": "Edytuj załącznik",
+    "delete": "Usuń",
+    "fileName": "Nazwa pliku",
+    "contractType": "Typ kontraktu",
+    "description": "Opis",
+    "descriptionPlaceholder": "Opisz zawartość pliku...",
+    "descriptionHint": "Opcjonalnie: krótko opisz cel dokumentu lub jego wersję",
+    "fileSize": "Rozmiar",
+    "uploadedAt": "Data dodania",
+    "noAttachments": "Brak załączników."
   },
   "badge": {
     "active": "Aktywne",
@@ -100,7 +122,10 @@
     "ownerAdded": "Właściciel dodany.",
     "ownerUpdated": "Właściciel zaktualizowany.",
     "ownerDeleted": "Właściciel usunięty.",
-    "createdOwnersFailed": "API utworzone, ale niektórych właścicieli nie udało się zapisać."
+    "createdOwnersFailed": "API utworzone, ale niektórych właścicieli nie udało się zapisać.",
+    "attachmentUploaded": "Plik został przesłany.",
+    "attachmentUpdated": "Załącznik zaktualizowany.",
+    "attachmentDeleted": "Załącznik usunięty."
   },
   "error": {
     "notFound": "Nie znaleziono API.",
@@ -111,6 +136,7 @@
   },
   "confirm": {
     "deactivate": "Czy na pewno chcesz dezaktywować to API? Nie będzie widoczne w aktywnym rejestrze.",
-    "deleteOwner": "Czy na pewno chcesz usunąć tego właściciela?"
+    "deleteOwner": "Czy na pewno chcesz usunąć tego właściciela?",
+    "deleteAttachment": "Czy na pewno chcesz usunąć ten załącznik? Operacji nie można cofnąć."
   }
 }

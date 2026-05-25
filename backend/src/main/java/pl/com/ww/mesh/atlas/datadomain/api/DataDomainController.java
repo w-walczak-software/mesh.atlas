@@ -54,8 +54,9 @@ public class DataDomainController {
             @RequestParam(required = false) String query,
             @RequestParam(required = false) String tag,
             @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) UUID groupId,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
-        return service.findAll(new DataDomainSearchCriteria(query, tag, active), pageable);
+        return service.findAll(new DataDomainSearchCriteria(query, tag, active, groupId), pageable);
     }
 
     @GetMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")

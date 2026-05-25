@@ -6,6 +6,12 @@ export interface Page<T> {
   size: number;
 }
 
+export interface DictionaryEntryRef {
+  id: string;
+  code: string;
+  name: string;
+}
+
 export interface DataDomainAttachmentDto {
   id: string;
   fileName: string;
@@ -21,6 +27,7 @@ export interface DataDomainSummaryDto {
   code: string;
   name: string;
   description: string | null;
+  group: DictionaryEntryRef | null;
   tags: string[] | null;
   active: boolean;
 }
@@ -31,6 +38,7 @@ export interface DataDomainDto {
   name: string;
   description: string | null;
   documentationUrl: string | null;
+  group: DictionaryEntryRef | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
   active: boolean;
@@ -46,6 +54,7 @@ export interface DataDomainCreateRequest {
   name: string;
   description: string | null;
   documentationUrl: string | null;
+  groupId: string | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
 }
@@ -54,6 +63,7 @@ export interface DataDomainUpdateRequest {
   name: string;
   description: string | null;
   documentationUrl: string | null;
+  groupId: string | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
 }
@@ -72,6 +82,7 @@ export interface DataDomainSearchParams {
   query?: string;
   tag?: string;
   active?: boolean;
+  groupId?: string;
   page?: number;
   size?: number;
   sort?: string;

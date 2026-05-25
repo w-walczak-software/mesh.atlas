@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
@@ -52,9 +53,10 @@ public class ApiController {
             @RequestParam(required = false) UUID sourceSystemId,
             @RequestParam(required = false) UUID targetSystemId,
             @RequestParam(required = false) String tag,
+            @RequestParam(required = false) UUID environmentId,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         var criteria = new ApiSearchCriteria(query, statusId, typeId, transportLayerId,
-                active, sourceSystemId, targetSystemId, tag);
+                active, sourceSystemId, targetSystemId, tag, environmentId);
         return service.findAll(criteria, pageable);
     }
 
@@ -96,6 +98,12 @@ public class ApiController {
     @IsAtlasUser
     public List<RevisionEntryDto<ApiDto>> getRevisions(@PathVariable UUID id) {
         return revisionService.getRevisions(id);
+    }
+
+    @GetMapping(UUID_REGEX + "/attachment-history")
+    @IsAtlasUser
+    public List<ApiAttachmentHistoryDto> getAttachmentHistory(@PathVariable UUID id) {
+        return revisionService.getAttachmentHistory(id);
     }
 
     @PutMapping(UUID_REGEX + "/data-domains")

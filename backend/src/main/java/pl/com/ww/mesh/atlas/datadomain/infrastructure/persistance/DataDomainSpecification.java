@@ -48,6 +48,10 @@ public class DataDomainSpecification implements Specification<DataDomainEntity> 
             ));
         }
 
+        if (criteria.groupId() != null) {
+            predicates.add(cb.equal(root.get("group").get("id"), criteria.groupId()));
+        }
+
         return cb.and(predicates.toArray(new Predicate[0]));
     }
 }

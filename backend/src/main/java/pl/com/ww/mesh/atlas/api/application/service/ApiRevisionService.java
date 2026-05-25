@@ -9,8 +9,10 @@ import org.hibernate.envers.query.AuditEntity;
 import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
 import pl.com.ww.mesh.atlas.api.application.dto.TransportLayerRefDto;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiAttachmentEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
@@ -131,6 +133,7 @@ public class ApiRevisionService {
                 entity.getDocumentationUrl(),
                 entity.getTags(),
                 Collections.emptyList(),
+                Collections.emptyList(),
                 entity.isActive(),
                 entity.getCreatedAt(),
                 entity.getCreatedBy(),
@@ -152,5 +155,42 @@ public class ApiRevisionService {
     private TransportLayerRefDto mapTransportLayer(TransportLayerEntity tl) {
         if (tl == null) return null;
         return new TransportLayerRefDto(tl.getId(), tl.getCode(), tl.getName(), tl.getIcon(), tl.getColor());
+    }
+
+    @Transactional(readOnly = true)
+    public List<ApiAttachmentHistoryDto> getAttachmentHistory(UUID apiId) {
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = reader.createQuery()
+                .forRevisionsOfEntity(ApiAttachmentEntity.class, false, true)
+                .add(AuditEntity.relatedId("api").eq(apiId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return rows.stream().map(this::toAttachmentHistoryDto).toList();
+    }
+
+    private ApiAttachmentHistoryDto toAttachmentHistoryDto(Object[] row) {
+        ApiAttachmentEntity entity = (ApiAttachmentEntity) row[0];
+        AtlasRevisionEntity rev = (AtlasRevisionEntity) row[1];
+        RevisionType revType = (RevisionType) row[2];
+        String timestamp = Instant.ofEpochMilli(rev.getRevtstmp())
+                .atOffset(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+        DictionaryEntryEntity contractType = resolveEntry(entity.getContractType());
+
+        return new ApiAttachmentHistoryDto(
+                rev.getRev(),
+                mapType(revType).name(),
+                timestamp,
+                rev.getUsername(),
+                rev.getUserId(),
+                entity.getFileName(),
+                entity.getDescription(),
+                contractType != null ? contractType.getId() : null,
+                contractType != null ? contractType.getName() : null
+        );
     }
 }
