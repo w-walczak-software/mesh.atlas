@@ -72,7 +72,7 @@ export class Apis implements OnInit {
     tag: [''],
     statusId: [null as string | null],
     typeId: [null as string | null],
-    sourceSystemId: [null as string | null],
+    producerSystemId: [null as string | null],
     environmentId: [null as string | null],
     active: [null as boolean | null],
   });
@@ -104,16 +104,21 @@ export class Apis implements OnInit {
           cellRender: (row) => ({ text: row.status?.name }),
         },
         {
-          key: 'sourceSystem',
-          label: this.t.translate('api.field.sourceSystem'),
+          key: 'producerSystem',
+          label: this.t.translate('api.field.producerSystem'),
           width: '160px',
-          cellRender: (row) => ({ text: row.sourceSystem?.name ?? '–' }),
+          cellRender: (row) => ({ text: row.producerSystem?.name ?? '–' }),
         },
         {
-          key: 'targetSystem',
-          label: this.t.translate('api.field.targetSystem'),
-          width: '160px',
-          cellRender: (row) => ({ text: row.targetSystem?.name ?? '–' }),
+          key: 'consumerSystems',
+          label: this.t.translate('api.field.consumerSystems'),
+          width: '180px',
+          cellRender: (row) => {
+            const consumers = row.consumerSystems ?? [];
+            if (consumers.length === 0) return { text: '–' };
+            if (consumers.length === 1) return { text: consumers[0].name };
+            return { text: `${consumers[0].name} (+${consumers.length - 1})` };
+          },
         },
         {
           key: 'active',
@@ -210,7 +215,7 @@ export class Apis implements OnInit {
       tag: v.tag || undefined,
       statusId: v.statusId || undefined,
       typeId: v.typeId || undefined,
-      sourceSystemId: v.sourceSystemId || undefined,
+      producerSystemId: v.producerSystemId || undefined,
       environmentId: v.environmentId || undefined,
       active: v.active ?? undefined,
     };

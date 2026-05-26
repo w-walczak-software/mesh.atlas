@@ -48,14 +48,13 @@ public class ApiGraphService {
         for (ApiEntity api : apis) {
             if (!api.isActive()) continue;
 
-            ItSystemEntity source = api.getSourceSystem();
-            ItSystemEntity target = api.getTargetSystem();
-
-            if (source != null) {
-                systemMap.putIfAbsent(source.getId(), toSystemDto(source));
+            ItSystemEntity producer = api.getProducerSystem();
+            if (producer != null) {
+                systemMap.putIfAbsent(producer.getId(), toSystemDto(producer));
             }
-            if (target != null) {
-                systemMap.putIfAbsent(target.getId(), toSystemDto(target));
+
+            for (ItSystemEntity consumer : api.getConsumerSystems()) {
+                systemMap.putIfAbsent(consumer.getId(), toSystemDto(consumer));
             }
 
             edges.add(toEdgeDto(api));
@@ -68,13 +67,14 @@ public class ApiGraphService {
         return (Root<ApiEntity> root, CriteriaQuery<?> query, CriteriaBuilder cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
-            // Always filter active only for graph
             predicates.add(cb.equal(root.get("active"), true));
 
             if (!CollectionUtils.isEmpty(criteria.systemIds())) {
-                Predicate sourceIn = root.get("sourceSystem").get("id").in(criteria.systemIds());
-                Predicate targetIn = root.get("targetSystem").get("id").in(criteria.systemIds());
-                predicates.add(cb.or(sourceIn, targetIn));
+                Predicate producerIn = root.get("producerSystem").get("id").in(criteria.systemIds());
+                Join<ApiEntity, ItSystemEntity> consumerJoin = root.join("consumerSystems", JoinType.LEFT);
+                Predicate consumerIn = consumerJoin.get("id").in(criteria.systemIds());
+                predicates.add(cb.or(producerIn, consumerIn));
+                query.distinct(true);
             }
 
             if (!CollectionUtils.isEmpty(criteria.typeIds())) {
@@ -100,11 +100,11 @@ public class ApiGraphService {
 
             if (StringUtils.hasText(criteria.systemNameQuery())) {
                 String sysPattern = "%" + criteria.systemNameQuery().toLowerCase() + "%";
-                Join<ApiEntity, ItSystemEntity> sourceJoin = root.join("sourceSystem", JoinType.LEFT);
-                Join<ApiEntity, ItSystemEntity> targetJoin = root.join("targetSystem", JoinType.LEFT);
+                Join<ApiEntity, ItSystemEntity> producerJoin = root.join("producerSystem", JoinType.LEFT);
+                Join<ApiEntity, ItSystemEntity> consumerJoin2 = root.join("consumerSystems", JoinType.LEFT);
                 predicates.add(cb.or(
-                        cb.like(cb.lower(sourceJoin.get("name")), sysPattern),
-                        cb.like(cb.lower(targetJoin.get("name")), sysPattern)
+                        cb.like(cb.lower(producerJoin.get("name")), sysPattern),
+                        cb.like(cb.lower(consumerJoin2.get("name")), sysPattern)
                 ));
                 query.distinct(true);
             }
@@ -149,6 +149,9 @@ public class ApiGraphService {
     }
 
     private ApiGraphEdgeDto toEdgeDto(ApiEntity api) {
+        List<UUID> consumerSystemIds = api.getConsumerSystems().stream()
+                .map(ItSystemEntity::getId)
+                .toList();
         return new ApiGraphEdgeDto(
                 api.getId(),
                 api.getCode(),
@@ -159,8 +162,9 @@ public class ApiGraphService {
                 mapTransportLayer(api.getTransportLayer()),
                 mapEntry(api.getProtocol()),
                 mapEntry(api.getAuthenticationMethod()),
-                api.getSourceSystem() != null ? api.getSourceSystem().getId() : null,
-                api.getTargetSystem() != null ? api.getTargetSystem().getId() : null,
+                mapEntry(api.getDataFlowDirection()),
+                api.getProducerSystem() != null ? api.getProducerSystem().getId() : null,
+                consumerSystemIds,
                 api.getTags(),
                 api.isActive()
         );

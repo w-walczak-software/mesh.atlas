@@ -25,8 +25,10 @@ public record ApiUpdateRequest(
         @NotNull
         UUID statusId,
 
-        UUID sourceSystemId,
-        UUID targetSystemId,
+        UUID producerSystemId,
+        UUID dataFlowDirectionId,
+        List<UUID> consumerSystemIds,
+
         UUID transportLayerId,
         UUID protocolId,
         UUID authenticationMethodId,

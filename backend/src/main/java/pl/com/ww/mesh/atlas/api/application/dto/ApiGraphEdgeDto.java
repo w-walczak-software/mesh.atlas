@@ -15,8 +15,9 @@ public record ApiGraphEdgeDto(
         TransportLayerRefDto transportLayer,
         DictionaryEntryRefDto protocol,
         DictionaryEntryRefDto authenticationMethod,
-        UUID sourceSystemId,
-        UUID targetSystemId,
+        DictionaryEntryRefDto dataFlowDirection,
+        UUID producerSystemId,
+        List<UUID> consumerSystemIds,
         List<String> tags,
         boolean active
 ) {}

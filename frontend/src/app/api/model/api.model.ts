@@ -65,8 +65,8 @@ export interface ApiSummaryDto {
   apiVersion: string | null;
   type: DictionaryEntryRef | null;
   status: DictionaryEntryRef;
-  sourceSystem: ItSystemRef | null;
-  targetSystem: ItSystemRef | null;
+  producerSystem: ItSystemRef | null;
+  consumerSystems: ItSystemRef[];
   transportLayer: TransportLayerRef | null;
   tags: string[] | null;
   active: boolean;
@@ -80,8 +80,9 @@ export interface ApiDto {
   apiVersion: string | null;
   type: DictionaryEntryRef | null;
   status: DictionaryEntryRef;
-  sourceSystem: ItSystemRef | null;
-  targetSystem: ItSystemRef | null;
+  producerSystem: ItSystemRef | null;
+  dataFlowDirection: DictionaryEntryRef | null;
+  consumerSystems: ItSystemRef[];
   transportLayer: TransportLayerRef | null;
   protocol: DictionaryEntryRef | null;
   authenticationMethod: DictionaryEntryRef | null;
@@ -112,8 +113,9 @@ export interface ApiCreateRequest {
   apiVersion: string | null;
   typeId: string | null;
   statusId: string;
-  sourceSystemId: string | null;
-  targetSystemId: string | null;
+  producerSystemId: string | null;
+  dataFlowDirectionId: string | null;
+  consumerSystemIds: string[] | null;
   transportLayerId: string | null;
   protocolId: string | null;
   authenticationMethodId: string | null;
@@ -138,8 +140,9 @@ export interface ApiUpdateRequest {
   apiVersion: string | null;
   typeId: string | null;
   statusId: string;
-  sourceSystemId: string | null;
-  targetSystemId: string | null;
+  producerSystemId: string | null;
+  dataFlowDirectionId: string | null;
+  consumerSystemIds: string[] | null;
   transportLayerId: string | null;
   protocolId: string | null;
   authenticationMethodId: string | null;
@@ -203,14 +206,26 @@ export interface ApiAttachmentHistoryDto {
   contractTypeName: string | null;
 }
 
+export interface ApiConsumerSystemHistoryDto {
+  revisionNumber: number;
+  revisionType: string;
+  revisionTimestamp: string;
+  username: string | null;
+  userId: string | null;
+  systemId: string;
+  systemCode: string | null;
+  systemName: string | null;
+  systemIcon: string | null;
+}
+
 export interface ApiSearchParams {
   query?: string;
   statusId?: string;
   typeId?: string;
   transportLayerId?: string;
   active?: boolean;
-  sourceSystemId?: string;
-  targetSystemId?: string;
+  producerSystemId?: string;
+  consumerSystemId?: string;
   tag?: string;
   environmentId?: string;
   page?: number;

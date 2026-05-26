@@ -11,6 +11,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSummaryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.mapper.ApiMapper;
+import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiConsumerConflictException;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiDuplicateCodeException;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiNotFoundException;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
@@ -29,7 +30,9 @@ import pl.com.ww.mesh.atlas.transportlayer.infrastructure.persistance.TransportL
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -68,14 +71,18 @@ public class ApiService {
             throw new AtlasApiDuplicateCodeException(request.code());
         }
         ApiEntity entity = mapper.map(request);
-        applyFkRefs(entity, request.statusId(), request.typeId(), request.sourceSystemId(),
-                request.targetSystemId(), request.transportLayerId(), request.protocolId(),
-                request.authenticationMethodId(), request.securityPolicyId(),
-                request.integrationPatternId(), request.messageFormatId(),
-                request.slaTierId(), request.contractTypeId());
+        applyFkRefs(entity,
+                request.statusId(), request.typeId(),
+                request.producerSystemId(), request.dataFlowDirectionId(),
+                request.transportLayerId(),
+                request.protocolId(), request.authenticationMethodId(),
+                request.securityPolicyId(), request.integrationPatternId(),
+                request.messageFormatId(), request.slaTierId(), request.contractTypeId());
 
         entity.getDataDomains().addAll(resolveDataDomains(request.dataDomainIds()));
         entity.getEnvironments().addAll(resolveEnvironments(request.environmentIds()));
+        entity.getConsumerSystems().addAll(
+                resolveConsumerSystems(request.consumerSystemIds(), request.producerSystemId()));
 
         return mapper.map(apiRepository.save(entity));
     }
@@ -83,16 +90,21 @@ public class ApiService {
     public ApiDto update(UUID id, ApiUpdateRequest request) {
         ApiEntity entity = getApiOrThrow(id);
         mapper.updateEntity(request, entity);
-        applyFkRefs(entity, request.statusId(), request.typeId(), request.sourceSystemId(),
-                request.targetSystemId(), request.transportLayerId(), request.protocolId(),
-                request.authenticationMethodId(), request.securityPolicyId(),
-                request.integrationPatternId(), request.messageFormatId(),
-                request.slaTierId(), request.contractTypeId());
+        applyFkRefs(entity,
+                request.statusId(), request.typeId(),
+                request.producerSystemId(), request.dataFlowDirectionId(),
+                request.transportLayerId(),
+                request.protocolId(), request.authenticationMethodId(),
+                request.securityPolicyId(), request.integrationPatternId(),
+                request.messageFormatId(), request.slaTierId(), request.contractTypeId());
 
         entity.getDataDomains().clear();
         entity.getDataDomains().addAll(resolveDataDomains(request.dataDomainIds()));
         entity.getEnvironments().clear();
         entity.getEnvironments().addAll(resolveEnvironments(request.environmentIds()));
+        // Use element-level mutation (not clear+addAll) so Hibernate fires per-element
+        // PostCollectionUpdateEvent that Envers needs to audit the join table correctly.
+        applyConsumerSystemsDiff(entity, request.consumerSystemIds(), request.producerSystemId());
 
         return mapper.map(apiRepository.save(entity));
     }
@@ -147,9 +159,43 @@ public class ApiService {
         return new ArrayList<>(entryRepository.findAllById(ids));
     }
 
+    private List<ItSystemEntity> resolveConsumerSystems(List<UUID> ids, UUID producerSystemId) {
+        if (ids == null || ids.isEmpty()) {
+            return Collections.emptyList();
+        }
+        if (producerSystemId != null && ids.contains(producerSystemId)) {
+            throw new AtlasApiConsumerConflictException();
+        }
+        return new ArrayList<>(itSystemRepository.findAllById(ids));
+    }
+
+    /**
+     * Updates the consumerSystems collection using element-level add/remove operations
+     * instead of clear()+addAll(). This ensures Hibernate fires per-element
+     * PostCollectionUpdateEvent events that Envers needs to correctly write rows
+     * to aud.api_consumer_system_aud.
+     */
+    private void applyConsumerSystemsDiff(ApiEntity entity, List<UUID> newIds, UUID producerSystemId) {
+        List<ItSystemEntity> incoming = resolveConsumerSystems(newIds, producerSystemId);
+        Set<UUID> incomingIdSet = incoming.stream()
+                .map(ItSystemEntity::getId)
+                .collect(Collectors.toSet());
+
+        // Remove systems that are no longer consumers (fires DEL event per element)
+        entity.getConsumerSystems().removeIf(s -> !incomingIdSet.contains(s.getId()));
+
+        // Add systems that are newly assigned as consumers (fires ADD event per element)
+        Set<UUID> currentIds = entity.getConsumerSystems().stream()
+                .map(ItSystemEntity::getId)
+                .collect(Collectors.toSet());
+        incoming.stream()
+                .filter(s -> !currentIds.contains(s.getId()))
+                .forEach(entity.getConsumerSystems()::add);
+    }
+
     private void applyFkRefs(ApiEntity entity,
                               UUID statusId, UUID typeId,
-                              UUID sourceSystemId, UUID targetSystemId,
+                              UUID producerSystemId, UUID dataFlowDirectionId,
                               UUID transportLayerId,
                               UUID protocolId, UUID authenticationMethodId,
                               UUID securityPolicyId, UUID integrationPatternId,
@@ -157,8 +203,8 @@ public class ApiService {
                               UUID contractTypeId) {
         entity.setStatus(resolveEntry(statusId));
         entity.setType(resolveEntry(typeId));
-        entity.setSourceSystem(resolveItSystem(sourceSystemId));
-        entity.setTargetSystem(resolveItSystem(targetSystemId));
+        entity.setProducerSystem(resolveItSystem(producerSystemId));
+        entity.setDataFlowDirection(resolveEntry(dataFlowDirectionId));
         entity.setTransportLayer(resolveTransportLayer(transportLayerId));
         entity.setProtocol(resolveEntry(protocolId));
         entity.setAuthenticationMethod(resolveEntry(authenticationMethodId));

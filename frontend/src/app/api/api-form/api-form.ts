@@ -108,6 +108,7 @@ export class ApiForm implements OnInit {
   protected readonly contractTypes = signal<DictionaryEntryDto[]>([]);
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
   protected readonly environments = signal<DictionaryEntryDto[]>([]);
+  protected readonly dataFlowDirections = signal<DictionaryEntryDto[]>([]);
   protected readonly itSystems = signal<ItSystemSummaryDto[]>([]);
   protected readonly transportLayers = signal<TransportLayerSummaryDto[]>([]);
   protected readonly dataDomains = signal<DataDomainSummaryDto[]>([]);
@@ -132,8 +133,9 @@ export class ApiForm implements OnInit {
     apiVersion: ['', Validators.maxLength(100)],
     statusId: [null as string | null, Validators.required],
     typeId: [null as string | null],
-    sourceSystemId: [null as string | null],
-    targetSystemId: [null as string | null],
+    producerSystemId: [null as string | null],
+    dataFlowDirectionId: [null as string | null],
+    consumerSystemIds: [[] as string[]],
     transportLayerId: [null as string | null],
     protocolId: [null as string | null],
     authenticationMethodId: [null as string | null],
@@ -152,6 +154,20 @@ export class ApiForm implements OnInit {
     newTag: [''],
   });
 
+  /** Signal tracking the currently selected producer system ID for reactive filtering. */
+  private readonly producerSystemId$ = toSignal(
+    this.form.controls.producerSystemId.valueChanges,
+    { initialValue: null },
+  );
+
+  /** Consumer system list filtered to exclude the currently selected producer. */
+  protected readonly availableConsumerSystems = computed(() => {
+    const producerId = this.producerSystemId$();
+    const all = this.itSystems();
+    if (!producerId) return all;
+    return all.filter(s => s.id !== producerId);
+  });
+
   protected readonly ownerColumns = ['name', 'role', 'validFrom', 'validTo', 'actions'];
   protected readonly attachmentColumns = ['fileName', 'contractType', 'description', 'fileSize', 'createdAt', 'actions'];
 
@@ -166,6 +182,17 @@ export class ApiForm implements OnInit {
     } else {
       this.form.controls.code.enable();
     }
+
+    // When producer changes, remove it from consumer selection if present
+    this.form.controls.producerSystemId.valueChanges.subscribe(producerId => {
+      if (producerId) {
+        const current = this.form.controls.consumerSystemIds.value ?? [];
+        const filtered = current.filter(id => id !== producerId);
+        if (filtered.length !== current.length) {
+          this.form.controls.consumerSystemIds.setValue(filtered);
+        }
+      }
+    });
   }
 
   protected addTag(): void {
@@ -358,8 +385,9 @@ export class ApiForm implements OnInit {
       apiVersion: v.apiVersion || null,
       statusId: v.statusId!,
       typeId: v.typeId || null,
-      sourceSystemId: v.sourceSystemId || null,
-      targetSystemId: v.targetSystemId || null,
+      producerSystemId: v.producerSystemId || null,
+      dataFlowDirectionId: v.dataFlowDirectionId || null,
+      consumerSystemIds: (v.consumerSystemIds ?? []).length ? v.consumerSystemIds : null,
       transportLayerId: v.transportLayerId || null,
       protocolId: v.protocolId || null,
       authenticationMethodId: v.authenticationMethodId || null,
@@ -413,7 +441,8 @@ export class ApiForm implements OnInit {
       api: this.historyService.getApiRevisions(id),
       attachments: this.historyService.getApiAttachmentHistory(id),
       owners: this.historyService.getApiOwnerHistory(id),
-    }).subscribe(({ api, attachments, owners }) => {
+      consumers: this.historyService.getApiConsumerSystemHistory(id),
+    }).subscribe(({ api, attachments, owners, consumers }) => {
       const attachmentEntries: RevisionEntryDto<unknown>[] = attachments.map(a => ({
         revisionNumber: a.revisionNumber,
         revisionType: a.revisionType as RevisionType,
@@ -430,7 +459,15 @@ export class ApiForm implements OnInit {
         userId: o.userId,
         snapshot: { _kind: 'owner', firstName: o.firstName, lastName: o.lastName, email: o.email, role: o.roleName, validFrom: o.validFrom, validTo: o.validTo },
       }));
-      const allEntries = [...api, ...attachmentEntries, ...ownerEntries]
+      const consumerEntries: RevisionEntryDto<unknown>[] = consumers.map(c => ({
+        revisionNumber: c.revisionNumber,
+        revisionType: c.revisionType as RevisionType,
+        revisionTimestamp: c.revisionTimestamp,
+        username: c.username,
+        userId: c.userId,
+        snapshot: { _kind: 'consumerSystem', systemCode: c.systemCode, systemName: c.systemName },
+      }));
+      const allEntries = [...api, ...attachmentEntries, ...ownerEntries, ...consumerEntries]
         .sort((a, b) => b.revisionNumber - a.revisionNumber);
       this.matDialog.open(HistoryDialog, {
         data: {
@@ -449,7 +486,7 @@ export class ApiForm implements OnInit {
     return {
       id: tr('id'), code: tr('code'), name: tr('name'), description: tr('description'),
       apiVersion: tr('apiVersion'), type: tr('type'), status: tr('status'),
-      sourceSystem: tr('sourceSystem'), targetSystem: tr('targetSystem'),
+      producerSystem: tr('producerSystem'), dataFlowDirection: tr('dataFlowDirection'),
       transportLayer: tr('transportLayer'), protocol: tr('protocol'),
       authenticationMethod: tr('authenticationMethod'), securityPolicy: tr('securityPolicy'),
       integrationPattern: tr('integrationPattern'), messageFormat: tr('messageFormat'),
@@ -463,6 +500,7 @@ export class ApiForm implements OnInit {
       fileName: tr('fileName'), attachments: tr('attachments'),
       firstName: tr('firstName'), lastName: tr('lastName'), email: tr('email'),
       role: tr('role'), validFrom: tr('validFrom'), validTo: tr('validTo'),
+      systemCode: tr('systemCode'), systemName: tr('systemName'),
     };
   }
 
@@ -511,8 +549,9 @@ export class ApiForm implements OnInit {
           apiVersion: api.apiVersion ?? '',
           statusId: api.status?.id ?? null,
           typeId: api.type?.id ?? null,
-          sourceSystemId: api.sourceSystem?.id ?? null,
-          targetSystemId: api.targetSystem?.id ?? null,
+          producerSystemId: api.producerSystem?.id ?? null,
+          dataFlowDirectionId: api.dataFlowDirection?.id ?? null,
+          consumerSystemIds: (api.consumerSystems ?? []).map(s => s.id),
           transportLayerId: api.transportLayer?.id ?? null,
           protocolId: api.protocol?.id ?? null,
           authenticationMethodId: api.authenticationMethod?.id ?? null,
@@ -560,6 +599,7 @@ export class ApiForm implements OnInit {
     this.entryService.findByTypeCode('CONTRACT_TYPE').subscribe(e => this.contractTypes.set(e));
     this.entryService.findByTypeCode('API_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
     this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
+    this.entryService.findByTypeCode('DATA_FLOW_DIRECTION').subscribe(e => this.dataFlowDirections.set(e));
     this.itSystemService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
       page => this.itSystems.set(page.content),
     );
@@ -577,6 +617,8 @@ export class ApiForm implements OnInit {
     if (err.status === 409 || code.includes('duplicate')) {
       const v = this.form.getRawValue();
       this.toast.error(this.t.translate('api.error.duplicateCode', { code: v.code }));
+    } else if (err.status === 400 && code === 'api.consumer.conflict') {
+      this.toast.error(this.t.translate('api.error.consumerConflict'));
     } else {
       this.toast.error(this.t.translate('common.error.unexpected'));
     }

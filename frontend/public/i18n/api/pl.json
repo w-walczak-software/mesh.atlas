@@ -20,8 +20,9 @@
     "apiVersion": "Wersja API",
     "status": "Status",
     "type": "Typ",
-    "sourceSystem": "System źródłowy",
-    "targetSystem": "System docelowy",
+    "producerSystem": "System producenta",
+    "dataFlowDirection": "Kierunek przepływu danych",
+    "consumerSystems": "Systemy konsumujące",
     "transportLayer": "Warstwa transportowa",
     "protocol": "Protokół",
     "authenticationMethod": "Metoda uwierzytelniania",
@@ -47,7 +48,7 @@
     "classification": "Status i klasyfikacja",
     "classificationHint": "Status cyklu życia i typ API",
     "integration": "Integracja",
-    "integrationHint": "Systemy źródłowy i docelowy połączone przez to API",
+    "integrationHint": "System produkujący API, kierunek przepływu danych i systemy konsumujące",
     "protocolSecurity": "Protokół i bezpieczeństwo",
     "protocolSecurityHint": "Protokół komunikacyjny i konfiguracja bezpieczeństwa",
     "sla": "SLA",
@@ -132,7 +133,8 @@
     "duplicateCode": "API o kodzie \"{{ code }}\" już istnieje.",
     "codePattern": "Kod musi zaczynać się wielką literą i zawierać tylko wielkie litery, cyfry, podkreślenia lub myślniki.",
     "invalidEmail": "Podaj prawidłowy adres email.",
-    "uptimePctRange": "Dostępność musi być w zakresie 0–100."
+    "uptimePctRange": "Dostępność musi być w zakresie 0–100.",
+    "consumerConflict": "System producenta nie może jednocześnie figurować jako konsument API."
   },
   "confirm": {
     "deactivate": "Czy na pewno chcesz dezaktywować to API? Nie będzie widoczne w aktywnym rejestrze.",

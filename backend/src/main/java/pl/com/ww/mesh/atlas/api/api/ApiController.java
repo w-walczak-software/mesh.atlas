@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiConsumerSystemHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
@@ -51,13 +52,13 @@ public class ApiController {
             @RequestParam(required = false) UUID typeId,
             @RequestParam(required = false) UUID transportLayerId,
             @RequestParam(required = false) Boolean active,
-            @RequestParam(required = false) UUID sourceSystemId,
-            @RequestParam(required = false) UUID targetSystemId,
+            @RequestParam(required = false) UUID producerSystemId,
+            @RequestParam(required = false) UUID consumerSystemId,
             @RequestParam(required = false) String tag,
             @RequestParam(required = false) UUID environmentId,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         var criteria = new ApiSearchCriteria(query, statusId, typeId, transportLayerId,
-                active, sourceSystemId, targetSystemId, tag, environmentId);
+                active, producerSystemId, consumerSystemId, tag, environmentId);
         return service.findAll(criteria, pageable);
     }
 
@@ -111,6 +112,12 @@ public class ApiController {
     @IsAtlasUser
     public List<ApiAttachmentHistoryDto> getAttachmentHistory(@PathVariable UUID id) {
         return revisionService.getAttachmentHistory(id);
+    }
+
+    @GetMapping(UUID_REGEX + "/consumer-system-history")
+    @IsAtlasUser
+    public List<ApiConsumerSystemHistoryDto> getConsumerSystemHistory(@PathVariable UUID id) {
+        return revisionService.getConsumerSystemHistory(id);
     }
 
     @PutMapping(UUID_REGEX + "/data-domains")

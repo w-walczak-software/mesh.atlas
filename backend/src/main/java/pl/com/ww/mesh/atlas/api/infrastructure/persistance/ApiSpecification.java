@@ -50,12 +50,14 @@ public class ApiSpecification implements Specification<ApiEntity> {
             predicates.add(cb.equal(root.get("transportLayer").get("id"), criteria.transportLayerId()));
         }
 
-        if (criteria.sourceSystemId() != null) {
-            predicates.add(cb.equal(root.get("sourceSystem").get("id"), criteria.sourceSystemId()));
+        if (criteria.producerSystemId() != null) {
+            predicates.add(cb.equal(root.get("producerSystem").get("id"), criteria.producerSystemId()));
         }
 
-        if (criteria.targetSystemId() != null) {
-            predicates.add(cb.equal(root.get("targetSystem").get("id"), criteria.targetSystemId()));
+        if (criteria.consumerSystemId() != null) {
+            query.distinct(true);
+            Join<Object, Object> consumerJoin = root.join("consumerSystems", JoinType.INNER);
+            predicates.add(cb.equal(consumerJoin.get("id"), criteria.consumerSystemId()));
         }
 
         if (criteria.active() != null) {

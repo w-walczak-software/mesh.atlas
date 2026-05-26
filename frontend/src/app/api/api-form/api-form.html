@@ -131,7 +131,7 @@
           </div>
         </mat-card>
 
-        <!-- Integration (Source / Target / Transport) -->
+        <!-- Integration (Producer / Flow Direction / Consumers / Transport) -->
         <mat-card appearance="outlined" class="form-card">
           <div class="card-head">
             <div class="card-head-icon card-head-icon--tertiary">
@@ -146,8 +146,8 @@
           <div class="card-body">
             <div class="field-row field-row--equal">
               <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.sourceSystem') }}</mat-label>
-                <mat-select formControlName="sourceSystemId">
+                <mat-label>{{ t('api.field.producerSystem') }}</mat-label>
+                <mat-select formControlName="producerSystemId">
                   <mat-option [value]="null">–</mat-option>
                   @for (sys of itSystems(); track sys.id) {
                     <mat-option [value]="sys.id">
@@ -159,18 +159,27 @@
               </mat-form-field>
 
               <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.targetSystem') }}</mat-label>
-                <mat-select formControlName="targetSystemId">
+                <mat-label>{{ t('api.field.dataFlowDirection') }}</mat-label>
+                <mat-select formControlName="dataFlowDirectionId">
                   <mat-option [value]="null">–</mat-option>
-                  @for (sys of itSystems(); track sys.id) {
-                    <mat-option [value]="sys.id">
-                      @if (sys.icon) { <mat-icon>{{ sys.icon }}</mat-icon> }
-                      {{ sys.code }} – {{ sys.name }}
-                    </mat-option>
+                  @for (item of dataFlowDirections(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
                   }
                 </mat-select>
               </mat-form-field>
             </div>
+
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>{{ t('api.field.consumerSystems') }}</mat-label>
+              <mat-select formControlName="consumerSystemIds" multiple>
+                @for (sys of availableConsumerSystems(); track sys.id) {
+                  <mat-option [value]="sys.id">
+                    @if (sys.icon) { <mat-icon>{{ sys.icon }}</mat-icon> }
+                    {{ sys.code }} – {{ sys.name }}
+                  </mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
 
             <mat-form-field appearance="outline" class="field-half">
               <mat-label>{{ t('api.field.transportLayer') }}</mat-label>

@@ -20,8 +20,9 @@
     "apiVersion": "API Version",
     "status": "Status",
     "type": "Type",
-    "sourceSystem": "Source System",
-    "targetSystem": "Target System",
+    "producerSystem": "Producer System",
+    "dataFlowDirection": "Data Flow Direction",
+    "consumerSystems": "Consumer Systems",
     "transportLayer": "Transport Layer",
     "protocol": "Protocol",
     "authenticationMethod": "Authentication Method",
@@ -47,7 +48,7 @@
     "classification": "Status & Classification",
     "classificationHint": "Lifecycle status and API type",
     "integration": "Integration",
-    "integrationHint": "Source and target systems connected by this API",
+    "integrationHint": "The system publishing this API, data flow direction, and consuming systems",
     "protocolSecurity": "Protocol & Security",
     "protocolSecurityHint": "Communication protocol and security configuration",
     "sla": "SLA",
@@ -132,7 +133,8 @@
     "duplicateCode": "An API with code \"{{ code }}\" already exists.",
     "codePattern": "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores, or hyphens.",
     "invalidEmail": "Please enter a valid email address.",
-    "uptimePctRange": "Uptime must be between 0 and 100."
+    "uptimePctRange": "Uptime must be between 0 and 100.",
+    "consumerConflict": "The producer system cannot also be listed as a consumer of this API."
   },
   "confirm": {
     "deactivate": "Are you sure you want to deactivate this API? It will no longer be visible in the active registry.",

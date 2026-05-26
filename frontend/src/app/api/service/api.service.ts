@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import {
   ApiAttachmentDto,
+  ApiConsumerSystemHistoryDto,
   ApiCreateRequest,
   ApiDto,
   ApiOwnerCreateRequest,
@@ -29,8 +30,8 @@ export class ApiService {
     if (params.statusId) p = p.set('statusId', params.statusId);
     if (params.typeId) p = p.set('typeId', params.typeId);
     if (params.transportLayerId) p = p.set('transportLayerId', params.transportLayerId);
-    if (params.sourceSystemId) p = p.set('sourceSystemId', params.sourceSystemId);
-    if (params.targetSystemId) p = p.set('targetSystemId', params.targetSystemId);
+    if (params.producerSystemId) p = p.set('producerSystemId', params.producerSystemId);
+    if (params.consumerSystemId) p = p.set('consumerSystemId', params.consumerSystemId);
     if (params.tag) p = p.set('tag', params.tag);
     if (params.environmentId) p = p.set('environmentId', params.environmentId);
     if (params.active !== undefined) p = p.set('active', String(params.active));
@@ -91,5 +92,9 @@ export class ApiService {
 
   deleteAttachment(apiId: string, attachmentId: string): Observable<void> {
     return this.http.delete<void>(`${this.baseUrl}/${apiId}/attachments/${attachmentId}`);
+  }
+
+  getConsumerSystemHistory(apiId: string): Observable<ApiConsumerSystemHistoryDto[]> {
+    return this.http.get<ApiConsumerSystemHistoryDto[]>(`${this.baseUrl}/${apiId}/consumer-system-history`);
   }
 }

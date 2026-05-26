@@ -8,8 +8,8 @@ public record ApiSearchCriteria(
         UUID typeId,
         UUID transportLayerId,
         Boolean active,
-        UUID sourceSystemId,
-        UUID targetSystemId,
+        UUID producerSystemId,
+        UUID consumerSystemId,
         String tag,
         UUID environmentId
 ) {}

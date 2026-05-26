@@ -10,6 +10,7 @@ import org.hibernate.proxy.HibernateProxy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiConsumerSystemHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.TransportLayerRefDto;
@@ -35,7 +36,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -97,8 +97,8 @@ public class ApiRevisionService {
         entity.setMessageFormat(resolveEntry(entity.getMessageFormat()));
         entity.setSlaTier(resolveEntry(entity.getSlaTier()));
         entity.setContractType(resolveEntry(entity.getContractType()));
-        entity.setSourceSystem(resolveProxy(entity.getSourceSystem(), ItSystemEntity.class));
-        entity.setTargetSystem(resolveProxy(entity.getTargetSystem(), ItSystemEntity.class));
+        entity.setDataFlowDirection(resolveEntry(entity.getDataFlowDirection()));
+        entity.setProducerSystem(resolveProxy(entity.getProducerSystem(), ItSystemEntity.class));
         entity.setTransportLayer(resolveProxy(entity.getTransportLayer(), TransportLayerEntity.class));
     }
 
@@ -123,8 +123,9 @@ public class ApiRevisionService {
                 entity.getApiVersion(),
                 mapEntry(entity.getType()),
                 mapEntry(entity.getStatus()),
-                mapItSystem(entity.getSourceSystem()),
-                mapItSystem(entity.getTargetSystem()),
+                mapItSystem(entity.getProducerSystem()),
+                mapEntry(entity.getDataFlowDirection()),
+                Collections.emptyList(),           // consumerSystems — tracked in api_consumer_system_aud
                 mapTransportLayer(entity.getTransportLayer()),
                 mapEntry(entity.getProtocol()),
                 mapEntry(entity.getAuthenticationMethod()),
@@ -163,6 +164,8 @@ public class ApiRevisionService {
         if (tl == null) return null;
         return new TransportLayerRefDto(tl.getId(), tl.getCode(), tl.getName(), tl.getIcon(), tl.getColor());
     }
+
+    // ── Owner history ────────────────────────────────────────────────────────
 
     @Transactional(readOnly = true)
     public List<ApiOwnerHistoryDto> getOwnerHistory(UUID apiId) {
@@ -204,13 +207,12 @@ public class ApiRevisionService {
         );
     }
 
+    // ── Attachment history ───────────────────────────────────────────────────
+
     @Transactional(readOnly = true)
     public List<ApiAttachmentHistoryDto> getAttachmentHistory(UUID apiId) {
         AuditReader reader = AuditReaderFactory.get(entityManager);
 
-        // DefaultAuditStrategy stores api_id = NULL for DEL revisions, so filtering
-        // by relatedId("api") misses them. Step 1: collect non-DEL revisions (where
-        // api_id is set) and build a last-known-state map for data restoration.
         @SuppressWarnings("unchecked")
         List<Object[]> linked = reader.createQuery()
                 .forRevisionsOfEntity(ApiAttachmentEntity.class, false, false)
@@ -222,7 +224,6 @@ public class ApiRevisionService {
             return List.of();
         }
 
-        // Rows are desc by rev — putIfAbsent keeps the most recent snapshot per attachment.
         Map<UUID, ApiAttachmentEntity> lastKnownState = new LinkedHashMap<>();
         Set<UUID> attachmentIds = new LinkedHashSet<>();
         for (Object[] row : linked) {
@@ -231,7 +232,6 @@ public class ApiRevisionService {
             lastKnownState.putIfAbsent(entity.getId(), entity);
         }
 
-        // Step 2: fetch all revisions including DEL for the collected attachment IDs.
         var disjunction = AuditEntity.disjunction();
         attachmentIds.forEach(id -> disjunction.add(AuditEntity.id().eq(id)));
 
@@ -254,8 +254,6 @@ public class ApiRevisionService {
                 .atOffset(ZoneOffset.UTC)
                 .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
 
-        // DefaultAuditStrategy stores only the PK for DEL revisions; restore data
-        // from the last known non-DEL snapshot so fileName/description are preserved.
         if (revType == RevisionType.DEL && entity.getFileName() == null) {
             ApiAttachmentEntity last = lastKnownState.get(entity.getId());
             if (last != null) entity = last;
@@ -274,5 +272,63 @@ public class ApiRevisionService {
                 contractType != null ? contractType.getId() : null,
                 contractType != null ? contractType.getName() : null
         );
+    }
+
+    // ── Consumer system history ──────────────────────────────────────────────
+
+    /**
+     * Returns the audit history of consumer system assignments for the given API.
+     * Queries aud.api_consumer_system_aud directly via native SQL
+     * (revtype 0 = ADDED, 2 = DELETED).
+     */
+    @Transactional(readOnly = true)
+    public List<ApiConsumerSystemHistoryDto> getConsumerSystemHistory(UUID apiId) {
+        String sql = """
+                SELECT
+                    CAST(acs.it_system_id AS VARCHAR) AS system_id,
+                    acs.rev                           AS rev,
+                    acs.revtype                       AS revtype,
+                    r.rev_tstmp                       AS rev_tstmp,
+                    r.username                        AS username,
+                    r.user_id                         AS user_id,
+                    s.code                            AS system_code,
+                    s.name                            AS system_name,
+                    s.icon                            AS system_icon
+                FROM aud.api_consumer_system_aud acs
+                JOIN aud.revinfo r ON r.rev = acs.rev
+                LEFT JOIN it_system s ON s.id = acs.it_system_id
+                WHERE acs.api_id = CAST(:apiId AS UUID)
+                ORDER BY acs.rev DESC
+                """;
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = entityManager
+                .createNativeQuery(sql)
+                .setParameter("apiId", apiId.toString())
+                .getResultList();
+
+        return rows.stream().map(row -> {
+            String revType = switch (((Number) row[2]).intValue()) {
+                case 0 -> "ADDED";
+                case 2 -> "DELETED";
+                default -> "MODIFIED";
+            };
+            long revtstmp = ((Number) row[3]).longValue();
+            String timestamp = Instant.ofEpochMilli(revtstmp)
+                    .atOffset(ZoneOffset.UTC)
+                    .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+            return new ApiConsumerSystemHistoryDto(
+                    ((Number) row[1]).longValue(),
+                    revType,
+                    timestamp,
+                    (String) row[4],
+                    (String) row[5],
+                    (String) row[0],
+                    (String) row[6],
+                    (String) row[7],
+                    (String) row[8]
+            );
+        }).toList();
     }
 }

@@ -47,8 +47,8 @@
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('api.field.sourceSystem') }}</mat-label>
-            <mat-select formControlName="sourceSystemId">
+            <mat-label>{{ t('api.field.producerSystem') }}</mat-label>
+            <mat-select formControlName="producerSystemId">
               <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
               @for (sys of itSystems(); track sys.id) {
                 <mat-option [value]="sys.id">{{ sys.name }}</mat-option>

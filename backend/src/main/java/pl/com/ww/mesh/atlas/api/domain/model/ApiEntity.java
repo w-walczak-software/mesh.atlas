@@ -21,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.envers.AuditJoinTable;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
 import org.hibernate.envers.NotAudited;
@@ -34,7 +35,9 @@ import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Audited
@@ -81,17 +84,19 @@ public class ApiEntity extends AuditableEntity {
             foreignKey = @ForeignKey(name = "fk_api_status"))
     private DictionaryEntryEntity status;
 
+    /** The single system that publishes / exposes this API. */
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "source_system_id",
-            foreignKey = @ForeignKey(name = "fk_api_source_system"))
-    private ItSystemEntity sourceSystem;
+    @JoinColumn(name = "producer_system_id",
+            foreignKey = @ForeignKey(name = "fk_api_producer_system"))
+    private ItSystemEntity producerSystem;
 
+    /** Direction of data flow: PULL (producer → consumer) or PUSH (consumer → producer). */
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "target_system_id",
-            foreignKey = @ForeignKey(name = "fk_api_target_system"))
-    private ItSystemEntity targetSystem;
+    @JoinColumn(name = "data_flow_direction_id",
+            foreignKey = @ForeignKey(name = "fk_api_data_flow_direction"))
+    private DictionaryEntryEntity dataFlowDirection;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
     @ManyToOne(fetch = FetchType.LAZY)
@@ -191,6 +196,28 @@ public class ApiEntity extends AuditableEntity {
     )
     @Builder.Default
     private List<DictionaryEntryEntity> environments = new ArrayList<>();
+
+    /**
+     * Systems that consume this API.
+     * Changes are audited in aud.api_consumer_system_aud.
+     * The producer system cannot appear in this collection — validated at service level.
+     *
+     * Must be a Set (PersistentSet), not a List (PersistentBag).
+     * Envers requires element-level change events (PostCollectionUpdateEvent) to correctly
+     * audit @ManyToMany join table changes. PersistentBag only fires "recreate" events,
+     * which Envers cannot use to compute the before/after diff per element.
+     */
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @AuditJoinTable(name = "api_consumer_system_aud", schema = "aud")
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "api_consumer_system",
+            schema = "atlas",
+            joinColumns = @JoinColumn(name = "api_id"),
+            inverseJoinColumns = @JoinColumn(name = "it_system_id")
+    )
+    @Builder.Default
+    private Set<ItSystemEntity> consumerSystems = new LinkedHashSet<>();
 
     @Column(name = "active", nullable = false)
     private boolean active;

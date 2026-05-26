@@ -13,8 +13,8 @@ public record ApiSummaryDto(
         String apiVersion,
         DictionaryEntryRefDto type,
         DictionaryEntryRefDto status,
-        ItSystemRefDto sourceSystem,
-        ItSystemRefDto targetSystem,
+        ItSystemRefDto producerSystem,
+        List<ItSystemRefDto> consumerSystems,
         TransportLayerRefDto transportLayer,
         List<String> tags,
         boolean active
