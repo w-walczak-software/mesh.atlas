@@ -7,6 +7,8 @@ import {
   ApiConsumerSystemHistoryDto,
   ApiCreateRequest,
   ApiDto,
+  ApiGraphResultDto,
+  ApiGraphSearchCriteria,
   ApiOwnerCreateRequest,
   ApiOwnerDto,
   ApiOwnerUpdateRequest,
@@ -96,5 +98,9 @@ export class ApiService {
 
   getConsumerSystemHistory(apiId: string): Observable<ApiConsumerSystemHistoryDto[]> {
     return this.http.get<ApiConsumerSystemHistoryDto[]>(`${this.baseUrl}/${apiId}/consumer-system-history`);
+  }
+
+  findGraph(criteria: ApiGraphSearchCriteria = {}): Observable<ApiGraphResultDto> {
+    return this.http.post<ApiGraphResultDto>(`${this.baseUrl}/graph/search`, criteria);
   }
 }

@@ -77,6 +77,10 @@ export class Apis implements OnInit {
     active: [null as boolean | null],
   });
 
+  protected goToGraph(): void {
+    this.router.navigate(['/apis/graph']);
+  }
+
   protected readonly tableConfig = computed<TableConfig<ApiSummaryDto>>(() => {
     const selected = this.selectedRow();
 
@@ -137,7 +141,13 @@ export class Apis implements OnInit {
         pageSize: this.pageSize(),
         pageSizeOptions: [10, 20, 50],
       },
-      toolbar: this.canWrite() ? [
+      toolbar: [
+        {
+          label: this.t.translate('api.action.graph'),
+          icon: 'hub',
+          action: () => this.goToGraph(),
+        },
+        ...(this.canWrite() ? [
         {
           label: this.t.translate('api.action.new'),
           icon: 'add',
@@ -161,7 +171,8 @@ export class Apis implements OnInit {
               : undefined,
           action: () => { if (selected) this.confirmDeactivate(selected); },
         },
-      ] : [],
+      ] : []),
+      ],
       rowDblClick: (row) => this.router.navigate(['/apis', row.id, 'edit']),
       actions: [
         {

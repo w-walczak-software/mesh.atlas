@@ -1,0 +1,189 @@
+<ng-container *transloco="let t; scope: 'api'; lang: lang()">
+  <div class="graph-page">
+
+    <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
+    <div class="graph-toolbar">
+      <button mat-icon-button (click)="goBack()" [matTooltip]="t('api.graph.backToList')">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <mat-icon class="graph-toolbar__logo">hub</mat-icon>
+      <span class="graph-toolbar__title">{{ t('api.graph.title') }}</span>
+      <span class="graph-toolbar__spacer"></span>
+      <button
+        mat-icon-button
+        (click)="loadGraph()"
+        [matTooltip]="t('api.graph.refresh')"
+        [disabled]="loading()">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+
+    <!-- ── Loading ──────────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="graph-state">
+        <mat-spinner diameter="44" />
+        <p class="graph-state__text">{{ t('api.graph.loading') }}</p>
+      </div>
+    }
+
+    @else if (nodes().length === 0) {
+      <div class="graph-state">
+        <mat-icon class="graph-state__icon">hub</mat-icon>
+        <p class="graph-state__text">{{ t('api.graph.empty') }}</p>
+        <p class="graph-state__hint">{{ t('api.graph.emptyHint') }}</p>
+      </div>
+    }
+
+    @else {
+      <div class="graph-canvas">
+
+        @if (edges().length === 0) {
+          <div class="graph-no-edges" role="status">
+            <mat-icon class="graph-no-edges__icon">info_outline</mat-icon>
+            <span>{{ t('api.graph.noEdgesHint') }}</span>
+          </div>
+        }
+        <vflow
+          view="auto"
+          [nodes]="nodes()"
+          [edges]="edges()"
+          [background]="background">
+
+          <!-- ╔════════════════════════════════════════════════════════╗ -->
+          <!-- ║  System node template                                  ║ -->
+          <!-- ╚════════════════════════════════════════════════════════╝ -->
+          <ng-template nodeHtml let-ctx>
+            <div
+              class="sys-node"
+              [style.background]="ctx.data().bgColor"
+              [style.--node-border]="ctx.data().borderColor"
+              [style.--node-accent]="ctx.data().accentColor"
+              (dblclick)="onNodeDblClick(ctx.data())"
+              role="button"
+              [attr.aria-label]="ctx.data().name">
+
+              <!-- Connection handles -->
+              <handle position="right" type="source" />
+              <handle position="left" type="target" />
+
+              <!-- Header: icon + code -->
+              <div class="sys-node__header">
+                <div class="sys-node__icon-wrap">
+                  <mat-icon class="sys-node__icon">{{ ctx.data().icon ?? 'lan' }}</mat-icon>
+                </div>
+                <span class="sys-node__code">{{ ctx.data().code }}</span>
+              </div>
+
+              <!-- Body: name + status -->
+              <div class="sys-node__body">
+                <span class="sys-node__name">{{ ctx.data().name }}</span>
+                @if (ctx.data().statusName) {
+                  <span class="sys-node__status">{{ ctx.data().statusName }}</span>
+                }
+              </div>
+
+              <!-- Footer hint -->
+              <div class="sys-node__footer">
+                <mat-icon class="sys-node__hint-icon">open_in_new</mat-icon>
+                <span class="sys-node__hint">{{ t('api.graph.dblclickHint') }}</span>
+              </div>
+            </div>
+          </ng-template>
+
+          <!-- ╔════════════════════════════════════════════════════════╗ -->
+          <!-- ║  Custom edge template (colored SVG path)               ║ -->
+          <!-- ╚════════════════════════════════════════════════════════╝ -->
+          <ng-template edge let-ctx>
+            <svg:g>
+              <!-- Visible colored path -->
+              <svg:path
+                [attr.d]="ctx.path()"
+                [attr.stroke]="ctx.data().edgeColor"
+                fill="none"
+                stroke-width="2"
+                stroke-linecap="round"
+                [attr.marker-end]="ctx.markerEnd()" />
+              <!-- Invisible wide hit area for double-click -->
+              <svg:path
+                [attr.d]="ctx.path()"
+                stroke="transparent"
+                fill="none"
+                stroke-width="16"
+                style="cursor:pointer"
+                (dblclick)="onEdgeDblClick(ctx.data())" />
+            </svg:g>
+          </ng-template>
+
+          <!-- ╔════════════════════════════════════════════════════════╗ -->
+          <!-- ║  Edge label (transport icon + count badge)             ║ -->
+          <!-- ╚════════════════════════════════════════════════════════╝ -->
+          <ng-template edgeLabelHtml let-ctx>
+            <div
+              class="edge-label"
+              [style.border-color]="ctx.label.data?.edgeColor ?? '#94a3b8'"
+              [style.color]="ctx.label.data?.edgeColor ?? '#94a3b8'"
+              (dblclick)="onEdgeDblClick(ctx.label.data)"
+              role="button"
+              [attr.aria-label]="t('api.graph.edgeDblclickHint')">
+
+              @if (ctx.label.data?.transportLayer?.icon) {
+                <mat-icon class="edge-label__icon">{{ ctx.label.data.transportLayer.icon }}</mat-icon>
+              } @else {
+                <mat-icon class="edge-label__icon">swap_horiz</mat-icon>
+              }
+
+              @if (ctx.label.data?.transportLayer?.name) {
+                <span class="edge-label__name">{{ ctx.label.data.transportLayer.name }}</span>
+              }
+
+              @if (ctx.label.data?.apis?.length > 1) {
+                <span class="edge-label__count">×{{ ctx.label.data.apis.length }}</span>
+              }
+            </div>
+          </ng-template>
+
+        </vflow>
+
+        <!-- ── Controls overlay ─────────────────────────────────────────── -->
+        <div class="graph-controls" role="toolbar" [attr.aria-label]="t('api.graph.controls')">
+          <button
+            mat-icon-button
+            class="graph-ctrl-btn"
+            (click)="fitView()"
+            [matTooltip]="t('api.graph.fitView')">
+            <mat-icon>fit_screen</mat-icon>
+          </button>
+          <div class="graph-ctrl-divider"></div>
+          <button
+            mat-icon-button
+            class="graph-ctrl-btn"
+            (click)="zoomIn()"
+            [matTooltip]="t('api.graph.zoomIn')">
+            <mat-icon>add</mat-icon>
+          </button>
+          <button
+            mat-icon-button
+            class="graph-ctrl-btn"
+            (click)="zoomOut()"
+            [matTooltip]="t('api.graph.zoomOut')">
+            <mat-icon>remove</mat-icon>
+          </button>
+        </div>
+
+        <!-- ── Legend ────────────────────────────────────────────────────── -->
+        <div class="graph-legend">
+          <span class="graph-legend__item">
+            <mat-icon class="graph-legend__icon">mouse</mat-icon>
+            {{ t('api.graph.legendDrag') }}
+          </span>
+          <span class="graph-legend__sep">·</span>
+          <span class="graph-legend__item">
+            <mat-icon class="graph-legend__icon">ads_click</mat-icon>
+            {{ t('api.graph.legendDblClick') }}
+          </span>
+        </div>
+      </div>
+    }
+
+  </div>
+</ng-container>

@@ -32,7 +32,8 @@
       "Bash(JAVA_HOME=/c/java/jdk-21 PATH=/c/java/jdk-21/bin:__TRACKED_VAR__ ./mvnw compile -q)",
       "Bash(Select-Object FullName)",
       "Bash(git rm *)",
-      "Bash(Select-Object -First 50)"
+      "Bash(Select-Object -First 50)",
+      "Bash(npx ng *)"
     ]
   }
 }

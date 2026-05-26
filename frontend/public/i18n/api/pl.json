@@ -92,7 +92,27 @@
     "deactivate": "Dezaktywuj",
     "history": "Historia zmian",
     "addTag": "Dodaj tag",
-    "removeTag": "Usuń tag"
+    "removeTag": "Usuń tag",
+    "graph": "Mapa integracji"
+  },
+  "graph": {
+    "title": "Mapa integracji",
+    "backToList": "Wróć do listy API",
+    "refresh": "Odśwież",
+    "loading": "Ładowanie mapy integracji…",
+    "empty": "Brak integracji do wyświetlenia",
+    "emptyHint": "Dodaj API z systemami producenta i konsumenta, aby zobaczyć mapę.",
+    "dblclickHint": "Kliknij dwukrotnie, aby otworzyć",
+    "edgeDblclickHint": "Kliknij dwukrotnie, aby zobaczyć szczegóły API",
+    "selectApi": "Wybierz API",
+    "selectApiHint": "Na tym połączeniu istnieje kilka API. Wybierz jedno, aby zobaczyć szczegóły.",
+    "fitView": "Dopasuj do ekranu",
+    "zoomIn": "Powiększ",
+    "zoomOut": "Pomniejsz",
+    "controls": "Sterowanie mapą",
+    "legendDrag": "Przeciągaj węzły",
+    "legendDblClick": "Podwójne klik = szczegóły",
+    "noEdgesHint": "Brak połączeń – przypisz systemy konsumujące do API, aby zobaczyć relacje"
   },
   "toolbar": {
     "selectToEdit": "Wybierz API do edycji",

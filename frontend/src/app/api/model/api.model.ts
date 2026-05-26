@@ -232,3 +232,50 @@ export interface ApiSearchParams {
   size?: number;
   sort?: string;
 }
+
+// ── Graph ──────────────────────────────────────────────────────────────────────
+
+export interface ApiGraphSystemDto {
+  id: string;
+  code: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  status: DictionaryEntryRef | null;
+  systemType: DictionaryEntryRef | null;
+  active: boolean;
+}
+
+export interface ApiGraphEdgeDto {
+  id: string;
+  code: string;
+  name: string;
+  apiVersion: string | null;
+  type: DictionaryEntryRef | null;
+  status: DictionaryEntryRef;
+  transportLayer: TransportLayerRef | null;
+  protocol: DictionaryEntryRef | null;
+  authenticationMethod: DictionaryEntryRef | null;
+  dataFlowDirection: DictionaryEntryRef | null;
+  producerSystemId: string | null;
+  consumerSystemIds: string[];
+  tags: string[] | null;
+  active: boolean;
+}
+
+export interface ApiGraphResultDto {
+  systems: ApiGraphSystemDto[];
+  apis: ApiGraphEdgeDto[];
+}
+
+export interface ApiGraphSearchCriteria {
+  systemIds?: string[] | null;
+  typeIds?: string[] | null;
+  transportLayerIds?: string[] | null;
+  apiTags?: string[] | null;
+  systemTags?: string[] | null;
+  apiQuery?: string | null;
+  systemNameQuery?: string | null;
+  statusIds?: string[] | null;
+  dataDomainQuery?: string | null;
+}

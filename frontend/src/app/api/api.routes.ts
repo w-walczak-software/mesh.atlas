@@ -8,6 +8,11 @@ export const apiRoutes: Routes = [
     loadComponent: () => import('./apis/apis').then(m => m.Apis),
   },
   {
+    path: 'graph',
+    canActivate: [atlasUserGuard],
+    loadComponent: () => import('./api-graph/api-graph').then(m => m.ApiGraph),
+  },
+  {
     path: 'new',
     canActivate: [atlasUserGuard],
     loadComponent: () => import('./api-form/api-form').then(m => m.ApiForm),
