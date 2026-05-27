@@ -6,7 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { SlicePipe } from '@angular/common';
+import { LowerCasePipe, SlicePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -47,6 +47,7 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
 @Component({
   selector: 'app-api-form',
   imports: [
+    LowerCasePipe,
     SlicePipe,
     TranslocoDirective,
     ReactiveFormsModule,
@@ -105,7 +106,8 @@ export class ApiForm implements OnInit {
   protected readonly integrationPatterns = signal<DictionaryEntryDto[]>([]);
   protected readonly messageFormats = signal<DictionaryEntryDto[]>([]);
   protected readonly slaTiers = signal<DictionaryEntryDto[]>([]);
-  protected readonly contractTypes = signal<DictionaryEntryDto[]>([]);
+  protected readonly contractTypes       = signal<DictionaryEntryDto[]>([]);
+  protected readonly attachmentStatuses  = signal<DictionaryEntryDto[]>([]);
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
   protected readonly environments = signal<DictionaryEntryDto[]>([]);
   protected readonly dataFlowDirections = signal<DictionaryEntryDto[]>([]);
@@ -147,6 +149,7 @@ export class ApiForm implements OnInit {
     slaTierId: [null as string | null],
     slaDescription: ['', Validators.maxLength(2000)],
     contractTypeId: [null as string | null],
+    contractVersion: ['', Validators.maxLength(100)],
     contractUrl: ['', Validators.maxLength(2000)],
     documentationUrl: ['', Validators.maxLength(2000)],
     dataDomainIds: [[] as string[]],
@@ -169,7 +172,7 @@ export class ApiForm implements OnInit {
   });
 
   protected readonly ownerColumns = ['name', 'role', 'validFrom', 'validTo', 'actions'];
-  protected readonly attachmentColumns = ['fileName', 'contractType', 'description', 'fileSize', 'createdAt', 'actions'];
+  protected readonly attachmentColumns = ['fileName', 'contractType', 'attachmentVersion', 'attachmentStatus', 'description', 'fileSize', 'createdAt', 'actions'];
 
   ngOnInit(): void {
     this.loadDictionaries();
@@ -284,20 +287,31 @@ export class ApiForm implements OnInit {
     input.value = '';
 
     this.matDialog.open(ApiUploadDialog, {
-      width: '560px',
+      width: '600px',
       maxWidth: '95vw',
-      data: { fileName: file.name, contractTypes: this.contractTypes() } satisfies ApiUploadDialogData,
+      data: {
+        fileName:           file.name,
+        contractTypes:      this.contractTypes(),
+        attachmentStatuses: this.attachmentStatuses(),
+      } satisfies ApiUploadDialogData,
     }).afterClosed().subscribe((result: ApiUploadDialogResult | null) => {
       if (result === null || result === undefined) return;
-      this.uploadFile(file, result.description, result.contractTypeId);
+      this.uploadFile(file, result.description, result.contractTypeId,
+                      result.attachmentVersion, result.attachmentStatusId);
     });
   }
 
-  private uploadFile(file: File, description: string | null, contractTypeId: string | null): void {
+  private uploadFile(
+    file: File,
+    description: string | null,
+    contractTypeId: string | null,
+    attachmentVersion: string | null = null,
+    attachmentStatusId: string | null = null,
+  ): void {
     const id = this.apiId();
     if (!id) return;
     this.uploading.set(true);
-    this.service.uploadAttachment(id, file, description, contractTypeId).subscribe({
+    this.service.uploadAttachment(id, file, description, contractTypeId, attachmentVersion, attachmentStatusId).subscribe({
       next: () => {
         this.uploading.set(false);
         this.toast.success(this.t.translate('api.toast.attachmentUploaded'));
@@ -329,17 +343,24 @@ export class ApiForm implements OnInit {
     const id = this.apiId();
     if (!id) return;
     this.matDialog.open(ApiEditAttachmentDialog, {
-      width: '560px',
+      width: '600px',
       maxWidth: '95vw',
       data: {
-        fileName: attachment.fileName,
-        currentDescription: attachment.description,
-        currentContractTypeId: attachment.contractType?.id ?? null,
-        contractTypes: this.contractTypes(),
+        fileName:                  attachment.fileName,
+        currentDescription:        attachment.description,
+        currentContractTypeId:     attachment.contractType?.id ?? null,
+        currentAttachmentVersion:  attachment.attachmentVersion,
+        currentAttachmentStatusId: attachment.attachmentStatus?.id ?? null,
+        contractTypes:             this.contractTypes(),
+        attachmentStatuses:        this.attachmentStatuses(),
       } satisfies ApiEditAttachmentDialogData,
     }).afterClosed().subscribe((result: ApiEditAttachmentDialogResult | null) => {
       if (result === null || result === undefined) return;
-      this.service.updateAttachment(id, attachment.id, result.description, result.contractTypeId).subscribe({
+      this.service.updateAttachment(
+        id, attachment.id,
+        result.description, result.contractTypeId,
+        result.attachmentVersion, result.attachmentStatusId,
+      ).subscribe({
         next: () => {
           this.toast.success(this.t.translate('api.toast.attachmentUpdated'));
           this.loadAttachments(id);
@@ -399,6 +420,7 @@ export class ApiForm implements OnInit {
       slaTierId: v.slaTierId || null,
       slaDescription: v.slaDescription || null,
       contractTypeId: v.contractTypeId || null,
+      contractVersion: v.contractVersion || null,
       contractUrl: v.contractUrl || null,
       documentationUrl: v.documentationUrl || null,
       tags: this.tags().length ? this.tags() : null,
@@ -563,6 +585,7 @@ export class ApiForm implements OnInit {
           slaTierId: api.slaTier?.id ?? null,
           slaDescription: api.slaDescription ?? '',
           contractTypeId: api.contractType?.id ?? null,
+          contractVersion: api.contractVersion ?? '',
           contractUrl: api.contractUrl ?? '',
           documentationUrl: api.documentationUrl ?? '',
           dataDomainIds: api.dataDomains.map(d => d.id),
@@ -597,6 +620,7 @@ export class ApiForm implements OnInit {
     this.entryService.findByTypeCode('MESSAGE_FORMAT').subscribe(e => this.messageFormats.set(e));
     this.entryService.findByTypeCode('SLA_TIER').subscribe(e => this.slaTiers.set(e));
     this.entryService.findByTypeCode('CONTRACT_TYPE').subscribe(e => this.contractTypes.set(e));
+    this.entryService.findByTypeCode('ATTACHMENT_STATUS').subscribe(e => this.attachmentStatuses.set(e));
     this.entryService.findByTypeCode('API_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
     this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
     this.entryService.findByTypeCode('DATA_FLOW_DIRECTION').subscribe(e => this.dataFlowDirections.set(e));

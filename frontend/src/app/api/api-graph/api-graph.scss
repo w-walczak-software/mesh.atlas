@@ -326,6 +326,180 @@
     width: 18px !important;
     height: 18px !important;
   }
+
+  // Active state: layout / animate toggles
+  &--active {
+    color: var(--mat-sys-primary) !important;
+    background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent) !important;
+    border-radius: 8px;
+  }
+}
+
+// ── Edge animation ─────────────────────────────────────────────────────────────
+//
+// Simulates data flowing in the direction source → target.
+// stroke-dashoffset decreases from the pattern period to 0 → dashes move forward.
+
+@keyframes flowDash {
+  to { stroke-dashoffset: 0; }
+}
+
+.edge-path--animated {
+  stroke-dasharray: 6 10;       // 6 px dash · 10 px gap = 16 px period
+  stroke-dashoffset: 16;        // start at one full period so the loop is seamless
+  animation: flowDash 0.8s linear infinite;
+}
+
+// ── Filter indicator chip (toolbar) ────────────────────────────────────────────
+
+.graph-filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px 3px 7px;
+  background: color-mix(in srgb, var(--mat-sys-tertiary) 14%, transparent);
+  color: var(--mat-sys-tertiary);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-tertiary) 35%, transparent);
+  border-radius: 20px;
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  user-select: none;
+  cursor: default;
+
+  &__icon {
+    font-size: 14px !important;
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+// ── Hover tooltip (position: fixed so it escapes any overflow: hidden parent) ───
+
+@keyframes tooltipFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+
+.graph-tooltip {
+  position: fixed;
+  z-index: 1100;
+  pointer-events: none;
+  min-width: 190px;
+  max-width: 272px;
+  border-radius: 10px;
+  background: var(--mat-sys-surface-container-high);
+  border: 1px solid var(--mat-sys-outline-variant);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+  animation: tooltipFadeIn 130ms ease-out;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px 7px;
+    background: color-mix(in srgb, var(--tip-acc, #6366f1) 10%, transparent);
+    border-bottom: 1px solid var(--mat-sys-outline-variant);
+  }
+
+  &__icon {
+    font-size: 15px !important;
+    width:  15px !important;
+    height: 15px !important;
+    color: var(--tip-acc, #6366f1);
+    flex-shrink: 0;
+  }
+
+  &__heading {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    min-width: 0;
+  }
+
+  &__code {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--tip-acc, #6366f1);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--mat-sys-on-surface);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__body {
+    padding: 6px 12px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  &__row {
+    display: flex;
+    gap: 6px;
+    align-items: baseline;
+    font-size: 11px;
+    color: var(--mat-sys-on-surface);
+    line-height: 1.45;
+
+    &--desc {
+      flex-direction: column;
+      color: var(--mat-sys-on-surface-variant);
+      font-size: 10.5px;
+      font-style: italic;
+      max-height: 52px;
+      overflow: hidden;
+    }
+
+    &--more {
+      color: var(--mat-sys-on-surface-variant);
+      font-size: 10px;
+      justify-content: flex-end;
+    }
+
+    &--tags {
+      align-items: flex-start;
+    }
+  }
+
+  &__label {
+    font-size: 9.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--mat-sys-on-surface-variant);
+    flex-shrink: 0;
+    min-width: 44px;
+  }
+
+  &__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+  }
+
+  &__tag {
+    font-size: 9.5px;
+    font-weight: 500;
+    padding: 1px 6px;
+    border-radius: 20px;
+    background: color-mix(in srgb, var(--tip-acc, #6366f1) 12%, transparent);
+    color: var(--tip-acc, #6366f1);
+    border: 1px solid color-mix(in srgb, var(--tip-acc, #6366f1) 30%, transparent);
+    white-space: nowrap;
+  }
 }
 
 // ── Legend ──────────────────────────────────────────────────────────────────────

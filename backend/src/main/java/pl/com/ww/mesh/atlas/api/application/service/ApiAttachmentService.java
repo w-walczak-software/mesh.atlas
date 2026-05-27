@@ -43,13 +43,15 @@ public class ApiAttachmentService {
     }
 
     @Transactional
-    public ApiAttachmentDto addAttachment(UUID apiId, MultipartFile file, String description, UUID contractTypeId) {
+    public ApiAttachmentDto addAttachment(UUID apiId, MultipartFile file, String description,
+                                          UUID contractTypeId, String attachmentVersion, UUID attachmentStatusId) {
         ApiEntity api = apiService.getApiOrThrow(apiId);
         String currentUser = UserContextHolder.getCurrentUserOptional()
                 .map(pl.com.ww.mesh.atlas.security.auth.AuthenticatedUser::id)
                 .orElse("system");
 
         DictionaryEntryEntity contractType = apiService.resolveEntry(contractTypeId);
+        DictionaryEntryEntity attachmentStatus = apiService.resolveEntry(attachmentStatusId);
 
         try {
             ApiAttachmentEntity attachment = ApiAttachmentEntity.builder()
@@ -60,6 +62,8 @@ public class ApiAttachmentService {
                     .content(file.getBytes())
                     .description(description)
                     .contractType(contractType)
+                    .attachmentVersion(attachmentVersion)
+                    .attachmentStatus(attachmentStatus)
                     .createdAt(LocalDateTime.now())
                     .createdBy(currentUser)
                     .build();
@@ -76,6 +80,8 @@ public class ApiAttachmentService {
                 .orElseThrow(() -> new AtlasApiAttachmentNotFoundException(attachmentId.toString()));
         attachment.setDescription(request.description());
         attachment.setContractType(apiService.resolveEntry(request.contractTypeId()));
+        attachment.setAttachmentVersion(request.attachmentVersion());
+        attachment.setAttachmentStatus(apiService.resolveEntry(request.attachmentStatusId()));
         return toDto(attachmentRepository.save(attachment));
     }
 
@@ -88,23 +94,24 @@ public class ApiAttachmentService {
     }
 
     private ApiAttachmentDto toDto(ApiAttachmentEntity entity) {
-        pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto contractTypeRef = null;
-        if (entity.getContractType() != null) {
-            contractTypeRef = new pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto(
-                    entity.getContractType().getId(),
-                    entity.getContractType().getCode(),
-                    entity.getContractType().getName()
-            );
-        }
         return new ApiAttachmentDto(
                 entity.getId(),
                 entity.getFileName(),
                 entity.getContentType(),
                 entity.getFileSize(),
                 entity.getDescription(),
-                contractTypeRef,
+                toEntryRef(entity.getContractType()),
+                entity.getAttachmentVersion(),
+                toEntryRef(entity.getAttachmentStatus()),
                 entity.getCreatedAt(),
                 entity.getCreatedBy()
         );
+    }
+
+    private pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto toEntryRef(
+            pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity entry) {
+        if (entry == null) return null;
+        return new pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto(
+                entry.getId(), entry.getCode(), entry.getName());
     }
 }

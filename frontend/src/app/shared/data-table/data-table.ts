@@ -8,6 +8,7 @@ import {
   OnDestroy,
   output,
   signal,
+  untracked,
 } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { FormsModule } from '@angular/forms';
@@ -42,6 +43,12 @@ export class DataTable<T extends object> implements OnDestroy {
   readonly loading = input(false);
   readonly embedded = input(false);
   readonly selectedItem = input<T | null>(null);
+  /**
+   * Pre-checked row IDs for state restore after navigation.
+   * Requires `config().rowId` to be set.
+   * Applied once — on the first data load where matching rows are found.
+   */
+  readonly checkedRowIds = input<string[]>([]);
 
   readonly rowSelect = output<T | null>();
   readonly rowsSelect = output<T[]>();
@@ -96,6 +103,8 @@ export class DataTable<T extends object> implements OnDestroy {
   protected readonly columnOrder = signal<string[]>([]);
 
   private storageKeysLoaded = false;
+  /** Prevents `checkedRowIds` from overwriting user-made checkbox changes after the first sync. */
+  private checkedRowIdsApplied = false;
 
   protected readonly visibleColumns = computed<ColumnDef<T>[]>(() => {
     const cfg = this.config();
@@ -182,6 +191,7 @@ export class DataTable<T extends object> implements OnDestroy {
   });
 
   constructor() {
+    // Persist column visibility / order preferences
     effect(() => {
       const cfg = this.config();
       if (!cfg || this.storageKeysLoaded) return;
@@ -197,6 +207,25 @@ export class DataTable<T extends object> implements OnDestroy {
       const pg = cfg.pagination;
       if (pg?.pageSize) this.pageSize.set(pg.pageSize);
     });
+
+    // One-shot restore of pre-checked rows from `checkedRowIds` input
+    effect(() => {
+      const ids = this.checkedRowIds();
+      const rowId = this.config()?.rowId;
+      const rows = this.data();
+
+      if (!ids.length || !rowId || this.checkedRowIdsApplied) return;
+
+      const idSet = new Set(ids);
+      const matching = rows.filter(r => idSet.has(rowId(r)));
+      if (!matching.length) return;  // data not yet loaded — wait for next tick
+
+      this.checkedRowIdsApplied = true;
+      untracked(() => {
+        this.checkedRows.set(new Set(matching));
+        this.rowsSelect.emit(matching);
+      });
+    }, { allowSignalWrites: true });
   }
 
   ngOnDestroy(): void {

@@ -84,12 +84,15 @@
     "back": "Wróć",
     "addTag": "Dodaj tag",
     "removeTag": "Usuń tag",
-    "history": "Historia zmian"
+    "history": "Historia zmian",
+    "graph": "Mapa integracji"
   },
   "toolbar": {
     "selectToEdit": "Zaznacz wiersz, aby edytować",
     "selectToDeactivate": "Zaznacz wiersz, aby dezaktywować",
-    "alreadyInactive": "Ten system jest już nieaktywny"
+    "alreadyInactive": "Ten system jest już nieaktywny",
+    "multipleChecked": "Zaznaczono więcej niż 1 system — edycja i dezaktywacja niedostępne",
+    "selectForGraph": "Zaznacz co najmniej 1 system, aby wyświetlić mapę integracji"
   },
   "confirm": {
     "deactivate": "Czy na pewno chcesz dezaktywować ten system IT? Nie będzie on widoczny na liście aktywnych systemów.",

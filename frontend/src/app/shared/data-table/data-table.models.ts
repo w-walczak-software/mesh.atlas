@@ -128,4 +128,10 @@ export interface TableConfig<T extends object> {
   actions?: ActionDef<T>[];
   /** Etykieta nagłówka kolumny akcji. Domyślnie pusta. */
   actionsLabel?: string;
+  /**
+   * Function that returns a stable string identifier for each row.
+   * Required when using the `checkedRowIds` input on `DataTable` to restore
+   * pre-checked rows after navigation.
+   */
+  rowId?: (row: T) => string;
 }

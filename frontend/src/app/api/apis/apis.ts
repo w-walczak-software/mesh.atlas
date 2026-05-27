@@ -20,6 +20,7 @@ import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
 import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiService } from '../service/api.service';
 import { ApiSearchParams, ApiSummaryDto } from '../model/api.model';
+import { ApiFilterStateService } from '../service/api-filter-state.service';
 
 @Component({
   selector: 'app-apis',
@@ -49,6 +50,7 @@ export class Apis implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly t = inject(TranslocoService);
   private readonly fb = inject(FormBuilder);
+  private readonly filterState = inject(ApiFilterStateService);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly canWrite = computed(() =>
@@ -195,6 +197,23 @@ export class Apis implements OnInit {
 
   ngOnInit(): void {
     this.loadDictionaries();
+
+    // Restore state when returning from the Integration Map
+    const saved = this.filterState.snapshot();
+    if (saved) {
+      this.searchForm.patchValue({
+        query:            saved.form.query ?? '',
+        tag:              saved.form.tag ?? '',
+        statusId:         saved.form.statusId,
+        typeId:           saved.form.typeId,
+        producerSystemId: saved.form.producerSystemId,
+        environmentId:    saved.form.environmentId,
+        active:           saved.form.active,
+      });
+      this.pageIndex.set(saved.pageIndex);
+      this.pageSize.set(saved.pageSize);
+    }
+
     this.load();
   }
 
@@ -211,6 +230,7 @@ export class Apis implements OnInit {
 
   protected onReset(): void {
     this.searchForm.reset();
+    this.filterState.clear();
     this.pageIndex.set(0);
     this.load();
   }
@@ -219,6 +239,22 @@ export class Apis implements OnInit {
     this.loading.set(true);
     this.selectedRow.set(null);
     const v = this.searchForm.getRawValue();
+
+    // Persist current state so the Integration Map can read it
+    this.filterState.save({
+      form: {
+        query:            v.query || null,
+        tag:              v.tag || null,
+        statusId:         v.statusId,
+        typeId:           v.typeId,
+        producerSystemId: v.producerSystemId,
+        environmentId:    v.environmentId,
+        active:           v.active,
+      },
+      pageIndex: this.pageIndex(),
+      pageSize:  this.pageSize(),
+    });
+
     const params: ApiSearchParams = {
       page: this.pageIndex(),
       size: this.pageSize(),

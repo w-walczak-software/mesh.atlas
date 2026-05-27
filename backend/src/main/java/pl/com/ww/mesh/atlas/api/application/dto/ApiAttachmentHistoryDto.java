@@ -11,5 +11,8 @@ public record ApiAttachmentHistoryDto(
         String fileName,
         String description,
         UUID contractTypeId,
-        String contractTypeName
+        String contractTypeName,
+        String attachmentVersion,
+        UUID attachmentStatusId,
+        String attachmentStatusName
 ) {}

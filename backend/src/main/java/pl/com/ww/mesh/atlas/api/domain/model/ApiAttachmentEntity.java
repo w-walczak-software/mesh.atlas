@@ -71,6 +71,16 @@ public class ApiAttachmentEntity {
             foreignKey = @ForeignKey(name = "fk_api_attachment_contract_type"))
     private DictionaryEntryEntity contractType;
 
+    /** Free-form version string entered by the user, e.g. "1.0", "2.1-beta". */
+    @Column(name = "attachment_version", length = 100)
+    private String attachmentVersion;
+
+    @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "attachment_status_id",
+            foreignKey = @ForeignKey(name = "fk_api_attachment_status"))
+    private DictionaryEntryEntity attachmentStatus;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

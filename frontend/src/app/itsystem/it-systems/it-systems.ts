@@ -18,6 +18,8 @@ import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
 import { ItSystemService } from '../service/itsystem.service';
 import { ItSystemSearchParams, ItSystemSummaryDto } from '../model/itsystem.model';
+import { ItSystemFilterStateService } from '../service/itsystem-filter-state.service';
+import { ApiFilterStateService } from '../../api/service/api-filter-state.service';
 
 @Component({
   selector: 'app-it-systems',
@@ -38,138 +40,184 @@ import { ItSystemSearchParams, ItSystemSummaryDto } from '../model/itsystem.mode
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ItSystems implements OnInit {
-  private readonly service = inject(ItSystemService);
-  private readonly entryService = inject(DictionaryEntryService);
-  private readonly router = inject(Router);
-  private readonly dialogs = inject(DialogService);
-  private readonly toast = inject(ToastService);
-  private readonly auth = inject(AuthService);
-  private readonly t = inject(TranslocoService);
-  private readonly fb = inject(FormBuilder);
+  private readonly service       = inject(ItSystemService);
+  private readonly entryService  = inject(DictionaryEntryService);
+  private readonly router        = inject(Router);
+  private readonly dialogs       = inject(DialogService);
+  private readonly toast         = inject(ToastService);
+  private readonly auth          = inject(AuthService);
+  private readonly t             = inject(TranslocoService);
+  private readonly fb            = inject(FormBuilder);
+  private readonly listState     = inject(ItSystemFilterStateService);
+  private readonly apiFilterState = inject(ApiFilterStateService);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly canWrite = computed(() =>
     this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
   );
 
-  protected readonly data = signal<ItSystemSummaryDto[]>([]);
-  protected readonly loading = signal(false);
-  protected readonly selectedRow = signal<ItSystemSummaryDto | null>(null);
-  private readonly totalItems = signal(0);
-  private readonly pageIndex = signal(0);
-  private readonly pageSize = signal(20);
+  protected readonly data          = signal<ItSystemSummaryDto[]>([]);
+  protected readonly loading       = signal(false);
+  protected readonly selectedRow   = signal<ItSystemSummaryDto | null>(null);
+  /** Rows currently checked via the checkbox column. */
+  protected readonly checkedRows   = signal<ItSystemSummaryDto[]>([]);
+  /** IDs to restore after navigation — passed to DataTable for one-shot sync. */
+  protected readonly restoredIds   = signal<string[]>([]);
 
-  protected readonly statuses = signal<DictionaryEntryDto[]>([]);
-  protected readonly lifecycleStages = signal<DictionaryEntryDto[]>([]);
+  /**
+   * Unified effective selection:
+   * - Exactly 1 checkbox checked  → that row (behaves as if single-clicked)
+   * - Otherwise                   → single-click selection
+   * Used for Edit, Deactivate, and as the DataTable [selectedItem] highlight.
+   */
+  protected readonly effectiveSelected = computed<ItSystemSummaryDto | null>(() => {
+    const checked = this.checkedRows();
+    if (checked.length === 1) return checked[0];
+    return this.selectedRow();
+  });
+
+  private readonly totalItems = signal(0);
+  private readonly pageIndex  = signal(0);
+  private readonly pageSize   = signal(20);
+
+  protected readonly statuses              = signal<DictionaryEntryDto[]>([]);
+  protected readonly lifecycleStages       = signal<DictionaryEntryDto[]>([]);
   protected readonly businessCriticalities = signal<DictionaryEntryDto[]>([]);
-  protected readonly systemTypes = signal<DictionaryEntryDto[]>([]);
+  protected readonly systemTypes           = signal<DictionaryEntryDto[]>([]);
 
   protected readonly searchForm = this.fb.group({
-    query: [''],
-    ownerQuery: [''],
-    tag: [''],
-    statusId: [null as string | null],
-    lifecycleStageId: [null as string | null],
+    query:                 [''],
+    ownerQuery:            [''],
+    tag:                   [''],
+    statusId:              [null as string | null],
+    lifecycleStageId:      [null as string | null],
     businessCriticalityId: [null as string | null],
-    systemTypeId: [null as string | null],
-    active: [null as boolean | null],
+    systemTypeId:          [null as string | null],
+    active:                [null as boolean | null],
   });
 
   protected readonly tableConfig = computed<TableConfig<ItSystemSummaryDto>>(() => {
-    const selected = this.selectedRow();
+    const effective    = this.effectiveSelected();
+    const checked      = this.checkedRows();
+    const multiChecked = checked.length > 1;
+    // Graph is available when: ≥1 checkbox checked OR a row is single-clicked (no checkboxes)
+    const graphEnabled = checked.length > 0 || !!this.selectedRow();
 
     return {
-      tableId: 'it-systems',
+      tableId:        'it-systems',
+      showCheckboxes: true,
+      rowId:          (row) => row.id,
       columns: [
         {
-          key: 'icon',
-          label: '',
-          width: '48px',
+          key:        'icon',
+          label:      '',
+          width:      '48px',
           cellRender: (row) => row.icon ? { icon: { name: row.icon } } : { text: '' },
         },
-        { key: 'code', label: this.t.translate('itsystem.field.code'), width: '140px', sortable: true },
-        { key: 'name', label: this.t.translate('itsystem.field.name'), sortable: true },
+        { key: 'code',  label: this.t.translate('itsystem.field.code'), width: '140px', sortable: true },
+        { key: 'name',  label: this.t.translate('itsystem.field.name'), sortable: true },
         {
-          key: 'status',
-          label: this.t.translate('itsystem.field.status'),
-          width: '160px',
+          key:        'status',
+          label:      this.t.translate('itsystem.field.status'),
+          width:      '160px',
           cellRender: (row) => ({ text: row.status?.name }),
         },
         {
-          key: 'lifecycleStage',
-          label: this.t.translate('itsystem.field.lifecycleStage'),
-          width: '160px',
+          key:        'lifecycleStage',
+          label:      this.t.translate('itsystem.field.lifecycleStage'),
+          width:      '160px',
           cellRender: (row) => ({ text: row.lifecycleStage?.name }),
         },
         {
-          key: 'businessCriticality',
-          label: this.t.translate('itsystem.field.businessCriticality'),
-          width: '170px',
+          key:        'businessCriticality',
+          label:      this.t.translate('itsystem.field.businessCriticality'),
+          width:      '170px',
           cellRender: (row) => ({ text: row.businessCriticality?.name }),
         },
         {
-          key: 'systemType',
-          label: this.t.translate('itsystem.field.systemType'),
-          width: '150px',
+          key:        'systemType',
+          label:      this.t.translate('itsystem.field.systemType'),
+          width:      '150px',
           cellRender: (row) => ({ text: row.systemType?.name }),
         },
         {
-          key: 'active',
-          label: this.t.translate('itsystem.field.active'),
-          width: '100px',
+          key:      'active',
+          label:    this.t.translate('itsystem.field.active'),
+          width:    '100px',
           sortable: true,
           badges: {
-            'true': { label: this.t.translate('itsystem.badge.active'), color: 'success' },
-            'false': { label: this.t.translate('itsystem.badge.inactive'), color: 'error' },
+            'true':  { label: this.t.translate('itsystem.badge.active'),   color: 'success' },
+            'false': { label: this.t.translate('itsystem.badge.inactive'), color: 'error'   },
           },
         },
       ],
       pagination: {
-        mode: 'backend',
-        totalItems: this.totalItems(),
-        pageSize: this.pageSize(),
+        mode:            'backend',
+        totalItems:      this.totalItems(),
+        pageSize:        this.pageSize(),
         pageSizeOptions: [10, 20, 50],
       },
       toolbar: this.canWrite() ? [
         {
-          label: this.t.translate('itsystem.action.new'),
-          icon: 'add',
+          label:  this.t.translate('itsystem.action.new'),
+          icon:   'add',
           action: () => this.router.navigate(['/it-systems/new']),
         },
         {
-          label: this.t.translate('itsystem.action.edit'),
-          icon: 'edit',
-          disabled: !selected,
-          tooltip: !selected ? this.t.translate('itsystem.toolbar.selectToEdit') : undefined,
-          action: () => { if (selected) this.router.navigate(['/it-systems', selected.id, 'edit']); },
+          label:    this.t.translate('itsystem.action.edit'),
+          icon:     'edit',
+          disabled: !effective || multiChecked,
+          tooltip:  multiChecked
+            ? this.t.translate('itsystem.toolbar.multipleChecked')
+            : !effective
+              ? this.t.translate('itsystem.toolbar.selectToEdit')
+              : undefined,
+          action: () => { if (effective && !multiChecked) this.router.navigate(['/it-systems', effective.id, 'edit']); },
         },
         {
-          label: this.t.translate('itsystem.action.deactivate'),
-          icon: 'block',
-          disabled: !selected || !selected.active,
-          tooltip: !selected
-            ? this.t.translate('itsystem.toolbar.selectToDeactivate')
-            : !selected.active
-              ? this.t.translate('itsystem.toolbar.alreadyInactive')
-              : undefined,
-          action: () => { if (selected) this.confirmDeactivate(selected); },
+          label:    this.t.translate('itsystem.action.deactivate'),
+          icon:     'block',
+          disabled: !effective || !effective.active || multiChecked,
+          tooltip:  multiChecked
+            ? this.t.translate('itsystem.toolbar.multipleChecked')
+            : !effective
+              ? this.t.translate('itsystem.toolbar.selectToDeactivate')
+              : !effective.active
+                ? this.t.translate('itsystem.toolbar.alreadyInactive')
+                : undefined,
+          action: () => { if (effective && !multiChecked) this.confirmDeactivate(effective); },
         },
-      ] : [],
+        {
+          label:    this.t.translate('itsystem.action.graph'),
+          icon:     'hub',
+          disabled: !graphEnabled,
+          tooltip:  !graphEnabled ? this.t.translate('itsystem.toolbar.selectForGraph') : undefined,
+          action:   () => this.openGraph(),
+        },
+      ] : [
+        {
+          label:    this.t.translate('itsystem.action.graph'),
+          icon:     'hub',
+          disabled: !graphEnabled,
+          tooltip:  !graphEnabled ? this.t.translate('itsystem.toolbar.selectForGraph') : undefined,
+          action:   () => this.openGraph(),
+        },
+      ],
       rowDblClick: (row) => this.router.navigate(['/it-systems', row.id, 'edit']),
       actions: [
         {
-          label: this.t.translate('itsystem.action.edit'),
-          icon: 'edit',
+          label:   this.t.translate('itsystem.action.edit'),
+          icon:    'edit',
           visible: () => this.canWrite(),
-          action: (row) => this.router.navigate(['/it-systems', row.id, 'edit']),
+          action:  (row) => this.router.navigate(['/it-systems', row.id, 'edit']),
         },
         {
-          label: this.t.translate('itsystem.action.deactivate'),
-          icon: 'block',
-          color: 'error',
-          visible: () => this.canWrite(),
+          label:    this.t.translate('itsystem.action.deactivate'),
+          icon:     'block',
+          color:    'error',
+          visible:  () => this.canWrite(),
           disabled: (row) => !row.active,
-          action: (row) => this.confirmDeactivate(row),
+          action:   (row) => this.confirmDeactivate(row),
         },
       ],
     };
@@ -177,7 +225,7 @@ export class ItSystems implements OnInit {
 
   ngOnInit(): void {
     this.loadDictionaries();
-    this.load();
+    this.restoreOrLoad();
   }
 
   protected onPageChange(event: PageEvent): void {
@@ -193,7 +241,41 @@ export class ItSystems implements OnInit {
 
   protected onReset(): void {
     this.searchForm.reset();
+    this.listState.clear();
     this.pageIndex.set(0);
+    this.load();
+  }
+
+  protected onRowsSelect(rows: ItSystemSummaryDto[]): void {
+    this.checkedRows.set(rows);
+    // Also save updated checked IDs to the state snapshot so the restore
+    // is always up-to-date in case the user navigates without clicking "Graph".
+    this.saveState();
+  }
+
+  private openGraph(): void {
+    const checked  = this.checkedRows();
+    const selected = this.selectedRow();
+    // Prefer checked rows; fall back to the single-clicked row when no checkboxes are active
+    const systems = checked.length > 0 ? checked : (selected ? [selected] : []);
+    const ids = systems.map(s => s.id);
+    if (!ids.length) return;
+    this.saveState();
+    this.apiFilterState.saveFromItSystems(ids);
+    this.router.navigate(['/apis/graph']);
+  }
+
+  private restoreOrLoad(): void {
+    const snap = this.listState.snapshot();
+    if (snap) {
+      // Restore form values
+      this.searchForm.patchValue(snap.form);
+      // Restore pagination
+      this.pageIndex.set(snap.pageIndex);
+      this.pageSize.set(snap.pageSize);
+      // Restore checked IDs — DataTable will sync them after data loads
+      this.restoredIds.set(snap.selectedIds);
+    }
     this.load();
   }
 
@@ -202,24 +284,45 @@ export class ItSystems implements OnInit {
     this.selectedRow.set(null);
     const v = this.searchForm.getRawValue();
     const params: ItSystemSearchParams = {
-      page: this.pageIndex(),
-      size: this.pageSize(),
-      query: v.query || undefined,
-      ownerQuery: v.ownerQuery || undefined,
-      tag: v.tag || undefined,
-      statusId: v.statusId || undefined,
-      lifecycleStageId: v.lifecycleStageId || undefined,
+      page:                  this.pageIndex(),
+      size:                  this.pageSize(),
+      query:                 v.query || undefined,
+      ownerQuery:            v.ownerQuery || undefined,
+      tag:                   v.tag || undefined,
+      statusId:              v.statusId || undefined,
+      lifecycleStageId:      v.lifecycleStageId || undefined,
       businessCriticalityId: v.businessCriticalityId || undefined,
-      systemTypeId: v.systemTypeId || undefined,
-      active: v.active ?? undefined,
+      systemTypeId:          v.systemTypeId || undefined,
+      active:                v.active ?? undefined,
     };
     this.service.findAll(params).subscribe({
       next: (page) => {
         this.data.set(page.content);
         this.totalItems.set(page.totalElements);
         this.loading.set(false);
+        this.saveState();
       },
       error: () => this.loading.set(false),
+    });
+  }
+
+  /** Persist current list state so it can be restored after navigation. */
+  private saveState(): void {
+    const v = this.searchForm.getRawValue();
+    this.listState.save({
+      form: {
+        query:                 v.query || null,
+        ownerQuery:            v.ownerQuery || null,
+        tag:                   v.tag || null,
+        statusId:              v.statusId || null,
+        lifecycleStageId:      v.lifecycleStageId || null,
+        businessCriticalityId: v.businessCriticalityId || null,
+        systemTypeId:          v.systemTypeId || null,
+        active:                v.active ?? null,
+      },
+      pageIndex:   this.pageIndex(),
+      pageSize:    this.pageSize(),
+      selectedIds: this.checkedRows().map(s => s.id),
     });
   }
 

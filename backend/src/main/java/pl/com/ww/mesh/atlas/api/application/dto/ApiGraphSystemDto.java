@@ -12,5 +12,9 @@ public record ApiGraphSystemDto(
         String icon,
         DictionaryEntryRefDto status,
         DictionaryEntryRefDto systemType,
+        DictionaryEntryRefDto lifecycleStage,
+        DictionaryEntryRefDto businessCriticality,
+        DictionaryEntryRefDto dataClassification,
+        DictionaryEntryRefDto architectureStyle,
         boolean active
 ) {}

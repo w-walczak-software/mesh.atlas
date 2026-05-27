@@ -21,6 +21,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiGraphSystemDto;
 import pl.com.ww.mesh.atlas.api.application.dto.TransportLayerRefDto;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiRepository;
+import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
@@ -144,6 +145,10 @@ public class ApiGraphService {
                 system.getIcon(),
                 mapEntry(system.getStatus()),
                 mapEntry(system.getSystemType()),
+                mapEntry(system.getLifecycleStage()),
+                mapEntry(system.getBusinessCriticality()),
+                mapEntry(system.getDataClassification()),
+                mapEntry(system.getArchitectureStyle()),
                 system.isActive()
         );
     }
@@ -151,6 +156,13 @@ public class ApiGraphService {
     private ApiGraphEdgeDto toEdgeDto(ApiEntity api) {
         List<UUID> consumerSystemIds = api.getConsumerSystems().stream()
                 .map(ItSystemEntity::getId)
+                .toList();
+        List<String> dataDomainNames = api.getDataDomains().stream()
+                .filter(DataDomainEntity::isActive)
+                .map(DataDomainEntity::getName)
+                .toList();
+        List<String> environmentNames = api.getEnvironments().stream()
+                .map(DictionaryEntryEntity::getName)
                 .toList();
         return new ApiGraphEdgeDto(
                 api.getId(),
@@ -166,6 +178,8 @@ public class ApiGraphService {
                 api.getProducerSystem() != null ? api.getProducerSystem().getId() : null,
                 consumerSystemIds,
                 api.getTags(),
+                dataDomainNames,
+                environmentNames,
                 api.isActive()
         );
     }

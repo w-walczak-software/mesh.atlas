@@ -47,8 +47,10 @@ public class ApiAttachmentController {
             @PathVariable UUID apiId,
             @RequestParam("file") MultipartFile file,
             @RequestParam(required = false) String description,
-            @RequestParam(required = false) UUID contractTypeId) {
-        return service.addAttachment(apiId, file, description, contractTypeId);
+            @RequestParam(required = false) UUID contractTypeId,
+            @RequestParam(required = false) String attachmentVersion,
+            @RequestParam(required = false) UUID attachmentStatusId) {
+        return service.addAttachment(apiId, file, description, contractTypeId, attachmentVersion, attachmentStatusId);
     }
 
     @GetMapping("/{attachmentId:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/download")

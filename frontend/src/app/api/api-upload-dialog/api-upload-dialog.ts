@@ -15,13 +15,16 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 
 export interface ApiUploadDialogData {
-  fileName: string;
-  contractTypes: DictionaryEntryDto[];
+  fileName:          string;
+  contractTypes:     DictionaryEntryDto[];
+  attachmentStatuses: DictionaryEntryDto[];
 }
 
 export interface ApiUploadDialogResult {
-  description: string | null;
-  contractTypeId: string | null;
+  description:        string | null;
+  contractTypeId:     string | null;
+  attachmentVersion:  string | null;
+  attachmentStatusId: string | null;
 }
 
 @Component({
@@ -50,19 +53,39 @@ export interface ApiUploadDialogResult {
           {{ data.fileName }}
         </p>
 
+        <div class="row-2">
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ t('api.attachment.contractType') }}</mat-label>
+            <mat-select [formControl]="form.controls.contractTypeId">
+              <mat-option [value]="null">–</mat-option>
+              @for (ct of data.contractTypes; track ct.id) {
+                <mat-option [value]="ct.id">{{ ct.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ t('api.attachment.attachmentStatus') }}</mat-label>
+            <mat-select [formControl]="form.controls.attachmentStatusId">
+              <mat-option [value]="null">–</mat-option>
+              @for (s of data.attachmentStatuses; track s.id) {
+                <mat-option [value]="s.id">{{ s.name }}</mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+        </div>
+
         <mat-form-field appearance="outline" class="full-width">
-          <mat-label>{{ t('api.attachment.contractType') }}</mat-label>
-          <mat-select [formControl]="form.controls.contractTypeId">
-            <mat-option [value]="null">–</mat-option>
-            @for (ct of data.contractTypes; track ct.id) {
-              <mat-option [value]="ct.id">{{ ct.name }}</mat-option>
-            }
-          </mat-select>
+          <mat-label>{{ t('api.attachment.attachmentVersion') }}</mat-label>
+          <mat-icon matPrefix>tag</mat-icon>
+          <input matInput [formControl]="form.controls.attachmentVersion"
+                 [placeholder]="t('api.attachment.attachmentVersionPlaceholder')" />
+          <mat-hint>{{ t('api.attachment.attachmentVersionHint') }}</mat-hint>
         </mat-form-field>
 
         <mat-form-field appearance="outline" class="full-width">
           <mat-label>{{ t('api.attachment.description') }}</mat-label>
-          <textarea matInput [formControl]="form.controls.description" rows="4"
+          <textarea matInput [formControl]="form.controls.description" rows="3"
                     [placeholder]="t('api.attachment.descriptionPlaceholder')"></textarea>
           <mat-hint>{{ t('api.attachment.descriptionHint') }}</mat-hint>
         </mat-form-field>
@@ -89,28 +112,33 @@ export interface ApiUploadDialogResult {
       padding: 10px 14px;
       margin: 0 0 16px;
     }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .full-width { width: 100%; }
-    mat-dialog-content { min-width: 400px; max-width: 560px; }
+    mat-dialog-content { min-width: 480px; max-width: 600px; }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ApiUploadDialog {
   protected readonly data = inject<ApiUploadDialogData>(MAT_DIALOG_DATA);
-  protected readonly ref = inject(MatDialogRef<ApiUploadDialog>);
-  private readonly t = inject(TranslocoService);
-  private readonly fb = inject(FormBuilder);
+  protected readonly ref  = inject(MatDialogRef<ApiUploadDialog>);
+  private  readonly t   = inject(TranslocoService);
+  private  readonly fb  = inject(FormBuilder);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly form = this.fb.group({
-    description: [''],
-    contractTypeId: [null as string | null],
+    description:        [''],
+    contractTypeId:     [null as string | null],
+    attachmentVersion:  [''],
+    attachmentStatusId: [null as string | null],
   });
 
   protected confirm(): void {
     const v = this.form.getRawValue();
     this.ref.close({
-      description: v.description?.trim() || null,
-      contractTypeId: v.contractTypeId || null,
+      description:        v.description?.trim()        || null,
+      contractTypeId:     v.contractTypeId             || null,
+      attachmentVersion:  v.attachmentVersion?.trim()  || null,
+      attachmentStatusId: v.attachmentStatusId         || null,
     } satisfies ApiUploadDialogResult);
   }
 

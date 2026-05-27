@@ -4,5 +4,7 @@ import java.util.UUID;
 
 public record ApiAttachmentUpdateRequest(
         String description,
-        UUID contractTypeId
+        UUID contractTypeId,
+        String attachmentVersion,
+        UUID attachmentStatusId
 ) {}

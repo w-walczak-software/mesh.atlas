@@ -329,15 +329,28 @@
           </div>
 
           <div class="card-body">
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('api.field.contractType') }}</mat-label>
-              <mat-select formControlName="contractTypeId">
-                <mat-option [value]="null">–</mat-option>
-                @for (item of contractTypes(); track item.id) {
-                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+            <div class="field-row field-row--equal">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.contractType') }}</mat-label>
+                <mat-select formControlName="contractTypeId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of contractTypes(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.contractVersion') }}</mat-label>
+                <mat-icon matPrefix>tag</mat-icon>
+                <input matInput formControlName="contractVersion"
+                       [placeholder]="t('api.field.contractVersionPlaceholder')" />
+                @if (form.controls.contractVersion.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
                 }
-              </mat-select>
-            </mat-form-field>
+                <mat-hint>{{ t('api.field.contractVersionHint') }}</mat-hint>
+              </mat-form-field>
+            </div>
 
             <div class="field-row field-row--equal">
               <mat-form-field appearance="outline">
@@ -506,6 +519,30 @@
                 <td mat-cell *matCellDef="let row">
                   @if (row.contractType?.name) {
                     <span class="contract-type-badge">{{ row.contractType.name }}</span>
+                  } @else {
+                    <span class="no-description">–</span>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="attachmentVersion">
+                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentVersion') }}</th>
+                <td mat-cell *matCellDef="let row" class="version-cell">
+                  @if (row.attachmentVersion) {
+                    <span class="version-badge">{{ row.attachmentVersion }}</span>
+                  } @else {
+                    <span class="no-description">–</span>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="attachmentStatus">
+                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentStatus') }}</th>
+                <td mat-cell *matCellDef="let row">
+                  @if (row.attachmentStatus?.name) {
+                    <span class="attachment-status-badge attachment-status-badge--{{ row.attachmentStatus.code | lowercase }}">
+                      {{ row.attachmentStatus.name }}
+                    </span>
                   } @else {
                     <span class="no-description">–</span>
                   }

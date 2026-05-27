@@ -52,6 +52,9 @@ public record ApiCreateRequest(
 
         UUID contractTypeId,
 
+        @Size(max = 100)
+        String contractVersion,
+
         @Size(max = 2000)
         String contractUrl,
 

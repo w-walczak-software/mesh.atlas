@@ -9,6 +9,13 @@ export interface SystemNodeData {
   bgColor: string;
   borderColor: string;
   accentColor: string;
+  /** Shown in tooltip and preview dialog */
+  description: string | null;
+  systemTypeName: string | null;
+  lifecycleStageName: string | null;
+  businessCriticalityName: string | null;
+  dataClassificationName: string | null;
+  architectureStyleName: string | null;
 }
 
 export interface ApiEdgeGroupData {

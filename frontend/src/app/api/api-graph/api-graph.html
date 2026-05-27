@@ -3,11 +3,19 @@
 
     <!-- ── Toolbar ──────────────────────────────────────────────────────────── -->
     <div class="graph-toolbar">
-      <button mat-icon-button (click)="goBack()" [matTooltip]="t('api.graph.backToList')">
+      <button mat-icon-button (click)="goBack()" [matTooltip]="backTooltip()">
         <mat-icon>arrow_back</mat-icon>
       </button>
       <mat-icon class="graph-toolbar__logo">hub</mat-icon>
       <span class="graph-toolbar__title">{{ t('api.graph.title') }}</span>
+
+      @if (hasFilters()) {
+        <div class="graph-filter-chip" [matTooltip]="t('api.graph.activeFiltersHint')">
+          <mat-icon class="graph-filter-chip__icon">filter_list</mat-icon>
+          <span>{{ t('api.graph.activeFilters') }}</span>
+        </div>
+      }
+
       <span class="graph-toolbar__spacer"></span>
       <button
         mat-icon-button
@@ -43,6 +51,7 @@
             <span>{{ t('api.graph.noEdgesHint') }}</span>
           </div>
         }
+
         <vflow
           view="auto"
           [nodes]="nodes()"
@@ -59,12 +68,14 @@
               [style.--node-border]="ctx.data().borderColor"
               [style.--node-accent]="ctx.data().accentColor"
               (dblclick)="onNodeDblClick(ctx.data())"
+              (mouseenter)="onNodeMouseEnter(ctx.data(), $event)"
+              (mouseleave)="clearTooltip()"
               role="button"
               [attr.aria-label]="ctx.data().name">
 
               <!-- Connection handles -->
               <handle position="right" type="source" />
-              <handle position="left" type="target" />
+              <handle position="left"  type="target" />
 
               <!-- Header: icon + code -->
               <div class="sys-node__header">
@@ -82,7 +93,7 @@
                 }
               </div>
 
-              <!-- Footer hint -->
+              <!-- Footer hint (visible on hover) -->
               <div class="sys-node__footer">
                 <mat-icon class="sys-node__hint-icon">open_in_new</mat-icon>
                 <span class="sys-node__hint">{{ t('api.graph.dblclickHint') }}</span>
@@ -95,22 +106,25 @@
           <!-- ╚════════════════════════════════════════════════════════╝ -->
           <ng-template edge let-ctx>
             <svg:g>
-              <!-- Visible colored path -->
+              <!-- Visible colored path, optionally animated -->
               <svg:path
                 [attr.d]="ctx.path()"
                 [attr.stroke]="ctx.data().edgeColor"
+                [class.edge-path--animated]="animateEdges()"
                 fill="none"
                 stroke-width="2"
                 stroke-linecap="round"
                 [attr.marker-end]="ctx.markerEnd()" />
-              <!-- Invisible wide hit area for double-click -->
+              <!-- Invisible wide hit area for double-click and hover -->
               <svg:path
                 [attr.d]="ctx.path()"
                 stroke="transparent"
                 fill="none"
                 stroke-width="16"
                 style="cursor:pointer"
-                (dblclick)="onEdgeDblClick(ctx.data())" />
+                (dblclick)="onEdgeDblClick(ctx.data())"
+                (mouseenter)="onEdgeMouseEnter(ctx.data(), $event)"
+                (mouseleave)="clearTooltip()" />
             </svg:g>
           </ng-template>
 
@@ -146,28 +160,52 @@
 
         <!-- ── Controls overlay ─────────────────────────────────────────── -->
         <div class="graph-controls" role="toolbar" [attr.aria-label]="t('api.graph.controls')">
-          <button
-            mat-icon-button
-            class="graph-ctrl-btn"
-            (click)="fitView()"
-            [matTooltip]="t('api.graph.fitView')">
+
+          <!-- Viewport: fit + zoom -->
+          <button mat-icon-button class="graph-ctrl-btn"
+            (click)="fitView()" [matTooltip]="t('api.graph.fitView')">
             <mat-icon>fit_screen</mat-icon>
           </button>
           <div class="graph-ctrl-divider"></div>
-          <button
-            mat-icon-button
-            class="graph-ctrl-btn"
-            (click)="zoomIn()"
-            [matTooltip]="t('api.graph.zoomIn')">
+          <button mat-icon-button class="graph-ctrl-btn"
+            (click)="zoomIn()" [matTooltip]="t('api.graph.zoomIn')">
             <mat-icon>add</mat-icon>
           </button>
-          <button
-            mat-icon-button
-            class="graph-ctrl-btn"
-            (click)="zoomOut()"
-            [matTooltip]="t('api.graph.zoomOut')">
+          <button mat-icon-button class="graph-ctrl-btn"
+            (click)="zoomOut()" [matTooltip]="t('api.graph.zoomOut')">
             <mat-icon>remove</mat-icon>
           </button>
+
+          <!-- Animate edges toggle -->
+          <div class="graph-ctrl-divider"></div>
+          <button mat-icon-button class="graph-ctrl-btn"
+            [class.graph-ctrl-btn--active]="animateEdges()"
+            (click)="animateEdges.set(!animateEdges())"
+            [matTooltip]="t('api.graph.animateEdges')">
+            <mat-icon>{{ animateEdges() ? 'pause' : 'play_arrow' }}</mat-icon>
+          </button>
+
+          <!-- Layout selector -->
+          <div class="graph-ctrl-divider"></div>
+          <button mat-icon-button class="graph-ctrl-btn"
+            [class.graph-ctrl-btn--active]="layout() === 'force'"
+            (click)="changeLayout('force')"
+            [matTooltip]="t('api.graph.layoutForce')">
+            <mat-icon>hub</mat-icon>
+          </button>
+          <button mat-icon-button class="graph-ctrl-btn"
+            [class.graph-ctrl-btn--active]="layout() === 'layered'"
+            (click)="changeLayout('layered')"
+            [matTooltip]="t('api.graph.layoutLayered')">
+            <mat-icon>account_tree</mat-icon>
+          </button>
+          <button mat-icon-button class="graph-ctrl-btn"
+            [class.graph-ctrl-btn--active]="layout() === 'circular'"
+            (click)="changeLayout('circular')"
+            [matTooltip]="t('api.graph.layoutCircular')">
+            <mat-icon>donut_large</mat-icon>
+          </button>
+
         </div>
 
         <!-- ── Legend ────────────────────────────────────────────────────── -->
@@ -182,7 +220,154 @@
             {{ t('api.graph.legendDblClick') }}
           </span>
         </div>
+
       </div>
+
+      <!-- ── Hover tooltip (position:fixed, always above all overlays) ────── -->
+      @if (hoverTooltip(); as tip) {
+        <div
+          class="graph-tooltip"
+          [style.left.px]="tip.x + 18"
+          [style.top.px]="tip.y + 10"
+          aria-hidden="true">
+
+          <!-- ─ System node tooltip ─ -->
+          @if (tip.type === 'system' && tip.system) {
+            <div class="graph-tooltip__header" [style.--tip-acc]="tip.system.accentColor">
+              <mat-icon class="graph-tooltip__icon">{{ tip.system.icon ?? 'lan' }}</mat-icon>
+              <div class="graph-tooltip__heading">
+                <span class="graph-tooltip__code">{{ tip.system.code }}</span>
+                <span class="graph-tooltip__name">{{ tip.system.name }}</span>
+              </div>
+            </div>
+            <div class="graph-tooltip__body">
+
+              @if (tip.system.systemTypeName) {
+                <div class="graph-tooltip__row">
+                  <span class="graph-tooltip__label">{{ t('api.preview.type') }}</span>
+                  <span>{{ tip.system.systemTypeName }}</span>
+                </div>
+              }
+              <div class="graph-tooltip__row">
+                <span class="graph-tooltip__label">{{ t('api.preview.status') }}</span>
+                <span>{{ tip.system.statusName || '—' }}</span>
+              </div>
+              @if (tip.system.lifecycleStageName) {
+                <div class="graph-tooltip__row">
+                  <span class="graph-tooltip__label">{{ t('api.preview.lifecycleStage') }}</span>
+                  <span>{{ tip.system.lifecycleStageName }}</span>
+                </div>
+              }
+              @if (tip.system.businessCriticalityName) {
+                <div class="graph-tooltip__row">
+                  <span class="graph-tooltip__label">{{ t('api.preview.businessCriticality') }}</span>
+                  <span>{{ tip.system.businessCriticalityName }}</span>
+                </div>
+              }
+              @if (tip.system.dataClassificationName) {
+                <div class="graph-tooltip__row">
+                  <span class="graph-tooltip__label">{{ t('api.preview.dataClassification') }}</span>
+                  <span>{{ tip.system.dataClassificationName }}</span>
+                </div>
+              }
+              @if (tip.system.architectureStyleName) {
+                <div class="graph-tooltip__row">
+                  <span class="graph-tooltip__label">{{ t('api.preview.architectureStyle') }}</span>
+                  <span>{{ tip.system.architectureStyleName }}</span>
+                </div>
+              }
+              @if (tip.system.description) {
+                <div class="graph-tooltip__row graph-tooltip__row--desc">
+                  <span>{{ tip.system.description }}</span>
+                </div>
+              }
+
+            </div>
+          }
+
+          <!-- ─ API edge tooltip ─ -->
+          @if (tip.type === 'api' && tip.edge) {
+            <div class="graph-tooltip__header" [style.--tip-acc]="tip.edge.edgeColor">
+              <mat-icon class="graph-tooltip__icon">
+                {{ tip.edge.transportLayer?.icon ?? 'swap_horiz' }}
+              </mat-icon>
+              <div class="graph-tooltip__heading">
+                @if (tip.edge.transportLayer?.name) {
+                  <span class="graph-tooltip__code">{{ tip.edge.transportLayer!.name }}</span>
+                }
+                <span class="graph-tooltip__name">
+                  {{ tip.edge.apis.length === 1 ? tip.edge.apis[0].name : tip.edge.apis.length + ' APIs' }}
+                </span>
+              </div>
+            </div>
+
+            <!-- Single API: show full attribute set -->
+            @if (tip.edge.apis.length === 1) {
+              @let api = tip.edge.apis[0];
+              <div class="graph-tooltip__body">
+
+                @if (api.type) {
+                  <div class="graph-tooltip__row">
+                    <span class="graph-tooltip__label">{{ t('api.preview.type') }}</span>
+                    <span>{{ api.type.name }}</span>
+                  </div>
+                }
+                @if (api.apiVersion) {
+                  <div class="graph-tooltip__row">
+                    <span class="graph-tooltip__label">{{ t('api.preview.version') }}</span>
+                    <span>{{ api.apiVersion }}</span>
+                  </div>
+                }
+                <div class="graph-tooltip__row">
+                  <span class="graph-tooltip__label">{{ t('api.preview.status') }}</span>
+                  <span>{{ api.status.name }}</span>
+                </div>
+                @if (api.environments.length) {
+                  <div class="graph-tooltip__row graph-tooltip__row--tags">
+                    <span class="graph-tooltip__label">{{ t('api.preview.environments') }}</span>
+                    <span class="graph-tooltip__tags">
+                      @for (env of api.environments; track env) {
+                        <span class="graph-tooltip__tag">{{ env }}</span>
+                      }
+                    </span>
+                  </div>
+                }
+                @if (api.dataDomains.length) {
+                  <div class="graph-tooltip__row graph-tooltip__row--tags">
+                    <span class="graph-tooltip__label">{{ t('api.preview.dataDomains') }}</span>
+                    <span class="graph-tooltip__tags">
+                      @for (dd of api.dataDomains; track dd) {
+                        <span class="graph-tooltip__tag">{{ dd }}</span>
+                      }
+                    </span>
+                  </div>
+                }
+
+              </div>
+            }
+
+            <!-- Multiple APIs: list them -->
+            @if (tip.edge.apis.length > 1) {
+              <div class="graph-tooltip__body">
+                @for (api of tip.edge.apis.slice(0, 5); track api.id) {
+                  <div class="graph-tooltip__row">
+                    <span class="graph-tooltip__label">{{ api.code }}</span>
+                    <span>{{ api.name }}</span>
+                  </div>
+                }
+                @if (tip.edge.apis.length > 5) {
+                  <div class="graph-tooltip__row graph-tooltip__row--more">
+                    +{{ tip.edge.apis.length - 5 }} more
+                  </div>
+                }
+              </div>
+            }
+
+          }
+
+        </div>
+      }
+
     }
 
   </div>

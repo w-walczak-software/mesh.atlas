@@ -54,6 +54,8 @@ export interface ApiAttachmentDto {
   fileSize: number;
   description: string | null;
   contractType: DictionaryEntryRef | null;
+  attachmentVersion: string | null;
+  attachmentStatus: DictionaryEntryRef | null;
   createdAt: string;
   createdBy: string;
 }
@@ -94,6 +96,7 @@ export interface ApiDto {
   slaTier: DictionaryEntryRef | null;
   slaDescription: string | null;
   contractType: DictionaryEntryRef | null;
+  contractVersion: string | null;
   contractUrl: string | null;
   documentationUrl: string | null;
   tags: string[] | null;
@@ -127,6 +130,7 @@ export interface ApiCreateRequest {
   slaTierId: string | null;
   slaDescription: string | null;
   contractTypeId: string | null;
+  contractVersion: string | null;
   contractUrl: string | null;
   documentationUrl: string | null;
   tags: string[] | null;
@@ -154,6 +158,7 @@ export interface ApiUpdateRequest {
   slaTierId: string | null;
   slaDescription: string | null;
   contractTypeId: string | null;
+  contractVersion: string | null;
   contractUrl: string | null;
   documentationUrl: string | null;
   tags: string[] | null;
@@ -204,6 +209,9 @@ export interface ApiAttachmentHistoryDto {
   description: string | null;
   contractTypeId: string | null;
   contractTypeName: string | null;
+  attachmentVersion: string | null;
+  attachmentStatusId: string | null;
+  attachmentStatusName: string | null;
 }
 
 export interface ApiConsumerSystemHistoryDto {
@@ -243,6 +251,10 @@ export interface ApiGraphSystemDto {
   icon: string | null;
   status: DictionaryEntryRef | null;
   systemType: DictionaryEntryRef | null;
+  lifecycleStage: DictionaryEntryRef | null;
+  businessCriticality: DictionaryEntryRef | null;
+  dataClassification: DictionaryEntryRef | null;
+  architectureStyle: DictionaryEntryRef | null;
   active: boolean;
 }
 
@@ -260,6 +272,8 @@ export interface ApiGraphEdgeDto {
   producerSystemId: string | null;
   consumerSystemIds: string[];
   tags: string[] | null;
+  dataDomains: string[];
+  environments: string[];
   active: boolean;
 }
 

@@ -76,11 +76,20 @@ export class ApiService {
     return this.http.get<ApiAttachmentDto[]>(`${this.baseUrl}/${apiId}/attachments`);
   }
 
-  uploadAttachment(apiId: string, file: File, description?: string | null, contractTypeId?: string | null): Observable<ApiAttachmentDto> {
+  uploadAttachment(
+    apiId: string,
+    file: File,
+    description?: string | null,
+    contractTypeId?: string | null,
+    attachmentVersion?: string | null,
+    attachmentStatusId?: string | null,
+  ): Observable<ApiAttachmentDto> {
     const formData = new FormData();
     formData.append('file', file);
-    if (description) formData.append('description', description);
-    if (contractTypeId) formData.append('contractTypeId', contractTypeId);
+    if (description)         formData.append('description',       description);
+    if (contractTypeId)      formData.append('contractTypeId',    contractTypeId);
+    if (attachmentVersion)   formData.append('attachmentVersion', attachmentVersion);
+    if (attachmentStatusId)  formData.append('attachmentStatusId', attachmentStatusId);
     return this.http.post<ApiAttachmentDto>(`${this.baseUrl}/${apiId}/attachments`, formData);
   }
 
@@ -88,8 +97,18 @@ export class ApiService {
     return this.http.get(`${this.baseUrl}/${apiId}/attachments/${attachmentId}/download`, { responseType: 'blob' });
   }
 
-  updateAttachment(apiId: string, attachmentId: string, description: string | null, contractTypeId: string | null): Observable<ApiAttachmentDto> {
-    return this.http.put<ApiAttachmentDto>(`${this.baseUrl}/${apiId}/attachments/${attachmentId}`, { description, contractTypeId });
+  updateAttachment(
+    apiId: string,
+    attachmentId: string,
+    description: string | null,
+    contractTypeId: string | null,
+    attachmentVersion: string | null,
+    attachmentStatusId: string | null,
+  ): Observable<ApiAttachmentDto> {
+    return this.http.put<ApiAttachmentDto>(
+      `${this.baseUrl}/${apiId}/attachments/${attachmentId}`,
+      { description, contractTypeId, attachmentVersion, attachmentStatusId },
+    );
   }
 
   deleteAttachment(apiId: string, attachmentId: string): Observable<void> {

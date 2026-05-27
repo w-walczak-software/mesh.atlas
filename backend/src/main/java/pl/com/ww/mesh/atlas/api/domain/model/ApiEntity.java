@@ -155,6 +155,9 @@ public class ApiEntity extends AuditableEntity {
             foreignKey = @ForeignKey(name = "fk_api_contract_type"))
     private DictionaryEntryEntity contractType;
 
+    @Column(name = "contract_version", length = 100)
+    private String contractVersion;
+
     @Column(name = "contract_url", columnDefinition = "TEXT")
     private String contractUrl;
 

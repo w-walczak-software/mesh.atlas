@@ -19,5 +19,9 @@ public record ApiGraphEdgeDto(
         UUID producerSystemId,
         List<UUID> consumerSystemIds,
         List<String> tags,
+        /** Names of active data domains associated with this API. */
+        List<String> dataDomains,
+        /** Names of deployment environments in which this API is available. */
+        List<String> environments,
         boolean active
 ) {}

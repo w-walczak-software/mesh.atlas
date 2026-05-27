@@ -12,6 +12,8 @@ public record ApiAttachmentDto(
         long fileSize,
         String description,
         DictionaryEntryRefDto contractType,
+        String attachmentVersion,
+        DictionaryEntryRefDto attachmentStatus,
         LocalDateTime createdAt,
         String createdBy
 ) {}

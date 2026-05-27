@@ -137,6 +137,7 @@ public class ApiRevisionService {
                 mapEntry(entity.getSlaTier()),
                 entity.getSlaDescription(),
                 mapEntry(entity.getContractType()),
+                entity.getContractVersion(),
                 entity.getContractUrl(),
                 entity.getDocumentationUrl(),
                 entity.getTags(),
@@ -260,6 +261,7 @@ public class ApiRevisionService {
         }
 
         DictionaryEntryEntity contractType = resolveEntry(entity.getContractType());
+        DictionaryEntryEntity attachmentStatus = resolveEntry(entity.getAttachmentStatus());
 
         return new ApiAttachmentHistoryDto(
                 rev.getRev(),
@@ -270,7 +272,10 @@ public class ApiRevisionService {
                 entity.getFileName(),
                 entity.getDescription(),
                 contractType != null ? contractType.getId() : null,
-                contractType != null ? contractType.getName() : null
+                contractType != null ? contractType.getName() : null,
+                entity.getAttachmentVersion(),
+                attachmentStatus != null ? attachmentStatus.getId() : null,
+                attachmentStatus != null ? attachmentStatus.getName() : null
         );
     }
 

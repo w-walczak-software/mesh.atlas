@@ -30,6 +30,7 @@ public record ApiDto(
         DictionaryEntryRefDto slaTier,
         String slaDescription,
         DictionaryEntryRefDto contractType,
+        String contractVersion,
         String contractUrl,
         String documentationUrl,
         List<String> tags,
