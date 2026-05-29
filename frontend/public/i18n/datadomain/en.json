@@ -53,12 +53,15 @@
     "back": "Back",
     "history": "History",
     "addTag": "Add Tag",
-    "removeTag": "Remove tag"
+    "removeTag": "Remove tag",
+    "graph": "Integration Map"
   },
   "toolbar": {
     "selectToEdit": "Select a row to edit",
     "selectToDeactivate": "Select a row to deactivate",
-    "alreadyInactive": "This data domain is already inactive"
+    "alreadyInactive": "This data domain is already inactive",
+    "selectForGraph": "Check at least one data domain to view on the Integration Map",
+    "multipleChecked": "Multiple rows checked – select a single row"
   },
   "confirm": {
     "deactivate": "Are you sure you want to deactivate this data domain?",

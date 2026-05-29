@@ -78,6 +78,23 @@ export class ApiFilterStateService {
     });
   }
 
+  /**
+   * Called by Data Domains list before navigating to the graph.
+   * Filters the graph to show only APIs that have at least one of the given data domain IDs assigned.
+   */
+  saveFromDataDomains(dataDomainIds: string[]): void {
+    this._snapshot.set({
+      form: {
+        query: null, tag: null, statusId: null, typeId: null, active: null,
+        description: null, producerSystemIds: [], consumerSystemIds: [], transportLayerId: null,
+        integrationPatternId: null, dataDomainIds, environmentId: null,
+      },
+      pageIndex:   0,
+      pageSize:    20,
+      sourceRoute: '/data-domains',
+    });
+  }
+
   /** Clear snapshot — called when the user resets the search form */
   clear(): void {
     this._snapshot.set(null);

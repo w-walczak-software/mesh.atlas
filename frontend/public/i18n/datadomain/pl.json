@@ -53,12 +53,15 @@
     "back": "Wróć",
     "history": "Historia",
     "addTag": "Dodaj tag",
-    "removeTag": "Usuń tag"
+    "removeTag": "Usuń tag",
+    "graph": "Mapa integracji"
   },
   "toolbar": {
     "selectToEdit": "Zaznacz wiersz, aby edytować",
     "selectToDeactivate": "Zaznacz wiersz, aby dezaktywować",
-    "alreadyInactive": "Ta domena danych jest już nieaktywna"
+    "alreadyInactive": "Ta domena danych jest już nieaktywna",
+    "selectForGraph": "Zaznacz co najmniej 1 domenę danych, aby wyświetlić mapę integracji",
+    "multipleChecked": "Zaznaczono więcej niż 1 wiersz – wybierz pojedynczy wiersz"
   },
   "confirm": {
     "deactivate": "Czy na pewno chcesz dezaktywować tę domenę danych?",

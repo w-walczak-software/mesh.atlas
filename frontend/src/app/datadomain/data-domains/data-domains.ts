@@ -18,6 +18,7 @@ import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
 import { DataDomainService } from '../service/data-domain.service';
 import { DataDomainSearchParams, DataDomainSummaryDto } from '../model/data-domain.model';
+import { ApiFilterStateService } from '../../api/service/api-filter-state.service';
 
 @Component({
   selector: 'app-data-domains',
@@ -41,6 +42,7 @@ export class DataDomains implements OnInit {
   private readonly service = inject(DataDomainService);
   private readonly entryService = inject(DictionaryEntryService);
   private readonly router = inject(Router);
+  private readonly apiFilterState = inject(ApiFilterStateService);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
   private readonly auth = inject(AuthService);
@@ -55,6 +57,7 @@ export class DataDomains implements OnInit {
   protected readonly data = signal<DataDomainSummaryDto[]>([]);
   protected readonly loading = signal(false);
   protected readonly selectedRow = signal<DataDomainSummaryDto | null>(null);
+  protected readonly checkedRows = signal<DataDomainSummaryDto[]>([]);
   protected readonly groups = signal<DictionaryEntryDto[]>([]);
   private readonly totalItems = signal(0);
   private readonly pageIndex = signal(0);
@@ -68,9 +71,15 @@ export class DataDomains implements OnInit {
   });
 
   protected readonly tableConfig = computed<TableConfig<DataDomainSummaryDto>>(() => {
-    const selected = this.selectedRow();
+    const selected     = this.selectedRow();
+    const checked      = this.checkedRows();
+    const graphEnabled = checked.length > 0 || !!selected;
+    const multiCheck   = checked.length > 1;
+
     return {
-      tableId: 'data-domains',
+      tableId:        'data-domains',
+      showCheckboxes: true,
+      rowId:          (row) => row.id,
       columns: [
         { key: 'code', label: this.t.translate('datadomain.field.code'), width: '160px', sortable: true },
         { key: 'name', label: this.t.translate('datadomain.field.name'), sortable: true },
@@ -102,31 +111,44 @@ export class DataDomains implements OnInit {
         pageSize: this.pageSize(),
         pageSizeOptions: [10, 20, 50],
       },
-      toolbar: this.canWrite() ? [
+      toolbar: [
         {
-          label: this.t.translate('datadomain.action.new'),
-          icon: 'add',
-          action: () => this.router.navigate(['/data-domains/new']),
+          label:    this.t.translate('datadomain.action.graph'),
+          icon:     'hub',
+          disabled: !graphEnabled,
+          tooltip:  !graphEnabled ? this.t.translate('datadomain.toolbar.selectForGraph') : undefined,
+          action:   () => this.openGraph(),
         },
-        {
-          label: this.t.translate('datadomain.action.edit'),
-          icon: 'edit',
-          disabled: !selected,
-          tooltip: !selected ? this.t.translate('datadomain.toolbar.selectToEdit') : undefined,
-          action: () => { if (selected) this.router.navigate(['/data-domains', selected.id, 'edit']); },
-        },
-        {
-          label: this.t.translate('datadomain.action.deactivate'),
-          icon: 'block',
-          disabled: !selected || !selected.active,
-          tooltip: !selected
-            ? this.t.translate('datadomain.toolbar.selectToDeactivate')
-            : !selected.active
-              ? this.t.translate('datadomain.toolbar.alreadyInactive')
-              : undefined,
-          action: () => { if (selected) this.confirmDeactivate(selected); },
-        },
-      ] : [],
+        ...(this.canWrite() ? [
+          {
+            label:  this.t.translate('datadomain.action.new'),
+            icon:   'add',
+            action: () => this.router.navigate(['/data-domains/new']),
+          },
+          {
+            label:    this.t.translate('datadomain.action.edit'),
+            icon:     'edit',
+            disabled: !selected || multiCheck,
+            tooltip:  multiCheck
+              ? this.t.translate('datadomain.toolbar.multipleChecked')
+              : !selected ? this.t.translate('datadomain.toolbar.selectToEdit') : undefined,
+            action:   () => { if (selected) this.router.navigate(['/data-domains', selected.id, 'edit']); },
+          },
+          {
+            label:    this.t.translate('datadomain.action.deactivate'),
+            icon:     'block',
+            disabled: !selected || !selected.active || multiCheck,
+            tooltip:  multiCheck
+              ? this.t.translate('datadomain.toolbar.multipleChecked')
+              : !selected
+                ? this.t.translate('datadomain.toolbar.selectToDeactivate')
+                : !selected.active
+                  ? this.t.translate('datadomain.toolbar.alreadyInactive')
+                  : undefined,
+            action: () => { if (selected) this.confirmDeactivate(selected); },
+          },
+        ] : []),
+      ],
       rowDblClick: (row) => this.router.navigate(['/data-domains', row.id, 'edit']),
       actions: [
         {
@@ -169,9 +191,23 @@ export class DataDomains implements OnInit {
     this.load();
   }
 
+  protected onRowsSelect(rows: DataDomainSummaryDto[]): void {
+    this.checkedRows.set(rows);
+  }
+
+  private openGraph(): void {
+    const checked  = this.checkedRows();
+    const selected = this.selectedRow();
+    const ids = checked.length > 0 ? checked.map(r => r.id) : (selected ? [selected.id] : []);
+    if (!ids.length) return;
+    this.apiFilterState.saveFromDataDomains(ids);
+    this.router.navigate(['/apis/graph']);
+  }
+
   private load(): void {
     this.loading.set(true);
     this.selectedRow.set(null);
+    this.checkedRows.set([]);
     const v = this.searchForm.getRawValue();
     const params: DataDomainSearchParams = {
       page: this.pageIndex(),

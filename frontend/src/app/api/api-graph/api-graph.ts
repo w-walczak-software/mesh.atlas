@@ -108,11 +108,12 @@ export class ApiGraph implements OnInit {
   protected readonly animateEdges = signal(false);
   protected readonly hasFilters   = computed(() => this.filterState.hasActiveFilters());
   protected readonly hoverTooltip = signal<HoverTooltip | null>(null);
-  protected readonly backTooltip  = computed(() =>
-    this.filterState.getSourceRoute() === '/it-systems'
-      ? this.t.translate('api.graph.backToItSystems')
-      : this.t.translate('api.graph.backToList')
-  );
+  protected readonly backTooltip  = computed(() => {
+    const route = this.filterState.getSourceRoute();
+    if (route === '/it-systems')   return this.t.translate('api.graph.backToItSystems');
+    if (route === '/data-domains') return this.t.translate('api.graph.backToDataDomains');
+    return this.t.translate('api.graph.backToList');
+  });
 
   /** Cached last result so layout can be re-applied without re-fetching */
   private lastResult:        ApiGraphResultDto | null = null;

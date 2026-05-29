@@ -108,6 +108,7 @@
     "title": "Integration Map",
     "backToList": "Back to API list",
     "backToItSystems": "Back to IT Systems",
+    "backToDataDomains": "Back to Data Domains",
     "refresh": "Refresh",
     "loading": "Loading integration map…",
     "empty": "No integrations to display",
