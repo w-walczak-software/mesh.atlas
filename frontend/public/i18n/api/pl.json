@@ -11,7 +11,9 @@
     "inactiveOnly": "Tylko nieaktywne",
     "activeLabel": "Aktywność",
     "reset": "Resetuj",
-    "search": "Szukaj"
+    "search": "Szukaj",
+    "tabBasic": "Podstawowe",
+    "tabAdvanced": "Zaawansowane"
   },
   "field": {
     "code": "Kod",
@@ -148,7 +150,8 @@
   "toolbar": {
     "selectToEdit": "Wybierz API do edycji",
     "selectToDeactivate": "Wybierz API do dezaktywacji",
-    "alreadyInactive": "API jest już nieaktywne"
+    "alreadyInactive": "API jest już nieaktywne",
+    "graphSelected": "Pokaż {{ count }} zaznaczone API na mapie integracji"
   },
   "tags": {
     "noTags": "Nie dodano żadnych tagów."

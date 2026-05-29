@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatExpansionModule } from '@angular/material/expansion';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
@@ -14,10 +15,13 @@ import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { AuthService } from '@core/auth/auth.service';
+import { ItSystemSelectComponent } from '@shared/it-system-select/it-system-select';
 import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
-import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
-import { ItSystemService } from '../../itsystem/service/itsystem.service';
+import { TransportLayerSummaryDto } from '../../transportlayer/model/transport-layer.model';
+import { TransportLayerService } from '../../transportlayer/service/transport-layer.service';
+import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
+import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
 import { ApiSearchParams, ApiSummaryDto } from '../model/api.model';
 import { ApiFilterStateService } from '../service/api-filter-state.service';
@@ -34,6 +38,8 @@ import { ApiFilterStateService } from '../service/api-filter-state.service';
     MatSelectModule,
     MatIconModule,
     MatExpansionModule,
+    MatButtonToggleModule,
+    ItSystemSelectComponent,
   ],
   providers: [provideTranslocoScope('api')],
   templateUrl: './apis.html',
@@ -43,7 +49,8 @@ import { ApiFilterStateService } from '../service/api-filter-state.service';
 export class Apis implements OnInit {
   private readonly service = inject(ApiService);
   private readonly entryService = inject(DictionaryEntryService);
-  private readonly itSystemService = inject(ItSystemService);
+  private readonly transportLayerService = inject(TransportLayerService);
+  private readonly dataDomainService = inject(DataDomainService);
   private readonly router = inject(Router);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
@@ -57,9 +64,12 @@ export class Apis implements OnInit {
     this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
   );
 
+  protected readonly activeTab = signal<'basic' | 'advanced'>('basic');
+
   protected readonly data = signal<ApiSummaryDto[]>([]);
   protected readonly loading = signal(false);
   protected readonly selectedRow = signal<ApiSummaryDto | null>(null);
+  protected readonly checkedRows = signal<ApiSummaryDto[]>([]);
   private readonly totalItems = signal(0);
   private readonly pageIndex = signal(0);
   private readonly pageSize = signal(20);
@@ -67,27 +77,59 @@ export class Apis implements OnInit {
   protected readonly statuses = signal<DictionaryEntryDto[]>([]);
   protected readonly types = signal<DictionaryEntryDto[]>([]);
   protected readonly environments = signal<DictionaryEntryDto[]>([]);
-  protected readonly itSystems = signal<ItSystemSummaryDto[]>([]);
+  protected readonly integrationPatterns = signal<DictionaryEntryDto[]>([]);
+  protected readonly transportLayers = signal<TransportLayerSummaryDto[]>([]);
+  protected readonly dataDomains = signal<DataDomainSummaryDto[]>([]);
 
   protected readonly searchForm = this.fb.group({
-    query: [''],
-    tag: [''],
-    statusId: [null as string | null],
-    typeId: [null as string | null],
-    producerSystemId: [null as string | null],
-    environmentId: [null as string | null],
-    active: [null as boolean | null],
+    query:               [''],
+    tag:                 [''],
+    statusId:            [null as string | null],
+    typeId:              [null as string | null],
+    active:              [null as boolean | null],
+    description:         [''],
+    producerSystemIds:   [[] as string[]],
+    consumerSystemIds:   [[] as string[]],
+    transportLayerId:    [null as string | null],
+    integrationPatternId:[null as string | null],
+    dataDomainIds:       [[] as string[]],
+    environmentId:       [null as string | null],
+  });
+
+  private readonly formValue = toSignal(this.searchForm.valueChanges, { initialValue: this.searchForm.value });
+
+  protected readonly hasAdvancedFilters = computed(() => {
+    const v = this.formValue();
+    return !!(v.description || v.transportLayerId || v.integrationPatternId ||
+              (v.dataDomainIds as string[] | null)?.length ||
+              (v.producerSystemIds as string[] | null)?.length ||
+              (v.consumerSystemIds as string[] | null)?.length || v.environmentId);
   });
 
   protected goToGraph(): void {
+    const checked = this.checkedRows();
+    const current = this.filterState.snapshot();
+    if (current) {
+      this.filterState.save({ ...current, apiIds: checked.length ? checked.map(r => r.id) : undefined });
+    }
     this.router.navigate(['/apis/graph']);
   }
 
+  protected onRowsSelect(rows: ApiSummaryDto[]): void {
+    this.checkedRows.set(rows);
+  }
+
   protected readonly tableConfig = computed<TableConfig<ApiSummaryDto>>(() => {
-    const selected = this.selectedRow();
+    const selected  = this.selectedRow();
+    const checked   = this.checkedRows();
+    const graphTip  = checked.length
+      ? this.t.translate('api.toolbar.graphSelected', { count: checked.length })
+      : undefined;
 
     return {
-      tableId: 'apis',
+      tableId:        'apis',
+      showCheckboxes: true,
+      rowId:          (row) => row.id,
       columns: [
         { key: 'code', label: this.t.translate('api.field.code'), width: '140px', sortable: true },
         { key: 'name', label: this.t.translate('api.field.name'), sortable: true },
@@ -145,9 +187,10 @@ export class Apis implements OnInit {
       },
       toolbar: [
         {
-          label: this.t.translate('api.action.graph'),
-          icon: 'hub',
-          action: () => this.goToGraph(),
+          label:   this.t.translate('api.action.graph'),
+          icon:    'hub',
+          tooltip: graphTip,
+          action:  () => this.goToGraph(),
         },
         ...(this.canWrite() ? [
         {
@@ -202,13 +245,18 @@ export class Apis implements OnInit {
     const saved = this.filterState.snapshot();
     if (saved) {
       this.searchForm.patchValue({
-        query:            saved.form.query ?? '',
-        tag:              saved.form.tag ?? '',
-        statusId:         saved.form.statusId,
-        typeId:           saved.form.typeId,
-        producerSystemId: saved.form.producerSystemId,
-        environmentId:    saved.form.environmentId,
-        active:           saved.form.active,
+        query:               saved.form.query ?? '',
+        tag:                 saved.form.tag ?? '',
+        statusId:            saved.form.statusId,
+        typeId:              saved.form.typeId,
+        active:              saved.form.active,
+        description:         saved.form.description ?? '',
+        producerSystemIds:   saved.form.producerSystemIds ?? [],
+        consumerSystemIds:   saved.form.consumerSystemIds ?? [],
+        transportLayerId:    saved.form.transportLayerId,
+        integrationPatternId: saved.form.integrationPatternId,
+        dataDomainIds:       saved.form.dataDomainIds ?? [],
+        environmentId:       saved.form.environmentId,
       });
       this.pageIndex.set(saved.pageIndex);
       this.pageSize.set(saved.pageSize);
@@ -238,18 +286,24 @@ export class Apis implements OnInit {
   private load(): void {
     this.loading.set(true);
     this.selectedRow.set(null);
+    this.checkedRows.set([]);
     const v = this.searchForm.getRawValue();
 
     // Persist current state so the Integration Map can read it
     this.filterState.save({
       form: {
-        query:            v.query || null,
-        tag:              v.tag || null,
-        statusId:         v.statusId,
-        typeId:           v.typeId,
-        producerSystemId: v.producerSystemId,
-        environmentId:    v.environmentId,
-        active:           v.active,
+        query:               v.query || null,
+        tag:                 v.tag || null,
+        statusId:            v.statusId,
+        typeId:              v.typeId,
+        active:              v.active,
+        description:         v.description || null,
+        producerSystemIds:   v.producerSystemIds ?? [],
+        consumerSystemIds:   v.consumerSystemIds ?? [],
+        transportLayerId:    v.transportLayerId,
+        integrationPatternId: v.integrationPatternId,
+        dataDomainIds:       v.dataDomainIds ?? [],
+        environmentId:       v.environmentId,
       },
       pageIndex: this.pageIndex(),
       pageSize:  this.pageSize(),
@@ -262,9 +316,14 @@ export class Apis implements OnInit {
       tag: v.tag || undefined,
       statusId: v.statusId || undefined,
       typeId: v.typeId || undefined,
-      producerSystemId: v.producerSystemId || undefined,
-      environmentId: v.environmentId || undefined,
       active: v.active ?? undefined,
+      description: v.description || undefined,
+      producerSystemIds: v.producerSystemIds?.length ? v.producerSystemIds : undefined,
+      consumerSystemIds: v.consumerSystemIds?.length ? v.consumerSystemIds : undefined,
+      transportLayerId: v.transportLayerId || undefined,
+      integrationPatternId: v.integrationPatternId || undefined,
+      dataDomainIds: v.dataDomainIds?.length ? v.dataDomainIds : undefined,
+      environmentId: v.environmentId || undefined,
     };
     this.service.findAll(params).subscribe({
       next: (page) => {
@@ -280,9 +339,9 @@ export class Apis implements OnInit {
     this.entryService.findByTypeCode('API_STATUS').subscribe(e => this.statuses.set(e));
     this.entryService.findByTypeCode('API_TYPE').subscribe(e => this.types.set(e));
     this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
-    this.itSystemService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
-      page => this.itSystems.set(page.content),
-    );
+    this.entryService.findByTypeCode('INTEGRATION_PATTERN').subscribe(e => this.integrationPatterns.set(e));
+    this.transportLayerService.findAll({ active: true, size: 200, sort: 'name' }).subscribe(p => this.transportLayers.set(p.content));
+    this.dataDomainService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(p => this.dataDomains.set(p.content));
   }
 
   private confirmDeactivate(row: ApiSummaryDto): void {

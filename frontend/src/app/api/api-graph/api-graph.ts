@@ -19,7 +19,6 @@ import {
   createEdges,
   createNodes,
   Edge,
-  EdgeLabelHtmlTemplateDirective,
   EdgeTemplateDirective,
   HandleComponent,
   Node,
@@ -65,6 +64,9 @@ const PALETTE = [
   { bg: 'rgba(239,68,68,.1)',  bd: 'rgba(239,68,68,.5)',  acc: '#ef4444' },
 ];
 
+// ── Parallel edge spacing (px offset applied to bezier control points) ─────────
+const PARALLEL_GAP = 36;
+
 // ── Edge colors ────────────────────────────────────────────────────────────────
 const EDGE_PALETTE = [
   '#6366f1', '#10b981', '#0ea5e9', '#f59e0b',
@@ -83,7 +85,6 @@ const EDGE_PALETTE = [
     VflowComponent,
     NodeHtmlTemplateDirective,
     EdgeTemplateDirective,
-    EdgeLabelHtmlTemplateDirective,
     HandleComponent,
   ],
   providers: [provideTranslocoScope('api')],
@@ -222,7 +223,7 @@ export class ApiGraph implements OnInit {
       }),
     );
 
-    // Build edge groups (one per directed pair)
+    // Build edge groups — one per (directed pair × transport layer × data-flow direction)
     const edgeMap = new Map<string, ApiEdgeGroupData>();
     let edgeColorIdx = 0;
 
@@ -230,7 +231,9 @@ export class ApiGraph implements OnInit {
       if (!api.producerSystemId || !systemIdSet.has(api.producerSystemId)) continue;
       for (const csId of api.consumerSystemIds) {
         if (!systemIdSet.has(csId)) continue;
-        const key = `${api.producerSystemId}__${csId}`;
+        const tCode = api.transportLayer?.code ?? '';
+        const dCode = api.dataFlowDirection?.code ?? '';
+        const key = `${api.producerSystemId}__${csId}__${tCode}__${dCode}`;
         if (!edgeMap.has(key)) {
           edgeMap.set(key, {
             edgeKey:          key,
@@ -239,10 +242,30 @@ export class ApiGraph implements OnInit {
             transportLayer:   api.transportLayer ?? null,
             apis:             [],
             edgeColor:        EDGE_PALETTE[edgeColorIdx++ % EDGE_PALETTE.length],
+            strokeWidth:      2,
+            parallelOffset:   0,
+            reverseFlow:      api.dataFlowDirection?.code === 'PUSH',
           });
         }
         edgeMap.get(key)!.apis.push(api);
       }
+    }
+
+    // Stroke width scales with API count; parallel offsets separate edges sharing the same system pair
+    const pairToGroups = new Map<string, ApiEdgeGroupData[]>();
+    for (const group of edgeMap.values()) {
+      group.strokeWidth = Math.min(1 + group.apis.length, 6);
+      const pKey = `${group.producerSystemId}__${group.consumerSystemId}`;
+      if (!pairToGroups.has(pKey)) pairToGroups.set(pKey, []);
+      pairToGroups.get(pKey)!.push(group);
+    }
+    for (const groups of pairToGroups.values()) {
+      if (groups.length <= 1) continue;
+      // Thicker (more APIs) edge gets the center slot; others spread symmetrically above/below
+      groups.sort((a, b) => b.apis.length - a.apis.length);
+      groups.forEach((g, i) => {
+        g.parallelOffset = Math.round((i - (groups.length - 1) / 2) * PARALLEL_GAP);
+      });
     }
 
     const edges = createEdges<ApiEdgeGroupData>(
@@ -259,9 +282,6 @@ export class ApiGraph implements OnInit {
             width:  20,
             height: 20,
           },
-        },
-        edgeLabels: {
-          center: { type: 'html-template' as const, data: group },
         },
         data: group,
       })),
@@ -361,6 +381,38 @@ export class ApiGraph implements OnInit {
       this.hoverTooltip.set(tip);
       this.tooltipTimer = null;
     }, 400);
+  }
+
+  // ── Bezier path helpers ────────────────────────────────────────────────────
+
+  /**
+   * Extracts the 8 numeric coordinates from a cubic bezier SVG path
+   * (M x0 y0 C cx1 cy1 cx2 cy2 x1 y1) regardless of separator style.
+   */
+  private parseBezierPath(path: string): [number, number, number, number, number, number, number, number] | null {
+    const nums = [...path.matchAll(/[-]?\d+(?:\.\d+)?/g)].map(m => Number(m[0]));
+    if (nums.length < 8) return null;
+    return nums.slice(0, 8) as [number, number, number, number, number, number, number, number];
+  }
+
+  /** Returns the path string with control points shifted by `offset` pixels on the Y axis. */
+  protected getOffsetPath(path: string, offset: number): string {
+    if (!offset) return path;
+    const pts = this.parseBezierPath(path);
+    if (!pts) return path;
+    const [x0, y0, cx1, cy1, cx2, cy2, x1, y1] = pts;
+    return `M ${x0} ${y0} C ${cx1} ${cy1 + offset} ${cx2} ${cy2 + offset} ${x1} ${y1}`;
+  }
+
+  /** Returns the pixel position of the midpoint (t=0.5) of the offset bezier, for label placement. */
+  protected getEdgeLabelPos(path: string, offset: number): { x: number; y: number } {
+    const pts = this.parseBezierPath(path);
+    if (!pts) return { x: 0, y: 0 };
+    const [x0, y0, cx1, cy1, cx2, cy2, x1, y1] = pts;
+    return {
+      x: Math.round(0.125 * x0 + 0.375 * cx1 + 0.375 * cx2 + 0.125 * x1),
+      y: Math.round(0.125 * y0 + 0.375 * (cy1 + offset) + 0.375 * (cy2 + offset) + 0.125 * y1),
+    };
   }
 
   // ── Viewport controls ──────────────────────────────────────────────────────

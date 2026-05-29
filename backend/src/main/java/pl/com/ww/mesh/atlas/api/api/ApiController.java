@@ -52,13 +52,17 @@ public class ApiController {
             @RequestParam(required = false) UUID typeId,
             @RequestParam(required = false) UUID transportLayerId,
             @RequestParam(required = false) Boolean active,
-            @RequestParam(required = false) UUID producerSystemId,
-            @RequestParam(required = false) UUID consumerSystemId,
+            @RequestParam(required = false) List<UUID> producerSystemIds,
+            @RequestParam(required = false) List<UUID> consumerSystemIds,
             @RequestParam(required = false) String tag,
             @RequestParam(required = false) UUID environmentId,
+            @RequestParam(required = false) String description,
+            @RequestParam(required = false) UUID integrationPatternId,
+            @RequestParam(required = false) List<UUID> dataDomainIds,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         var criteria = new ApiSearchCriteria(query, statusId, typeId, transportLayerId,
-                active, producerSystemId, consumerSystemId, tag, environmentId);
+                active, producerSystemIds, consumerSystemIds, tag, environmentId,
+                description, integrationPatternId, dataDomainIds);
         return service.findAll(criteria, pageable);
     }
 

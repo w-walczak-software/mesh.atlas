@@ -1,0 +1,59 @@
+@if (multiple()) {
+  <mat-form-field appearance="outline" class="it-system-field">
+    <mat-label>{{ label() }}</mat-label>
+    <mat-chip-grid #chipGrid [required]="required()">
+      @for (sys of selectedMultiple(); track sys.id) {
+        <mat-chip-row (removed)="removeMultiple(sys)">
+          @if (sys.icon) {
+            <mat-icon matChipAvatar>{{ sys.icon }}</mat-icon>
+          }
+          {{ sys.code }} – {{ sys.name }}
+          <button matChipRemove type="button" [attr.aria-label]="'Remove ' + sys.name">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        </mat-chip-row>
+      }
+    </mat-chip-grid>
+    <input
+      [formControl]="searchCtrl"
+      [matChipInputFor]="chipGrid"
+      [matAutocomplete]="multiAuto"
+      (blur)="touch()" />
+    <mat-autocomplete #multiAuto (optionSelected)="onMultiSelected($event)">
+      @for (opt of options(); track opt.id) {
+        <mat-option [value]="opt">
+          @if (opt.icon) {
+            <mat-icon>{{ opt.icon }}</mat-icon>
+          }
+          {{ opt.code }} – {{ opt.name }}
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+} @else {
+  <mat-form-field appearance="outline" class="it-system-field">
+    <mat-label>{{ label() }}</mat-label>
+    <input
+      matInput
+      [formControl]="searchCtrl"
+      [matAutocomplete]="singleAuto"
+      [required]="required()"
+      (blur)="touch()" />
+    @if (selectedSingle()) {
+      <button matSuffix mat-icon-button type="button" (click)="clearSingle()"
+              [attr.aria-label]="'Clear ' + label()">
+        <mat-icon>close</mat-icon>
+      </button>
+    }
+    <mat-autocomplete #singleAuto [displayWith]="displayFn" (optionSelected)="onSingleSelected($event)">
+      @for (opt of options(); track opt.id) {
+        <mat-option [value]="opt">
+          @if (opt.icon) {
+            <mat-icon>{{ opt.icon }}</mat-icon>
+          }
+          {{ opt.code }} – {{ opt.name }}
+        </mat-option>
+      }
+    </mat-autocomplete>
+  </mat-form-field>
+}

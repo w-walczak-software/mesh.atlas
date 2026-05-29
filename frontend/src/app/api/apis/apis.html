@@ -13,68 +13,128 @@
       </mat-expansion-panel-header>
 
       <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearch()">
-        <div class="search-row">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('api.search.query') }}</mat-label>
-            <input matInput formControlName="query" />
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('api.search.tag') }}</mat-label>
-            <input matInput formControlName="tag" />
-            <mat-icon matSuffix>local_offer</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('api.field.status') }}</mat-label>
-            <mat-select formControlName="statusId">
-              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-              @for (item of statuses(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name }}</mat-option>
+        <div class="filter-header">
+          <mat-button-toggle-group
+            class="filter-toggle"
+            [value]="activeTab()"
+            (change)="activeTab.set($event.value)"
+            hideSingleSelectionIndicator>
+            <mat-button-toggle value="basic">{{ t('api.search.tabBasic') }}</mat-button-toggle>
+            <mat-button-toggle value="advanced">
+              {{ t('api.search.tabAdvanced') }}
+              @if (hasAdvancedFilters()) {
+                <span class="toggle-dot"></span>
               }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('api.field.type') }}</mat-label>
-            <mat-select formControlName="typeId">
-              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-              @for (item of types(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('api.field.producerSystem') }}</mat-label>
-            <mat-select formControlName="producerSystemId">
-              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-              @for (sys of itSystems(); track sys.id) {
-                <mat-option [value]="sys.id">{{ sys.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('api.field.environments') }}</mat-label>
-            <mat-select formControlName="environmentId">
-              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-              @for (env of environments(); track env.id) {
-                <mat-option [value]="env.id">{{ env.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('api.search.activeLabel') }}</mat-label>
-            <mat-select formControlName="active">
-              <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-              <mat-option [value]="true">{{ t('api.search.activeOnly') }}</mat-option>
-              <mat-option [value]="false">{{ t('api.search.inactiveOnly') }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+            </mat-button-toggle>
+          </mat-button-toggle-group>
         </div>
+
+        @if (activeTab() === 'basic') {
+          <div class="search-row">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>{{ t('api.search.query') }}</mat-label>
+              <input matInput formControlName="query" />
+              <mat-icon matSuffix>search</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>{{ t('api.search.tag') }}</mat-label>
+              <input matInput formControlName="tag" />
+              <mat-icon matSuffix>local_offer</mat-icon>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field search-field--narrow">
+              <mat-label>{{ t('api.field.status') }}</mat-label>
+              <mat-select formControlName="statusId">
+                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+                @for (item of statuses(); track item.id) {
+                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field search-field--narrow">
+              <mat-label>{{ t('api.field.type') }}</mat-label>
+              <mat-select formControlName="typeId">
+                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+                @for (item of types(); track item.id) {
+                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field search-field--narrow">
+              <mat-label>{{ t('api.search.activeLabel') }}</mat-label>
+              <mat-select formControlName="active">
+                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+                <mat-option [value]="true">{{ t('api.search.activeOnly') }}</mat-option>
+                <mat-option [value]="false">{{ t('api.search.inactiveOnly') }}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
+
+        @if (activeTab() === 'advanced') {
+          <div class="search-row">
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>{{ t('api.field.description') }}</mat-label>
+              <input matInput formControlName="description" />
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field search-field--narrow">
+              <mat-label>{{ t('api.field.transportLayer') }}</mat-label>
+              <mat-select formControlName="transportLayerId">
+                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+                @for (item of transportLayers(); track item.id) {
+                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field search-field--narrow">
+              <mat-label>{{ t('api.field.integrationPattern') }}</mat-label>
+              <mat-select formControlName="integrationPatternId">
+                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+                @for (item of integrationPatterns(); track item.id) {
+                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="search-field search-field--narrow">
+              <mat-label>{{ t('api.field.environments') }}</mat-label>
+              <mat-select formControlName="environmentId">
+                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+                @for (env of environments(); track env.id) {
+                  <mat-option [value]="env.id">{{ env.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <div class="search-row">
+            <app-it-system-select
+              class="search-field"
+              formControlName="producerSystemIds"
+              [multiple]="true"
+              [label]="t('api.field.producerSystem')" />
+
+            <app-it-system-select
+              class="search-field"
+              formControlName="consumerSystemIds"
+              [multiple]="true"
+              [label]="t('api.field.consumerSystems')" />
+
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>{{ t('api.field.dataDomains') }}</mat-label>
+              <mat-select formControlName="dataDomainIds" multiple>
+                @for (item of dataDomains(); track item.id) {
+                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        }
 
         <div class="search-actions">
           <button mat-stroked-button type="button" (click)="onReset()">
@@ -95,6 +155,7 @@
       [loading]="loading()"
       (pageChange)="onPageChange($event)"
       (rowSelect)="selectedRow.set($event)"
+      (rowsSelect)="onRowsSelect($event)"
     />
   </div>
 </ng-container>

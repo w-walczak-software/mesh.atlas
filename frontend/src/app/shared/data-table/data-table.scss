@@ -250,6 +250,10 @@
     &--selected {
       background: var(--mat-sys-primary-container) !important;
       color: var(--mat-sys-on-primary-container);
+
+      &:hover {
+        background: color-mix(in srgb, var(--mat-sys-primary-container) 80%, var(--mat-sys-on-surface) 20%) !important;
+      }
     }
 
     &--checked {

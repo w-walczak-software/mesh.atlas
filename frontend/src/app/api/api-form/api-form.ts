@@ -32,8 +32,7 @@ import { HistoryService } from '@shared/history/history.service';
 import { RevisionEntryDto, RevisionType } from '@shared/history/history.model';
 import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
-import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
-import { ItSystemService } from '../../itsystem/service/itsystem.service';
+import { ItSystemSelectComponent } from '@shared/it-system-select/it-system-select';
 import { TransportLayerSummaryDto } from '../../transportlayer/model/transport-layer.model';
 import { TransportLayerService } from '../../transportlayer/service/transport-layer.service';
 import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
@@ -62,6 +61,7 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
     MatTableModule,
     MatTooltipModule,
     MatProgressBarModule,
+    ItSystemSelectComponent,
   ],
   providers: [provideTranslocoScope('api')],
   templateUrl: './api-form.html',
@@ -72,7 +72,6 @@ export class ApiForm implements OnInit {
   private readonly service = inject(ApiService);
   private readonly historyService = inject(HistoryService);
   private readonly entryService = inject(DictionaryEntryService);
-  private readonly itSystemService = inject(ItSystemService);
   private readonly transportLayerService = inject(TransportLayerService);
   private readonly dataDomainService = inject(DataDomainService);
   private readonly router = inject(Router);
@@ -111,7 +110,6 @@ export class ApiForm implements OnInit {
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
   protected readonly environments = signal<DictionaryEntryDto[]>([]);
   protected readonly dataFlowDirections = signal<DictionaryEntryDto[]>([]);
-  protected readonly itSystems = signal<ItSystemSummaryDto[]>([]);
   protected readonly transportLayers = signal<TransportLayerSummaryDto[]>([]);
   protected readonly dataDomains = signal<DataDomainSummaryDto[]>([]);
 
@@ -157,18 +155,14 @@ export class ApiForm implements OnInit {
     newTag: [''],
   });
 
-  /** Signal tracking the currently selected producer system ID for reactive filtering. */
   private readonly producerSystemId$ = toSignal(
     this.form.controls.producerSystemId.valueChanges,
     { initialValue: null },
   );
 
-  /** Consumer system list filtered to exclude the currently selected producer. */
-  protected readonly availableConsumerSystems = computed(() => {
-    const producerId = this.producerSystemId$();
-    const all = this.itSystems();
-    if (!producerId) return all;
-    return all.filter(s => s.id !== producerId);
+  protected readonly excludeFromConsumer = computed(() => {
+    const id = this.producerSystemId$();
+    return id ? [id] : [];
   });
 
   protected readonly ownerColumns = ['name', 'role', 'validFrom', 'validTo', 'actions'];
@@ -185,17 +179,6 @@ export class ApiForm implements OnInit {
     } else {
       this.form.controls.code.enable();
     }
-
-    // When producer changes, remove it from consumer selection if present
-    this.form.controls.producerSystemId.valueChanges.subscribe(producerId => {
-      if (producerId) {
-        const current = this.form.controls.consumerSystemIds.value ?? [];
-        const filtered = current.filter(id => id !== producerId);
-        if (filtered.length !== current.length) {
-          this.form.controls.consumerSystemIds.setValue(filtered);
-        }
-      }
-    });
   }
 
   protected addTag(): void {
@@ -624,9 +607,6 @@ export class ApiForm implements OnInit {
     this.entryService.findByTypeCode('API_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
     this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
     this.entryService.findByTypeCode('DATA_FLOW_DIRECTION').subscribe(e => this.dataFlowDirections.set(e));
-    this.itSystemService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
-      page => this.itSystems.set(page.content),
-    );
     this.transportLayerService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
       page => this.transportLayers.set(page.content),
     );

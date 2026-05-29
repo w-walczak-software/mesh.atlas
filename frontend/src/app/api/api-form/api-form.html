@@ -145,18 +145,9 @@
 
           <div class="card-body">
             <div class="field-row field-row--equal">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.producerSystem') }}</mat-label>
-                <mat-select formControlName="producerSystemId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (sys of itSystems(); track sys.id) {
-                    <mat-option [value]="sys.id">
-                      @if (sys.icon) { <mat-icon>{{ sys.icon }}</mat-icon> }
-                      {{ sys.code }} – {{ sys.name }}
-                    </mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <app-it-system-select
+                formControlName="producerSystemId"
+                [label]="t('api.field.producerSystem')" />
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ t('api.field.dataFlowDirection') }}</mat-label>
@@ -169,17 +160,12 @@
               </mat-form-field>
             </div>
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.consumerSystems') }}</mat-label>
-              <mat-select formControlName="consumerSystemIds" multiple>
-                @for (sys of availableConsumerSystems(); track sys.id) {
-                  <mat-option [value]="sys.id">
-                    @if (sys.icon) { <mat-icon>{{ sys.icon }}</mat-icon> }
-                    {{ sys.code }} – {{ sys.name }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <app-it-system-select
+              class="field-full"
+              formControlName="consumerSystemIds"
+              [multiple]="true"
+              [label]="t('api.field.consumerSystems')"
+              [excludeIds]="excludeFromConsumer()" />
 
             <mat-form-field appearance="outline" class="field-half">
               <mat-label>{{ t('api.field.transportLayer') }}</mat-label>

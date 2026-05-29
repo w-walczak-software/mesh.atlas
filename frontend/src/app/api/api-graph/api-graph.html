@@ -102,22 +102,25 @@
           </ng-template>
 
           <!-- ╔════════════════════════════════════════════════════════╗ -->
-          <!-- ║  Custom edge template (colored SVG path)               ║ -->
+          <!-- ║  Custom edge template (colored SVG path + label)       ║ -->
+          <!-- ║  Label is embedded here (not edgeLabelHtml) so it      ║ -->
+          <!-- ║  follows the offset bezier path for parallel edges.     ║ -->
           <!-- ╚════════════════════════════════════════════════════════╝ -->
           <ng-template edge let-ctx>
             <svg:g>
-              <!-- Visible colored path, optionally animated -->
+              <!-- Visible colored path, optionally animated; thickness reflects API count -->
               <svg:path
-                [attr.d]="ctx.path()"
+                [attr.d]="getOffsetPath(ctx.path(), ctx.data().parallelOffset)"
                 [attr.stroke]="ctx.data().edgeColor"
-                [class.edge-path--animated]="animateEdges()"
+                [class.edge-path--animated]="animateEdges() && !ctx.data().reverseFlow"
+                [class.edge-path--animated-reverse]="animateEdges() && ctx.data().reverseFlow"
                 fill="none"
-                stroke-width="2"
+                [attr.stroke-width]="ctx.data().strokeWidth"
                 stroke-linecap="round"
                 [attr.marker-end]="ctx.markerEnd()" />
               <!-- Invisible wide hit area for double-click and hover -->
               <svg:path
-                [attr.d]="ctx.path()"
+                [attr.d]="getOffsetPath(ctx.path(), ctx.data().parallelOffset)"
                 stroke="transparent"
                 fill="none"
                 stroke-width="16"
@@ -125,35 +128,41 @@
                 (dblclick)="onEdgeDblClick(ctx.data())"
                 (mouseenter)="onEdgeMouseEnter(ctx.data(), $event)"
                 (mouseleave)="clearTooltip()" />
+              <!-- Label at midpoint of the (potentially offset) bezier path -->
+              <svg:foreignObject
+                [attr.x]="getEdgeLabelPos(ctx.path(), ctx.data().parallelOffset).x - 110"
+                [attr.y]="getEdgeLabelPos(ctx.path(), ctx.data().parallelOffset).y - 14"
+                width="220"
+                height="28"
+                style="overflow: visible">
+                <div style="width:220px; display:flex; justify-content:center">
+                  <div
+                    class="edge-label"
+                    [style.border-color]="ctx.data().edgeColor"
+                    [style.color]="ctx.data().edgeColor"
+                    (dblclick)="onEdgeDblClick(ctx.data())"
+                    role="button"
+                    [attr.aria-label]="t('api.graph.edgeDblclickHint')">
+                    @if (ctx.data().transportLayer?.icon) {
+                      <mat-icon class="edge-label__icon">{{ ctx.data().transportLayer!.icon }}</mat-icon>
+                    } @else {
+                      <mat-icon class="edge-label__icon">swap_horiz</mat-icon>
+                    }
+                    @if (ctx.data().transportLayer?.name) {
+                      <span class="edge-label__name">{{ ctx.data().transportLayer!.name }}</span>
+                    }
+                    @if (ctx.data().apis.length > 1) {
+                      <span
+                        class="edge-label__count"
+                        [style.background]="ctx.data().edgeColor"
+                        style="color:#fff">
+                        ×{{ ctx.data().apis.length }}
+                      </span>
+                    }
+                  </div>
+                </div>
+              </svg:foreignObject>
             </svg:g>
-          </ng-template>
-
-          <!-- ╔════════════════════════════════════════════════════════╗ -->
-          <!-- ║  Edge label (transport icon + count badge)             ║ -->
-          <!-- ╚════════════════════════════════════════════════════════╝ -->
-          <ng-template edgeLabelHtml let-ctx>
-            <div
-              class="edge-label"
-              [style.border-color]="ctx.label.data?.edgeColor ?? '#94a3b8'"
-              [style.color]="ctx.label.data?.edgeColor ?? '#94a3b8'"
-              (dblclick)="onEdgeDblClick(ctx.label.data)"
-              role="button"
-              [attr.aria-label]="t('api.graph.edgeDblclickHint')">
-
-              @if (ctx.label.data?.transportLayer?.icon) {
-                <mat-icon class="edge-label__icon">{{ ctx.label.data.transportLayer.icon }}</mat-icon>
-              } @else {
-                <mat-icon class="edge-label__icon">swap_horiz</mat-icon>
-              }
-
-              @if (ctx.label.data?.transportLayer?.name) {
-                <span class="edge-label__name">{{ ctx.label.data.transportLayer.name }}</span>
-              }
-
-              @if (ctx.label.data?.apis?.length > 1) {
-                <span class="edge-label__count">×{{ ctx.label.data.apis.length }}</span>
-              }
-            </div>
           </ng-template>
 
         </vflow>

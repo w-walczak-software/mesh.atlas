@@ -232,10 +232,13 @@ export interface ApiSearchParams {
   typeId?: string;
   transportLayerId?: string;
   active?: boolean;
-  producerSystemId?: string;
-  consumerSystemId?: string;
+  producerSystemIds?: string[];
+  consumerSystemIds?: string[];
   tag?: string;
   environmentId?: string;
+  description?: string;
+  integrationPatternId?: string;
+  dataDomainIds?: string[];
   page?: number;
   size?: number;
   sort?: string;
@@ -283,13 +286,22 @@ export interface ApiGraphResultDto {
 }
 
 export interface ApiGraphSearchCriteria {
+  /** OR filter: APIs where any of these systems appears as producer OR consumer (IT Systems flow) */
   systemIds?: string[] | null;
+  /** Producer filter: APIs where producer is one of these systems */
+  producerSystemIds?: string[] | null;
+  /** Consumer filter: APIs where at least one consumer is in this list */
+  consumerSystemIds?: string[] | null;
   typeIds?: string[] | null;
   transportLayerIds?: string[] | null;
+  integrationPatternIds?: string[] | null;
+  environmentIds?: string[] | null;
+  dataDomainIds?: string[] | null;
   apiTags?: string[] | null;
   systemTags?: string[] | null;
   apiQuery?: string | null;
   systemNameQuery?: string | null;
   statusIds?: string[] | null;
   dataDomainQuery?: string | null;
+  apiIds?: string[] | null;
 }

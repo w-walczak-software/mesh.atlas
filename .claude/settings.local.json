@@ -33,7 +33,12 @@
       "Bash(Select-Object FullName)",
       "Bash(git rm *)",
       "Bash(Select-Object -First 50)",
-      "Bash(npx ng *)"
+      "Bash(npx ng *)",
+      "Bash(Select-Object -First 1)",
+      "Bash(npm run *)",
+      "Bash(Select-Object -First 20)",
+      "Bash(dir /s /b \"C:\\\\DEV\\\\mesh-atlas\\\\backend\\\\src\\\\main\\\\java\")",
+      "Bash(findstr -i \"graph\")"
     ]
   }
 }

@@ -32,11 +32,14 @@ export class ApiService {
     if (params.statusId) p = p.set('statusId', params.statusId);
     if (params.typeId) p = p.set('typeId', params.typeId);
     if (params.transportLayerId) p = p.set('transportLayerId', params.transportLayerId);
-    if (params.producerSystemId) p = p.set('producerSystemId', params.producerSystemId);
-    if (params.consumerSystemId) p = p.set('consumerSystemId', params.consumerSystemId);
+    if (params.producerSystemIds?.length) params.producerSystemIds.forEach(id => { p = p.append('producerSystemIds', id); });
+    if (params.consumerSystemIds?.length) params.consumerSystemIds.forEach(id => { p = p.append('consumerSystemIds', id); });
     if (params.tag) p = p.set('tag', params.tag);
     if (params.environmentId) p = p.set('environmentId', params.environmentId);
     if (params.active !== undefined) p = p.set('active', String(params.active));
+    if (params.description) p = p.set('description', params.description);
+    if (params.integrationPatternId) p = p.set('integrationPatternId', params.integrationPatternId);
+    if (params.dataDomainIds?.length) params.dataDomainIds.forEach(id => { p = p.append('dataDomainIds', id); });
     return this.http.get<Page<ApiSummaryDto>>(this.baseUrl, { params: p });
   }
 

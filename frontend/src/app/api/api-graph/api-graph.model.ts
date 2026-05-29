@@ -19,13 +19,19 @@ export interface SystemNodeData {
 }
 
 export interface ApiEdgeGroupData {
-  /** Unique key: `{producerSystemId}__{consumerSystemId}` */
+  /** Unique key: `{producerSystemId}__{consumerSystemId}__{transportCode}__{directionCode}` */
   edgeKey: string;
   producerSystemId: string;
   consumerSystemId: string;
-  /** Primary transport layer (first API in the group) — used for label display */
+  /** Transport layer shared by all APIs in this group */
   transportLayer: TransportLayerRef | null;
-  /** All APIs on this directed connection, possibly with different transport layers */
+  /** All APIs sharing this transport + direction between the two systems */
   apis: ApiGraphEdgeDto[];
   edgeColor: string;
+  /** Stroke width in px — scales with the number of APIs (min 2, max 6) */
+  strokeWidth: number;
+  /** Vertical bezier control-point offset (px) for rendering parallel edges between the same system pair */
+  parallelOffset: number;
+  /** True when dataFlowDirection = PUSH (Consumer → Producer), so the animation runs backward along the edge */
+  reverseFlow: boolean;
 }

@@ -3,13 +3,18 @@ import { ApiGraphSearchCriteria } from '../model/api.model';
 
 /** Snapshot of the APIs list search form */
 export interface ApiListFormSnapshot {
-  query:            string | null;
-  tag:              string | null;
-  statusId:         string | null;
-  typeId:           string | null;
-  producerSystemId: string | null;
-  environmentId:    string | null;
-  active:           boolean | null;
+  query:               string | null;
+  tag:                 string | null;
+  statusId:            string | null;
+  typeId:              string | null;
+  active:              boolean | null;
+  description:         string | null;
+  producerSystemIds:   string[];
+  consumerSystemIds:   string[];
+  transportLayerId:    string | null;
+  integrationPatternId: string | null;
+  dataDomainIds:       string[];
+  environmentId:       string | null;
 }
 
 /** Full list state: form values + pagination */
@@ -27,6 +32,11 @@ export interface ApiListStateSnapshot {
    * Takes priority over / is merged with form.producerSystemId.
    */
   systemIds?:  string[];
+  /**
+   * Specific API IDs selected via checkboxes in the API Registry.
+   * When present, the graph shows only these APIs (ignores other filters).
+   */
+  apiIds?:     string[];
 }
 
 /**
@@ -57,8 +67,9 @@ export class ApiFilterStateService {
   saveFromItSystems(systemIds: string[]): void {
     this._snapshot.set({
       form: {
-        query: null, tag: null, statusId: null, typeId: null,
-        producerSystemId: null, environmentId: null, active: null,
+        query: null, tag: null, statusId: null, typeId: null, active: null,
+        description: null, producerSystemIds: [], consumerSystemIds: [], transportLayerId: null,
+        integrationPatternId: null, dataDomainIds: [], environmentId: null,
       },
       pageIndex:   0,
       pageSize:    20,
@@ -85,29 +96,47 @@ export class ApiFilterStateService {
     const s = this._snapshot();
     if (!s) return false;
     const f = s.form;
-    return !!(f.query || f.tag || f.statusId || f.typeId ||
-              f.producerSystemId || f.environmentId || f.active !== null ||
-              s.systemIds?.length);
+    return !!(f.query || f.tag || f.statusId || f.typeId || f.active !== null ||
+              f.description || f.transportLayerId || f.integrationPatternId ||
+              f.producerSystemIds?.length || f.consumerSystemIds?.length ||
+              f.dataDomainIds?.length || f.environmentId || s.systemIds?.length);
   }
 
   /**
    * Maps list search fields to ApiGraphSearchCriteria.
-   * Fields without a direct graph-endpoint equivalent are omitted.
+   * When specific apiIds are stored (checked rows from API Registry),
+   * they take priority — other filters are ignored by the graph.
    */
   toGraphCriteria(): ApiGraphSearchCriteria {
     const s = this._snapshot();
     if (!s) return {};
+
+    // Specific API selection wins — graph shows only those APIs
+    if (s.apiIds?.length) {
+      return { apiIds: s.apiIds };
+    }
+
     const f = s.form;
     const out: ApiGraphSearchCriteria = {};
-    if (f.query)  out.apiQuery  = f.query;
-    if (f.tag)    out.apiTags   = [f.tag];
+
+    // Text / basic filters
+    if (f.query)    out.apiQuery  = f.query;
+    if (f.tag)      out.apiTags   = [f.tag];
     if (f.statusId) out.statusIds = [f.statusId];
     if (f.typeId)   out.typeIds   = [f.typeId];
 
-    // Merge direct systemIds + producerSystemId filter
-    const systemIds: string[] = [...(s.systemIds ?? [])];
-    if (f.producerSystemId) systemIds.push(f.producerSystemId);
-    if (systemIds.length) out.systemIds = systemIds;
+    // Single-value filters collapsed to single-element arrays
+    if (f.transportLayerId)    out.transportLayerIds    = [f.transportLayerId];
+    if (f.integrationPatternId) out.integrationPatternIds = [f.integrationPatternId];
+    if (f.environmentId)        out.environmentIds        = [f.environmentId];
+
+    // Multi-value filters (direct pass-through)
+    if (f.producerSystemIds?.length)  out.producerSystemIds = f.producerSystemIds;
+    if (f.consumerSystemIds?.length)  out.consumerSystemIds = f.consumerSystemIds;
+    if (f.dataDomainIds?.length)      out.dataDomainIds     = f.dataDomainIds;
+
+    // IT Systems navigation: OR-logic system filter (producer OR consumer)
+    if (s.systemIds?.length) out.systemIds = s.systemIds;
 
     return out;
   }

@@ -100,8 +100,8 @@ export class ItSystems implements OnInit {
     const effective    = this.effectiveSelected();
     const checked      = this.checkedRows();
     const multiChecked = checked.length > 1;
-    // Graph is available when: ≥1 checkbox checked OR a row is single-clicked (no checkboxes)
-    const graphEnabled = checked.length > 0 || !!this.selectedRow();
+    // Graph is available when the table has any data; checked rows narrow the view, empty = show all
+    const graphEnabled = this.data().length > 0;
 
     return {
       tableId:        'it-systems',
@@ -254,12 +254,9 @@ export class ItSystems implements OnInit {
   }
 
   private openGraph(): void {
-    const checked  = this.checkedRows();
-    const selected = this.selectedRow();
-    // Prefer checked rows; fall back to the single-clicked row when no checkboxes are active
-    const systems = checked.length > 0 ? checked : (selected ? [selected] : []);
-    const ids = systems.map(s => s.id);
-    if (!ids.length) return;
+    if (!this.data().length) return;
+    // Checked rows narrow the graph to those systems; no checkboxes = show all
+    const ids = this.checkedRows().map(s => s.id);
     this.saveState();
     this.apiFilterState.saveFromItSystems(ids);
     this.router.navigate(['/apis/graph']);

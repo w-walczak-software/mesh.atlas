@@ -11,7 +11,9 @@
     "inactiveOnly": "Inactive only",
     "activeLabel": "Activity",
     "reset": "Reset",
-    "search": "Search"
+    "search": "Search",
+    "tabBasic": "Basic",
+    "tabAdvanced": "Advanced"
   },
   "field": {
     "code": "Code",
@@ -148,7 +150,8 @@
   "toolbar": {
     "selectToEdit": "Select an API to edit",
     "selectToDeactivate": "Select an API to deactivate",
-    "alreadyInactive": "API is already inactive"
+    "alreadyInactive": "API is already inactive",
+    "graphSelected": "Show {{ count }} selected API(s) on the Integration Map"
   },
   "tags": {
     "noTags": "No tags added yet."

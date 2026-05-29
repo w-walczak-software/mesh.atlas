@@ -50,14 +50,14 @@ public class ApiSpecification implements Specification<ApiEntity> {
             predicates.add(cb.equal(root.get("transportLayer").get("id"), criteria.transportLayerId()));
         }
 
-        if (criteria.producerSystemId() != null) {
-            predicates.add(cb.equal(root.get("producerSystem").get("id"), criteria.producerSystemId()));
+        if (criteria.producerSystemIds() != null && !criteria.producerSystemIds().isEmpty()) {
+            predicates.add(root.get("producerSystem").get("id").in(criteria.producerSystemIds()));
         }
 
-        if (criteria.consumerSystemId() != null) {
+        if (criteria.consumerSystemIds() != null && !criteria.consumerSystemIds().isEmpty()) {
             query.distinct(true);
             Join<Object, Object> consumerJoin = root.join("consumerSystems", JoinType.INNER);
-            predicates.add(cb.equal(consumerJoin.get("id"), criteria.consumerSystemId()));
+            predicates.add(consumerJoin.get("id").in(criteria.consumerSystemIds()));
         }
 
         if (criteria.active() != null) {
@@ -77,6 +77,21 @@ public class ApiSpecification implements Specification<ApiEntity> {
             query.distinct(true);
             Join<Object, Object> envJoin = root.join("environments", JoinType.INNER);
             predicates.add(cb.equal(envJoin.get("id"), criteria.environmentId()));
+        }
+
+        if (StringUtils.hasText(criteria.description())) {
+            String pattern = "%" + criteria.description().toLowerCase() + "%";
+            predicates.add(cb.like(cb.lower(root.get("description")), pattern));
+        }
+
+        if (criteria.integrationPatternId() != null) {
+            predicates.add(cb.equal(root.get("integrationPattern").get("id"), criteria.integrationPatternId()));
+        }
+
+        if (criteria.dataDomainIds() != null && !criteria.dataDomainIds().isEmpty()) {
+            query.distinct(true);
+            Join<Object, Object> ddJoin = root.join("dataDomains", JoinType.INNER);
+            predicates.add(ddJoin.get("id").in(criteria.dataDomainIds()));
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));

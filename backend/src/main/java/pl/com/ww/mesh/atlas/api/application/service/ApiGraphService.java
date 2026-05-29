@@ -70,12 +70,42 @@ public class ApiGraphService {
 
             predicates.add(cb.equal(root.get("active"), true));
 
+            if (!CollectionUtils.isEmpty(criteria.apiIds())) {
+                predicates.add(root.get("id").in(criteria.apiIds()));
+            }
+
             if (!CollectionUtils.isEmpty(criteria.systemIds())) {
                 Predicate producerIn = root.get("producerSystem").get("id").in(criteria.systemIds());
                 Join<ApiEntity, ItSystemEntity> consumerJoin = root.join("consumerSystems", JoinType.LEFT);
                 Predicate consumerIn = consumerJoin.get("id").in(criteria.systemIds());
                 predicates.add(cb.or(producerIn, consumerIn));
                 query.distinct(true);
+            }
+
+            if (!CollectionUtils.isEmpty(criteria.producerSystemIds())) {
+                predicates.add(root.get("producerSystem").get("id").in(criteria.producerSystemIds()));
+            }
+
+            if (!CollectionUtils.isEmpty(criteria.consumerSystemIds())) {
+                query.distinct(true);
+                Join<ApiEntity, ItSystemEntity> consumerJoin = root.join("consumerSystems", JoinType.INNER);
+                predicates.add(consumerJoin.get("id").in(criteria.consumerSystemIds()));
+            }
+
+            if (!CollectionUtils.isEmpty(criteria.integrationPatternIds())) {
+                predicates.add(root.get("integrationPattern").get("id").in(criteria.integrationPatternIds()));
+            }
+
+            if (!CollectionUtils.isEmpty(criteria.environmentIds())) {
+                query.distinct(true);
+                Join<ApiEntity, Object> envJoin = root.join("environments", JoinType.INNER);
+                predicates.add(envJoin.get("id").in(criteria.environmentIds()));
+            }
+
+            if (!CollectionUtils.isEmpty(criteria.dataDomainIds())) {
+                query.distinct(true);
+                Join<ApiEntity, Object> ddJoin = root.join("dataDomains", JoinType.INNER);
+                predicates.add(ddJoin.get("id").in(criteria.dataDomainIds()));
             }
 
             if (!CollectionUtils.isEmpty(criteria.typeIds())) {

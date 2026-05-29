@@ -12,7 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
+import { ItSystemSelectComponent } from '@shared/it-system-select/it-system-select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -22,7 +22,6 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
 import { HistoryService } from '@shared/history/history.service';
-import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
 import { TransportLayerService } from '../service/transport-layer.service';
 import { TransportLayerDto } from '../model/transport-layer.model';
@@ -40,10 +39,10 @@ import {
     MatCardModule,
     MatFormFieldModule,
     MatInputModule,
-    MatSelectModule,
     MatIconModule,
     MatDialogModule,
     MatTooltipModule,
+    ItSystemSelectComponent,
   ],
   providers: [provideTranslocoScope('transportlayer')],
   templateUrl: './transport-layer-form.html',
@@ -53,7 +52,6 @@ import {
 export class TransportLayerForm implements OnInit {
   private readonly service = inject(TransportLayerService);
   private readonly historyService = inject(HistoryService);
-  private readonly itSystemService = inject(ItSystemService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
@@ -68,19 +66,11 @@ export class TransportLayerForm implements OnInit {
   protected readonly saving = signal(false);
   protected readonly loading = signal(false);
   protected readonly layer = signal<TransportLayerDto | null>(null);
-  protected readonly itSystems = signal<ItSystemSummaryDto[]>([]);
   protected readonly icon = signal<string | null>(null);
   protected readonly color = signal<string | null>(null);
+  protected readonly selectedItSystem = signal<ItSystemSummaryDto | null>(null);
 
-  protected readonly selectedItSystem = computed(() => {
-    const id = this.form.controls.itSystemId.value;
-    return this.itSystems().find(s => s.id === id) ?? null;
-  });
-
-  protected readonly effectiveIcon = computed(() => {
-    const sys = this.selectedItSystem();
-    return sys?.icon ?? this.icon();
-  });
+  protected readonly effectiveIcon = computed(() => this.selectedItSystem()?.icon ?? this.icon());
 
   protected readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.maxLength(100),
@@ -90,8 +80,11 @@ export class TransportLayerForm implements OnInit {
     itSystemId: [null as string | null],
   });
 
+  protected onItSystemChange(sys: ItSystemSummaryDto | ItSystemSummaryDto[] | null): void {
+    this.selectedItSystem.set(Array.isArray(sys) ? null : sys);
+  }
+
   ngOnInit(): void {
-    this.loadItSystems();
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.layerId.set(id);
@@ -209,12 +202,6 @@ export class TransportLayerForm implements OnInit {
         this.router.navigate(['/transport-layers']);
       },
     });
-  }
-
-  private loadItSystems(): void {
-    this.itSystemService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
-      page => this.itSystems.set(page.content),
-    );
   }
 
   private buildFieldLabels(): Record<string, string> {

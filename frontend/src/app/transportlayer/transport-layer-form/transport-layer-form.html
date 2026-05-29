@@ -149,20 +149,10 @@
           </div>
 
           <div class="card-body">
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('transportlayer.field.itSystem') }}</mat-label>
-              <mat-select formControlName="itSystemId">
-                <mat-option [value]="null">{{ t('transportlayer.itSystemNone') }}</mat-option>
-                @for (sys of itSystems(); track sys.id) {
-                  <mat-option [value]="sys.id">
-                    @if (sys.icon) {
-                      <mat-icon>{{ sys.icon }}</mat-icon>
-                    }
-                    {{ sys.code }} – {{ sys.name }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <app-it-system-select
+              formControlName="itSystemId"
+              [label]="t('transportlayer.field.itSystem')"
+              (systemChange)="onItSystemChange($event)" />
 
             @if (selectedItSystem()?.icon) {
               <p class="field-note">

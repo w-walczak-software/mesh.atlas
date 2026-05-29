@@ -92,7 +92,7 @@
     "selectToDeactivate": "Select a row to deactivate",
     "alreadyInactive": "This system is already inactive",
     "multipleChecked": "Multiple systems selected — editing and deactivation unavailable",
-    "selectForGraph": "Check at least one system to view on the Integration Map"
+    "selectForGraph": "No systems in the table to display on the Integration Map"
   },
   "confirm": {
     "deactivate": "Are you sure you want to deactivate this IT system? It will no longer appear in active system lists.",

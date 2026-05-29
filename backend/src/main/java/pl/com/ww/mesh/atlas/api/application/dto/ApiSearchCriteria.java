@@ -1,5 +1,6 @@
 package pl.com.ww.mesh.atlas.api.application.dto;
 
+import java.util.List;
 import java.util.UUID;
 
 public record ApiSearchCriteria(
@@ -8,8 +9,11 @@ public record ApiSearchCriteria(
         UUID typeId,
         UUID transportLayerId,
         Boolean active,
-        UUID producerSystemId,
-        UUID consumerSystemId,
+        List<UUID> producerSystemIds,
+        List<UUID> consumerSystemIds,
         String tag,
-        UUID environmentId
+        UUID environmentId,
+        String description,
+        UUID integrationPatternId,
+        List<UUID> dataDomainIds
 ) {}
