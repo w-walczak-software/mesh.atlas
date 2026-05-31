@@ -102,6 +102,7 @@ export interface ApiDto {
   tags: string[] | null;
   dataDomains: DataDomainRef[];
   environments: DictionaryEntryRef[];
+  externalId: string | null;
   active: boolean;
   createdAt: string;
   createdBy: string;
@@ -110,7 +111,7 @@ export interface ApiDto {
 }
 
 export interface ApiCreateRequest {
-  code: string;
+  code: string | null;
   name: string;
   description: string | null;
   apiVersion: string | null;
@@ -136,6 +137,7 @@ export interface ApiCreateRequest {
   tags: string[] | null;
   dataDomainIds: string[] | null;
   environmentIds: string[] | null;
+  externalId: string | null;
 }
 
 export interface ApiUpdateRequest {
@@ -164,6 +166,7 @@ export interface ApiUpdateRequest {
   tags: string[] | null;
   dataDomainIds: string[] | null;
   environmentIds: string[] | null;
+  externalId: string | null;
 }
 
 export interface ApiOwnerCreateRequest {
@@ -242,6 +245,18 @@ export interface ApiSearchParams {
   page?: number;
   size?: number;
   sort?: string;
+}
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+
+export interface ApiStatsDto {
+  total: number;
+  active: number;
+  inactive: number;
+  addedLastMonth: number;
+  withSla: number;
+  withDocumentation: number;
+  withVersion: number;
 }
 
 // ── Graph ──────────────────────────────────────────────────────────────────────

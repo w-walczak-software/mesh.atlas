@@ -31,6 +31,8 @@
     "scope": "System Scope",
     "tags": "Tags",
     "icon": "Icon",
+    "externalId": "External ID",
+    "externalIdHint": "Identifier from external source system (e.g. CMDB)",
     "active": "Active"
   },
   "iconPicker": {

@@ -48,10 +48,10 @@
             <div class="field-row field-row--code-name">
               <mat-form-field appearance="outline">
                 <mat-label>{{ t('api.field.code') }}</mat-label>
-                <input matInput formControlName="code" [attr.aria-required]="true" />
+                <input matInput formControlName="code" />
                 <mat-icon matSuffix>tag</mat-icon>
-                @if (form.controls.code.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
+                @if (!isEditMode()) {
+                  <mat-hint>{{ t('api.field.codeHint') }}</mat-hint>
                 }
                 @if (form.controls.code.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
@@ -72,6 +72,16 @@
                 }
               </mat-form-field>
             </div>
+
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ t('api.field.externalId') }}</mat-label>
+              <input matInput formControlName="externalId" />
+              <mat-icon matSuffix>link</mat-icon>
+              <mat-hint>{{ t('api.field.externalIdHint') }}</mat-hint>
+              @if (form.controls.externalId.errors?.['maxlength']) {
+                <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
+              }
+            </mat-form-field>
 
             <mat-form-field appearance="outline" class="field-full">
               <mat-label>{{ t('api.field.description') }}</mat-label>

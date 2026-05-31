@@ -319,6 +319,15 @@ html[data-theme='dark'] {
   gap: 8px;
 }
 
+// === File viewer fullscreen dialog ===
+.viewer-fullscreen-panel {
+  .mat-mdc-dialog-container,
+  .mdc-dialog__container,
+  .mdc-dialog__surface {
+    border-radius: 12px !important;
+  }
+}
+
 // Global scrollbar
 ::-webkit-scrollbar {
   width: 6px;

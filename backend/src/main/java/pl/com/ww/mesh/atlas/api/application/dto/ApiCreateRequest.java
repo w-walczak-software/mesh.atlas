@@ -11,7 +11,6 @@ import java.util.UUID;
 
 public record ApiCreateRequest(
 
-        @NotBlank
         @Size(max = 100)
         @Pattern(regexp = "^[A-Z][A-Z0-9_-]*$",
                 message = "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores, or hyphens")
@@ -63,5 +62,8 @@ public record ApiCreateRequest(
 
         List<String> tags,
         List<UUID> dataDomainIds,
-        List<UUID> environmentIds
+        List<UUID> environmentIds,
+
+        @Size(max = 50)
+        String externalId
 ) {}

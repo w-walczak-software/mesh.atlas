@@ -42,6 +42,9 @@
     "contractUrl": "URL kontraktu",
     "documentationUrl": "URL dokumentacji",
     "tags": "Tagi",
+    "externalId": "ID zewnętrzny",
+    "externalIdHint": "Identyfikator obiektu w systemie źródłowym (np. CMDB)",
+    "codeHint": "Pozostaw puste, aby wygenerować automatycznie na podstawie systemu producenta i transportu",
     "dataDomains": "Domeny danych",
     "domainGroup": "Filtruj po grupie",
     "domainGroupNone": "Bez grupy",
@@ -86,7 +89,9 @@
     "attachmentStatus": "Status",
     "fileSize": "Rozmiar",
     "uploadedAt": "Data dodania",
-    "noAttachments": "Brak załączników."
+    "noAttachments": "Brak załączników.",
+    "preview": "Podgląd",
+    "autoDetected": "Wykryto automatycznie: {{ name }}"
   },
   "badge": {
     "active": "Aktywne",
@@ -102,7 +107,8 @@
     "history": "Historia zmian",
     "addTag": "Dodaj tag",
     "removeTag": "Usuń tag",
-    "graph": "Mapa integracji"
+    "graph": "Mapa integracji",
+    "docs": "Dokumentacja"
   },
   "graph": {
     "title": "Mapa integracji",
@@ -152,7 +158,17 @@
     "selectToEdit": "Wybierz API do edycji",
     "selectToDeactivate": "Wybierz API do dezaktywacji",
     "alreadyInactive": "API jest już nieaktywne",
-    "graphSelected": "Pokaż {{ count }} zaznaczone API na mapie integracji"
+    "graphSelected": "Pokaż {{ count }} zaznaczone API na mapie integracji",
+    "selectToViewDocs": "Wybierz API, aby wyświetlić dokumentację"
+  },
+  "docs": {
+    "title": "Dokumentacja API",
+    "contractSection": "Kontrakt i dokumentacja",
+    "attachmentsSection": "Załączniki",
+    "noContractInfo": "Brak zdefiniowanych linków do kontraktu lub dokumentacji."
+  },
+  "viewer": {
+    "loadError": "Nie udało się załadować dokumentu. Spróbuj pobrać plik bezpośrednio."
   },
   "tags": {
     "noTags": "Nie dodano żadnych tagów."

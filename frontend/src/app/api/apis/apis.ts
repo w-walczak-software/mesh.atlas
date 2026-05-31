@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } 
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
@@ -25,6 +26,7 @@ import { DataDomainService } from '../../datadomain/service/data-domain.service'
 import { ApiService } from '../service/api.service';
 import { ApiSearchParams, ApiSummaryDto } from '../model/api.model';
 import { ApiFilterStateService } from '../service/api-filter-state.service';
+import { ApiDocumentationDialog, ApiDocumentationDialogData } from '../api-documentation-dialog/api-documentation-dialog';
 
 @Component({
   selector: 'app-apis',
@@ -33,6 +35,7 @@ import { ApiFilterStateService } from '../service/api-filter-state.service';
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,
+    MatDialogModule,
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
@@ -58,6 +61,7 @@ export class Apis implements OnInit {
   private readonly t = inject(TranslocoService);
   private readonly fb = inject(FormBuilder);
   private readonly filterState = inject(ApiFilterStateService);
+  private readonly dialog      = inject(MatDialog);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly canWrite = computed(() =>
@@ -71,8 +75,10 @@ export class Apis implements OnInit {
   protected readonly selectedRow = signal<ApiSummaryDto | null>(null);
   protected readonly checkedRows = signal<ApiSummaryDto[]>([]);
   private readonly totalItems = signal(0);
-  private readonly pageIndex = signal(0);
+  protected readonly pageIndex = signal(0);
   private readonly pageSize = signal(20);
+  private pendingSelectId: string | null = null;
+  private readonly MAX_SCAN_PAGES = 50;
 
   protected readonly statuses = signal<DictionaryEntryDto[]>([]);
   protected readonly types = signal<DictionaryEntryDto[]>([]);
@@ -105,6 +111,14 @@ export class Apis implements OnInit {
               (v.producerSystemIds as string[] | null)?.length ||
               (v.consumerSystemIds as string[] | null)?.length || v.environmentId);
   });
+
+  protected openDocumentation(row: ApiSummaryDto): void {
+    this.dialog.open(ApiDocumentationDialog, {
+      data: { apiId: row.id, apiCode: row.code, apiName: row.name } satisfies ApiDocumentationDialogData,
+      width: '680px',
+      maxWidth: '95vw',
+    });
+  }
 
   protected goToGraph(): void {
     const checked = this.checkedRows();
@@ -192,6 +206,13 @@ export class Apis implements OnInit {
           tooltip: graphTip,
           action:  () => this.goToGraph(),
         },
+        {
+          label:    this.t.translate('api.action.docs'),
+          icon:     'description',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('api.toolbar.selectToViewDocs') : undefined,
+          action:   () => { if (selected) this.openDocumentation(selected); },
+        },
         ...(this.canWrite() ? [
         {
           label: this.t.translate('api.action.new'),
@@ -240,6 +261,14 @@ export class Apis implements OnInit {
 
   ngOnInit(): void {
     this.loadDictionaries();
+
+    const selectId = (history.state as { selectId?: string })?.selectId;
+    if (selectId) {
+      this.pendingSelectId = selectId;
+      this.pageIndex.set(0);
+      this.load();
+      return;
+    }
 
     // Restore state when returning from the Integration Map
     const saved = this.filterState.snapshot();
@@ -330,9 +359,32 @@ export class Apis implements OnInit {
         this.data.set(page.content);
         this.totalItems.set(page.totalElements);
         this.loading.set(false);
+        if (this.pendingSelectId) {
+          this.resolvePendingSelect(page.totalPages);
+        }
       },
-      error: () => this.loading.set(false),
+      error: () => {
+        this.loading.set(false);
+        this.pendingSelectId = null;
+      },
     });
+  }
+
+  private resolvePendingSelect(totalPages: number): void {
+    const id = this.pendingSelectId;
+    if (!id) return;
+    const found = this.data().find(r => r.id === id);
+    if (found) {
+      this.selectedRow.set(found);
+      this.pendingSelectId = null;
+      return;
+    }
+    if (this.pageIndex() < totalPages - 1 && this.pageIndex() < this.MAX_SCAN_PAGES - 1) {
+      this.pageIndex.set(this.pageIndex() + 1);
+      this.load();
+    } else {
+      this.pendingSelectId = null;
+    }
   }
 
   private loadDictionaries(): void {

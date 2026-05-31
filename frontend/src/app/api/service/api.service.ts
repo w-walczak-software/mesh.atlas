@@ -13,6 +13,7 @@ import {
   ApiOwnerDto,
   ApiOwnerUpdateRequest,
   ApiSearchParams,
+  ApiStatsDto,
   ApiSummaryDto,
   ApiUpdateRequest,
   Page,
@@ -124,5 +125,9 @@ export class ApiService {
 
   findGraph(criteria: ApiGraphSearchCriteria = {}): Observable<ApiGraphResultDto> {
     return this.http.post<ApiGraphResultDto>(`${this.baseUrl}/graph/search`, criteria);
+  }
+
+  getStats(): Observable<ApiStatsDto> {
+    return this.http.get<ApiStatsDto>(`${this.baseUrl}/stats`);
   }
 }

@@ -126,9 +126,10 @@ export class ApiForm implements OnInit {
   protected readonly tags = signal<string[]>([]);
 
   protected readonly form = this.fb.group({
-    code: ['', [Validators.required, Validators.maxLength(100),
+    code: ['', [Validators.maxLength(100),
       Validators.pattern('^[A-Z][A-Z0-9_-]*$')]],
     name: ['', [Validators.required, Validators.maxLength(300)]],
+    externalId: ['', Validators.maxLength(50)],
     description: ['', Validators.maxLength(4000)],
     apiVersion: ['', Validators.maxLength(100)],
     statusId: [null as string | null, Validators.required],
@@ -273,7 +274,7 @@ export class ApiForm implements OnInit {
       width: '600px',
       maxWidth: '95vw',
       data: {
-        fileName:           file.name,
+        file,
         contractTypes:      this.contractTypes(),
         attachmentStatuses: this.attachmentStatuses(),
       } satisfies ApiUploadDialogData,
@@ -409,6 +410,7 @@ export class ApiForm implements OnInit {
       tags: this.tags().length ? this.tags() : null,
       dataDomainIds: (v.dataDomainIds ?? []).length ? v.dataDomainIds : null,
       environmentIds: (v.environmentIds ?? []).length ? v.environmentIds : null,
+      externalId: v.externalId || null,
     };
 
     if (this.isEditMode()) {
@@ -424,7 +426,7 @@ export class ApiForm implements OnInit {
         },
       });
     } else {
-      this.service.create({ ...payload, code: v.code! }).subscribe({
+      this.service.create({ ...payload, code: v.code || null }).subscribe({
         next: (created) => this.persistPendingOwners(created),
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
@@ -573,6 +575,7 @@ export class ApiForm implements OnInit {
           documentationUrl: api.documentationUrl ?? '',
           dataDomainIds: api.dataDomains.map(d => d.id),
           environmentIds: (api.environments ?? []).map(e => e.id),
+          externalId: api.externalId ?? '',
         });
         this.form.controls.code.disable();
         this.loading.set(false);

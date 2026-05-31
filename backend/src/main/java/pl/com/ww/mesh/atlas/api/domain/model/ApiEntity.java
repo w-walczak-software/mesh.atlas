@@ -222,6 +222,9 @@ public class ApiEntity extends AuditableEntity {
     @Builder.Default
     private Set<ItSystemEntity> consumerSystems = new LinkedHashSet<>();
 
+    @Column(name = "external_id", length = 50)
+    private String externalId;
+
     @Column(name = "active", nullable = false)
     private boolean active;
 }

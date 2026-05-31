@@ -27,8 +27,28 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "redoc.standalone.js",
+                "input": "node_modules/redoc/bundles",
+                "output": "redoc"
+              },
+              {
+                "glob": "asyncapi-web-component.js",
+                "input": "node_modules/@asyncapi/web-component/lib",
+                "output": "asyncapi"
+              },
+              {
+                "glob": "default.min.css",
+                "input": "node_modules/@asyncapi/react-component/styles",
+                "output": "asyncapi"
               }
             ],
+            "loader": {
+              ".ttf": "file",
+              ".woff": "file",
+              ".woff2": "file"
+            },
             "styles": [
               "src/styles.scss"
             ]

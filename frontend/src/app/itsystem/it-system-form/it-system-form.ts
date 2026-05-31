@@ -100,6 +100,7 @@ export class ItSystemForm implements OnInit {
     code: ['', [Validators.required, Validators.maxLength(100),
       Validators.pattern('^[A-Z][A-Z0-9_-]*$')]],
     name: ['', [Validators.required, Validators.maxLength(300)]],
+    externalId: ['', Validators.maxLength(50)],
     description: ['', Validators.maxLength(4000)],
     documentationUrl: ['', Validators.maxLength(2000)],
     repositoryUrl: ['', Validators.maxLength(2000)],
@@ -232,6 +233,7 @@ export class ItSystemForm implements OnInit {
         tags: this.tags().length ? this.tags() : null,
         metadata: null,
         icon: this.icon() || null,
+        externalId: v.externalId || null,
       }).subscribe({
         next: () => {
           this.saving.set(false);
@@ -262,6 +264,7 @@ export class ItSystemForm implements OnInit {
         tags: this.tags().length ? this.tags() : null,
         metadata: null,
         icon: this.icon() || null,
+        externalId: v.externalId || null,
       }).subscribe({
         next: (created) => this.persistPendingOwners(created),
         error: (err: HttpErrorResponse) => {
@@ -390,6 +393,7 @@ export class ItSystemForm implements OnInit {
         this.form.patchValue({
           code: sys.code,
           name: sys.name,
+          externalId: sys.externalId ?? '',
           description: sys.description ?? '',
           documentationUrl: sys.documentationUrl ?? '',
           repositoryUrl: sys.repositoryUrl ?? '',

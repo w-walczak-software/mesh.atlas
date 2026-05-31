@@ -36,6 +36,7 @@ public record ApiDto(
         List<String> tags,
         List<DataDomainRefDto> dataDomains,
         List<DictionaryEntryRefDto> environments,
+        String externalId,
         boolean active,
         LocalDateTime createdAt,
         String createdBy,

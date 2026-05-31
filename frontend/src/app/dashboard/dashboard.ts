@@ -1,32 +1,36 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
+import { Router } from '@angular/router';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { MatChipsModule } from '@angular/material/chips';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
-import { DialogService } from '@shared/dialogs/dialog.service';
-import { ToastService } from '@shared/toast/toast.service';
 import { DataTable } from '@shared/data-table/data-table';
 import { TableConfig } from '@shared/data-table/data-table.models';
-import { HelloService } from '@service/hello.service';
+import { ApiService } from '../api/service/api.service';
+import { ApiSummaryDto } from '../api/model/api.model';
 import { ItSystemService } from '../itsystem/service/itsystem.service';
 
 interface KpiCard {
   labelKey: string;
   value: string;
-  delta: string;
+  deltaKey: string;
+  deltaParams: Record<string, unknown>;
   positive: boolean;
   icon: string;
   color: 'primary' | 'secondary' | 'tertiary' | 'error' | 'surface';
 }
 
-interface RecentApi {
-  name: string;
-  version: string;
-  environment: string;
-  status: 'active' | 'deprecated' | 'draft';
-  calls: string;
+interface CoverageItem {
+  labelKey: string;
+  pct: number;
+  warn: boolean;
 }
 
 @Component({
@@ -35,7 +39,7 @@ interface RecentApi {
     MatCardModule,
     MatIconModule,
     MatButtonModule,
-    MatChipsModule,
+    MatProgressSpinnerModule,
     DataTable,
     TranslocoDirective,
   ],
@@ -45,313 +49,146 @@ interface RecentApi {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Dashboard {
-  private readonly dialog = inject(DialogService);
-  private readonly toast = inject(ToastService);
-  private readonly t = inject(TranslocoService);
-  private readonly cdr = inject(ChangeDetectorRef);
-
-  private readonly hello = inject(HelloService);
+  private readonly t  = inject(TranslocoService);
+  private readonly router = inject(Router);
+  private readonly apiService = inject(ApiService);
   private readonly itSystemService = inject(ItSystemService);
-  private readonly itSystemStats = toSignal(this.itSystemService.getStats(), { initialValue: null });
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
 
-  constructor() {
-    this.t.langChanges$.pipe(takeUntilDestroyed()).subscribe(() => this.cdr.markForCheck());
-  }
+  private readonly apiStats     = toSignal(this.apiService.getStats(),         { initialValue: null });
+  private readonly itStats      = toSignal(this.itSystemService.getStats(),     { initialValue: null });
+  private readonly recentPage   = toSignal(
+    this.apiService.findAll({ page: 0, size: 10, sort: 'createdAt,desc' }),
+    { initialValue: null },
+  );
+
+  protected readonly loading = computed(() => this.apiStats() === null || this.itStats() === null);
+
+  // ── KPI cards ──────────────────────────────────────────────────────────────
 
   protected readonly kpis = computed<KpiCard[]>(() => {
-    const stats = this.itSystemStats();
+    const api = this.apiStats();
+    const it  = this.itStats();
+    const pct = api && api.total > 0 ? Math.round((api.active / api.total) * 100) : 0;
+
     return [
-      { labelKey: 'dashboard.kpi.registeredApis', value: '142', delta: '+8 this month', positive: true, icon: 'api', color: 'primary' },
       {
-        labelKey: 'dashboard.kpi.itSystems',
-        value: stats ? stats.total.toString() : '—',
-        delta: stats
-          ? (stats.addedLastMonth > 0 ? `+${stats.addedLastMonth} this month` : 'no new this month')
-          : '',
-        positive: (stats?.addedLastMonth ?? 0) > 0,
-        icon: 'dns',
-        color: 'surface',
+        labelKey:   'dashboard.kpi.registeredApis',
+        value:      api ? api.total.toString() : '—',
+        deltaKey:   api?.addedLastMonth ? 'dashboard.kpi.deltaAdded' : 'dashboard.kpi.deltaNoNew',
+        deltaParams: { n: api?.addedLastMonth ?? 0 },
+        positive:   (api?.addedLastMonth ?? 0) > 0,
+        icon:       'api',
+        color:      'primary',
       },
-      { labelKey: 'dashboard.kpi.activeEnvironments', value: '12', delta: '+1 this week', positive: true, icon: 'cloud', color: 'secondary' },
-      { labelKey: 'dashboard.kpi.apiConsumers', value: '1 847', delta: '+124 this month', positive: true, icon: 'group', color: 'tertiary' },
-      { labelKey: 'dashboard.kpi.deprecatedApis', value: '23', delta: '−5 since last month', positive: false, icon: 'warning', color: 'error' },
+      {
+        labelKey:   'dashboard.kpi.activeApis',
+        value:      api ? api.active.toString() : '—',
+        deltaKey:   'dashboard.kpi.deltaActivePct',
+        deltaParams: { pct },
+        positive:   pct >= 80,
+        icon:       'check_circle',
+        color:      'secondary',
+      },
+      {
+        labelKey:   'dashboard.kpi.itSystems',
+        value:      it ? it.total.toString() : '—',
+        deltaKey:   it?.addedLastMonth ? 'dashboard.kpi.deltaAdded' : 'dashboard.kpi.deltaNoNew',
+        deltaParams: { n: it?.addedLastMonth ?? 0 },
+        positive:   (it?.addedLastMonth ?? 0) > 0,
+        icon:       'dns',
+        color:      'surface',
+      },
+      {
+        labelKey:   'dashboard.kpi.inactiveApis',
+        value:      api ? api.inactive.toString() : '—',
+        deltaKey:   'dashboard.kpi.deltaOfTotal',
+        deltaParams: { total: api?.total ?? 0 },
+        positive:   false,
+        icon:       'warning',
+        color:      'error',
+      },
     ];
   });
 
-  protected readonly recentApis: RecentApi[] = [
-    {
-      name: 'Payments Gateway',
-      version: 'v3.1.0',
-      environment: 'Production',
-      status: 'active',
-      calls: '1.2M / day',
-    },
-    {
-      name: 'User Identity',
-      version: 'v2.0.4',
-      environment: 'Production',
-      status: 'active',
-      calls: '856K / day',
-    },
-    {
-      name: 'Inventory Service',
-      version: 'v1.5.2',
-      environment: 'Staging',
-      status: 'active',
-      calls: '42K / day',
-    },
-    {
-      name: 'Notifications API',
-      version: 'v4.0.0-beta',
-      environment: 'Development',
-      status: 'draft',
-      calls: '—',
-    },
-    {
-      name: 'Legacy Orders',
-      version: 'v1.0.0',
-      environment: 'Production',
-      status: 'deprecated',
-      calls: '12K / day',
-    },
-    {
-      name: 'Analytics Hub',
-      version: 'v2.3.1',
-      environment: 'Production',
-      status: 'active',
-      calls: '320K / day',
-    },
-    {
-      name: 'Billing Service',
-      version: 'v1.8.0',
-      environment: 'Production',
-      status: 'active',
-      calls: '95K / day',
-    },
-    {
-      name: 'Search API',
-      version: 'v3.0.2',
-      environment: 'Staging',
-      status: 'active',
-      calls: '210K / day',
-    },
-    {
-      name: 'Config Manager',
-      version: 'v1.2.0',
-      environment: 'Development',
-      status: 'draft',
-      calls: '—',
-    },
-    {
-      name: 'Report Exporter',
-      version: 'v1.0.3',
-      environment: 'Production',
-      status: 'deprecated',
-      calls: '8K / day',
-    },
-    {
-      name: 'Media CDN',
-      version: 'v4.1.0',
-      environment: 'Production',
-      status: 'active',
-      calls: '2.1M / day',
-    },
-    {
-      name: 'Event Bus',
-      version: 'v2.0.0',
-      environment: 'Staging',
-      status: 'active',
-      calls: '560K / day',
-    },
-  ];
+  // ── Coverage ───────────────────────────────────────────────────────────────
 
-  protected readonly apiTableConfig = computed<TableConfig<RecentApi>>(() => {
-    this.lang(); // reactive: rebuild when language changes
-    const tr = (key: string, params?: Record<string, unknown>) =>
-      this.t.translate<string>(key, params);
+  protected readonly coverage = computed<CoverageItem[]>(() => {
+    const api = this.apiStats();
+    const total = api?.total ?? 0;
+    const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0;
+    return [
+      { labelKey: 'dashboard.coverage.documented', pct: pct(api?.withDocumentation ?? 0), warn: pct(api?.withDocumentation ?? 0) < 70 },
+      { labelKey: 'dashboard.coverage.versioned',  pct: pct(api?.withVersion       ?? 0), warn: pct(api?.withVersion       ?? 0) < 70 },
+      { labelKey: 'dashboard.coverage.withSla',    pct: pct(api?.withSla           ?? 0), warn: pct(api?.withSla           ?? 0) < 50 },
+    ];
+  });
+
+  // ── Recent APIs table ──────────────────────────────────────────────────────
+
+  protected readonly recentApis = computed<ApiSummaryDto[]>(() =>
+    this.recentPage()?.content ?? [],
+  );
+
+  protected readonly recentTableConfig = computed<TableConfig<ApiSummaryDto>>(() => {
+    this.lang(); // rebuild on language change
+    const tr = (key: string) => this.t.translate<string>(key);
 
     return {
-      tableId: 'recent-apis',
-      showFilter: true,
-      showCheckboxes: false,
-      pagination: {
-        mode: 'frontend',
-        pageSize: 5,
-        pageSizeOptions: [5, 10, 25],
-      },
+      tableId:         'dashboard-recent-apis',
+      showFilter:      false,
+      showCheckboxes:  false,
+      pagination: { mode: 'frontend', pageSize: 10 },
       columns: [
-        { key: 'name', label: tr('dashboard.table.apiName'), sortable: true },
-        { key: 'version', label: tr('dashboard.table.version'), sortable: true },
         {
-          key: 'environment',
-          label: tr('dashboard.table.environment'),
+          key:      'name',
+          label:    tr('dashboard.table.name'),
           sortable: true,
-          icons: {
-            Production: { name: 'cloud', color: 'success', label: 'Production' },
-            Staging: { name: 'science', color: 'warn', label: 'Staging' },
-            Development: { name: 'computer', color: 'secondary', label: 'Development' },
-          },
+          cellRender: (row) => ({ text: row.name }),
         },
         {
-          key: 'status',
-          label: tr('dashboard.table.status'),
-          sortable: true,
-          badges: {
-            active: { color: 'success', label: 'Active' },
-            deprecated: { color: 'error', label: 'Deprecated' },
-            draft: { color: 'neutral', label: 'Draft' },
-          },
-        },
-        { key: 'calls', label: tr('dashboard.table.traffic'), sortable: false },
-      ],
-      rowClick: (row) =>
-        this.toast.info(tr('dashboard.actions.rowSelected'), `${row.name} (${row.version})`),
-      rowDblClick: (row) =>
-        this.dialog.info(
-          tr('dashboard.actions.apiDetails'),
-          tr('dashboard.actions.apiDetailsBody', {
-            name: row.name,
-            version: row.version,
-            environment: row.environment,
-            status: row.status,
-            calls: row.calls,
+          key:      'status',
+          label:    tr('dashboard.table.status'),
+          sortable: false,
+          cellRender: (row) => ({
+            badge: row.status
+              ? { label: row.status.name, color: this.statusColor(row.status.code) }
+              : undefined,
           }),
-        ),
-      rowStyle: (row): Record<string, string> => {
-        if (row.status === 'deprecated') return { opacity: '0.65' };
-        if (row.status === 'draft') return { fontStyle: 'italic' };
-        return {};
-      },
-      actions: [
-        {
-          label: tr('dashboard.actions.view'),
-          icon: 'open_in_new',
-          action: (row) =>
-            this.dialog.info(
-              row.name,
-              `${row.version} · ${row.environment}\nStatus: ${row.status}\nTraffic: ${row.calls}`,
-            ),
         },
         {
-          label: tr('dashboard.actions.edit'),
-          icon: 'edit',
-          color: 'primary',
-          disabled: (row) => row.status === 'deprecated',
-          action: (row) =>
-            this.toast.info(
-              tr('dashboard.actions.edit'),
-              tr('dashboard.actions.editOpening', { name: row.name }),
-            ),
+          key:      'type',
+          label:    tr('dashboard.table.type'),
+          sortable: false,
+          cellRender: (row) => ({ text: row.type?.name ?? '—' }),
         },
         {
-          label: tr('dashboard.actions.deprecate'),
-          icon: 'warning',
-          color: 'warn',
-          visible: (row) => row.status === 'active',
-          action: (row) =>
-            this.dialog.question(
-              tr('dashboard.actions.deprecateTitle'),
-              tr('dashboard.actions.deprecateConfirm', { name: row.name }),
-              () =>
-                this.toast.warn(
-                  tr('dashboard.actions.deprecatedTitle'),
-                  tr('dashboard.actions.deprecatedMsg', { name: row.name }),
-                ),
-            ),
+          key:      'producerSystem',
+          label:    tr('dashboard.table.producer'),
+          sortable: false,
+          cellRender: (row) => ({ text: row.producerSystem?.name ?? '—' }),
         },
         {
-          label: tr('dashboard.actions.delete'),
-          icon: 'delete',
-          color: 'error',
-          visible: (row) => row.status !== 'active',
-          action: (row) =>
-            this.dialog.question(
-              tr('dashboard.actions.deleteTitle'),
-              tr('dashboard.actions.deleteConfirm', { name: row.name }),
-              () =>
-                this.toast.success(
-                  tr('dashboard.actions.deletedTitle'),
-                  tr('dashboard.actions.deletedMsg', { name: row.name }),
-                ),
-            ),
+          key:      'transportLayer',
+          label:    tr('dashboard.table.transport'),
+          sortable: false,
+          cellRender: (row) => ({ text: row.transportLayer?.name ?? '—' }),
         },
       ],
+      rowDblClick: (row) => this.router.navigate(['/apis'], { state: { selectId: row.id } }),
     };
   });
 
-  protected showInfo(): void {
-    this.dialog.info(
-      this.t.translate('dashboard.dialogTest.demo.info.title'),
-      this.t.translate('dashboard.dialogTest.demo.info.body'),
-    );
+  private statusColor(code: string): string {
+    const c = code?.toUpperCase();
+    if (c?.includes('ACTIVE'))     return 'success';
+    if (c?.includes('DEPRECATED')) return 'error';
+    if (c?.includes('DRAFT'))      return 'neutral';
+    return 'neutral';
   }
 
-  protected showError(): void {
-    this.dialog.error(
-      this.t.translate('dashboard.dialogTest.demo.error.title'),
-      this.t.translate('dashboard.dialogTest.demo.error.body'),
-    );
-  }
-
-  protected showToastMessage(): void {
-    this.toast.message(
-      this.t.translate('dashboard.toastTest.demo.message.title'),
-      this.t.translate('dashboard.toastTest.demo.message.body'),
-    );
-  }
-
-  protected showToastSuccess(): void {
-    this.hello.getHello("wojtek").subscribe(value => {
-      console.log(value);
-      this.toast.success(
-        value,
-        this.t.translate('dashboard.toastTest.demo.success.body'),
-      );
-    });
-
-    // this.toast.success(
-    //   this.t.translate('dashboard.toastTest.demo.success.title'),
-    //   this.t.translate('dashboard.toastTest.demo.success.body'),
-    // );
-  }
-
-  protected showToastInfo(): void {
-    this.toast.info(
-      this.t.translate('dashboard.toastTest.demo.info.title'),
-      this.t.translate('dashboard.toastTest.demo.info.body'),
-    );
-  }
-
-  protected showToastWarn(): void {
-    this.toast.warn(
-      this.t.translate('dashboard.toastTest.demo.warn.title'),
-      this.t.translate('dashboard.toastTest.demo.warn.body'),
-    );
-  }
-
-  protected showToastError(): void {
-    this.hello.getHello2('wojtek').subscribe((value) => {
-      console.log(value);
-      this.toast.error(
-        this.t.translate('dashboard.toastTest.demo.error.title'),
-        this.t.translate('dashboard.toastTest.demo.error.body'),
-      );
-    });
-
-
-  }
-
-  protected showQuestion(): void {
-    this.dialog.question(
-      this.t.translate('dashboard.dialogTest.demo.question.title'),
-      this.t.translate('dashboard.dialogTest.demo.question.body'),
-      () =>
-        this.dialog.info(
-          this.t.translate('dashboard.dialogTest.demo.question.deletedTitle'),
-          this.t.translate('dashboard.dialogTest.demo.question.deletedBody'),
-        ),
-    );
+  protected goToApis(): void {
+    this.router.navigate(['/apis']);
   }
 }

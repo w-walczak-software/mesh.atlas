@@ -38,7 +38,13 @@
       "Bash(npm run *)",
       "Bash(Select-Object -First 20)",
       "Bash(dir /s /b \"C:\\\\DEV\\\\mesh-atlas\\\\backend\\\\src\\\\main\\\\java\")",
-      "Bash(findstr -i \"graph\")"
+      "Bash(findstr -i \"graph\")",
+      "Bash(npm install *)",
+      "Bash(python -c \"import json,sys; d=json.load\\(sys.stdin\\); deps={**d.get\\('dependencies',{}\\), **d.get\\('devDependencies',{}\\)}; [print\\(k,v\\) for k,v in sorted\\(deps.items\\(\\)\\) if any\\(x in k for x in ['redoc','asyncapi','yaml','monaco']\\)]\")",
+      "Bash(npm info *)",
+      "Bash(npm pack *)",
+      "Bash(.\\\\mvnw compile *)",
+      "Bash(node_modules/.bin/tsc --noEmit --project tsconfig.app.json)"
     ]
   }
 }

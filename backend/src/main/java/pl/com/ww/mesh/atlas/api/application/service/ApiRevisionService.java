@@ -143,6 +143,7 @@ public class ApiRevisionService {
                 entity.getTags(),
                 Collections.emptyList(),
                 Collections.emptyList(),
+                entity.getExternalId(),
                 entity.isActive(),
                 entity.getCreatedAt(),
                 entity.getCreatedBy(),

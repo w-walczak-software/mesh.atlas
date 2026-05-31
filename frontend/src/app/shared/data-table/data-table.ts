@@ -44,6 +44,11 @@ export class DataTable<T extends object> implements OnDestroy {
   readonly embedded = input(false);
   readonly selectedItem = input<T | null>(null);
   /**
+   * Externally controlled active page index (0-based).
+   * Use to sync the table's pagination display when loading pages programmatically.
+   */
+  readonly currentPage = input<number | null>(null);
+  /**
    * Pre-checked row IDs for state restore after navigation.
    * Requires `config().rowId` to be set.
    * Applied once — on the first data load where matching rows are found.
@@ -207,6 +212,13 @@ export class DataTable<T extends object> implements OnDestroy {
       const pg = cfg.pagination;
       if (pg?.pageSize) this.pageSize.set(pg.pageSize);
     });
+
+    // Sync external page control → internal pageIndex
+    effect(() => {
+      const p = this.currentPage();
+      if (p === null) return;
+      untracked(() => { if (this.pageIndex() !== p) this.pageIndex.set(p); });
+    }, { allowSignalWrites: true });
 
     // One-shot restore of pre-checked rows from `checkedRowIds` input
     effect(() => {

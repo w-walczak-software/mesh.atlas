@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiStatsDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSummaryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.mapper.ApiMapper;
@@ -27,6 +28,7 @@ import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemReposito
 import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 import pl.com.ww.mesh.atlas.transportlayer.infrastructure.persistance.TransportLayerRepository;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -53,6 +55,18 @@ public class ApiService {
     }
 
     @Transactional(readOnly = true)
+    public ApiStatsDto getStats() {
+        long total = apiRepository.count();
+        long active = apiRepository.countByActive(true);
+        long inactive = apiRepository.countByActive(false);
+        long addedLastMonth = apiRepository.countByCreatedAtAfter(LocalDateTime.now().minusMonths(1));
+        long withSla = apiRepository.countBySlaResponseTimeMsIsNotNull();
+        long withDocumentation = apiRepository.countWithDocumentation();
+        long withVersion = apiRepository.countByApiVersionIsNotNull();
+        return new ApiStatsDto(total, active, inactive, addedLastMonth, withSla, withDocumentation, withVersion);
+    }
+
+    @Transactional(readOnly = true)
     public ApiDto findById(UUID id) {
         return apiRepository.findById(id)
                 .map(mapper::map)
@@ -67,10 +81,14 @@ public class ApiService {
     }
 
     public ApiDto create(ApiCreateRequest request) {
-        if (apiRepository.existsByCode(request.code())) {
-            throw new AtlasApiDuplicateCodeException(request.code());
+        String code = (request.code() == null || request.code().isBlank())
+                ? generateCode(request.producerSystemId(), request.transportLayerId())
+                : request.code();
+        if (apiRepository.existsByCode(code)) {
+            throw new AtlasApiDuplicateCodeException(code);
         }
         ApiEntity entity = mapper.map(request);
+        entity.setCode(code);
         applyFkRefs(entity,
                 request.statusId(), request.typeId(),
                 request.producerSystemId(), request.dataFlowDirectionId(),
@@ -191,6 +209,26 @@ public class ApiService {
         incoming.stream()
                 .filter(s -> !currentIds.contains(s.getId()))
                 .forEach(entity.getConsumerSystems()::add);
+    }
+
+    private String generateCode(UUID producerSystemId, UUID transportLayerId) {
+        String sysPrefix = producerSystemId != null
+                ? itSystemRepository.findById(producerSystemId)
+                        .map(s -> s.getCode().length() >= 3 ? s.getCode().substring(0, 3) : s.getCode())
+                        .orElse("API")
+                : "API";
+        String transportPrefix = transportLayerId != null
+                ? transportLayerRepository.findById(transportLayerId)
+                        .map(t -> t.getCode().length() >= 3 ? t.getCode().substring(0, 3) : t.getCode())
+                        .orElse("")
+                : "";
+        String prefix = sysPrefix + transportPrefix;
+        int seq = 1;
+        String candidate;
+        do {
+            candidate = String.format("%s%03d", prefix, seq++);
+        } while (apiRepository.existsByCode(candidate));
+        return candidate;
     }
 
     private void applyFkRefs(ApiEntity entity,

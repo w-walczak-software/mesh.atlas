@@ -1,91 +1,40 @@
 {
-  "title": "Panel główny",
-  "subtitle": "Przegląd platformy rejestru API",
-  "exportReport": "Eksportuj raport",
-  "registerApi": "Zarejestruj API",
-  "recentApis": {
-    "title": "Ostatnie API",
-    "subtitle": "Ostatnio zarejestrowane i zaktualizowane API"
-  },
-  "platformHealth": {
-    "title": "Kondycja platformy",
-    "gateway": "Usługi bramki",
-    "registry": "API rejestru",
-    "audit": "Usługa audytu",
-    "auth": "Dostawca tożsamości",
-    "operational": "Działa",
-    "degraded": "Zdegradowana"
-  },
-  "apiCoverage": {
-    "title": "Pokrycie API",
-    "documented": "Udokumentowane",
-    "versioned": "Wersjonowane",
-    "withSla": "Z SLA",
-    "monitored": "Monitorowane"
-  },
+  "title": "Dashboard",
+  "subtitle": "Przegląd zarejestrowanych API i systemów IT",
+  "goToApis": "Rejestr API",
   "kpi": {
     "registeredApis": "Zarejestrowane API",
+    "activeApis": "Aktywne API",
     "itSystems": "Systemy IT",
-    "activeEnvironments": "Aktywne środowiska",
-    "apiConsumers": "Konsumenci API",
-    "deprecatedApis": "Przestarzałe API"
+    "inactiveApis": "Nieaktywne API",
+    "deltaAdded": "+{{ n }} w tym miesiącu",
+    "deltaNoNew": "brak nowych w tym miesiącu",
+    "deltaActivePct": "{{ pct }}% ogółu",
+    "deltaOfTotal": "z {{ total }} łącznie"
+  },
+  "recentApis": {
+    "title": "Ostatnio dodane API",
+    "subtitle": "10 ostatnio dodanych API do rejestru",
+    "viewAll": "Zobacz wszystkie"
+  },
+  "coverage": {
+    "title": "Pokrycie API",
+    "documented": "Udokumentowane",
+    "versioned": "Zwersjonowane",
+    "withSla": "Z SLA"
+  },
+  "summary": {
+    "title": "Podsumowanie rejestru",
+    "totalApis": "Wszystkie API",
+    "active": "Aktywne",
+    "inactive": "Nieaktywne",
+    "itSystems": "Systemy IT"
   },
   "table": {
-    "apiName": "Nazwa API",
-    "version": "Wersja",
-    "environment": "Środowisko",
+    "name": "Nazwa API",
     "status": "Status",
-    "traffic": "Ruch"
-  },
-  "actions": {
-    "rowSelected": "Zaznaczono wiersz",
-    "apiDetails": "Szczegóły API",
-    "apiDetailsBody": "Nazwa: {{ name }}\nWersja: {{ version }}\nŚrodowisko: {{ environment }}\nStatus: {{ status }}\nRuch: {{ calls }}",
-    "view": "Zobacz szczegóły",
-    "edit": "Edytuj",
-    "editOpening": "Otwieranie edytora dla {{ name }}",
-    "deprecate": "Przestarzałe",
-    "deprecateTitle": "Oznacz jako przestarzałe",
-    "deprecateConfirm": "Oznaczyć \"{{ name }}\" jako przestarzałe? Istniejący konsumenci nadal będą mieć dostęp.",
-    "deprecatedTitle": "Oznaczono",
-    "deprecatedMsg": "{{ name }} zostało oznaczone jako przestarzałe.",
-    "delete": "Usuń",
-    "deleteTitle": "Usuń API",
-    "deleteConfirm": "Trwale usunąć \"{{ name }}\"? Tej operacji nie można cofnąć.",
-    "deletedTitle": "Usunięto",
-    "deletedMsg": "{{ name }} zostało usunięte."
-  },
-  "toastTest": {
-    "title": "Komponenty Toast",
-    "subtitle": "Powiadomienia — prawy górny róg",
-    "message": "Wiadomość",
-    "success": "Sukces",
-    "info": "Info",
-    "warn": "Ostrzeżenie",
-    "error": "Błąd",
-    "demo": {
-      "message":  { "title": "Nowa wiadomość",          "body": "Otrzymałeś nowe powiadomienie z systemu." },
-      "success":  { "title": "Zapisano pomyślnie",       "body": "API \"Payments Gateway v3.1.0\" zostało zaktualizowane." },
-      "info":     { "title": "Dostępna aktualizacja",   "body": "Nowa wersja rejestru API jest gotowa do wdrożenia." },
-      "warn":     { "title": "Zbliża się wygaśnięcie", "body": "Token dostępowy wygaśnie za 15 minut." },
-      "error":    { "title": "Błąd synchronizacji",     "body": "Nie udało się pobrać danych z bramki. Ponów próbę." }
-    }
-  },
-  "dialogTest": {
-    "title": "Komponenty dialogowe",
-    "subtitle": "Interaktywne okna dialogowe",
-    "info": "Informacja",
-    "error": "Błąd",
-    "question": "Pytanie",
-    "demo": {
-      "info":     { "title": "Operacja zakończona",  "body": "API \"Payments Gateway v3.1.0\" zostało pomyślnie zarejestrowane w rejestrze Mesh Atlas." },
-      "error":    { "title": "Błąd połączenia",      "body": "Nie można nawiązać połączenia z bramką API. Sprawdź ustawienia sieciowe i spróbuj ponownie." },
-      "question": {
-        "title": "Usuń API",
-        "body":  "Czy na pewno chcesz usunąć \"Payments Gateway v3.1.0\" z rejestru? Tej operacji nie można cofnąć.",
-        "deletedTitle": "Usunięto",
-        "deletedBody":  "API zostało usunięte z rejestru."
-      }
-    }
+    "type": "Typ",
+    "producer": "Producent",
+    "transport": "Transport"
   }
 }

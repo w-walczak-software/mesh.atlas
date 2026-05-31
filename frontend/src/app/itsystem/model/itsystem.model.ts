@@ -58,6 +58,7 @@ export interface ItSystemDto {
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
   icon: string | null;
+  externalId: string | null;
   active: boolean;
   createdAt: string;
   createdBy: string;
@@ -83,6 +84,7 @@ export interface ItSystemCreateRequest {
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
   icon: string | null;
+  externalId: string | null;
 }
 
 export interface ItSystemUpdateRequest {
@@ -102,6 +104,7 @@ export interface ItSystemUpdateRequest {
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
   icon: string | null;
+  externalId: string | null;
 }
 
 export interface ItSystemOwnerCreateRequest {

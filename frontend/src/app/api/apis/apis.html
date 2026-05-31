@@ -153,6 +153,8 @@
       [config]="tableConfig()"
       [data]="data()"
       [loading]="loading()"
+      [selectedItem]="selectedRow()"
+      [currentPage]="pageIndex()"
       (pageChange)="onPageChange($event)"
       (rowSelect)="selectedRow.set($event)"
       (rowsSelect)="onRowsSelect($event)"

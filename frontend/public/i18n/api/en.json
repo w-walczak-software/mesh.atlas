@@ -42,6 +42,9 @@
     "contractUrl": "Contract URL",
     "documentationUrl": "Documentation URL",
     "tags": "Tags",
+    "externalId": "External ID",
+    "externalIdHint": "Identifier from external source system (e.g. CMDB)",
+    "codeHint": "Leave blank to auto-generate from producer system and transport layer",
     "dataDomains": "Data Domains",
     "domainGroup": "Filter by Group",
     "domainGroupNone": "No group",
@@ -86,7 +89,9 @@
     "attachmentStatus": "Status",
     "fileSize": "Size",
     "uploadedAt": "Uploaded At",
-    "noAttachments": "No attachments yet."
+    "noAttachments": "No attachments yet.",
+    "preview": "Preview",
+    "autoDetected": "Auto-detected: {{ name }}"
   },
   "badge": {
     "active": "Active",
@@ -102,7 +107,8 @@
     "history": "Change History",
     "addTag": "Add Tag",
     "removeTag": "Remove tag",
-    "graph": "Integration Map"
+    "graph": "Integration Map",
+    "docs": "Documentation"
   },
   "graph": {
     "title": "Integration Map",
@@ -152,7 +158,17 @@
     "selectToEdit": "Select an API to edit",
     "selectToDeactivate": "Select an API to deactivate",
     "alreadyInactive": "API is already inactive",
-    "graphSelected": "Show {{ count }} selected API(s) on the Integration Map"
+    "graphSelected": "Show {{ count }} selected API(s) on the Integration Map",
+    "selectToViewDocs": "Select an API to view documentation"
+  },
+  "docs": {
+    "title": "API Documentation",
+    "contractSection": "Contract & Documentation",
+    "attachmentsSection": "Attachments",
+    "noContractInfo": "No contract or documentation links defined."
+  },
+  "viewer": {
+    "loadError": "Failed to load document. Please try downloading the file directly."
   },
   "tags": {
     "noTags": "No tags added yet."

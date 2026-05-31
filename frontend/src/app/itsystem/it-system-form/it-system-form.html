@@ -92,6 +92,16 @@
               </mat-form-field>
             </div>
 
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ t('itsystem.field.externalId') }}</mat-label>
+              <input matInput formControlName="externalId" />
+              <mat-icon matSuffix>link</mat-icon>
+              <mat-hint>{{ t('itsystem.field.externalIdHint') }}</mat-hint>
+              @if (form.controls.externalId.errors?.['maxlength']) {
+                <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
+              }
+            </mat-form-field>
+
             <mat-form-field appearance="outline" class="field-full">
               <mat-label>{{ t('itsystem.field.description') }}</mat-label>
               <textarea matInput formControlName="description" rows="3"></textarea>

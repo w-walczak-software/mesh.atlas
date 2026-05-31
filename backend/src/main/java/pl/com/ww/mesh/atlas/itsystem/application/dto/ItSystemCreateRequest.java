@@ -74,5 +74,8 @@ public record ItSystemCreateRequest(
         Map<String, Object> metadata,
 
         @Size(max = 100)
-        String icon
+        String icon,
+
+        @Size(max = 50)
+        String externalId
 ) {}

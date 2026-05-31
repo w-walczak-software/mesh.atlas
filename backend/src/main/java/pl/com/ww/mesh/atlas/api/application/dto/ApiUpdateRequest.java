@@ -56,5 +56,8 @@ public record ApiUpdateRequest(
 
         List<String> tags,
         List<UUID> dataDomainIds,
-        List<UUID> environmentIds
+        List<UUID> environmentIds,
+
+        @Size(max = 50)
+        String externalId
 ) {}

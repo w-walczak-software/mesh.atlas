@@ -22,6 +22,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiStatsDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSummaryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.service.ApiRevisionService;
@@ -43,6 +44,12 @@ public class ApiController {
 
     private final ApiService service;
     private final ApiRevisionService revisionService;
+
+    @GetMapping("/stats")
+    @IsAtlasUser
+    public ApiStatsDto getStats() {
+        return service.getStats();
+    }
 
     @GetMapping
     @IsAtlasUser

@@ -31,6 +31,8 @@
     "scope": "Zasięg systemu",
     "tags": "Tagi",
     "icon": "Ikona",
+    "externalId": "ID zewnętrzny",
+    "externalIdHint": "Identyfikator obiektu w systemie źródłowym (np. CMDB)",
     "active": "Aktywny"
   },
   "iconPicker": {

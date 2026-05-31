@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   inject,
+  signal,
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
@@ -15,7 +16,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 
 export interface ApiUploadDialogData {
-  fileName:          string;
+  file:              File;
   contractTypes:     DictionaryEntryDto[];
   attachmentStatuses: DictionaryEntryDto[];
 }
@@ -50,7 +51,7 @@ export interface ApiUploadDialogResult {
       <mat-dialog-content>
         <p class="file-name-preview">
           <mat-icon aria-hidden="true">description</mat-icon>
-          {{ data.fileName }}
+          {{ data.file.name }}
         </p>
 
         <div class="row-2">
@@ -62,6 +63,12 @@ export interface ApiUploadDialogResult {
                 <mat-option [value]="ct.id">{{ ct.name }}</mat-option>
               }
             </mat-select>
+            @if (detectedEntry()) {
+              <mat-hint class="upload-hint-detected">
+                <mat-icon>auto_fix_high</mat-icon>
+                {{ t('api.attachment.autoDetected', { name: detectedEntry()!.name }) }}
+              </mat-hint>
+            }
           </mat-form-field>
 
           <mat-form-field appearance="outline" class="full-width">
@@ -115,6 +122,17 @@ export interface ApiUploadDialogResult {
     .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
     .full-width { width: 100%; }
     mat-dialog-content { min-width: 480px; max-width: 600px; }
+    .upload-hint-detected {
+      display: flex !important;
+      align-items: center;
+      gap: 3px;
+      color: var(--mat-sys-primary) !important;
+    }
+    .upload-hint-detected mat-icon {
+      font-size: 12px !important;
+      width: 12px !important;
+      height: 12px !important;
+    }
   `],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
@@ -124,13 +142,28 @@ export class ApiUploadDialog {
   private  readonly t   = inject(TranslocoService);
   private  readonly fb  = inject(FormBuilder);
 
-  protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
+  protected readonly lang          = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
+  protected readonly detectedEntry = signal<DictionaryEntryDto | null>(null);
   protected readonly form = this.fb.group({
     description:        [''],
     contractTypeId:     [null as string | null],
     attachmentVersion:  [''],
     attachmentStatusId: [null as string | null],
   });
+
+  constructor() {
+    this.runAutoDetect();
+  }
+
+  private async runAutoDetect(): Promise<void> {
+    const code = await detectContractTypeCode(this.data.file);
+    if (!code) return;
+    const match = this.data.contractTypes.find(ct => ct.code === code);
+    if (match) {
+      this.form.controls.contractTypeId.setValue(match.id);
+      this.detectedEntry.set(match);
+    }
+  }
 
   protected confirm(): void {
     const v = this.form.getRawValue();
@@ -145,4 +178,31 @@ export class ApiUploadDialog {
   protected cancel(): void {
     this.ref.close(null);
   }
+}
+
+// ── Contract type auto-detection ──────────────────────────────────────────────
+
+const EXT_TO_CODE: Record<string, string> = {
+  proto:   'PROTOBUF',
+  wsdl:    'WSDL',
+  xsd:     'XSD',
+  graphql: 'GRAPHQL_SCHEMA',
+  gql:     'GRAPHQL_SCHEMA',
+  raml:    'RAML',
+};
+
+async function detectContractTypeCode(file: File): Promise<string | null> {
+  const ext = file.name.split('.').pop()?.toLowerCase() ?? '';
+
+  if (ext in EXT_TO_CODE) return EXT_TO_CODE[ext];
+
+  if (['json', 'yaml', 'yml'].includes(ext)) {
+    const text = await file.slice(0, 4096).text();
+    if (text.includes('"asyncapi"') || /\basyncapi\s*:/m.test(text)) return 'ASYNCAPI';
+    if (text.includes('"swagger"')  || /\bswagger\s*:/m.test(text))  return 'SWAGGER_2';
+    if (text.includes('"openapi"')  || /\bopenapi\s*:/m.test(text))  return 'OPENAPI_3';
+    if (text.includes('"_postman_id"'))                               return 'POSTMAN_COLLECTION';
+  }
+
+  return null;
 }
