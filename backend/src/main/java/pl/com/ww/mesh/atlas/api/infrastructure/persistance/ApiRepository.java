@@ -23,6 +23,11 @@ public interface ApiRepository extends JpaRepository<ApiEntity, UUID>, JpaSpecif
 
     long countByApiVersionIsNotNull();
 
-    @Query("SELECT COUNT(a) FROM ApiEntity a WHERE a.documentationUrl IS NOT NULL OR a.contractUrl IS NOT NULL")
+    @Query("""
+            SELECT COUNT(a) FROM ApiEntity a
+            WHERE a.documentationUrl IS NOT NULL
+               OR a.contractUrl IS NOT NULL
+               OR EXISTS (SELECT 1 FROM ApiAttachmentEntity att WHERE att.api = a)
+            """)
     long countWithDocumentation();
 }

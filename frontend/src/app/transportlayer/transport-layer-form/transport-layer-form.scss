@@ -214,71 +214,80 @@
   height: 24px;
 }
 
-// ─── Color picker ─────────────────────────────────────────────────────────────
+// ─── Color palette ────────────────────────────────────────────────────────────
 
-.color-picker-field {
+.color-palette-field {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
-  padding: 4px 0 8px;
+  padding: 6px 0 12px;
   border-bottom: 1px solid var(--mat-sys-surface-container-high);
   margin-bottom: 4px;
 }
 
-.color-picker-label {
+.color-palette-label {
   font-size: 13px;
   font-weight: 500;
   color: var(--mat-sys-on-surface-variant);
   min-width: 60px;
+  padding-top: 6px;
+  flex-shrink: 0;
 }
 
-.color-picker-control {
+.color-palette-wrap {
   display: flex;
-  align-items: center;
+  flex-direction: column;
   gap: 8px;
 }
 
-.hidden-color-input {
-  position: absolute;
-  width: 0;
-  height: 0;
-  opacity: 0;
-  pointer-events: none;
+.color-palette-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
 }
 
-.color-swatch {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
-  border: 2px dashed var(--mat-sys-outline-variant);
+.palette-swatch {
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: border-color 0.15s;
+  transition: transform 0.12s ease, outline-color 0.12s ease;
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 
   &:hover {
-    border-color: var(--mat-sys-primary);
+    transform: scale(1.18);
+    outline-color: var(--mat-sys-outline);
   }
 
-  &--set {
-    border-style: solid;
-    border-color: transparent;
-    box-shadow: 0 0 0 2px var(--mat-sys-outline);
+  &--selected {
+    outline-color: var(--mat-sys-on-surface);
+    transform: scale(1.1);
   }
 }
 
-.color-swatch-placeholder {
-  font-size: 22px;
-  width: 22px;
-  height: 22px;
-  color: var(--mat-sys-on-surface-variant);
-  opacity: 0.4;
+.palette-check {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #fff;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.6));
+  pointer-events: none;
+}
+
+.color-palette-selected {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .color-hex {
-  font-size: 13px;
+  font-size: 12px;
   font-family: monospace;
   color: var(--mat-sys-on-surface-variant);
   letter-spacing: 0.5px;

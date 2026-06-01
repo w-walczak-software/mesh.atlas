@@ -212,7 +212,6 @@ export class ApiFileViewerDialog implements OnDestroy {
   private monacoElement: HTMLElement | null = null;
   private asyncapiElement: HTMLElement | null = null;
   private asyncapiStyleEl: HTMLStyleElement | null = null;
-  private wheelListener: (() => void) | null = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private monacoApi: any = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -262,7 +261,6 @@ export class ApiFileViewerDialog implements OnDestroy {
 
   ngOnDestroy(): void {
     this.monacoEditor?.dispose();
-    this.wheelListener?.();
   }
 
   protected toggleSource(): void {
@@ -350,18 +348,8 @@ export class ApiFileViewerDialog implements OnDestroy {
       renderWhitespace:     'none',
       contextmenu:          false,
       links:                true,
+      mouseWheelZoom:       true,
     });
-
-    this.wheelListener?.();
-    const wheelHandler = (e: WheelEvent) => {
-      if (!e.ctrlKey) return;
-      e.preventDefault();
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const cur = this.monacoEditor.getOption((monaco.editor.EditorOption as any).fontSize);
-      this.monacoEditor.updateOptions({ fontSize: Math.max(8, Math.min(32, cur - Math.sign(e.deltaY))) });
-    };
-    element.addEventListener('wheel', wheelHandler, { passive: false });
-    this.wheelListener = () => element.removeEventListener('wheel', wheelHandler);
   }
 
   private async initRedoc(element: HTMLElement, isDark: boolean): Promise<void> {

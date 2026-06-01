@@ -1,0 +1,70 @@
+.audit-log-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  .page-title {
+    .title {
+      font-size: 1.5rem;
+      font-weight: 500;
+      margin: 0;
+      color: var(--mat-sys-on-surface);
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      font-size: 0.875rem;
+      color: var(--mat-sys-on-surface-variant);
+    }
+  }
+}
+
+.filter-panel {
+  mat-expansion-panel-header {
+    mat-panel-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 500;
+
+      mat-icon {
+        font-size: 18px;
+        height: 18px;
+        width: 18px;
+      }
+    }
+  }
+}
+
+.filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 180px;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
+}

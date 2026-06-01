@@ -44,7 +44,15 @@
       "Bash(npm info *)",
       "Bash(npm pack *)",
       "Bash(.\\\\mvnw compile *)",
-      "Bash(node_modules/.bin/tsc --noEmit --project tsconfig.app.json)"
+      "Bash(node_modules/.bin/tsc --noEmit --project tsconfig.app.json)",
+      "Bash(Sort-Object)",
+      "PowerShell(java *)",
+      "Bash(Format-List FullName)",
+      "PowerShell($env:JAVA_HOME; Get-ChildItem \"C:\\\\Program Files\\\\Java\\\\\" -ErrorAction SilentlyContinue | Select-Object Name; Get-ChildItem \"C:\\\\Program Files\\\\Eclipse Adoptium\\\\\" -ErrorAction SilentlyContinue | Select-Object Name)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; Set-Location \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw.cmd compile 2>&1 | Select-Object -Last 70)",
+      "Bash(Select-Object Name)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; Set-Location \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw.cmd compile 2>&1 | Select-Object -Last 15)",
+      "Bash(dir /s /b \"C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\public\\\\i18n\")"
     ]
   }
 }

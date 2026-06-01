@@ -132,7 +132,7 @@
           "id": "admin-audit",
           "label": "nav.menu.adminAudit",
           "icon": "history_edu",
-          "route": "/admin/audit",
+          "route": "/admin/audit-log",
           "roles": ["atlas_admin"]
         },
         {

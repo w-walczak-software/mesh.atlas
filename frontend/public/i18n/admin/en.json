@@ -1,0 +1,137 @@
+{
+  "page": {
+    "users": {
+      "title": "Users",
+      "subtitle": "Manage user accounts and role assignments"
+    },
+    "roles": {
+      "title": "Roles & Permissions",
+      "subtitle": "Browse roles available in the system"
+    },
+    "auditLog": {
+      "title": "Audit Log",
+      "subtitle": "Complete history of significant platform operations"
+    }
+  },
+  "user": {
+    "search": "Search users…",
+    "searchHint": "Search by username, email or name",
+    "username": "Username",
+    "email": "Email",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "enabled": "Status",
+    "createdAt": "Created At",
+    "roles": "Roles"
+  },
+  "role": {
+    "name": "Role Name",
+    "description": "Description",
+    "composite": "Composite",
+    "clientRole": "Client Role",
+    "type": "Type"
+  },
+  "dialog": {
+    "manageRoles": {
+      "title": "Manage Roles",
+      "subtitle": "Select roles to assign to this user",
+      "noRoles": "No roles available"
+    }
+  },
+  "action": {
+    "manageRoles": "Manage Roles",
+    "search": "Search"
+  },
+  "toast": {
+    "rolesUpdated": "User roles updated successfully."
+  },
+  "badge": {
+    "enabled": "Active",
+    "disabled": "Inactive",
+    "realmRole": "Realm",
+    "clientRole": "Client"
+  },
+  "auditLog": {
+    "field": {
+      "eventTime": "Event Time",
+      "category": "Category",
+      "action": "Action",
+      "resourceType": "Resource Type",
+      "resourceId": "Resource ID",
+      "resourceName": "Resource Name",
+      "actor": "Actor",
+      "actorEmail": "Actor Email",
+      "outcome": "Outcome",
+      "severity": "Severity",
+      "message": "Message",
+      "errorDetail": "Error Detail",
+      "context": "Context"
+    },
+    "filter": {
+      "title": "Filters",
+      "actor": "Actor (username)",
+      "category": "Category",
+      "action": "Action",
+      "resourceType": "Resource Type",
+      "outcome": "Outcome",
+      "startDate": "From",
+      "endDate": "To",
+      "all": "All",
+      "reset": "Reset",
+      "search": "Apply Filters"
+    },
+    "outcome": {
+      "SUCCESS": "Success",
+      "FAILURE": "Failure"
+    },
+    "severity": {
+      "INFO": "Info",
+      "WARNING": "Warning",
+      "CRITICAL": "Critical"
+    },
+    "category": {
+      "USER_MANAGEMENT": "User Management",
+      "API_REGISTRY": "API Registry",
+      "INTEGRATION_REGISTRY": "Integration Registry",
+      "DICTIONARY": "Dictionary",
+      "SECURITY": "Security",
+      "ADMINISTRATION": "Administration",
+      "DATA_ACCESS": "Data Access"
+    },
+    "action": {
+      "CREATE": "Create",
+      "UPDATE": "Update",
+      "DELETE": "Delete",
+      "DEACTIVATE": "Deactivate",
+      "ACTIVATE": "Activate",
+      "ATTACHMENT_UPLOADED": "Attachment Uploaded",
+      "ATTACHMENT_UPDATED": "Attachment Updated",
+      "ATTACHMENT_DELETED": "Attachment Deleted",
+      "ATTACHMENT_DOWNLOADED": "Attachment Downloaded",
+      "USER_ROLE_ASSIGNED": "Role Assigned",
+      "USER_ROLE_REVOKED": "Role Revoked",
+      "EXPORT": "Export",
+      "IMPORT": "Import",
+      "LOGIN": "Login",
+      "LOGOUT": "Logout",
+      "APPROVAL_REQUESTED": "Approval Requested",
+      "APPROVED": "Approved",
+      "REJECTED": "Rejected",
+      "CONFIGURATION_CHANGED": "Configuration Changed"
+    },
+    "resourceType": {
+      "USER": "User",
+      "ROLE": "Role",
+      "IT_SYSTEM": "IT System",
+      "IT_SYSTEM_OWNER": "IT System Owner",
+      "API": "API",
+      "API_OWNER": "API Owner",
+      "API_ATTACHMENT": "API Attachment",
+      "DATA_DOMAIN": "Data Domain",
+      "TRANSPORT_LAYER": "Transport Layer",
+      "DICTIONARY_TYPE": "Dictionary Type",
+      "DICTIONARY_ENTRY": "Dictionary Entry",
+      "CONFIGURATION": "Configuration"
+    }
+  }
+}

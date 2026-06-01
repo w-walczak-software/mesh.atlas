@@ -1,10 +1,11 @@
 import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { provideTranslocoScope, TranslocoDirective, TranslocoService } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ApiGraphEdgeDto } from '../model/api.model';
+import { ApiDocumentationDialog, ApiDocumentationDialogData } from '../api-documentation-dialog/api-documentation-dialog';
 
 export interface ApiPreviewDialogData {
   api:             ApiGraphEdgeDto;
@@ -123,6 +124,10 @@ export type ApiPreviewDialogResult = 'details' | undefined;
           <mat-icon>arrow_back</mat-icon>
           {{ t('api.preview.close') }}
         </button>
+        <button mat-stroked-button (click)="openDocumentation()">
+          <mat-icon>description</mat-icon>
+          {{ t('api.preview.documentation') }}
+        </button>
         <button mat-flat-button (click)="showDetails()">
           <mat-icon>open_in_new</mat-icon>
           {{ t('api.preview.showDetails') }}
@@ -210,10 +215,11 @@ export type ApiPreviewDialogResult = 'details' | undefined;
   `],
 })
 export class ApiPreviewDialog {
-  protected readonly data = inject<ApiPreviewDialogData>(MAT_DIALOG_DATA);
-  private readonly ref   = inject(MatDialogRef<ApiPreviewDialog, ApiPreviewDialogResult>);
-  private readonly ts    = inject(TranslocoService);
-  protected readonly lang = toSignal(this.ts.langChanges$, { initialValue: this.ts.getActiveLang() });
+  protected readonly data    = inject<ApiPreviewDialogData>(MAT_DIALOG_DATA);
+  private   readonly ref     = inject(MatDialogRef<ApiPreviewDialog, ApiPreviewDialogResult>);
+  private   readonly ts      = inject(TranslocoService);
+  private   readonly dialog  = inject(MatDialog);
+  protected readonly lang    = toSignal(this.ts.langChanges$, { initialValue: this.ts.getActiveLang() });
 
   protected producerName(): string | null {
     const id = this.data.api.producerSystemId;
@@ -224,6 +230,18 @@ export class ApiPreviewDialog {
     return this.data.api.consumerSystemIds
       .map(id => this.data.systemNamesById.get(id))
       .filter((n): n is string => !!n);
+  }
+
+  protected openDocumentation(): void {
+    this.dialog.open(ApiDocumentationDialog, {
+      data: {
+        apiId:   this.data.api.id,
+        apiCode: this.data.api.code,
+        apiName: this.data.api.name,
+      } satisfies ApiDocumentationDialogData,
+      width:     '680px',
+      autoFocus: false,
+    });
   }
 
   protected showDetails(): void { this.ref.close('details'); }

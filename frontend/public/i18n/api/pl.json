@@ -62,9 +62,7 @@
     "sla": "SLA",
     "slaHint": "Parametry umowy o poziomie usług",
     "contract": "Kontrakt i dokumentacja",
-    "contractHint": "Specyfikacja API i linki do dokumentacji",
-    "attachments": "Załączniki",
-    "attachmentsHint": "Kontrakty API, specyfikacje, schematy i pliki dokumentacji",
+    "contractHint": "Specyfikacja API, linki do dokumentacji i przesłane pliki dokumentacyjne",
     "tags": "Tagi",
     "environments": "Środowiska",
     "environmentsHint": "Środowiska wdrożeniowe, w których dostępne jest to API",
@@ -89,7 +87,8 @@
     "attachmentStatus": "Status",
     "fileSize": "Rozmiar",
     "uploadedAt": "Data dodania",
-    "noAttachments": "Brak załączników.",
+    "noAttachments": "Brak plików dokumentacji.",
+    "noDocuments": "Brak plików dokumentacji.",
     "preview": "Podgląd",
     "autoDetected": "Wykryto automatycznie: {{ name }}"
   },
@@ -152,7 +151,8 @@
     "lifecycleStage":       "Lifecycle",
     "businessCriticality":  "Krytyczność",
     "dataClassification":   "Klas. danych",
-    "architectureStyle":    "Architektura"
+    "architectureStyle":    "Architektura",
+    "documentation":        "Dokumentacja"
   },
   "toolbar": {
     "selectToEdit": "Wybierz API do edycji",

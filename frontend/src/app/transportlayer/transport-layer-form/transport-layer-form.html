@@ -65,35 +65,34 @@
               </div>
             </div>
 
-            <!-- Color picker -->
-            <div class="color-picker-field">
-              <span class="color-picker-label">{{ t('transportlayer.field.color') }}</span>
-              <div class="color-picker-control">
-                <input #colorInput type="color" class="hidden-color-input"
-                       [value]="color() ?? '#3b82f6'"
-                       (input)="onColorInput($event)" />
-                <div class="color-swatch"
-                     [class.color-swatch--set]="color()"
-                     [style.background-color]="color() ?? null"
-                     (click)="colorInput.click()"
-                     role="button"
-                     tabindex="0"
-                     (keydown.enter)="colorInput.click()"
-                     [attr.aria-label]="t('transportlayer.colorPicker.choose')">
-                  @if (!color()) {
-                    <mat-icon class="color-swatch-placeholder">palette</mat-icon>
+            <!-- Color palette -->
+            <div class="color-palette-field">
+              <span class="color-palette-label">{{ t('transportlayer.field.color') }}</span>
+              <div class="color-palette-wrap">
+                <div class="color-palette-grid" role="radiogroup"
+                     [attr.aria-label]="t('transportlayer.field.color')">
+                  @for (hex of COLOR_PALETTE; track hex) {
+                    <button type="button"
+                            class="palette-swatch"
+                            [class.palette-swatch--selected]="color() === hex"
+                            [style.background-color]="hex"
+                            [attr.aria-label]="hex"
+                            [attr.aria-pressed]="color() === hex"
+                            (click)="selectColor(hex)">
+                      @if (color() === hex) {
+                        <mat-icon class="palette-check">check</mat-icon>
+                      }
+                    </button>
                   }
                 </div>
-                <button mat-stroked-button type="button" (click)="colorInput.click()">
-                  <mat-icon>{{ color() ? 'edit' : 'palette' }}</mat-icon>
-                  {{ color() ? t('transportlayer.colorPicker.change') : t('transportlayer.colorPicker.choose') }}
-                </button>
                 @if (color()) {
-                  <span class="color-hex">{{ color() }}</span>
-                  <button mat-icon-button type="button" (click)="color.set(null)"
-                          [matTooltip]="t('transportlayer.colorPicker.clear')">
-                    <mat-icon>close</mat-icon>
-                  </button>
+                  <div class="color-palette-selected">
+                    <span class="color-hex">{{ color() }}</span>
+                    <button mat-icon-button type="button" (click)="color.set(null)"
+                            [matTooltip]="t('transportlayer.colorPicker.clear')">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
                 }
               </div>
             </div>

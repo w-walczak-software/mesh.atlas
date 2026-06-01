@@ -312,16 +312,27 @@
           </div>
         </mat-card>
 
-        <!-- Contract & Documentation -->
+        <!-- Contract & Documentation (merged with documentation files) -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
+          <!-- Always rendered so #fileInput is in scope for both the header button and empty-state button -->
+          <input #fileInput type="file" accept="*/*" (change)="onFileSelected($event)"
+                 style="display:none" aria-hidden="true" />
+
+          <div class="card-head" [class.card-head--with-action]="isEditMode() && canWrite()">
             <div class="card-head-icon card-head-icon--contract">
-              <mat-icon>description</mat-icon>
+              <mat-icon>menu_book</mat-icon>
             </div>
             <div class="card-head-text">
               <span class="card-head-title">{{ t('api.section.contract') }}</span>
               <span class="card-head-subtitle">{{ t('api.section.contractHint') }}</span>
             </div>
+            @if (isEditMode() && canWrite()) {
+              <button mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)"
+                      [disabled]="uploading()" class="card-head-btn">
+                <mat-icon>upload_file</mat-icon>
+                {{ t('api.attachment.upload') }}
+              </button>
+            }
           </div>
 
           <div class="card-body">
@@ -368,6 +379,122 @@
               </mat-form-field>
             </div>
           </div>
+
+          @if (isEditMode()) {
+            <mat-divider />
+
+            @if (uploading()) {
+              <mat-progress-bar mode="indeterminate" />
+            }
+
+            @if (attachments().length) {
+              <table mat-table [dataSource]="attachments()" class="attachments-table">
+                <ng-container matColumnDef="fileName">
+                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.fileName') }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    <div class="file-cell">
+                      <mat-icon class="file-icon" aria-hidden="true">description</mat-icon>
+                      <span>{{ row.fileName }}</span>
+                    </div>
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="contractType">
+                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.contractType') }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    @if (row.contractType?.name) {
+                      <span class="contract-type-badge">{{ row.contractType.name }}</span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="attachmentVersion">
+                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentVersion') }}</th>
+                  <td mat-cell *matCellDef="let row" class="version-cell">
+                    @if (row.attachmentVersion) {
+                      <span class="version-badge">{{ row.attachmentVersion }}</span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="attachmentStatus">
+                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentStatus') }}</th>
+                  <td mat-cell *matCellDef="let row">
+                    @if (row.attachmentStatus?.name) {
+                      <span class="attachment-status-badge attachment-status-badge--{{ row.attachmentStatus.code | lowercase }}">
+                        {{ row.attachmentStatus.name }}
+                      </span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="description">
+                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.description') }}</th>
+                  <td mat-cell *matCellDef="let row" class="description-cell">
+                    @if (row.description) {
+                      <span [matTooltip]="row.description" matTooltipShowDelay="300" class="description-text">
+                        {{ row.description }}
+                      </span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="fileSize">
+                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.fileSize') }}</th>
+                  <td mat-cell *matCellDef="let row" class="size-cell">{{ formatFileSize(row.fileSize) }}</td>
+                </ng-container>
+
+                <ng-container matColumnDef="createdAt">
+                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.uploadedAt') }}</th>
+                  <td mat-cell *matCellDef="let row" class="date-cell">
+                    {{ row.createdAt | slice:0:16 }}
+                  </td>
+                </ng-container>
+
+                <ng-container matColumnDef="actions">
+                  <th mat-header-cell *matHeaderCellDef></th>
+                  <td mat-cell *matCellDef="let row" class="actions-cell">
+                    <button mat-icon-button [matTooltip]="t('api.attachment.download')"
+                            (click)="downloadAttachment(row)">
+                      <mat-icon>download</mat-icon>
+                    </button>
+                    @if (canWrite()) {
+                      <button mat-icon-button [matTooltip]="t('api.attachment.edit')"
+                              (click)="editAttachment(row)">
+                        <mat-icon>edit_note</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" [matTooltip]="t('api.attachment.delete')"
+                              (click)="confirmDeleteAttachment(row)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
+                  </td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="attachmentColumns"></tr>
+                <tr mat-row *matRowDef="let row; columns: attachmentColumns;"></tr>
+              </table>
+            } @else {
+              <div class="attachments-empty">
+                <mat-icon class="attachments-empty-icon" aria-hidden="true">folder_open</mat-icon>
+                <p class="attachments-empty-text">{{ t('api.attachment.noDocuments') }}</p>
+                @if (canWrite()) {
+                  <button mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)">
+                    <mat-icon>upload_file</mat-icon>
+                    {{ t('api.attachment.upload') }}
+                  </button>
+                }
+              </div>
+            }
+          }
         </mat-card>
 
         <!-- Environments -->
@@ -470,143 +597,6 @@
         </mat-card>
 
       </form>
-
-      <!-- Attachments (edit mode only) -->
-      @if (isEditMode()) {
-        <input #fileInput type="file" accept="*/*" (change)="onFileSelected($event)"
-               style="display:none" aria-hidden="true" />
-
-        <mat-card appearance="outlined" class="form-card">
-          <div class="card-head card-head--with-action">
-            <div class="card-head-icon card-head-icon--contract">
-              <mat-icon>attach_file</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.attachments') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.attachmentsHint') }}</span>
-            </div>
-            @if (canWrite()) {
-              <button mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)"
-                      [disabled]="uploading()" class="card-head-btn">
-                <mat-icon>upload_file</mat-icon>
-                {{ t('api.attachment.upload') }}
-              </button>
-            }
-          </div>
-
-          @if (uploading()) {
-            <mat-progress-bar mode="indeterminate" />
-          }
-
-          @if (attachments().length) {
-            <table mat-table [dataSource]="attachments()" class="attachments-table">
-              <ng-container matColumnDef="fileName">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.fileName') }}</th>
-                <td mat-cell *matCellDef="let row">
-                  <div class="file-cell">
-                    <mat-icon class="file-icon" aria-hidden="true">description</mat-icon>
-                    <span>{{ row.fileName }}</span>
-                  </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="contractType">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.contractType') }}</th>
-                <td mat-cell *matCellDef="let row">
-                  @if (row.contractType?.name) {
-                    <span class="contract-type-badge">{{ row.contractType.name }}</span>
-                  } @else {
-                    <span class="no-description">–</span>
-                  }
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="attachmentVersion">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentVersion') }}</th>
-                <td mat-cell *matCellDef="let row" class="version-cell">
-                  @if (row.attachmentVersion) {
-                    <span class="version-badge">{{ row.attachmentVersion }}</span>
-                  } @else {
-                    <span class="no-description">–</span>
-                  }
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="attachmentStatus">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentStatus') }}</th>
-                <td mat-cell *matCellDef="let row">
-                  @if (row.attachmentStatus?.name) {
-                    <span class="attachment-status-badge attachment-status-badge--{{ row.attachmentStatus.code | lowercase }}">
-                      {{ row.attachmentStatus.name }}
-                    </span>
-                  } @else {
-                    <span class="no-description">–</span>
-                  }
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.description') }}</th>
-                <td mat-cell *matCellDef="let row" class="description-cell">
-                  @if (row.description) {
-                    <span [matTooltip]="row.description" matTooltipShowDelay="300" class="description-text">
-                      {{ row.description }}
-                    </span>
-                  } @else {
-                    <span class="no-description">–</span>
-                  }
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="fileSize">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.fileSize') }}</th>
-                <td mat-cell *matCellDef="let row" class="size-cell">{{ formatFileSize(row.fileSize) }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="createdAt">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.uploadedAt') }}</th>
-                <td mat-cell *matCellDef="let row" class="date-cell">
-                  {{ row.createdAt | slice:0:16 }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef></th>
-                <td mat-cell *matCellDef="let row" class="actions-cell">
-                  <button mat-icon-button [matTooltip]="t('api.attachment.download')"
-                          (click)="downloadAttachment(row)">
-                    <mat-icon>download</mat-icon>
-                  </button>
-                  @if (canWrite()) {
-                    <button mat-icon-button [matTooltip]="t('api.attachment.edit')"
-                            (click)="editAttachment(row)">
-                      <mat-icon>edit_note</mat-icon>
-                    </button>
-                    <button mat-icon-button color="warn" [matTooltip]="t('api.attachment.delete')"
-                            (click)="confirmDeleteAttachment(row)">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  }
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="attachmentColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: attachmentColumns;"></tr>
-            </table>
-          } @else {
-            <div class="attachments-empty">
-              <mat-icon class="attachments-empty-icon" aria-hidden="true">folder_open</mat-icon>
-              <p class="attachments-empty-text">{{ t('api.attachment.noAttachments') }}</p>
-              @if (canWrite()) {
-                <button mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)">
-                  <mat-icon>upload_file</mat-icon>
-                  {{ t('api.attachment.upload') }}
-                </button>
-              }
-            </div>
-          }
-        </mat-card>
-      }
 
       <!-- Owners -->
       <mat-card appearance="outlined" class="form-card">

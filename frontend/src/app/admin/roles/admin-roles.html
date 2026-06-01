@@ -1,0 +1,16 @@
+<ng-container *transloco="let t; scope: 'admin'; lang: lang()">
+  <div class="admin-page">
+    <div class="page-header">
+      <div class="page-title">
+        <h1 class="title">{{ t('admin.page.roles.title') }}</h1>
+        <p class="subtitle">{{ t('admin.page.roles.subtitle') }}</p>
+      </div>
+    </div>
+
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+    />
+  </div>
+</ng-container>

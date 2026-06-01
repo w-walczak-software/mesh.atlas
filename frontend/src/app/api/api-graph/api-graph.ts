@@ -236,13 +236,14 @@ export class ApiGraph implements OnInit {
         const dCode = api.dataFlowDirection?.code ?? '';
         const key = `${api.producerSystemId}__${csId}__${tCode}__${dCode}`;
         if (!edgeMap.has(key)) {
+          const tlColor = api.transportLayer?.color ?? null;
           edgeMap.set(key, {
             edgeKey:          key,
             producerSystemId: api.producerSystemId,
             consumerSystemId: csId,
             transportLayer:   api.transportLayer ?? null,
             apis:             [],
-            edgeColor:        EDGE_PALETTE[edgeColorIdx++ % EDGE_PALETTE.length],
+            edgeColor:        tlColor ?? EDGE_PALETTE[edgeColorIdx++ % EDGE_PALETTE.length],
             strokeWidth:      2,
             parallelOffset:   0,
             reverseFlow:      api.dataFlowDirection?.code === 'PUSH',

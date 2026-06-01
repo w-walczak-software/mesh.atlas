@@ -53,8 +53,7 @@ export const routes: Routes = [
       },
       {
         path: 'admin',
-        loadComponent: () => import('./placeholder/placeholder').then(m => m.Placeholder),
-        data: { title: 'Administration' },
+        loadChildren: () => import('./admin/admin.routes').then(m => m.adminRoutes),
       },
       {
         path: 'settings',

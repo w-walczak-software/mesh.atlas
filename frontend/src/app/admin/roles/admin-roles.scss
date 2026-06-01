@@ -1,0 +1,25 @@
+.admin-page {
+  padding: 28px 32px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+.page-header {
+  margin-bottom: 28px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
+}
+
+.subtitle {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}

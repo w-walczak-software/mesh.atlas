@@ -17,6 +17,13 @@ app:
     keycloak:
       client-id: mesh.atlas.web
 
+keycloak:
+  admin:
+    server-url: https://keycloak.ww.local:8443
+    realm: atlas
+    client-id: atlas-admin
+    client-secret: gu4WNKbw6ynknyQZvzNvb2cDQt1QKUdk
+
 spring:
   application:
     name: mesh.atlas

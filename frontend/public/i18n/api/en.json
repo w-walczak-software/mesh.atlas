@@ -62,9 +62,7 @@
     "sla": "SLA",
     "slaHint": "Service Level Agreement parameters",
     "contract": "Contract & Documentation",
-    "contractHint": "API specification and documentation links",
-    "attachments": "Attachments",
-    "attachmentsHint": "API contracts, specifications, schemas and documentation files",
+    "contractHint": "API specification, documentation links and uploaded documentation files",
     "tags": "Tags",
     "environments": "Environments",
     "environmentsHint": "Deployment environments where this API is available",
@@ -89,7 +87,8 @@
     "attachmentStatus": "Status",
     "fileSize": "Size",
     "uploadedAt": "Uploaded At",
-    "noAttachments": "No attachments yet.",
+    "noAttachments": "No documentation files yet.",
+    "noDocuments": "No documentation files yet.",
     "preview": "Preview",
     "autoDetected": "Auto-detected: {{ name }}"
   },
@@ -152,7 +151,8 @@
     "lifecycleStage":       "Lifecycle",
     "businessCriticality":  "Criticality",
     "dataClassification":   "Data class.",
-    "architectureStyle":    "Architecture"
+    "architectureStyle":    "Architecture",
+    "documentation":        "Documentation"
   },
   "toolbar": {
     "selectToEdit": "Select an API to edit",

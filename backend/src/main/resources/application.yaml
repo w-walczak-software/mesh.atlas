@@ -17,6 +17,16 @@ app:
     keycloak:
       client-id: mesh.atlas.web
 
+keycloak:
+  admin:
+    server-url: https://keycloak.ww.local:8443
+    realm: atlas
+    # Service account client with realm-management: view-users, manage-users, query-clients roles
+    client-id: atlas-admin
+    client-secret: gu4WNKbw6ynknyQZvzNvb2cDQt1QKUdk
+    # Application client whose Client Roles are managed in the admin UI
+    app-client-id: mesh.atlas.web
+
 spring:
   application:
     name: mesh.atlas

@@ -1,0 +1,137 @@
+{
+  "page": {
+    "users": {
+      "title": "Użytkownicy",
+      "subtitle": "Zarządzanie kontami użytkowników i przypisanymi rolami"
+    },
+    "roles": {
+      "title": "Role i uprawnienia",
+      "subtitle": "Przeglądaj role dostępne w systemie"
+    },
+    "auditLog": {
+      "title": "Dziennik audytu",
+      "subtitle": "Pełna historia istotnych operacji w platformie"
+    }
+  },
+  "user": {
+    "search": "Szukaj użytkowników…",
+    "searchHint": "Szukaj po loginie, e-mailu lub imieniu",
+    "username": "Login",
+    "email": "E-mail",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "enabled": "Status",
+    "createdAt": "Data utworzenia",
+    "roles": "Role"
+  },
+  "role": {
+    "name": "Nazwa roli",
+    "description": "Opis",
+    "composite": "Kompozytowa",
+    "clientRole": "Rola klienta",
+    "type": "Typ"
+  },
+  "dialog": {
+    "manageRoles": {
+      "title": "Zarządzanie rolami",
+      "subtitle": "Wybierz role do przypisania użytkownikowi",
+      "noRoles": "Brak dostępnych ról"
+    }
+  },
+  "action": {
+    "manageRoles": "Zarządzaj rolami",
+    "search": "Szukaj"
+  },
+  "toast": {
+    "rolesUpdated": "Role użytkownika zostały zaktualizowane."
+  },
+  "badge": {
+    "enabled": "Aktywny",
+    "disabled": "Nieaktywny",
+    "realmRole": "Realm",
+    "clientRole": "Klient"
+  },
+  "auditLog": {
+    "field": {
+      "eventTime": "Czas zdarzenia",
+      "category": "Kategoria",
+      "action": "Akcja",
+      "resourceType": "Typ zasobu",
+      "resourceId": "ID zasobu",
+      "resourceName": "Nazwa zasobu",
+      "actor": "Użytkownik",
+      "actorEmail": "E-mail użytkownika",
+      "outcome": "Wynik",
+      "severity": "Poziom",
+      "message": "Komunikat",
+      "errorDetail": "Szczegóły błędu",
+      "context": "Kontekst"
+    },
+    "filter": {
+      "title": "Filtry",
+      "actor": "Użytkownik (login)",
+      "category": "Kategoria",
+      "action": "Akcja",
+      "resourceType": "Typ zasobu",
+      "outcome": "Wynik",
+      "startDate": "Od",
+      "endDate": "Do",
+      "all": "Wszystkie",
+      "reset": "Wyczyść",
+      "search": "Zastosuj filtry"
+    },
+    "outcome": {
+      "SUCCESS": "Sukces",
+      "FAILURE": "Błąd"
+    },
+    "severity": {
+      "INFO": "Info",
+      "WARNING": "Ostrzeżenie",
+      "CRITICAL": "Krytyczny"
+    },
+    "category": {
+      "USER_MANAGEMENT": "Zarządzanie użytkownikami",
+      "API_REGISTRY": "Rejestr API",
+      "INTEGRATION_REGISTRY": "Rejestr integracji",
+      "DICTIONARY": "Słownik",
+      "SECURITY": "Bezpieczeństwo",
+      "ADMINISTRATION": "Administracja",
+      "DATA_ACCESS": "Dostęp do danych"
+    },
+    "action": {
+      "CREATE": "Utwórz",
+      "UPDATE": "Aktualizacja",
+      "DELETE": "Usuń",
+      "DEACTIVATE": "Dezaktywuj",
+      "ACTIVATE": "Aktywuj",
+      "ATTACHMENT_UPLOADED": "Przesłano załącznik",
+      "ATTACHMENT_UPDATED": "Zaktualizowano załącznik",
+      "ATTACHMENT_DELETED": "Usunięto załącznik",
+      "ATTACHMENT_DOWNLOADED": "Pobrano załącznik",
+      "USER_ROLE_ASSIGNED": "Przypisano rolę",
+      "USER_ROLE_REVOKED": "Odebrano rolę",
+      "EXPORT": "Eksport",
+      "IMPORT": "Import",
+      "LOGIN": "Logowanie",
+      "LOGOUT": "Wylogowanie",
+      "APPROVAL_REQUESTED": "Zgłoszono do akceptacji",
+      "APPROVED": "Zaakceptowano",
+      "REJECTED": "Odrzucono",
+      "CONFIGURATION_CHANGED": "Zmiana konfiguracji"
+    },
+    "resourceType": {
+      "USER": "Użytkownik",
+      "ROLE": "Rola",
+      "IT_SYSTEM": "System IT",
+      "IT_SYSTEM_OWNER": "Właściciel systemu IT",
+      "API": "API",
+      "API_OWNER": "Właściciel API",
+      "API_ATTACHMENT": "Załącznik API",
+      "DATA_DOMAIN": "Domena danych",
+      "TRANSPORT_LAYER": "Warstwa transportowa",
+      "DICTIONARY_TYPE": "Typ słownika",
+      "DICTIONARY_ENTRY": "Pozycja słownika",
+      "CONFIGURATION": "Konfiguracja"
+    }
+  }
+}
