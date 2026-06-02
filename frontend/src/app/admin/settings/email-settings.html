@@ -1,0 +1,173 @@
+<ng-container *transloco="let t; scope: 'admin'; lang: lang()">
+  <div class="admin-page email-settings-page">
+
+    <div class="page-header">
+      <div class="page-title">
+        <h1 class="title">{{ t('admin.emailSettings.page.title') }}</h1>
+        <p class="subtitle">{{ t('admin.emailSettings.page.subtitle') }}</p>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-center" aria-live="polite">
+        <mat-spinner diameter="48" />
+      </div>
+    } @else {
+
+      <div class="settings-grid">
+
+        <!-- SMTP Configuration -->
+        <mat-card class="config-card">
+          <mat-card-header>
+            <div mat-card-avatar class="card-avatar" aria-hidden="true">
+              <mat-icon>dns</mat-icon>
+            </div>
+            <mat-card-title>{{ t('admin.emailSettings.section.smtp') }}</mat-card-title>
+          </mat-card-header>
+
+          <mat-card-content>
+            <form [formGroup]="form" class="settings-form" id="email-config-form">
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('admin.emailSettings.field.provider') }}</mat-label>
+                <mat-select formControlName="provider">
+                  @for (p of providers; track p.value) {
+                    <mat-option [value]="p.value">{{ t(p.labelKey) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <div class="row-fields">
+                <mat-form-field appearance="outline" class="host-field">
+                  <mat-label>{{ t('admin.emailSettings.field.host') }}</mat-label>
+                  <input matInput formControlName="host" placeholder="smtp.example.com" />
+                </mat-form-field>
+                <mat-form-field appearance="outline" class="port-field">
+                  <mat-label>{{ t('admin.emailSettings.field.port') }}</mat-label>
+                  <input matInput type="number" formControlName="port" min="1" max="65535" />
+                </mat-form-field>
+              </div>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('admin.emailSettings.field.encryption') }}</mat-label>
+                <mat-select formControlName="encryption">
+                  @for (e of encryptions; track e.value) {
+                    <mat-option [value]="e.value">{{ t(e.labelKey) }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('admin.emailSettings.field.username') }}</mat-label>
+                <mat-icon matPrefix>person</mat-icon>
+                <input matInput formControlName="username" autocomplete="off" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('admin.emailSettings.field.password') }}</mat-label>
+                <mat-icon matPrefix>lock</mat-icon>
+                <input matInput
+                       [type]="showPassword() ? 'text' : 'password'"
+                       formControlName="password"
+                       autocomplete="new-password" />
+                <button mat-icon-button matSuffix
+                        type="button"
+                        (click)="showPassword.set(!showPassword())"
+                        [attr.aria-label]="t('admin.emailSettings.action.togglePassword')">
+                  <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                </button>
+                @if (config()?.passwordSet) {
+                  <mat-hint>{{ t('admin.emailSettings.field.passwordSet') }}</mat-hint>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('admin.emailSettings.field.fromAddress') }}</mat-label>
+                <mat-icon matPrefix>alternate_email</mat-icon>
+                <input matInput type="email" formControlName="fromAddress" placeholder="no-reply@example.com" />
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('admin.emailSettings.field.fromDisplayName') }}</mat-label>
+                <input matInput formControlName="fromDisplayName" placeholder="mesh.atlas" />
+              </mat-form-field>
+
+              <div class="toggle-row">
+                <mat-slide-toggle formControlName="enabled" color="primary">
+                  {{ t('admin.emailSettings.field.enabled') }}
+                </mat-slide-toggle>
+              </div>
+
+            </form>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-flat-button
+                    type="button"
+                    form="email-config-form"
+                    [disabled]="saving() || form.invalid"
+                    (click)="saveConfig()">
+              @if (saving()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>save</mat-icon>
+              }
+              {{ t('admin.emailSettings.action.save') }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+        <!-- Test Email -->
+        <mat-card class="test-card">
+          <mat-card-header>
+            <div mat-card-avatar class="card-avatar" aria-hidden="true">
+              <mat-icon>send</mat-icon>
+            </div>
+            <mat-card-title>{{ t('admin.emailSettings.section.test') }}</mat-card-title>
+            <mat-card-subtitle>{{ t('admin.emailSettings.section.testSubtitle') }}</mat-card-subtitle>
+          </mat-card-header>
+
+          <mat-card-content>
+            <form [formGroup]="testForm" class="settings-form" id="test-email-form">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('admin.emailSettings.test.recipient') }}</mat-label>
+                <mat-icon matPrefix>email</mat-icon>
+                <input matInput type="email" formControlName="recipient" />
+              </mat-form-field>
+            </form>
+          </mat-card-content>
+
+          <mat-card-actions align="end">
+            <button mat-stroked-button
+                    type="button"
+                    [disabled]="testSending() || testForm.invalid || !config()?.enabled"
+                    [matTooltip]="!config()?.enabled ? t('admin.emailSettings.field.enabled') : ''"
+                    (click)="sendTestEmail()">
+              @if (testSending()) {
+                <mat-spinner diameter="18" />
+              } @else {
+                <mat-icon>send</mat-icon>
+              }
+              {{ t('admin.emailSettings.action.sendTest') }}
+            </button>
+          </mat-card-actions>
+        </mat-card>
+
+      </div>
+
+      <!-- Email Log -->
+      <div class="log-section">
+        <h2 class="section-title">{{ t('admin.emailSettings.log.title') }}</h2>
+        <app-data-table
+          [config]="logTableConfig()"
+          [data]="logData()"
+          [loading]="logLoading()"
+          [currentPage]="logPageIndex()"
+          (pageChange)="onLogPageChange($event)"
+        />
+      </div>
+
+    }
+
+  </div>
+</ng-container>

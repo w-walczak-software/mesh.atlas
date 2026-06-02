@@ -26,7 +26,10 @@
       "admin": "Administration",
       "adminUsers": "Users",
       "adminRoles": "Roles & Permissions",
-      "adminAudit": "Audit Log"
+      "adminAudit": "Audit Log",
+      "adminSettings": "System Parameters",
+      "adminEmailSettings": "Email Settings",
+      "adminEmailTemplates": "Email Templates"
     }
   },
   "common": {
@@ -47,7 +50,8 @@
       "min": "Minimum value is {{ min }}."
     },
     "error": {
-      "unexpected": "An unexpected error occurred. Please try again."
+      "unexpected": "An unexpected error occurred. Please try again.",
+      "save": "Failed to save. Please try again."
     },
     "table": {
       "filterPlaceholder": "Filter…",
@@ -66,6 +70,33 @@
       "selectRow": "Select row",
       "rowActions": "Row actions"
     }
+  },
+  "profile": {
+    "stat": {
+      "systemsOwned":    "Systems as owner",
+      "apisOwned":       "APIs as owner",
+      "systemsCanVerify":"Systems (can verify APIs)",
+      "canDefineApis":   "Can define new APIs"
+    },
+    "systems": {
+      "title":    "IT System Ownerships",
+      "subtitle": "{{ count }} active system(s)",
+      "empty":    "You are not assigned as an owner in any IT system."
+    },
+    "apis": {
+      "title":    "API Ownerships",
+      "subtitle": "{{ count }} active API(s)",
+      "empty":    "You are not assigned as an owner in any API."
+    },
+    "cap": {
+      "verify":       "Verify",
+      "define":       "Define APIs",
+      "edit":         "Edit API",
+      "canVerifyApi": "You can approve or reject new and modified APIs for this system.",
+      "canDefineApi": "You can define new APIs for this system.",
+      "canEditApi":   "You can edit this API."
+    },
+    "expired": "Expired ownerships"
   },
   "errors": {
     "default": "An unexpected error occurred.",

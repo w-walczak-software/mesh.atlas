@@ -33,5 +33,8 @@ public enum AuditAction {
     REJECTED,
 
     // Platform administration
-    CONFIGURATION_CHANGED
+    CONFIGURATION_CHANGED,
+
+    // Email
+    EMAIL_SENT
 }

@@ -116,7 +116,8 @@
     "duplicateCode": "System IT o kodzie \"{{ code }}\" już istnieje.",
     "notFound": "System IT nie został znaleziony.",
     "codePattern": "Kod musi zaczynać się wielką literą i zawierać tylko wielkie litery, cyfry, podkreślenia lub myślniki.",
-    "invalidEmail": "Wprowadź prawidłowy adres email."
+    "invalidEmail": "Wprowadź prawidłowy adres email.",
+    "governanceOwnerRequired": "Polityka governance wymaga wskazania co najmniej jednego właściciela z rolą Właściciela Biznesowego, Właściciela Technicznego lub rolą upoważnioną do akceptacji nowych API."
   },
   "badge": {
     "active": "Aktywny",

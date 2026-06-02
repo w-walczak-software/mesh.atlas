@@ -72,7 +72,10 @@ export interface ApiSummaryDto {
   transportLayer: TransportLayerRef | null;
   tags: string[] | null;
   active: boolean;
+  governanceStatus: GovernanceStatus;
 }
+
+export type GovernanceStatus = 'PENDING_VERIFICATION' | 'VERIFIED' | 'REQUIRES_MODIFICATION' | 'PENDING_REVIEW';
 
 export interface ApiDto {
   id: string;
@@ -104,6 +107,9 @@ export interface ApiDto {
   environments: DictionaryEntryRef[];
   externalId: string | null;
   active: boolean;
+  governanceStatus: GovernanceStatus;
+  governanceNote: string | null;
+  canVerify: boolean;
   createdAt: string;
   createdBy: string;
   updatedAt: string;
@@ -138,6 +144,7 @@ export interface ApiCreateRequest {
   dataDomainIds: string[] | null;
   environmentIds: string[] | null;
   externalId: string | null;
+  owners: ApiOwnerCreateRequest[] | null;
 }
 
 export interface ApiUpdateRequest {
@@ -245,6 +252,15 @@ export interface ApiSearchParams {
   page?: number;
   size?: number;
   sort?: string;
+  pendingVerificationOnly?: boolean;
+}
+
+export interface ApiVerifyRequest {
+  note: string | null;
+}
+
+export interface ApiGovernancePendingCountDto {
+  count: number;
 }
 
 // ── Stats ─────────────────────────────────────────────────────────────────────

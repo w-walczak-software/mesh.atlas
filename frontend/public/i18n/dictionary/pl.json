@@ -71,5 +71,11 @@
   },
   "error": {
     "duplicateCode": "Wartość o kodzie \"{{ code }}\" już istnieje w tym słowniku."
+  },
+  "rolePermissions": {
+    "section": "Uprawnienia",
+    "canDefineApi": "Użytkownik może definiować nowe API",
+    "canVerifyApi": "Użytkownik może weryfikować utworzone i niezweryfikowane API",
+    "canEditApi": "Użytkownik może edytować API"
   }
 }

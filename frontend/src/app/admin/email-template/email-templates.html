@@ -1,0 +1,14 @@
+<ng-container *transloco="let t; scope: 'admin'">
+  <div class="page-header">
+    <div class="page-header__text">
+      <h1 class="page-title">{{ t('admin.emailTemplate.page.title') }}</h1>
+      <p class="page-subtitle">{{ t('admin.emailTemplate.page.subtitle') }}</p>
+    </div>
+  </div>
+
+  <app-data-table
+    [config]="tableConfig()"
+    [data]="data()"
+    [loading]="loading()"
+    (pageChange)="onPageChange($event)" />
+</ng-container>

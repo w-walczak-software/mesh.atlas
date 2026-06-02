@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,7 +12,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
-import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
+import { BadgeConfig, PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { AuthService } from '@core/auth/auth.service';
@@ -27,6 +27,7 @@ import { ApiService } from '../service/api.service';
 import { ApiSearchParams, ApiSummaryDto } from '../model/api.model';
 import { ApiFilterStateService } from '../service/api-filter-state.service';
 import { ApiDocumentationDialog, ApiDocumentationDialogData } from '../api-documentation-dialog/api-documentation-dialog';
+import { ApiVerifyDialog, ApiVerifyDialogData } from '../api-form/api-verify.dialog';
 
 @Component({
   selector: 'app-apis',
@@ -55,13 +56,16 @@ export class Apis implements OnInit {
   private readonly transportLayerService = inject(TransportLayerService);
   private readonly dataDomainService = inject(DataDomainService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly dialogs = inject(DialogService);
   private readonly toast = inject(ToastService);
   private readonly auth = inject(AuthService);
   private readonly t = inject(TranslocoService);
   private readonly fb = inject(FormBuilder);
   private readonly filterState = inject(ApiFilterStateService);
-  private readonly dialog      = inject(MatDialog);
+  private readonly dialog = inject(MatDialog);
+
+  protected readonly pendingVerificationOnly = signal(false);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly canWrite = computed(() =>
@@ -111,6 +115,28 @@ export class Apis implements OnInit {
               (v.producerSystemIds as string[] | null)?.length ||
               (v.consumerSystemIds as string[] | null)?.length || v.environmentId);
   });
+
+  protected exitVerificationQueue(): void {
+    this.pendingVerificationOnly.set(false);
+    this.router.navigate(['/apis']);
+    this.pageIndex.set(0);
+    this.load();
+  }
+
+  protected openVerifyDialog(row: ApiSummaryDto, action: 'approve' | 'reject'): void {
+    this.dialog.open(ApiVerifyDialog, {
+      width: '480px',
+      maxWidth: '95vw',
+      disableClose: true,
+      data: { apiId: row.id, action } satisfies ApiVerifyDialogData,
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        const key = action === 'approve' ? 'api.governance.toastApproved' : 'api.governance.toastRejected';
+        this.toast.success(this.t.translate(key));
+        this.load();
+      }
+    });
+  }
 
   protected openDocumentation(row: ApiSummaryDto): void {
     this.dialog.open(ApiDocumentationDialog, {
@@ -190,7 +216,18 @@ export class Apis implements OnInit {
           badges: {
             'true': { label: this.t.translate('api.badge.active'), color: 'success' },
             'false': { label: this.t.translate('api.badge.inactive'), color: 'error' },
-          },
+          } as Record<string, BadgeConfig>,
+        },
+        {
+          key: 'governanceStatus',
+          label: this.t.translate('api.governance.statusLabel'),
+          width: '170px',
+          badges: {
+            'VERIFIED':              { label: this.t.translate('api.governance.status.VERIFIED'),              color: 'success' },
+            'PENDING_VERIFICATION':  { label: this.t.translate('api.governance.status.PENDING_VERIFICATION'),  color: 'warning' },
+            'PENDING_REVIEW':        { label: this.t.translate('api.governance.status.PENDING_REVIEW'),        color: 'warning' },
+            'REQUIRES_MODIFICATION': { label: this.t.translate('api.governance.status.REQUIRES_MODIFICATION'), color: 'error' },
+          } as Record<string, BadgeConfig>,
         },
       ],
       pagination: {
@@ -248,6 +285,19 @@ export class Apis implements OnInit {
           action: (row) => this.router.navigate(['/apis', row.id, 'edit']),
         },
         {
+          label: this.t.translate('api.governance.approve'),
+          icon: 'check_circle',
+          visible: (row) => row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW',
+          action: (row) => this.openVerifyDialog(row, 'approve'),
+        },
+        {
+          label: this.t.translate('api.governance.reject'),
+          icon: 'cancel',
+          color: 'error',
+          visible: (row) => row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW',
+          action: (row) => this.openVerifyDialog(row, 'reject'),
+        },
+        {
           label: this.t.translate('api.action.deactivate'),
           icon: 'block',
           color: 'error',
@@ -262,16 +312,27 @@ export class Apis implements OnInit {
   ngOnInit(): void {
     this.loadDictionaries();
 
+    const saved = this.filterState.snapshot();
+
+    const pendingOnly = this.route.snapshot.queryParamMap.get('pendingVerificationOnly') === 'true';
+    if (pendingOnly) {
+      this.pendingVerificationOnly.set(true);
+      if (saved) this.pageSize.set(saved.pageSize);
+      this.pageIndex.set(0);
+      this.load();
+      return;
+    }
+
     const selectId = (history.state as { selectId?: string })?.selectId;
     if (selectId) {
       this.pendingSelectId = selectId;
+      if (saved) this.pageSize.set(saved.pageSize);
       this.pageIndex.set(0);
       this.load();
       return;
     }
 
     // Restore state when returning from the Integration Map
-    const saved = this.filterState.snapshot();
     if (saved) {
       this.searchForm.patchValue({
         query:               saved.form.query ?? '',
@@ -353,6 +414,7 @@ export class Apis implements OnInit {
       integrationPatternId: v.integrationPatternId || undefined,
       dataDomainIds: v.dataDomainIds?.length ? v.dataDomainIds : undefined,
       environmentId: v.environmentId || undefined,
+      pendingVerificationOnly: this.pendingVerificationOnly() || undefined,
     };
     this.service.findAll(params).subscribe({
       next: (page) => {

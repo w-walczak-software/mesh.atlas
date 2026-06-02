@@ -51,6 +51,145 @@
     "realmRole": "Realm",
     "clientRole": "Klient"
   },
+  "systemParam": {
+    "page": {
+      "title": "Parametry systemowe",
+      "subtitle": "Konfiguracja platformy — wartości sterujące zachowaniem systemu"
+    },
+    "field": {
+      "parameterKey": "Klucz",
+      "parameterName": "Nazwa",
+      "parameterType": "Typ",
+      "description": "Opis",
+      "category": "Kategoria",
+      "currentValue": "Wartość bieżąca",
+      "value": "Wartość",
+      "updatedBy": "Zmieniony przez",
+      "stringValue": "Wartość tekstowa",
+      "integerValue": "Wartość całkowita",
+      "decimalValue": "Wartość dziesiętna",
+      "booleanValue": "Wartość logiczna",
+      "dateValue": "Wartość daty",
+      "datetimeValue": "Wartość daty i czasu"
+    },
+    "value": {
+      "true": "Tak (włączony)",
+      "false": "Nie (wyłączony)"
+    },
+    "action": {
+      "edit": "Edytuj wartość",
+      "history": "Historia zmian"
+    },
+    "dialog": {
+      "title": "Edycja parametru systemowego"
+    },
+    "toast": {
+      "saved": "Parametr systemowy został zaktualizowany."
+    }
+  },
+  "emailSettings": {
+    "page": {
+      "title": "Ustawienia email",
+      "subtitle": "Konfiguracja SMTP do wysyłki wiadomości email"
+    },
+    "section": {
+      "smtp": "Konfiguracja SMTP",
+      "test": "Wyślij testowy email",
+      "testSubtitle": "Zweryfikuj konfigurację wysyłając wiadomość testową"
+    },
+    "field": {
+      "provider": "Dostawca",
+      "host": "Host SMTP",
+      "port": "Port",
+      "username": "Użytkownik",
+      "password": "Hasło",
+      "passwordSet": "Hasło jest skonfigurowane — pozostaw puste, aby zachować aktualne",
+      "fromAddress": "Adres nadawcy",
+      "fromDisplayName": "Nazwa wyświetlana nadawcy",
+      "encryption": "Szyfrowanie",
+      "enabled": "Włącz wysyłkę email"
+    },
+    "provider": {
+      "GMAIL": "Gmail / Google Workspace",
+      "EXCHANGE": "Exchange / Office 365",
+      "CUSTOM": "Własny serwer SMTP"
+    },
+    "encryption": {
+      "TLS": "STARTTLS (port 587)",
+      "SSL": "SSL/TLS (port 465)",
+      "NONE": "Brak (niezalecane)"
+    },
+    "action": {
+      "save": "Zapisz konfigurację",
+      "sendTest": "Wyślij testowy email",
+      "togglePassword": "Pokaż / ukryj hasło"
+    },
+    "toast": {
+      "saved": "Konfiguracja email została zapisana.",
+      "testSent": "Testowy email wysłany pomyślnie.",
+      "testFailed": "Wysyłka testowego emaila nie powiodła się — sprawdź ustawienia SMTP i dziennik poniżej."
+    },
+    "test": {
+      "recipient": "Adres odbiorcy testowego"
+    },
+    "log": {
+      "title": "Dziennik zdarzeń email",
+      "field": {
+        "sentAt": "Data wysyłki",
+        "recipient": "Odbiorca",
+        "subject": "Temat",
+        "status": "Status",
+        "sentBy": "Wysłał",
+        "isTest": "Test"
+      },
+      "status": {
+        "SENT": "Wysłano",
+        "FAILED": "Błąd"
+      }
+    }
+  },
+  "emailTemplate": {
+    "page": {
+      "title": "Szablony email",
+      "subtitle": "Szablony HTML wiadomości email ze wsparciem zmiennych Thymeleaf do dynamicznej treści"
+    },
+    "field": {
+      "code": "Kod szablonu",
+      "codeHint": "Niezmienialny identyfikator UPPER_SNAKE_CASE (np. WELCOME_EMAIL)",
+      "title": "Temat wiadomości",
+      "description": "Opis",
+      "body": "Treść HTML",
+      "tags": "Zmienne szablonu (tagi)",
+      "tagsHint": "Zdefiniuj nazwy zmiennych używanych w szablonie. Kliknij tag, aby wstawić [[${nazwaZmiennej}]] w miejscu kursora.",
+      "newTag": "Nazwa nowej zmiennej",
+      "active": "Status",
+      "updatedBy": "Ostatnia zmiana"
+    },
+    "editor": {
+      "code": "Kod",
+      "split": "Podział",
+      "preview": "Podgląd"
+    },
+    "validation": {
+      "codePattern": "Kod musi być w formacie UPPER_SNAKE_CASE zaczynającym się od litery (np. WELCOME_EMAIL)"
+    },
+    "action": {
+      "create": "Nowy szablon",
+      "edit": "Edytuj",
+      "history": "Historia zmian",
+      "addTag": "Dodaj zmienną",
+      "insertTag": "Kliknij, aby wstawić w miejscu kursora"
+    },
+    "dialog": {
+      "titleCreate": "Nowy szablon email",
+      "titleEdit": "Edycja szablonu email"
+    },
+    "toast": {
+      "created": "Szablon email został utworzony.",
+      "updated": "Szablon email został zaktualizowany.",
+      "invalidTag": "Nieprawidłowa nazwa zmiennej. Użyj liter, cyfr i podkreślników, zaczynając od litery."
+    }
+  },
   "auditLog": {
     "field": {
       "eventTime": "Czas zdarzenia",
@@ -117,7 +256,8 @@
       "APPROVAL_REQUESTED": "Zgłoszono do akceptacji",
       "APPROVED": "Zaakceptowano",
       "REJECTED": "Odrzucono",
-      "CONFIGURATION_CHANGED": "Zmiana konfiguracji"
+      "CONFIGURATION_CHANGED": "Zmiana konfiguracji",
+      "EMAIL_SENT": "Wysłano email"
     },
     "resourceType": {
       "USER": "Użytkownik",
@@ -131,7 +271,9 @@
       "TRANSPORT_LAYER": "Warstwa transportowa",
       "DICTIONARY_TYPE": "Typ słownika",
       "DICTIONARY_ENTRY": "Pozycja słownika",
-      "CONFIGURATION": "Konfiguracja"
+      "CONFIGURATION": "Konfiguracja",
+      "EMAIL_CONFIG": "Konfiguracja email",
+      "EMAIL_TEMPLATE": "Szablon email"
     }
   }
 }

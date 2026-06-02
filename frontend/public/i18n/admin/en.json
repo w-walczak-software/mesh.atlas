@@ -51,6 +51,145 @@
     "realmRole": "Realm",
     "clientRole": "Client"
   },
+  "systemParam": {
+    "page": {
+      "title": "System Parameters",
+      "subtitle": "Platform configuration — values controlling system behavior"
+    },
+    "field": {
+      "parameterKey": "Key",
+      "parameterName": "Name",
+      "parameterType": "Type",
+      "description": "Description",
+      "category": "Category",
+      "currentValue": "Current Value",
+      "value": "Value",
+      "updatedBy": "Changed By",
+      "stringValue": "String value",
+      "integerValue": "Integer value",
+      "decimalValue": "Decimal value",
+      "booleanValue": "Boolean value",
+      "dateValue": "Date value",
+      "datetimeValue": "Datetime value"
+    },
+    "value": {
+      "true": "Yes (enabled)",
+      "false": "No (disabled)"
+    },
+    "action": {
+      "edit": "Edit value",
+      "history": "Change history"
+    },
+    "dialog": {
+      "title": "Edit System Parameter"
+    },
+    "toast": {
+      "saved": "System parameter updated successfully."
+    }
+  },
+  "emailSettings": {
+    "page": {
+      "title": "Email Settings",
+      "subtitle": "SMTP configuration for outbound email delivery"
+    },
+    "section": {
+      "smtp": "SMTP Configuration",
+      "test": "Send Test Email",
+      "testSubtitle": "Verify configuration by sending a test message"
+    },
+    "field": {
+      "provider": "Provider",
+      "host": "SMTP Host",
+      "port": "Port",
+      "username": "Username",
+      "password": "Password",
+      "passwordSet": "Password is configured — leave blank to keep it",
+      "fromAddress": "From Address",
+      "fromDisplayName": "From Display Name",
+      "encryption": "Encryption",
+      "enabled": "Enable email sending"
+    },
+    "provider": {
+      "GMAIL": "Gmail / Google Workspace",
+      "EXCHANGE": "Exchange / Office 365",
+      "CUSTOM": "Custom SMTP"
+    },
+    "encryption": {
+      "TLS": "STARTTLS (port 587)",
+      "SSL": "SSL/TLS (port 465)",
+      "NONE": "None (not recommended)"
+    },
+    "action": {
+      "save": "Save Configuration",
+      "sendTest": "Send Test Email",
+      "togglePassword": "Toggle password visibility"
+    },
+    "toast": {
+      "saved": "Email configuration saved successfully.",
+      "testSent": "Test email sent successfully.",
+      "testFailed": "Test email failed — check SMTP settings and log below."
+    },
+    "test": {
+      "recipient": "Test Recipient Address"
+    },
+    "log": {
+      "title": "Email Log",
+      "field": {
+        "sentAt": "Sent At",
+        "recipient": "Recipient",
+        "subject": "Subject",
+        "status": "Status",
+        "sentBy": "Sent By",
+        "isTest": "Test"
+      },
+      "status": {
+        "SENT": "Sent",
+        "FAILED": "Failed"
+      }
+    }
+  },
+  "emailTemplate": {
+    "page": {
+      "title": "Email Templates",
+      "subtitle": "HTML email templates with Thymeleaf variable support for dynamic content"
+    },
+    "field": {
+      "code": "Template Code",
+      "codeHint": "Immutable identifier in UPPER_SNAKE_CASE (e.g. WELCOME_EMAIL)",
+      "title": "Email Subject",
+      "description": "Description",
+      "body": "HTML Body",
+      "tags": "Template Variables (Tags)",
+      "tagsHint": "Define variable names used in the template. Click a tag to insert [[${varName}]] at cursor.",
+      "newTag": "New variable name",
+      "active": "Status",
+      "updatedBy": "Last Modified By"
+    },
+    "editor": {
+      "code": "Code",
+      "split": "Split",
+      "preview": "Preview"
+    },
+    "validation": {
+      "codePattern": "Code must be UPPER_SNAKE_CASE starting with a letter (e.g. WELCOME_EMAIL)"
+    },
+    "action": {
+      "create": "New Template",
+      "edit": "Edit",
+      "history": "Change History",
+      "addTag": "Add variable",
+      "insertTag": "Click to insert at cursor"
+    },
+    "dialog": {
+      "titleCreate": "New Email Template",
+      "titleEdit": "Edit Email Template"
+    },
+    "toast": {
+      "created": "Email template created successfully.",
+      "updated": "Email template updated successfully.",
+      "invalidTag": "Invalid tag name. Use alphanumeric characters and underscores, starting with a letter."
+    }
+  },
   "auditLog": {
     "field": {
       "eventTime": "Event Time",
@@ -117,7 +256,8 @@
       "APPROVAL_REQUESTED": "Approval Requested",
       "APPROVED": "Approved",
       "REJECTED": "Rejected",
-      "CONFIGURATION_CHANGED": "Configuration Changed"
+      "CONFIGURATION_CHANGED": "Configuration Changed",
+      "EMAIL_SENT": "Email Sent"
     },
     "resourceType": {
       "USER": "User",
@@ -131,7 +271,9 @@
       "TRANSPORT_LAYER": "Transport Layer",
       "DICTIONARY_TYPE": "Dictionary Type",
       "DICTIONARY_ENTRY": "Dictionary Entry",
-      "CONFIGURATION": "Configuration"
+      "CONFIGURATION": "Configuration",
+      "EMAIL_CONFIG": "Email Configuration",
+      "EMAIL_TEMPLATE": "Email Template"
     }
   }
 }

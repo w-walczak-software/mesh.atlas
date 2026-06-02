@@ -209,8 +209,13 @@ export class DataTable<T extends object> implements OnDestroy {
       const savedOrder = this.loadStorage<string[]>('order');
       this.columnOrder.set(savedOrder ?? cfg.columns.map(c => c.key));
 
+      const savedPageSize = this.loadStorage<number>('pageSize');
       const pg = cfg.pagination;
-      if (pg?.pageSize) this.pageSize.set(pg.pageSize);
+      if (savedPageSize) {
+        this.pageSize.set(savedPageSize);
+      } else if (pg?.pageSize) {
+        this.pageSize.set(pg.pageSize);
+      }
     });
 
     // Sync external page control → internal pageIndex
@@ -391,6 +396,7 @@ export class DataTable<T extends object> implements OnDestroy {
 
   protected setPageSize(size: number): void {
     this.pageSize.set(size);
+    this.saveStorage('pageSize', size);
     this.pageIndex.set(0);
     this.emitPage();
   }

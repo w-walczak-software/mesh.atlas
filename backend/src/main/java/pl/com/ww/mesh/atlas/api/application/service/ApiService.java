@@ -7,17 +7,26 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiStatsDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSummaryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.mapper.ApiMapper;
+import pl.com.ww.mesh.atlas.api.application.mapper.ApiOwnerMapper;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiConsumerConflictException;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiDuplicateCodeException;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiNotFoundException;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiOwnerEntity;
+import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiOwnerRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiSpecification;
+import org.springframework.context.ApplicationEventPublisher;
+import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
+import pl.com.ww.mesh.atlas.global.GovernanceService;
+import pl.com.ww.mesh.atlas.global.domain.exception.AtlasGovernanceViolationException;
+import pl.com.ww.mesh.atlas.security.auth.UserContextService;
 import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
 import pl.com.ww.mesh.atlas.datadomain.infrastructure.persistance.DataDomainRepository;
 import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryEntryNotFoundException;
@@ -42,15 +51,23 @@ import java.util.stream.Collectors;
 public class ApiService {
 
     private final ApiRepository apiRepository;
+    private final ApiOwnerRepository ownerRepository;
     private final DictionaryEntryRepository entryRepository;
     private final ItSystemRepository itSystemRepository;
     private final TransportLayerRepository transportLayerRepository;
     private final DataDomainRepository dataDomainRepository;
     private final ApiMapper mapper;
+    private final ApiOwnerMapper ownerMapper;
+    private final GovernanceService governanceService;
+    private final UserContextService userContextService;
+    private final ApiGovernanceNotificationService notificationService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public Page<ApiSummaryDto> findAll(ApiSearchCriteria criteria, Pageable pageable) {
-        return apiRepository.findAll(new ApiSpecification(criteria), pageable)
+        var user = userContextService.getCurrentUser();
+        var verifiable = governanceService.getVerifiableSystemIds(user.email());
+        return apiRepository.findAll(new ApiSpecification(criteria, user.email(), verifiable), pageable)
                 .map(mapper::mapSummary);
     }
 
@@ -68,19 +85,43 @@ public class ApiService {
 
     @Transactional(readOnly = true)
     public ApiDto findById(UUID id) {
-        return apiRepository.findById(id)
-                .map(mapper::map)
+        ApiEntity entity = apiRepository.findById(id)
                 .orElseThrow(() -> new AtlasApiNotFoundException(id.toString()));
+        return toApiDto(entity);
     }
 
     @Transactional(readOnly = true)
     public ApiDto findByCode(String code) {
-        return apiRepository.findByCode(code)
-                .map(mapper::map)
+        ApiEntity entity = apiRepository.findByCode(code)
                 .orElseThrow(() -> new AtlasApiNotFoundException(code));
+        return toApiDto(entity);
+    }
+
+    private ApiDto toApiDto(ApiEntity entity) {
+        var user = userContextService.getCurrentUser();
+        UUID producerSystemId = entity.getProducerSystem() != null ? entity.getProducerSystem().getId() : null;
+        boolean canVerify = governanceService.isVerifierForSystem(user.email(), producerSystemId)
+                && entity.getGovernanceStatus() != GovernanceStatus.VERIFIED;
+        ApiDto base = mapper.map(entity);
+        return new ApiDto(base.id(), base.code(), base.name(), base.description(), base.apiVersion(),
+                base.type(), base.status(), base.producerSystem(), base.dataFlowDirection(),
+                base.consumerSystems(), base.transportLayer(), base.protocol(), base.authenticationMethod(),
+                base.securityPolicy(), base.integrationPattern(), base.messageFormat(),
+                base.slaResponseTimeMs(), base.slaUptimePct(), base.slaTier(), base.slaDescription(),
+                base.contractType(), base.contractVersion(), base.contractUrl(), base.documentationUrl(),
+                base.tags(), base.dataDomains(), base.environments(), base.externalId(), base.active(),
+                base.governanceStatus(), base.governanceNote(), canVerify,
+                base.createdAt(), base.createdBy(), base.updatedAt(), base.updatedBy());
     }
 
     public ApiDto create(ApiCreateRequest request) {
+        List<ApiOwnerCreateRequest> owners = request.owners() != null ? request.owners() : Collections.emptyList();
+        var user = userContextService.getCurrentUser();
+
+        if (governanceService.isGovernanceEnabledOnApiCreate() && owners.isEmpty()) {
+            throw new AtlasGovernanceViolationException("At least one API owner is required when governance is enabled");
+        }
+
         String code = (request.code() == null || request.code().isBlank())
                 ? generateCode(request.producerSystemId(), request.transportLayerId())
                 : request.code();
@@ -102,10 +143,42 @@ public class ApiService {
         entity.getConsumerSystems().addAll(
                 resolveConsumerSystems(request.consumerSystemIds(), request.producerSystemId()));
 
-        return mapper.map(apiRepository.save(entity));
+        // Set governance status: creator who is also a verifier gets VERIFIED immediately
+        boolean pendingAfterCreate = false;
+        if (governanceService.isGovernanceEnabledOnApiCreate()) {
+            boolean creatorIsVerifier = governanceService.isVerifierForSystem(
+                    user.email(), request.producerSystemId());
+            if (creatorIsVerifier) {
+                entity.setGovernanceStatus(GovernanceStatus.VERIFIED);
+            } else {
+                entity.setGovernanceStatus(GovernanceStatus.PENDING_VERIFICATION);
+                pendingAfterCreate = true;
+            }
+        } else {
+            entity.setGovernanceStatus(GovernanceStatus.VERIFIED);
+        }
+
+        ApiEntity saved = apiRepository.save(entity);
+        owners.forEach(ownerRequest -> {
+            ApiOwnerEntity owner = ownerMapper.map(ownerRequest);
+            owner.setApi(saved);
+            owner.setRole(resolveEntry(ownerRequest.roleId()));
+            ownerRepository.save(owner);
+        });
+
+        if (pendingAfterCreate) {
+            String sysName = saved.getProducerSystem() != null ? saved.getProducerSystem().getName() : null;
+            eventPublisher.publishEvent(notificationService.buildCreateEvent(
+                    request.producerSystemId(), sysName,
+                    saved.getCode(), saved.getName(), saved.getApiVersion(),
+                    user.email(), saved.getCreatedAt()));
+        }
+
+        return toApiDto(saved);
     }
 
     public ApiDto update(UUID id, ApiUpdateRequest request) {
+        var user = userContextService.getCurrentUser();
         ApiEntity entity = getApiOrThrow(id);
         mapper.updateEntity(request, entity);
         applyFkRefs(entity,
@@ -116,6 +189,27 @@ public class ApiService {
                 request.securityPolicyId(), request.integrationPatternId(),
                 request.messageFormatId(), request.slaTierId(), request.contractTypeId());
 
+        boolean pendingAfterUpdate = false;
+        if (governanceService.isGovernanceEnabledOnApiCreate()) {
+            UUID producerSystemId = entity.getProducerSystem() != null ? entity.getProducerSystem().getId() : null;
+            boolean updaterIsVerifier = governanceService.isVerifierForSystem(user.email(), producerSystemId);
+
+            if (updaterIsVerifier) {
+                // Verifier modifying their own system's API → auto-approve
+                entity.setGovernanceStatus(GovernanceStatus.VERIFIED);
+                entity.setGovernanceNote(null);
+            } else if (entity.getGovernanceStatus() == GovernanceStatus.VERIFIED) {
+                // Published API modified by non-verifier → needs review (stays visible)
+                entity.setGovernanceStatus(GovernanceStatus.PENDING_REVIEW);
+                pendingAfterUpdate = true;
+            } else if (entity.getGovernanceStatus() == GovernanceStatus.REQUIRES_MODIFICATION) {
+                // Creator resubmits after rejection → back to pending
+                entity.setGovernanceStatus(GovernanceStatus.PENDING_VERIFICATION);
+                entity.setGovernanceNote(null);
+                pendingAfterUpdate = true;
+            }
+        }
+
         entity.getDataDomains().clear();
         entity.getDataDomains().addAll(resolveDataDomains(request.dataDomainIds()));
         entity.getEnvironments().clear();
@@ -124,7 +218,18 @@ public class ApiService {
         // PostCollectionUpdateEvent that Envers needs to audit the join table correctly.
         applyConsumerSystemsDiff(entity, request.consumerSystemIds(), request.producerSystemId());
 
-        return mapper.map(apiRepository.save(entity));
+        ApiEntity saved = apiRepository.save(entity);
+
+        if (pendingAfterUpdate) {
+            String sysName = saved.getProducerSystem() != null ? saved.getProducerSystem().getName() : null;
+            UUID producerSystemId = saved.getProducerSystem() != null ? saved.getProducerSystem().getId() : null;
+            eventPublisher.publishEvent(notificationService.buildModifyEvent(
+                    producerSystemId, sysName,
+                    saved.getCode(), saved.getName(), saved.getApiVersion(),
+                    user.email(), saved.getUpdatedAt()));
+        }
+
+        return toApiDto(saved);
     }
 
     public void deactivate(UUID id) {

@@ -15,5 +15,6 @@ public record ApiSearchCriteria(
         UUID environmentId,
         String description,
         UUID integrationPatternId,
-        List<UUID> dataDomainIds
+        List<UUID> dataDomainIds,
+        Boolean pendingVerificationOnly
 ) {}

@@ -205,11 +205,36 @@
     "codePattern": "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores, or hyphens.",
     "invalidEmail": "Please enter a valid email address.",
     "uptimePctRange": "Uptime must be between 0 and 100.",
-    "consumerConflict": "The producer system cannot also be listed as a consumer of this API."
+    "consumerConflict": "The producer system cannot also be listed as a consumer of this API.",
+    "governanceOwnerRequired": "Governance policy requires at least one owner to be assigned before registering a new API."
   },
   "confirm": {
     "deactivate": "Are you sure you want to deactivate this API? It will no longer be visible in the active registry.",
     "deleteOwner": "Are you sure you want to remove this owner?",
     "deleteAttachment": "Are you sure you want to remove this attachment? This action cannot be undone."
+  },
+  "governance": {
+    "statusLabel": "Governance Status",
+    "status": {
+      "PENDING_VERIFICATION": "Pending Verification",
+      "VERIFIED": "Verified",
+      "REQUIRES_MODIFICATION": "Requires Modification",
+      "PENDING_REVIEW": "Pending Review (changes)"
+    },
+    "approve": "Approve",
+    "reject": "Reject",
+    "approveTitle": "Approve API",
+    "rejectTitle": "Reject API",
+    "approveHint": "Approving this API will make it visible to all users. You may optionally add a note.",
+    "rejectHint": "Rejecting will notify the creator that changes are required. A rejection note is mandatory.",
+    "note": "Note",
+    "toastApproved": "API approved and published successfully.",
+    "toastRejected": "API rejected. Creator has been notified.",
+    "pendingTitle": "Pending API Verification",
+    "pendingMessage": "You have {{ count }} API(s) awaiting your verification.",
+    "pendingLater": "Later",
+    "pendingGoTo": "Go to Verification Queue",
+    "verificationQueueTitle": "Verification Queue — APIs awaiting your review",
+    "exitQueue": "Back to all APIs"
   }
 }

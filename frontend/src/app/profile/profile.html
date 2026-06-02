@@ -1,0 +1,242 @@
+<ng-container *transloco="let t; lang: lang()">
+  <div class="profile-page">
+
+    <!-- Loading -->
+    @if (loading()) {
+      <div class="profile-loading">
+        <mat-spinner diameter="48" />
+      </div>
+    }
+
+    @if (!loading() && error()) {
+      <div class="profile-error">
+        <mat-icon>error_outline</mat-icon>
+        <p>{{ t('common.error.unexpected') }}</p>
+      </div>
+    }
+
+    @if (!loading() && profile(); as p) {
+
+      <!-- ── Hero ───────────────────────────────────────────────────── -->
+      <div class="hero">
+        <div class="hero-avatar">{{ user()?.initials }}</div>
+        <div class="hero-info">
+          <h1 class="hero-name">{{ p.fullName }}</h1>
+          <p class="hero-email">{{ p.email }}</p>
+          <div class="hero-roles">
+            @for (role of p.platformRoles; track role) {
+              @if (role.toLowerCase().includes('atlas')) {
+                <mat-chip-set>
+                  <mat-chip [class]="role.toLowerCase().includes('admin') ? 'role-chip role-chip--admin' : 'role-chip role-chip--user'">
+                    <mat-icon matChipAvatar>
+                      {{ role.toLowerCase().includes('admin') ? 'admin_panel_settings' : 'verified_user' }}
+                    </mat-icon>
+                    {{ role }}
+                  </mat-chip>
+                </mat-chip-set>
+              }
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Summary cards ──────────────────────────────────────────── -->
+      <div class="summary-grid">
+        <mat-card class="summary-card">
+          <mat-card-content>
+            <div class="summary-value">{{ systemOwnerCount() }}</div>
+            <div class="summary-label">
+              <mat-icon>computer</mat-icon>
+              {{ t('profile.stat.systemsOwned') }}
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="summary-card">
+          <mat-card-content>
+            <div class="summary-value">{{ apiOwnerCount() }}</div>
+            <div class="summary-label">
+              <mat-icon>api</mat-icon>
+              {{ t('profile.stat.apisOwned') }}
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="summary-card" [class.summary-card--highlight]="systemVerifierCount() > 0">
+          <mat-card-content>
+            <div class="summary-value">{{ systemVerifierCount() }}</div>
+            <div class="summary-label">
+              <mat-icon>verified</mat-icon>
+              {{ t('profile.stat.systemsCanVerify') }}
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="summary-card" [class.summary-card--highlight]="p.governanceCapabilities.canDefineApisForAnySystems">
+          <mat-card-content>
+            <div class="summary-value">
+              <mat-icon class="cap-icon">{{ p.governanceCapabilities.canDefineApisForAnySystems ? 'check_circle' : 'remove_circle_outline' }}</mat-icon>
+            </div>
+            <div class="summary-label">
+              <mat-icon>add_circle</mat-icon>
+              {{ t('profile.stat.canDefineApis') }}
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- ── IT System Ownerships ───────────────────────────────────── -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>computer</mat-icon>
+          <mat-card-title>{{ t('profile.systems.title') }}</mat-card-title>
+          <mat-card-subtitle>{{ t('profile.systems.subtitle', { count: systemOwnerCount() }) }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (!activeSystemOwnerships().length && !expiredSystemOwnerships().length) {
+            <div class="empty-state">
+              <mat-icon>inbox</mat-icon>
+              <p>{{ t('profile.systems.empty') }}</p>
+            </div>
+          } @else {
+            <div class="ownership-list">
+              @for (o of activeSystemOwnerships(); track o.systemId + o.roleCode) {
+                <div class="ownership-item" (click)="goToSystem(o.systemId)" role="button" tabindex="0"
+                     (keydown.enter)="goToSystem(o.systemId)">
+                  <div class="ownership-icon">
+                    @if (o.systemIcon) {
+                      <mat-icon>{{ o.systemIcon }}</mat-icon>
+                    } @else {
+                      <mat-icon>computer</mat-icon>
+                    }
+                  </div>
+                  <div class="ownership-main">
+                    <div class="ownership-name">{{ o.systemName }}</div>
+                    <div class="ownership-meta">
+                      <span class="ownership-code">{{ o.systemCode }}</span>
+                      <span class="ownership-sep">·</span>
+                      <span class="ownership-role">{{ o.roleName }}</span>
+                      @if (o.validTo) {
+                        <span class="ownership-sep">·</span>
+                        <span class="ownership-dates">{{ formatDate(o.validFrom) }} – {{ formatDate(o.validTo) }}</span>
+                      }
+                    </div>
+                  </div>
+                  <div class="ownership-caps">
+                    @if (o.canVerifyApi) {
+                      <mat-chip class="cap-chip cap-chip--verify" [matTooltip]="t('profile.cap.canVerifyApi')">
+                        <mat-icon matChipAvatar>verified</mat-icon>
+                        {{ t('profile.cap.verify') }}
+                      </mat-chip>
+                    }
+                    @if (o.canDefineApi) {
+                      <mat-chip class="cap-chip cap-chip--define" [matTooltip]="t('profile.cap.canDefineApi')">
+                        <mat-icon matChipAvatar>add_circle</mat-icon>
+                        {{ t('profile.cap.define') }}
+                      </mat-chip>
+                    }
+                  </div>
+                  <mat-icon class="ownership-nav">chevron_right</mat-icon>
+                </div>
+              }
+            </div>
+
+            @if (expiredSystemOwnerships().length) {
+              <mat-divider class="section-divider" />
+              <p class="expired-label">{{ t('profile.expired') }}</p>
+              <div class="ownership-list ownership-list--expired">
+                @for (o of expiredSystemOwnerships(); track o.systemId + o.roleCode) {
+                  <div class="ownership-item ownership-item--expired">
+                    <div class="ownership-icon"><mat-icon>computer</mat-icon></div>
+                    <div class="ownership-main">
+                      <div class="ownership-name">{{ o.systemName }}</div>
+                      <div class="ownership-meta">
+                        <span class="ownership-code">{{ o.systemCode }}</span>
+                        <span class="ownership-sep">·</span>
+                        <span class="ownership-role">{{ o.roleName }}</span>
+                        <span class="ownership-sep">·</span>
+                        <span class="ownership-dates">{{ formatDate(o.validFrom) }} – {{ formatDate(o.validTo) }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+
+      <!-- ── API Ownerships ─────────────────────────────────────────── -->
+      <mat-card class="section-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar>api</mat-icon>
+          <mat-card-title>{{ t('profile.apis.title') }}</mat-card-title>
+          <mat-card-subtitle>{{ t('profile.apis.subtitle', { count: apiOwnerCount() }) }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (!activeApiOwnerships().length && !expiredApiOwnerships().length) {
+            <div class="empty-state">
+              <mat-icon>inbox</mat-icon>
+              <p>{{ t('profile.apis.empty') }}</p>
+            </div>
+          } @else {
+            <div class="ownership-list">
+              @for (o of activeApiOwnerships(); track o.apiId + o.roleCode) {
+                <div class="ownership-item" (click)="goToApi(o.apiId)" role="button" tabindex="0"
+                     (keydown.enter)="goToApi(o.apiId)">
+                  <div class="ownership-icon"><mat-icon>api</mat-icon></div>
+                  <div class="ownership-main">
+                    <div class="ownership-name">{{ o.apiName }}</div>
+                    <div class="ownership-meta">
+                      <span class="ownership-code">{{ o.apiCode }}</span>
+                      @if (o.apiVersion) {
+                        <span class="ownership-sep">·</span>
+                        <span>v{{ o.apiVersion }}</span>
+                      }
+                      @if (o.producerSystemName) {
+                        <span class="ownership-sep">·</span>
+                        <span>{{ o.producerSystemName }}</span>
+                      }
+                      <span class="ownership-sep">·</span>
+                      <span class="ownership-role">{{ o.roleName }}</span>
+                    </div>
+                  </div>
+                  <div class="ownership-caps">
+                    @if (o.canEditApi) {
+                      <mat-chip class="cap-chip cap-chip--edit" [matTooltip]="t('profile.cap.canEditApi')">
+                        <mat-icon matChipAvatar>edit</mat-icon>
+                        {{ t('profile.cap.edit') }}
+                      </mat-chip>
+                    }
+                  </div>
+                  <mat-icon class="ownership-nav">chevron_right</mat-icon>
+                </div>
+              }
+            </div>
+
+            @if (expiredApiOwnerships().length) {
+              <mat-divider class="section-divider" />
+              <p class="expired-label">{{ t('profile.expired') }}</p>
+              <div class="ownership-list ownership-list--expired">
+                @for (o of expiredApiOwnerships(); track o.apiId + o.roleCode) {
+                  <div class="ownership-item ownership-item--expired">
+                    <div class="ownership-icon"><mat-icon>api</mat-icon></div>
+                    <div class="ownership-main">
+                      <div class="ownership-name">{{ o.apiName }}</div>
+                      <div class="ownership-meta">
+                        <span class="ownership-code">{{ o.apiCode }}</span>
+                        <span class="ownership-sep">·</span>
+                        <span class="ownership-role">{{ o.roleName }}</span>
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          }
+        </mat-card-content>
+      </mat-card>
+
+    }
+  </div>
+</ng-container>

@@ -79,6 +79,8 @@ export class ItSystems implements OnInit {
   private readonly totalItems = signal(0);
   private readonly pageIndex  = signal(0);
   private readonly pageSize   = signal(20);
+  private pendingSelectId: string | null = null;
+  private readonly MAX_SCAN_PAGES = 50;
 
   protected readonly statuses              = signal<DictionaryEntryDto[]>([]);
   protected readonly lifecycleStages       = signal<DictionaryEntryDto[]>([]);
@@ -264,13 +266,20 @@ export class ItSystems implements OnInit {
 
   private restoreOrLoad(): void {
     const snap = this.listState.snapshot();
+    const selectId = (history.state as { selectId?: string })?.selectId;
+
+    if (selectId) {
+      this.pendingSelectId = selectId;
+      if (snap) this.pageSize.set(snap.pageSize);
+      this.pageIndex.set(0);
+      this.load();
+      return;
+    }
+
     if (snap) {
-      // Restore form values
       this.searchForm.patchValue(snap.form);
-      // Restore pagination
       this.pageIndex.set(snap.pageIndex);
       this.pageSize.set(snap.pageSize);
-      // Restore checked IDs — DataTable will sync them after data loads
       this.restoredIds.set(snap.selectedIds);
     }
     this.load();
@@ -297,10 +306,33 @@ export class ItSystems implements OnInit {
         this.data.set(page.content);
         this.totalItems.set(page.totalElements);
         this.loading.set(false);
-        this.saveState();
+        if (this.pendingSelectId) {
+          this.resolvePendingSelect(page.totalPages);
+        } else {
+          this.saveState();
+        }
       },
       error: () => this.loading.set(false),
     });
+  }
+
+  private resolvePendingSelect(totalPages: number): void {
+    const id = this.pendingSelectId;
+    if (!id) return;
+    const found = this.data().find(r => r.id === id);
+    if (found) {
+      this.selectedRow.set(found);
+      this.pendingSelectId = null;
+      this.saveState();
+      return;
+    }
+    if (this.pageIndex() < totalPages - 1 && this.pageIndex() < this.MAX_SCAN_PAGES - 1) {
+      this.pageIndex.set(this.pageIndex() + 1);
+      this.load();
+    } else {
+      this.pendingSelectId = null;
+      this.saveState();
+    }
   }
 
   /** Persist current list state so it can be restored after navigation. */

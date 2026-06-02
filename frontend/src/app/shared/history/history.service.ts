@@ -76,4 +76,16 @@ export class HistoryService {
       `${this.base}/api/v1/apis/${id}/consumer-system-history`,
     );
   }
+
+  getSystemParameterRevisions(id: string): Observable<RevisionEntryDto<unknown>[]> {
+    return this.http.get<RevisionEntryDto<unknown>[]>(
+      `${this.base}/api/v1/admin/system-parameters/${id}/revisions`,
+    );
+  }
+
+  getEmailTemplateRevisions(id: string): Observable<RevisionEntryDto<unknown>[]> {
+    return this.http.get<RevisionEntryDto<unknown>[]>(
+      `${this.base}/api/v1/admin/email-templates/${id}/revisions`,
+    );
+  }
 }

@@ -71,11 +71,15 @@ spring:
           revision_type_field_name: revtype
           store_data_at_delete: true
 
+  thymeleaf:
+    check-template-location: false
+
   flyway:
     baseline-on-migrate: true
     enabled: true
     default-schema: atlas
     create-schemas: true
+    placeholder-replacement: false
 
 logging:
   appender: default

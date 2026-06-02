@@ -13,22 +13,46 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 
 public class ApiSpecification implements Specification<ApiEntity> {
 
     private final ApiSearchCriteria criteria;
+    private final String currentUserEmail;
+    private final Set<UUID> verifiableSystemIds;
 
-    public ApiSpecification(ApiSearchCriteria criteria) {
+    public ApiSpecification(ApiSearchCriteria criteria, String currentUserEmail, Set<UUID> verifiableSystemIds) {
         this.criteria = criteria;
+        this.currentUserEmail = currentUserEmail;
+        this.verifiableSystemIds = verifiableSystemIds != null ? verifiableSystemIds : Collections.emptySet();
     }
 
     @Override
     public Predicate toPredicate(@NonNull Root<ApiEntity> root, @NonNull CriteriaQuery<?> query, @NonNull CriteriaBuilder cb) {
         List<Predicate> predicates = new ArrayList<>();
 
+        // ── Governance visibility filter ──────────────────────────────────────
+        // VERIFIED and PENDING_REVIEW are always public.
+        // PENDING_VERIFICATION and REQUIRES_MODIFICATION are visible only to
+        // the creator or to verifiers of the producer system.
+        Predicate isPublic = root.get("governanceStatus").in(
+                GovernanceStatus.VERIFIED, GovernanceStatus.PENDING_REVIEW);
+        Predicate isCreator = cb.equal(root.get("createdBy"), currentUserEmail);
+
+        if (verifiableSystemIds.isEmpty()) {
+            predicates.add(cb.or(isPublic, isCreator));
+        } else {
+            Predicate isVerifier = root.get("producerSystem").get("id").in(verifiableSystemIds);
+            predicates.add(cb.or(isPublic, isCreator, isVerifier));
+        }
+
+        // ── Standard search filters ───────────────────────────────────────────
         if (StringUtils.hasText(criteria.query())) {
             String pattern = "%" + criteria.query().toLowerCase() + "%";
             predicates.add(cb.or(
@@ -92,6 +116,11 @@ public class ApiSpecification implements Specification<ApiEntity> {
             query.distinct(true);
             Join<Object, Object> ddJoin = root.join("dataDomains", JoinType.INNER);
             predicates.add(ddJoin.get("id").in(criteria.dataDomainIds()));
+        }
+
+        if (Boolean.TRUE.equals(criteria.pendingVerificationOnly())) {
+            predicates.add(root.get("governanceStatus").in(
+                    GovernanceStatus.PENDING_VERIFICATION, GovernanceStatus.PENDING_REVIEW));
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));

@@ -26,7 +26,10 @@
       "admin": "Administracja",
       "adminUsers": "Użytkownicy",
       "adminRoles": "Role i uprawnienia",
-      "adminAudit": "Dziennik audytu"
+      "adminAudit": "Dziennik audytu",
+      "adminSettings": "Parametry systemowe",
+      "adminEmailSettings": "Ustawienia email",
+      "adminEmailTemplates": "Szablony email"
     }
   },
   "common": {
@@ -47,7 +50,8 @@
       "min": "Minimalna wartość wynosi {{ min }}."
     },
     "error": {
-      "unexpected": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie."
+      "unexpected": "Wystąpił nieoczekiwany błąd. Spróbuj ponownie.",
+      "save": "Błąd podczas zapisywania. Spróbuj ponownie."
     },
     "table": {
       "filterPlaceholder": "Filtruj…",
@@ -66,6 +70,33 @@
       "selectRow": "Zaznacz wiersz",
       "rowActions": "Akcje wiersza"
     }
+  },
+  "profile": {
+    "stat": {
+      "systemsOwned":    "Systemy jako właściciel",
+      "apisOwned":       "API jako właściciel",
+      "systemsCanVerify":"Systemy (może weryfikować API)",
+      "canDefineApis":   "Może definiować nowe API"
+    },
+    "systems": {
+      "title":    "Własności systemów IT",
+      "subtitle": "{{ count }} aktywny/ch systemu/ów",
+      "empty":    "Nie jesteś przypisany jako właściciel żadnego systemu IT."
+    },
+    "apis": {
+      "title":    "Własności API",
+      "subtitle": "{{ count }} aktywne/ych API",
+      "empty":    "Nie jesteś przypisany jako właściciel żadnego API."
+    },
+    "cap": {
+      "verify":       "Weryfikuje",
+      "define":       "Definiuje API",
+      "edit":         "Edytuje API",
+      "canVerifyApi": "Możesz zatwierdzać lub odrzucać nowe i zmodyfikowane API dla tego systemu.",
+      "canDefineApi": "Możesz definiować nowe API dla tego systemu.",
+      "canEditApi":   "Możesz edytować to API."
+    },
+    "expired": "Wygasłe przypisania"
   },
   "errors": {
     "default": "Wystąpił nieoczekiwany błąd.",

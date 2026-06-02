@@ -42,6 +42,11 @@
                 "glob": "default.min.css",
                 "input": "node_modules/@asyncapi/react-component/styles",
                 "output": "asyncapi"
+              },
+              {
+                "glob": "**/*",
+                "input": "node_modules/tinymce",
+                "output": "tinymce"
               }
             ],
             "loader": {

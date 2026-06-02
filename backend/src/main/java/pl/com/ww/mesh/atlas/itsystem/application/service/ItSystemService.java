@@ -8,8 +8,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryEntryNotFoundException;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.dictionary.infrastructure.persistance.DictionaryEntryRepository;
+import pl.com.ww.mesh.atlas.global.GovernanceService;
+import pl.com.ww.mesh.atlas.global.domain.exception.AtlasGovernanceViolationException;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemCreateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemDto;
+import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemSearchCriteria;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemStatsDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemSummaryDto;
@@ -38,6 +41,7 @@ public class ItSystemService {
     private final DictionaryEntryRepository entryRepository;
     private final ItSystemMapper mapper;
     private final ItSystemOwnerMapper ownerMapper;
+    private final GovernanceService governanceService;
 
     @Transactional(readOnly = true)
     public Page<ItSystemSummaryDto> findAll(ItSystemSearchCriteria criteria, Pageable pageable) {
@@ -61,6 +65,11 @@ public class ItSystemService {
 
     @Transactional
     public ItSystemDto create(ItSystemCreateRequest request) {
+        List<ItSystemOwnerCreateRequest> owners = request.owners() != null ? request.owners() : Collections.emptyList();
+        if (governanceService.isGovernanceEnabledOnApiCreate() && owners.isEmpty()) {
+            throw new AtlasGovernanceViolationException("At least one owner is required when governance is enabled");
+        }
+
         if (repository.existsByCode(request.code())) {
             throw new AtlasItSystemDuplicateCodeException(request.code());
         }
@@ -71,8 +80,6 @@ public class ItSystemService {
                 request.deploymentModelId(), request.runtimeEnvironmentId(), request.scopeId());
         ItSystemEntity saved = repository.save(entity);
 
-        List<pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest> owners =
-                request.owners() != null ? request.owners() : Collections.emptyList();
         owners.forEach(ownerRequest -> {
             ItSystemOwnerEntity owner = ownerMapper.map(ownerRequest);
             owner.setItSystem(saved);

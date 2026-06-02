@@ -59,7 +59,7 @@
             </span>
           </div>
           <mat-divider />
-          <button mat-menu-item>
+          <button mat-menu-item (click)="router.navigate(['/profile'])">
             <mat-icon>person</mat-icon>
             <span>{{ t('nav.profile') }}</span>
           </button>

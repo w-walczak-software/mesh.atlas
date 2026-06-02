@@ -679,6 +679,38 @@
         }
       </mat-card>
 
+      <!-- ── Governance status ────────────────────────────────────────────── -->
+      @if (isEditMode() && api()?.governanceStatus && api()?.governanceStatus !== 'VERIFIED') {
+        <mat-card class="form-section governance-card"
+                  [class.governance-card--pending]="api()?.governanceStatus === 'PENDING_VERIFICATION' || api()?.governanceStatus === 'PENDING_REVIEW'"
+                  [class.governance-card--rejected]="api()?.governanceStatus === 'REQUIRES_MODIFICATION'">
+          <mat-card-header>
+            <mat-icon mat-card-avatar aria-hidden="true">
+              {{ api()?.governanceStatus === 'REQUIRES_MODIFICATION' ? 'error_outline' : 'pending_actions' }}
+            </mat-icon>
+            <mat-card-title>{{ t('api.governance.statusLabel') }}</mat-card-title>
+            <mat-card-subtitle>{{ t('api.governance.status.' + api()?.governanceStatus) }}</mat-card-subtitle>
+          </mat-card-header>
+          <mat-card-content>
+            @if (api()?.governanceNote) {
+              <p class="governance-note">{{ api()?.governanceNote }}</p>
+            }
+            @if (api()?.canVerify) {
+              <div class="governance-actions">
+                <button mat-flat-button color="primary" type="button" (click)="openApproveDialog()">
+                  <mat-icon>check_circle</mat-icon>
+                  {{ t('api.governance.approve') }}
+                </button>
+                <button mat-stroked-button color="warn" type="button" (click)="openRejectDialog()">
+                  <mat-icon>cancel</mat-icon>
+                  {{ t('api.governance.reject') }}
+                </button>
+              </div>
+            }
+          </mat-card-content>
+        </mat-card>
+      }
+
     </div>
   </div>
 </ng-container>

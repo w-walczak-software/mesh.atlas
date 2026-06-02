@@ -16,7 +16,7 @@ import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerUpdateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.service.ItSystemOwnerService;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasSystemOrAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class ItSystemOwnerController {
     }
 
     @PostMapping
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.CREATED)
     public ItSystemOwnerDto create(
             @PathVariable UUID systemId,
@@ -45,7 +45,7 @@ public class ItSystemOwnerController {
     }
 
     @PutMapping("/{ownerId}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     public ItSystemOwnerDto update(
             @PathVariable UUID systemId,
             @PathVariable UUID ownerId,
@@ -54,7 +54,7 @@ public class ItSystemOwnerController {
     }
 
     @DeleteMapping("/{ownerId}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @PathVariable UUID systemId,

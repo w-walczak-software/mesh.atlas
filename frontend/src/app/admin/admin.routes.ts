@@ -22,4 +22,19 @@ export const adminRoutes: Routes = [
     canActivate: [atlasAdminGuard],
     loadComponent: () => import('./audit-log/audit-log').then(m => m.AuditLog),
   },
+  {
+    path: 'settings',
+    canActivate: [atlasAdminGuard],
+    loadComponent: () => import('./settings/system-parameters').then(m => m.SystemParameters),
+  },
+  {
+    path: 'email-settings',
+    canActivate: [atlasAdminGuard],
+    loadComponent: () => import('./settings/email-settings').then(m => m.EmailSettings),
+  },
+  {
+    path: 'email-templates',
+    canActivate: [atlasAdminGuard],
+    loadComponent: () => import('./email-template/email-templates').then(m => m.EmailTemplates),
+  },
 ];

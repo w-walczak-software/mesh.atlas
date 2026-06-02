@@ -21,7 +21,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.service.ApiAttachmentService;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiAttachmentEntity;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasSystemOrAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
 import java.util.List;
@@ -41,7 +41,7 @@ public class ApiAttachmentController {
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.CREATED)
     public ApiAttachmentDto addAttachment(
             @PathVariable UUID apiId,
@@ -69,7 +69,7 @@ public class ApiAttachmentController {
     }
 
     @PutMapping("/{attachmentId:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     public ApiAttachmentDto updateAttachment(
             @PathVariable UUID apiId,
             @PathVariable UUID attachmentId,
@@ -78,7 +78,7 @@ public class ApiAttachmentController {
     }
 
     @DeleteMapping("/{attachmentId:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAttachment(
             @PathVariable UUID apiId,

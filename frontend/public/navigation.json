@@ -141,6 +141,27 @@
           "icon": "menu_book",
           "route": "/dictionaries/types",
           "roles": ["atlas_admin"]
+        },
+        {
+          "id": "admin-settings",
+          "label": "nav.menu.adminSettings",
+          "icon": "settings",
+          "route": "/admin/settings",
+          "roles": ["atlas_admin"]
+        },
+        {
+          "id": "admin-email-settings",
+          "label": "nav.menu.adminEmailSettings",
+          "icon": "mail",
+          "route": "/admin/email-settings",
+          "roles": ["atlas_admin"]
+        },
+        {
+          "id": "admin-email-templates",
+          "label": "nav.menu.adminEmailTemplates",
+          "icon": "article",
+          "route": "/admin/email-templates",
+          "roles": ["atlas_admin"]
         }
       ]
     }

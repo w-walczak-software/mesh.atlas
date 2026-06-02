@@ -16,7 +16,7 @@ public class JpaAuditingConfig {
     @Bean
     public AuditorAware<String> auditorProvider() {
         return () -> UserContextHolder.getCurrentUserOptional()
-                .map(AuthenticatedUser::id)
+                .map(AuthenticatedUser::email)
                 .or(() -> Optional.of("system"));
     }
 }

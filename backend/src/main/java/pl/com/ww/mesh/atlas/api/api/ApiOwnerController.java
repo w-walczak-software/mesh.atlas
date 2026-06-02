@@ -16,7 +16,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.service.ApiOwnerService;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasSystemOrAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
 import java.util.List;
@@ -36,7 +36,7 @@ public class ApiOwnerController {
     }
 
     @PostMapping
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.CREATED)
     public ApiOwnerDto create(
             @PathVariable UUID apiId,
@@ -45,7 +45,7 @@ public class ApiOwnerController {
     }
 
     @PutMapping("/{ownerId:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     public ApiOwnerDto update(
             @PathVariable UUID apiId,
             @PathVariable UUID ownerId,
@@ -54,7 +54,7 @@ public class ApiOwnerController {
     }
 
     @DeleteMapping("/{ownerId:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void delete(
             @PathVariable UUID apiId,

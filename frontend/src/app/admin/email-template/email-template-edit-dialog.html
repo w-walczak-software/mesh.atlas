@@ -1,0 +1,108 @@
+<ng-container *transloco="let t; scope: 'admin'">
+  <h2 mat-dialog-title>{{ t('admin.emailTemplate.dialog.titleEdit') }}</h2>
+
+  <mat-dialog-content>
+    <form [formGroup]="form" class="dialog-form">
+
+      <!-- Meta fields -->
+      <div class="meta-row">
+        <mat-form-field appearance="outline" class="field-code">
+          <mat-label>{{ t('admin.emailTemplate.field.code') }}</mat-label>
+          <input matInput formControlName="code" placeholder="WELCOME_EMAIL" autocomplete="off" />
+          @if (form.controls.code.hasError('required')) {
+            <mat-error>{{ t('common.validation.required') }}</mat-error>
+          } @else if (form.controls.code.hasError('pattern')) {
+            <mat-error>{{ t('admin.emailTemplate.validation.codePattern') }}</mat-error>
+          } @else if (form.controls.code.hasError('maxlength')) {
+            <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="field-title">
+          <mat-label>{{ t('admin.emailTemplate.field.title') }}</mat-label>
+          <input matInput formControlName="title" autocomplete="off" />
+          @if (form.controls.title.hasError('required')) {
+            <mat-error>{{ t('common.validation.required') }}</mat-error>
+          } @else if (form.controls.title.hasError('maxlength')) {
+            <mat-error>{{ t('common.validation.maxlength', { max: 500 }) }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      <mat-form-field appearance="outline" class="field-full">
+        <mat-label>{{ t('admin.emailTemplate.field.description') }}</mat-label>
+        <textarea matInput formControlName="description" rows="2"></textarea>
+        @if (form.controls.description.hasError('maxlength')) {
+          <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Tags (template variables) -->
+      <div class="tags-section">
+        <div class="tags-label">{{ t('admin.emailTemplate.field.tags') }}</div>
+        <div class="tags-hint">{{ t('admin.emailTemplate.field.tagsHint') }}</div>
+
+        <div class="tags-chips">
+          <mat-chip-set aria-label="Template variables">
+            @for (tag of tags(); track tag) {
+              <mat-chip
+                [removable]="true"
+                (removed)="removeTag(tag)"
+                (click)="insertTag(tag)"
+                [matTooltip]="t('admin.emailTemplate.action.insertTag')"
+                class="tag-chip">
+                <mat-icon matChipAvatar>data_object</mat-icon>
+                {{ '[[${' + tag + '}]]' }}
+                <button matChipRemove [attr.aria-label]="'Remove ' + tag">
+                  <mat-icon>cancel</mat-icon>
+                </button>
+              </mat-chip>
+            }
+          </mat-chip-set>
+
+          <div class="tag-add-row">
+            <mat-form-field appearance="outline" class="tag-input">
+              <mat-label>{{ t('admin.emailTemplate.field.newTag') }}</mat-label>
+              <input
+                matInput
+                [value]="newTagInput()"
+                (input)="newTagInput.set($any($event.target).value)"
+                (keydown)="onTagInputKeydown($event)"
+                placeholder="firstName"
+                autocomplete="off" />
+            </mat-form-field>
+            <button mat-icon-button type="button" (click)="addTag()"
+                    [matTooltip]="t('admin.emailTemplate.action.addTag')">
+              <mat-icon>add_circle</mat-icon>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- WYSIWYG Editor -->
+      <div class="editor-section">
+        <div class="editor-label">{{ t('admin.emailTemplate.field.body') }}</div>
+        <editor
+          formControlName="body"
+          licenseKey="gpl"
+          [init]="editorInit">
+        </editor>
+        @if (form.controls.body.touched && form.controls.body.hasError('required')) {
+          <div class="editor-error">{{ t('common.validation.required') }}</div>
+        }
+      </div>
+
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" (click)="cancel()">{{ t('common.cancel') }}</button>
+    <button mat-flat-button type="button" [disabled]="saving()" (click)="save()">
+      @if (saving()) {
+        <mat-spinner diameter="18" />
+      } @else {
+        {{ t('common.save') }}
+      }
+    </button>
+  </mat-dialog-actions>
+</ng-container>

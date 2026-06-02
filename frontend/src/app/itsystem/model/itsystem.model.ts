@@ -85,6 +85,7 @@ export interface ItSystemCreateRequest {
   metadata: Record<string, unknown> | null;
   icon: string | null;
   externalId: string | null;
+  owners: ItSystemOwnerCreateRequest[] | null;
 }
 
 export interface ItSystemUpdateRequest {

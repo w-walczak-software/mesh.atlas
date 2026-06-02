@@ -3,6 +3,8 @@ package pl.com.ww.mesh.atlas.api.domain.model;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ForeignKey;
 import jakarta.persistence.GeneratedValue;
@@ -227,4 +229,11 @@ public class ApiEntity extends AuditableEntity {
 
     @Column(name = "active", nullable = false)
     private boolean active;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "governance_status", nullable = false, length = 30)
+    private GovernanceStatus governanceStatus = GovernanceStatus.VERIFIED;
+
+    @Column(name = "governance_note", columnDefinition = "TEXT")
+    private String governanceNote;
 }

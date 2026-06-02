@@ -1,5 +1,6 @@
 package pl.com.ww.mesh.atlas.api.application.dto;
 
+import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemRefDto;
 
@@ -17,5 +18,6 @@ public record ApiSummaryDto(
         List<ItSystemRefDto> consumerSystems,
         TransportLayerRefDto transportLayer,
         List<String> tags,
-        boolean active
+        boolean active,
+        GovernanceStatus governanceStatus
 ) {}

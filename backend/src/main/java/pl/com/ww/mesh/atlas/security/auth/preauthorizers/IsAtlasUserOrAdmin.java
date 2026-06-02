@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
 
 @Target({ElementType.TYPE, ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("hasRole(T(pl.com.ww.mesh.atlas.security.auth.preauthorizers.AtlasRole).ATLAS_SYSTEM.name()) or hasRole(T(pl.com.ww.mesh.atlas.security.auth.preauthorizers.AtlasRole).ATLAS_ADMIN.name())")
-public @interface IsAtlasSystemOrAdmin {
+@PreAuthorize("hasRole(T(pl.com.ww.mesh.atlas.security.auth.preauthorizers.AtlasRole).ATLAS_USER.name()) or hasRole(T(pl.com.ww.mesh.atlas.security.auth.preauthorizers.AtlasRole).ATLAS_SUPERUSER.name()) or hasRole(T(pl.com.ww.mesh.atlas.security.auth.preauthorizers.AtlasRole).ATLAS_ADMIN.name())")
+public @interface IsAtlasUserOrAdmin {
 }

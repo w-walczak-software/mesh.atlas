@@ -20,6 +20,7 @@ import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 @Mapper(componentModel = "spring")
 public interface ApiMapper {
 
+    @Mapping(target = "canVerify", constant = "false")
     ApiDto map(ApiEntity entity);
 
     ApiSummaryDto mapSummary(ApiEntity entity);

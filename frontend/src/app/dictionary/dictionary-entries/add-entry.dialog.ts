@@ -2,6 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/cor
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatIconModule } from '@angular/material/icon';
@@ -22,6 +24,8 @@ export interface AddEntryDialogData {
   imports: [
     MatDialogModule,
     MatButtonModule,
+    MatCheckboxModule,
+    MatDividerModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
@@ -76,6 +80,24 @@ export interface AddEntryDialogData {
               <mat-error>{{ t('common.validation.min', { min: 0 }) }}</mat-error>
             }
           </mat-form-field>
+
+          @if (isSystemOwnerRole || isApiOwnerRole) {
+            <mat-divider class="dlg-divider" />
+            <p class="dlg-section-label">{{ t('dictionary.rolePermissions.section') }}</p>
+            @if (isSystemOwnerRole) {
+              <mat-checkbox formControlName="canDefineApi">
+                {{ t('dictionary.rolePermissions.canDefineApi') }}
+              </mat-checkbox>
+              <mat-checkbox formControlName="canVerifyApi">
+                {{ t('dictionary.rolePermissions.canVerifyApi') }}
+              </mat-checkbox>
+            }
+            @if (isApiOwnerRole) {
+              <mat-checkbox formControlName="canEditApi">
+                {{ t('dictionary.rolePermissions.canEditApi') }}
+              </mat-checkbox>
+            }
+          }
         </form>
       </mat-dialog-content>
       <mat-dialog-actions align="end" class="dlg-actions">
@@ -109,6 +131,11 @@ export interface AddEntryDialogData {
     .dlg-form { display: flex; flex-direction: column; gap: 4px; }
     .dlg-form-field { width: 100%; }
     .dlg-form-field--narrow { max-width: 160px; }
+    .dlg-divider { margin: 12px 0 8px; }
+    .dlg-section-label {
+      font-size: 12px; font-weight: 500; color: var(--mat-sys-on-surface-variant);
+      margin: 0 0 4px;
+    }
   `],
 })
 export class AddEntryDialog {
@@ -122,11 +149,17 @@ export class AddEntryDialog {
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly saving = signal(false);
 
+  protected readonly isSystemOwnerRole = this.data.typeCode === 'SYSTEM_OWNER_ROLE';
+  protected readonly isApiOwnerRole = this.data.typeCode === 'API_OWNER_ROLE';
+
   protected readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.maxLength(100)]],
     name: ['', [Validators.required, Validators.maxLength(200)]],
     description: [''],
     displayOrder: [0, [Validators.required, Validators.min(0)]],
+    canDefineApi: [false],
+    canVerifyApi: [false],
+    canEditApi: [false],
   });
 
   protected save(): void {
@@ -138,7 +171,7 @@ export class AddEntryDialog {
       name: v.name!,
       description: v.description || null,
       displayOrder: v.displayOrder ?? 0,
-      metadata: null,
+      metadata: this.buildMetadata(v),
     };
     this.service.create(this.data.typeId, request).subscribe({
       next: (created: DictionaryEntryDto) => {
@@ -155,6 +188,16 @@ export class AddEntryDialog {
         }
       },
     });
+  }
+
+  private buildMetadata(v: ReturnType<typeof this.form.getRawValue>): Record<string, unknown> | null {
+    if (this.isSystemOwnerRole) {
+      return { canDefineApi: v.canDefineApi ?? false, canVerifyApi: v.canVerifyApi ?? false };
+    }
+    if (this.isApiOwnerRole) {
+      return { canEditApi: v.canEditApi ?? false };
+    }
+    return null;
   }
 
   protected cancel(): void {

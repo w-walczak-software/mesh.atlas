@@ -25,13 +25,16 @@ import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
+import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
 import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,7 @@ import java.util.UUID;
 public class ApiGraphService {
 
     private final ApiRepository apiRepository;
+    private final ItSystemRepository itSystemRepository;
 
     public ApiGraphResultDto findForGraph(ApiGraphSearchCriteria criteria) {
         List<ApiEntity> apis = apiRepository.findAll(buildSpec(criteria));
@@ -61,7 +65,59 @@ public class ApiGraphService {
             edges.add(toEdgeDto(api));
         }
 
+        // Include explicitly requested systems even if they have no APIs
+        addMissingSystems(systemMap, criteria);
+
         return new ApiGraphResultDto(new ArrayList<>(systemMap.values()), edges);
+    }
+
+    /**
+     * Ensures that all explicitly requested systems appear in the graph even if they
+     * have no APIs. When the criteria is completely empty (no system filter AND no
+     * API-level filter), all active IT systems are included so isolated systems are
+     * visible in the unfiltered "show all" view.
+     */
+    private void addMissingSystems(Map<UUID, ApiGraphSystemDto> systemMap, ApiGraphSearchCriteria criteria) {
+        boolean hasSystemIds   = !CollectionUtils.isEmpty(criteria.systemIds());
+        boolean hasProducerIds = !CollectionUtils.isEmpty(criteria.producerSystemIds());
+        boolean hasConsumerIds = !CollectionUtils.isEmpty(criteria.consumerSystemIds());
+
+        addByIds(systemMap, hasSystemIds   ? criteria.systemIds()         : null);
+        addByIds(systemMap, hasProducerIds ? criteria.producerSystemIds() : null);
+        addByIds(systemMap, hasConsumerIds ? criteria.consumerSystemIds() : null);
+
+        // Only load all active systems when nothing is filtered at all — prevents
+        // polluting API-specific views (e.g. apiIds selected) with unrelated systems.
+        boolean hasApiFilter =
+                !CollectionUtils.isEmpty(criteria.apiIds())
+                || StringUtils.hasText(criteria.apiQuery())
+                || StringUtils.hasText(criteria.systemNameQuery())
+                || StringUtils.hasText(criteria.dataDomainQuery())
+                || !CollectionUtils.isEmpty(criteria.typeIds())
+                || !CollectionUtils.isEmpty(criteria.transportLayerIds())
+                || !CollectionUtils.isEmpty(criteria.integrationPatternIds())
+                || !CollectionUtils.isEmpty(criteria.environmentIds())
+                || !CollectionUtils.isEmpty(criteria.dataDomainIds())
+                || !CollectionUtils.isEmpty(criteria.statusIds())
+                || !CollectionUtils.isEmpty(criteria.apiTags())
+                || !CollectionUtils.isEmpty(criteria.systemTags());
+
+        if (!hasSystemIds && !hasProducerIds && !hasConsumerIds && !hasApiFilter) {
+            Specification<ItSystemEntity> activeSpec = (root, q, cb) -> cb.equal(root.get("active"), true);
+            itSystemRepository.findAll(activeSpec)
+                    .forEach(s -> systemMap.putIfAbsent(s.getId(), toSystemDto(s)));
+        }
+    }
+
+    private void addByIds(Map<UUID, ApiGraphSystemDto> systemMap, List<UUID> ids) {
+        if (CollectionUtils.isEmpty(ids)) return;
+        Set<UUID> missing = ids.stream()
+                .filter(id -> !systemMap.containsKey(id))
+                .collect(Collectors.toSet());
+        if (!missing.isEmpty()) {
+            itSystemRepository.findAllById(missing)
+                    .forEach(s -> systemMap.putIfAbsent(s.getId(), toSystemDto(s)));
+        }
     }
 
     private Specification<ApiEntity> buildSpec(ApiGraphSearchCriteria criteria) {

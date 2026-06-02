@@ -116,7 +116,8 @@
     "duplicateCode": "An IT system with code \"{{ code }}\" already exists.",
     "notFound": "IT system not found.",
     "codePattern": "Code must start with an uppercase letter and contain only uppercase letters, digits, underscores or hyphens.",
-    "invalidEmail": "Please enter a valid email address."
+    "invalidEmail": "Please enter a valid email address.",
+    "governanceOwnerRequired": "Governance policy requires at least one owner with the Business Owner, Technical Owner role, or a role authorized to accept new APIs."
   },
   "badge": {
     "active": "Active",

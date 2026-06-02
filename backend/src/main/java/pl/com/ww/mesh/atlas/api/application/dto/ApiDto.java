@@ -1,5 +1,6 @@
 package pl.com.ww.mesh.atlas.api.application.dto;
 
+import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemRefDto;
 
@@ -38,6 +39,9 @@ public record ApiDto(
         List<DictionaryEntryRefDto> environments,
         String externalId,
         boolean active,
+        GovernanceStatus governanceStatus,
+        String governanceNote,
+        boolean canVerify,
         LocalDateTime createdAt,
         String createdBy,
         LocalDateTime updatedAt,

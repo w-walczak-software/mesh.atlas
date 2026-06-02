@@ -1,10 +1,11 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
@@ -19,6 +20,7 @@ import { DictionaryEntryService } from '../service/dictionary-entry.service';
     MatFormFieldModule,
     MatInputModule,
     MatCheckboxModule,
+    MatDividerModule,
     MatIconModule,
     ReactiveFormsModule,
     TranslocoDirective,
@@ -69,6 +71,24 @@ import { DictionaryEntryService } from '../service/dictionary-entry.service';
               {{ t('dictionary.entry.active') }}
             </mat-checkbox>
           }
+
+          @if (isSystemOwnerRole || isApiOwnerRole) {
+            <mat-divider class="dlg-divider" />
+            <p class="dlg-section-label">{{ t('dictionary.rolePermissions.section') }}</p>
+            @if (isSystemOwnerRole) {
+              <mat-checkbox formControlName="canDefineApi">
+                {{ t('dictionary.rolePermissions.canDefineApi') }}
+              </mat-checkbox>
+              <mat-checkbox formControlName="canVerifyApi">
+                {{ t('dictionary.rolePermissions.canVerifyApi') }}
+              </mat-checkbox>
+            }
+            @if (isApiOwnerRole) {
+              <mat-checkbox formControlName="canEditApi">
+                {{ t('dictionary.rolePermissions.canEditApi') }}
+              </mat-checkbox>
+            }
+          }
         </form>
       </mat-dialog-content>
       <mat-dialog-actions align="end" class="dlg-actions">
@@ -105,6 +125,11 @@ import { DictionaryEntryService } from '../service/dictionary-entry.service';
     .dlg-form { display: flex; flex-direction: column; gap: 4px; }
     .dlg-form-field { width: 100%; }
     .dlg-form-field--narrow { max-width: 160px; }
+    .dlg-divider { margin: 12px 0 8px; }
+    .dlg-section-label {
+      font-size: 12px; font-weight: 500; color: var(--mat-sys-on-surface-variant);
+      margin: 0 0 4px;
+    }
   `],
 })
 export class EditEntryDialog {
@@ -117,11 +142,19 @@ export class EditEntryDialog {
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly saving = signal(false);
 
+  protected readonly isSystemOwnerRole = this.data.typeCode === 'SYSTEM_OWNER_ROLE';
+  protected readonly isApiOwnerRole = this.data.typeCode === 'API_OWNER_ROLE';
+
+  private readonly meta = (this.data.metadata ?? {}) as Record<string, boolean>;
+
   protected readonly form = this.fb.group({
     name: [this.data.name, [Validators.required, Validators.maxLength(200)]],
     description: [this.data.description ?? ''],
     displayOrder: [this.data.displayOrder, [Validators.required, Validators.min(0)]],
     active: [{ value: this.data.active, disabled: this.data.systemDefined }],
+    canDefineApi: [this.meta['canDefineApi'] ?? false],
+    canVerifyApi: [this.meta['canVerifyApi'] ?? false],
+    canEditApi: [this.meta['canEditApi'] ?? false],
   });
 
   protected save(): void {
@@ -133,7 +166,7 @@ export class EditEntryDialog {
       description: raw.description || null,
       displayOrder: raw.displayOrder ?? 0,
       active: raw.active ?? this.data.active,
-      metadata: this.data.metadata,
+      metadata: this.buildMetadata(raw),
     };
     this.service.update(this.data.id, request).subscribe({
       next: (updated) => {
@@ -142,6 +175,16 @@ export class EditEntryDialog {
       },
       error: () => this.saving.set(false),
     });
+  }
+
+  private buildMetadata(raw: ReturnType<typeof this.form.getRawValue>): Record<string, unknown> | null {
+    if (this.isSystemOwnerRole) {
+      return { canDefineApi: raw.canDefineApi ?? false, canVerifyApi: raw.canVerifyApi ?? false };
+    }
+    if (this.isApiOwnerRole) {
+      return { canEditApi: raw.canEditApi ?? false };
+    }
+    return this.data.metadata;
   }
 
   protected cancel(): void {

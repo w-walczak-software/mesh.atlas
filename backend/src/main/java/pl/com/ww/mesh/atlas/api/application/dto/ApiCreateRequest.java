@@ -1,5 +1,6 @@
 package pl.com.ww.mesh.atlas.api.application.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
@@ -65,5 +66,8 @@ public record ApiCreateRequest(
         List<UUID> environmentIds,
 
         @Size(max = 50)
-        String externalId
+        String externalId,
+
+        @Valid
+        List<ApiOwnerCreateRequest> owners
 ) {}

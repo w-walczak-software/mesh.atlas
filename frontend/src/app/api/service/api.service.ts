@@ -7,6 +7,7 @@ import {
   ApiConsumerSystemHistoryDto,
   ApiCreateRequest,
   ApiDto,
+  ApiGovernancePendingCountDto,
   ApiGraphResultDto,
   ApiGraphSearchCriteria,
   ApiOwnerCreateRequest,
@@ -16,6 +17,7 @@ import {
   ApiStatsDto,
   ApiSummaryDto,
   ApiUpdateRequest,
+  ApiVerifyRequest,
   Page,
 } from '../model/api.model';
 
@@ -41,6 +43,7 @@ export class ApiService {
     if (params.description) p = p.set('description', params.description);
     if (params.integrationPatternId) p = p.set('integrationPatternId', params.integrationPatternId);
     if (params.dataDomainIds?.length) params.dataDomainIds.forEach(id => { p = p.append('dataDomainIds', id); });
+    if (params.pendingVerificationOnly) p = p.set('pendingVerificationOnly', 'true');
     return this.http.get<Page<ApiSummaryDto>>(this.baseUrl, { params: p });
   }
 
@@ -129,5 +132,17 @@ export class ApiService {
 
   getStats(): Observable<ApiStatsDto> {
     return this.http.get<ApiStatsDto>(`${this.baseUrl}/stats`);
+  }
+
+  getGovernancePendingCount(): Observable<ApiGovernancePendingCountDto> {
+    return this.http.get<ApiGovernancePendingCountDto>(`${this.baseUrl}/governance/pending-count`);
+  }
+
+  approve(apiId: string, request: ApiVerifyRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/governance/${apiId}/approve`, request);
+  }
+
+  reject(apiId: string, request: ApiVerifyRequest): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/governance/${apiId}/reject`, request);
   }
 }

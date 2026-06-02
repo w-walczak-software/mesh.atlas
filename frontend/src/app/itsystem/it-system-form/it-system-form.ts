@@ -8,7 +8,6 @@ import {
 } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -25,13 +24,13 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
+import { GovernanceService } from '@shared/governance/governance.service';
 import { HistoryService } from '@shared/history/history.service';
 import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
 import { ItSystemService } from '../service/itsystem.service';
 import {
   ItSystemDto,
-  ItSystemOwnerCreateRequest,
   ItSystemOwnerDto,
 } from '../model/itsystem.model';
 import { ItSystemOwnerDialog } from './it-system-owner.dialog';
@@ -65,6 +64,7 @@ export class ItSystemForm implements OnInit {
   private readonly service = inject(ItSystemService);
   private readonly historyService = inject(HistoryService);
   private readonly entryService = inject(DictionaryEntryService);
+  private readonly governanceService = inject(GovernanceService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
@@ -95,6 +95,7 @@ export class ItSystemForm implements OnInit {
 
   protected readonly tags = signal<string[]>([]);
   protected readonly icon = signal<string | null>(null);
+  protected readonly governanceEnabled = signal(false);
 
   protected readonly form = this.fb.group({
     code: ['', [Validators.required, Validators.maxLength(100),
@@ -120,6 +121,7 @@ export class ItSystemForm implements OnInit {
 
   ngOnInit(): void {
     this.loadDictionaries();
+    this.governanceService.isGovernanceEnabledOnApiCreate().subscribe(e => this.governanceEnabled.set(e));
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.systemId.set(id);
@@ -213,6 +215,10 @@ export class ItSystemForm implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+    if (!this.isEditMode() && this.governanceEnabled() && !this.owners().length) {
+      this.toast.error(this.t.translate('itsystem.error.governanceOwnerRequired'));
+      return;
+    }
     this.saving.set(true);
     const v = this.form.getRawValue();
     if (this.isEditMode()) {
@@ -246,6 +252,14 @@ export class ItSystemForm implements OnInit {
         },
       });
     } else {
+      const owners = this.owners().map(o => ({
+        roleId: o.role.id,
+        firstName: o.firstName,
+        lastName: o.lastName,
+        email: o.email,
+        validFrom: o.validFrom,
+        validTo: o.validTo,
+      }));
       this.service.create({
         code: v.code!,
         name: v.name!,
@@ -265,8 +279,13 @@ export class ItSystemForm implements OnInit {
         metadata: null,
         icon: this.icon() || null,
         externalId: v.externalId || null,
+        owners: owners.length ? owners : null,
       }).subscribe({
-        next: (created) => this.persistPendingOwners(created),
+        next: (created) => {
+          this.saving.set(false);
+          this.toast.success(this.t.translate('itsystem.toast.created'));
+          this.router.navigate(['/it-systems'], { state: { selectId: created.id } });
+        },
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
           this.handleError(err);
@@ -276,7 +295,8 @@ export class ItSystemForm implements OnInit {
   }
 
   protected cancel(): void {
-    this.router.navigate(['/it-systems']);
+    const id = this.systemId();
+    this.router.navigate(['/it-systems'], id ? { state: { selectId: id } } : undefined);
   }
 
   protected openIconPicker(): void {
@@ -349,38 +369,6 @@ export class ItSystemForm implements OnInit {
       active: tr('active'), createdAt: tr('createdAt'), createdBy: tr('createdBy'),
       updatedAt: tr('updatedAt'), updatedBy: tr('updatedBy'),
     };
-  }
-
-  private persistPendingOwners(created: ItSystemDto): void {
-    const pending = this.owners();
-    if (!pending.length) {
-      this.saving.set(false);
-      this.toast.success(this.t.translate('itsystem.toast.created'));
-      this.router.navigate(['/it-systems', created.id, 'edit']);
-      return;
-    }
-
-    const requests = pending.map((owner): ItSystemOwnerCreateRequest => ({
-      roleId: owner.role.id,
-      firstName: owner.firstName,
-      lastName: owner.lastName,
-      email: owner.email,
-      validFrom: owner.validFrom,
-      validTo: owner.validTo,
-    }));
-
-    forkJoin(requests.map(req => this.service.createOwner(created.id, req))).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.toast.success(this.t.translate('itsystem.toast.created'));
-        this.router.navigate(['/it-systems', created.id, 'edit']);
-      },
-      error: () => {
-        this.saving.set(false);
-        this.toast.warn(this.t.translate('itsystem.toast.createdOwnersFailed'));
-        this.router.navigate(['/it-systems', created.id, 'edit']);
-      },
-    });
   }
 
   private loadSystem(id: string): void {

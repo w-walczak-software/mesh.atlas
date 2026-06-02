@@ -84,6 +84,7 @@ export class DictionaryEntries {
         pageSizeOptions: [10, 20, 50],
       },
       showFilter: true,
+      rowDblClick: (row) => this.openEditDialog(row),
       toolbar: [
         {
           label: this.t.translate('dictionary.action.add'),

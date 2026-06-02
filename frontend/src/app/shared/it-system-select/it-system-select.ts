@@ -96,6 +96,7 @@ export class ItSystemSelectComponent implements ControlValueAccessor, OnInit {
           this.notifyChange();
         }
       }
+      untracked(() => this.fetchOptions(''));
     }, { allowSignalWrites: true });
   }
 

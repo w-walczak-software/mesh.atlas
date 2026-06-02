@@ -52,7 +52,18 @@
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; Set-Location \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw.cmd compile 2>&1 | Select-Object -Last 70)",
       "Bash(Select-Object Name)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; Set-Location \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw.cmd compile 2>&1 | Select-Object -Last 15)",
-      "Bash(dir /s /b \"C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\public\\\\i18n\")"
+      "Bash(dir /s /b \"C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\public\\\\i18n\")",
+      "Bash(./mvnw clean *)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw clean package \"-DskipTests\" 2>&1 | Select-String \"BUILD\" | Select-Object -Last 3)",
+      "Bash(xargs wc -l)",
+      "Bash(git -C C:/DEV/mesh-atlas status --short)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 20)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 25)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 10)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 5)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 8)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile 2>&1 | Select-String \"ERROR\" | Select-Object -First 10)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile 2>&1 | Select-String \"ERROR\" | Select-Object -First 8)"
     ]
   }
 }

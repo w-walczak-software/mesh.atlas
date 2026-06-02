@@ -1,10 +1,21 @@
 <ng-container *transloco="let t; scope: 'api'; lang: lang()">
   <div class="page-container">
     <div class="page-header">
-      <h1 class="page-title">{{ t('api.title') }}</h1>
+      @if (pendingVerificationOnly()) {
+        <div class="verification-queue-banner">
+          <mat-icon aria-hidden="true">pending_actions</mat-icon>
+          <span>{{ t('api.governance.verificationQueueTitle') }}</span>
+          <button mat-stroked-button type="button" (click)="exitVerificationQueue()">
+            <mat-icon>close</mat-icon>
+            {{ t('api.governance.exitQueue') }}
+          </button>
+        </div>
+      } @else {
+        <h1 class="page-title">{{ t('api.title') }}</h1>
+      }
     </div>
 
-    <mat-expansion-panel class="search-panel" [expanded]="true">
+    <mat-expansion-panel class="search-panel" [expanded]="!pendingVerificationOnly()">
       <mat-expansion-panel-header>
         <mat-panel-title>
           <mat-icon>search</mat-icon>

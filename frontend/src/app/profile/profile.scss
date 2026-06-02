@@ -1,0 +1,262 @@
+.profile-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// ── Loading / Error ────────────────────────────────────────────────────────────
+
+.profile-loading,
+.profile-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  gap: 16px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.profile-error mat-icon { font-size: 48px; width: 48px; height: 48px; }
+
+// ── Hero ───────────────────────────────────────────────────────────────────────
+
+.hero {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 32px;
+  background: var(--mat-sys-surface-container);
+  border-radius: 16px;
+}
+
+.hero-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--mat-sys-primary);
+  color: var(--mat-sys-on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.hero-info { flex: 1; min-width: 0; }
+
+.hero-name {
+  margin: 0 0 4px;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.hero-email {
+  margin: 0 0 12px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+}
+
+.hero-roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.role-chip {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+
+  &--admin {
+    --mdc-chip-elevated-container-color: var(--mat-sys-error-container);
+    --mdc-chip-label-text-color: var(--mat-sys-on-error-container);
+  }
+
+  &--user {
+    --mdc-chip-elevated-container-color: var(--mat-sys-primary-container);
+    --mdc-chip-label-text-color: var(--mat-sys-on-primary-container);
+  }
+}
+
+// ── Summary grid ───────────────────────────────────────────────────────────────
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px !important;
+    gap: 8px;
+  }
+
+  &--highlight {
+    background: var(--mat-sys-primary-container);
+    color: var(--mat-sys-on-primary-container);
+
+    .summary-label mat-icon { color: var(--mat-sys-on-primary-container); }
+  }
+}
+
+.summary-value {
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--mat-sys-primary);
+
+  .summary-card--highlight & { color: var(--mat-sys-on-primary-container); }
+}
+
+.cap-icon { font-size: 36px; width: 36px; height: 36px; }
+
+.summary-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  text-align: center;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+  .summary-card--highlight & { color: var(--mat-sys-on-primary-container); }
+}
+
+// ── Section cards ──────────────────────────────────────────────────────────────
+
+.section-card {
+  mat-card-content { padding: 0 16px 16px !important; }
+}
+
+// ── Ownership list ─────────────────────────────────────────────────────────────
+
+.ownership-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 8px;
+
+  &--expired { opacity: 0.55; }
+}
+
+.ownership-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 8px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 150ms ease;
+
+  &:hover { background: var(--mat-sys-surface-container-highest); }
+  &:focus-visible { outline: 2px solid var(--mat-sys-primary); }
+
+  &--expired {
+    cursor: default;
+    &:hover { background: transparent; }
+  }
+}
+
+.ownership-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: var(--mat-sys-surface-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.ownership-main { flex: 1; min-width: 0; }
+
+.ownership-name {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ownership-meta {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.ownership-code { font-family: monospace; font-size: 11px; }
+.ownership-sep  { opacity: 0.4; }
+.ownership-role { font-weight: 500; }
+.ownership-dates { font-style: italic; }
+
+.ownership-caps {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cap-chip {
+  font-size: 11px !important;
+  height: 24px !important;
+  padding: 0 8px !important;
+
+  mat-icon { font-size: 14px; }
+
+  &--verify {
+    --mdc-chip-elevated-container-color: var(--mat-sys-primary-container);
+    --mdc-chip-label-text-color: var(--mat-sys-on-primary-container);
+  }
+  &--define {
+    --mdc-chip-elevated-container-color: var(--mat-sys-secondary-container);
+    --mdc-chip-label-text-color: var(--mat-sys-on-secondary-container);
+  }
+  &--edit {
+    --mdc-chip-elevated-container-color: var(--mat-sys-tertiary-container);
+    --mdc-chip-label-text-color: var(--mat-sys-on-tertiary-container);
+  }
+}
+
+.ownership-nav {
+  color: var(--mat-sys-on-surface-variant);
+  opacity: 0.5;
+  flex-shrink: 0;
+}
+
+.section-divider { margin: 12px 0 8px; }
+.expired-label {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 4px 0 4px 8px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px;
+  gap: 8px;
+  color: var(--mat-sys-on-surface-variant);
+  mat-icon { font-size: 40px; width: 40px; height: 40px; opacity: 0.4; }
+  p { margin: 0; font-size: 14px; }
+}
+
+@media (max-width: 600px) {
+  .hero { flex-direction: column; text-align: center; }
+  .hero-roles { justify-content: center; }
+  .ownership-caps { display: none; }
+}

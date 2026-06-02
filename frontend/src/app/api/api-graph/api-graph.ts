@@ -458,25 +458,138 @@ function forceLayout(
 ): Map<string, { x: number; y: number }> {
   const n = systems.length;
   if (n === 0) return new Map();
-  if (n === 1) return new Map([[systems[0].id, { x: MARGIN, y: MARGIN }]]);
 
-  // Virtual canvas scales with √n to keep density consistent
-  const cols = Math.ceil(Math.sqrt(n * (16 / 9)));
-  const rows = Math.ceil(n / cols);
-  const W = Math.max(1400, cols * (NODE_W + 280));
-  const H = Math.max(900,  rows * (NODE_H + 220));
-  const k = Math.sqrt((W * H) / n);   // ideal inter-node distance
+  const ISO_GAP   = 15;
+  const ISO_COLS  = 6;
+  const ISO_ROW_H = NODE_H + ISO_GAP;
+  const COMP_GAP  = 80;   // horizontal gap between packed components
+  const ROW_GAP   = 80;   // vertical gap between packed component rows
 
-  // Circle initialisation — 0.4 rad offset avoids perfectly horizontal pairs
+  // ── 1. Split: isolated (no edges at all) vs connected ────────────────────
+  const connectedIds = new Set<string>();
+  for (const e of edgePairs) { connectedIds.add(e.source); connectedIds.add(e.target); }
+  const isolated  = systems.filter(s => !connectedIds.has(s.id));
+  const connected = systems.filter(s =>  connectedIds.has(s.id));
+
+  const pos = new Map<string, { x: number; y: number }>();
+
+  // ── 2. Isolated strip: rows of ISO_COLS at the very top, 15 px gaps ───────
+  isolated.forEach((s, i) => {
+    pos.set(s.id, {
+      x: MARGIN + (i % ISO_COLS) * (NODE_W + ISO_GAP),
+      y: MARGIN + Math.floor(i / ISO_COLS) * ISO_ROW_H,
+    });
+  });
+  const isoRowCount = isolated.length > 0 ? Math.ceil(isolated.length / ISO_COLS) : 0;
+  const isoHeight   = isoRowCount > 0 ? MARGIN + isoRowCount * ISO_ROW_H : 0;
+
+  if (connected.length === 0) return pos;
+
+  // ── 3. Find disconnected components among connected nodes ─────────────────
+  //    Each component gets its own independent force simulation so groups with
+  //    no inter-component edges never repel each other to infinity.
+  const components = findConnectedComponents(connected, edgePairs);
+
+  // ── 4. Force-layout each component in its own local coordinate space ──────
+  type LaidComp = { localPos: Map<string, { x: number; y: number }>; w: number; h: number };
+  const laid: LaidComp[] = components.map(comp => {
+    const compIdSet = new Set(comp.map(s => s.id));
+    const compEdges = edgePairs.filter(e => compIdSet.has(e.source) && compIdSet.has(e.target));
+    const localPos  = forceLayoutComponent(comp, compEdges);
+
+    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+    for (const p of localPos.values()) {
+      minX = Math.min(minX, p.x); minY = Math.min(minY, p.y);
+      maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y);
+    }
+    return { localPos, w: maxX - minX + NODE_W, h: maxY - minY + NODE_H };
+  });
+
+  // Sort largest component first for better visual balance
+  laid.sort((a, b) => b.w * b.h - a.w * a.h);
+
+  // ── 5. Pack components into rows below the isolated strip ─────────────────
+  const maxRowWidth = Math.max(1600, laid[0].w + 2 * MARGIN);
+  let curX = MARGIN;
+  let curY = MARGIN + isoHeight;
+  let rowH = 0;
+
+  for (const comp of laid) {
+    if (curX + comp.w > maxRowWidth && curX > MARGIN) {
+      curX  = MARGIN;
+      curY += rowH + ROW_GAP;
+      rowH  = 0;
+    }
+    for (const [id, p] of comp.localPos) {
+      pos.set(id, { x: Math.round(curX + p.x), y: Math.round(curY + p.y) });
+    }
+    curX += comp.w + COMP_GAP;
+    rowH  = Math.max(rowH, comp.h);
+  }
+
+  // ── 6. Nudge same-y connected pairs to guarantee edge curvature ───────────
+  const MIN_DY = Math.ceil(NODE_H * 0.55);
+  for (const e of edgePairs) {
+    const a = pos.get(e.source), b = pos.get(e.target);
+    if (!a || !b) continue;
+    if (Math.abs(a.y - b.y) < MIN_DY) b.y += b.y >= a.y ? MIN_DY : -MIN_DY;
+  }
+
+  return pos;
+}
+
+/** Union-Find: groups nodes into disconnected components. */
+function findConnectedComponents(
+  nodes:     ApiGraphSystemDto[],
+  edgePairs: ReadonlyArray<{ source: string; target: string }>,
+): ApiGraphSystemDto[][] {
+  const parent = new Map<string, string>(nodes.map(s => [s.id, s.id]));
+
+  const find = (id: string): string => {
+    if (parent.get(id) !== id) parent.set(id, find(parent.get(id)!));
+    return parent.get(id)!;
+  };
+  const union = (a: string, b: string) => {
+    const ra = find(a), rb = find(b);
+    if (ra !== rb) parent.set(ra, rb);
+  };
+
+  for (const e of edgePairs) {
+    if (parent.has(e.source) && parent.has(e.target)) union(e.source, e.target);
+  }
+
+  const groups = new Map<string, ApiGraphSystemDto[]>();
+  for (const s of nodes) {
+    const root = find(s.id);
+    if (!groups.has(root)) groups.set(root, []);
+    groups.get(root)!.push(s);
+  }
+  return [...groups.values()];
+}
+
+/** Fruchterman–Reingold for a single component; returns local coords (origin = 0,0). */
+function forceLayoutComponent(
+  systems:   ApiGraphSystemDto[],
+  edgePairs: ReadonlyArray<{ source: string; target: string }>,
+): Map<string, { x: number; y: number }> {
+  const nc = systems.length;
+  if (nc === 1) return new Map([[systems[0].id, { x: 0, y: 0 }]]);
+
+  const cols = Math.ceil(Math.sqrt(nc * (16 / 9)));
+  const rows = Math.ceil(nc / cols);
+  const W = Math.max(700, cols * (NODE_W + 280));
+  const H = Math.max(500, rows * (NODE_H + 220));
+  const k = Math.sqrt((W * H) / nc);
+
   const cx = W / 2, cy = H / 2, r = Math.min(W, H) * 0.30;
   const pos = new Map<string, { x: number; y: number }>();
   systems.forEach((s, i) => {
-    const a = (2 * Math.PI * i) / n + 0.4;
+    const a = (2 * Math.PI * i) / nc + 0.4;
     pos.set(s.id, { x: cx + r * Math.cos(a), y: cy + r * Math.sin(a) });
   });
 
   const ITER = 300;
-  let temp  = W / 6;
+  let temp = W / 6;
   const cool = temp / ITER;
 
   for (let it = 0; it < ITER; it++) {
@@ -484,63 +597,39 @@ function forceLayout(
       systems.map(s => [s.id, { dx: 0, dy: 0 }]),
     );
 
-    // Repulsion — O(n²)
-    for (let i = 0; i < n - 1; i++) {
-      for (let j = i + 1; j < n; j++) {
-        const a  = pos.get(systems[i].id)!;
-        const b  = pos.get(systems[j].id)!;
-        const dx = a.x - b.x || 0.01;
-        const dy = a.y - b.y || 0.01;
-        const d  = Math.sqrt(dx * dx + dy * dy);
-        const f  = (k * k) / d, ux = dx / d, uy = dy / d;
-        disp.get(systems[i].id)!.dx += ux * f;
-        disp.get(systems[i].id)!.dy += uy * f;
-        disp.get(systems[j].id)!.dx -= ux * f;
-        disp.get(systems[j].id)!.dy -= uy * f;
+    for (let i = 0; i < nc - 1; i++) {
+      for (let j = i + 1; j < nc; j++) {
+        const a = pos.get(systems[i].id)!, b = pos.get(systems[j].id)!;
+        const dx = a.x - b.x || 0.01, dy = a.y - b.y || 0.01;
+        const d = Math.sqrt(dx * dx + dy * dy);
+        const f = (k * k) / d, ux = dx / d, uy = dy / d;
+        disp.get(systems[i].id)!.dx += ux * f;  disp.get(systems[i].id)!.dy += uy * f;
+        disp.get(systems[j].id)!.dx -= ux * f;  disp.get(systems[j].id)!.dy -= uy * f;
       }
     }
 
-    // Attraction — connected pairs
     for (const e of edgePairs) {
       const a = pos.get(e.source), b = pos.get(e.target);
       if (!a || !b) continue;
       const dx = a.x - b.x || 0.01, dy = a.y - b.y || 0.01;
-      const d  = Math.sqrt(dx * dx + dy * dy);
-      const f  = (d * d) / k, ux = dx / d, uy = dy / d;
-      disp.get(e.source)!.dx -= ux * f;
-      disp.get(e.source)!.dy -= uy * f;
-      disp.get(e.target)!.dx += ux * f;
-      disp.get(e.target)!.dy += uy * f;
+      const d = Math.sqrt(dx * dx + dy * dy);
+      const f = (d * d) / k, ux = dx / d, uy = dy / d;
+      disp.get(e.source)!.dx -= ux * f;  disp.get(e.source)!.dy -= uy * f;
+      disp.get(e.target)!.dx += ux * f;  disp.get(e.target)!.dy += uy * f;
     }
 
-    // Apply, clamped by temperature
     for (const s of systems) {
       const p = pos.get(s.id)!, d = disp.get(s.id)!;
       const len = Math.sqrt(d.dx * d.dx + d.dy * d.dy);
-      if (len > 0) {
-        const c = Math.min(len, temp);
-        p.x += (d.dx / len) * c;
-        p.y += (d.dy / len) * c;
-      }
+      if (len > 0) { const c = Math.min(len, temp); p.x += (d.dx / len) * c; p.y += (d.dy / len) * c; }
     }
     temp -= cool;
   }
 
-  // Translate to origin with MARGIN
+  // Normalise to local origin (0, 0)
   let minX = Infinity, minY = Infinity;
   for (const p of pos.values()) { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); }
-  for (const p of pos.values()) { p.x = Math.round(p.x - minX + MARGIN); p.y = Math.round(p.y - minY + MARGIN); }
-
-  // Guarantee curvature: nudge pairs that share the same y
-  const MIN_DY = Math.ceil(NODE_H * 0.55);
-  for (const e of edgePairs) {
-    const a = pos.get(e.source), b = pos.get(e.target);
-    if (!a || !b) continue;
-    if (Math.abs(a.y - b.y) < MIN_DY) {
-      b.y += b.y >= a.y ? MIN_DY : -MIN_DY;
-    }
-  }
-
+  for (const p of pos.values()) { p.x = Math.round(p.x - minX); p.y = Math.round(p.y - minY); }
   return pos;
 }
 

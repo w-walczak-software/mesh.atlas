@@ -4,9 +4,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 public interface ApiRepository extends JpaRepository<ApiEntity, UUID>, JpaSpecificationExecutor<ApiEntity> {
@@ -30,4 +33,6 @@ public interface ApiRepository extends JpaRepository<ApiEntity, UUID>, JpaSpecif
                OR EXISTS (SELECT 1 FROM ApiAttachmentEntity att WHERE att.api = a)
             """)
     long countWithDocumentation();
+
+    long countByGovernanceStatusInAndProducerSystemIdIn(Collection<GovernanceStatus> statuses, Collection<UUID> systemIds);
 }

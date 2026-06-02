@@ -41,6 +41,8 @@ import { DataDomainService } from '../../datadomain/service/data-domain.service'
 import { ApiService } from '../service/api.service';
 import { ApiAttachmentDto, ApiDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
 import { ApiOwnerDialog, ApiOwnerDialogData } from './api-owner.dialog';
+import { ApiVerifyDialog, ApiVerifyDialogData } from './api-verify.dialog';
+import { GovernanceService } from '@shared/governance/governance.service';
 import { ApiUploadDialog, ApiUploadDialogData, ApiUploadDialogResult } from '../api-upload-dialog/api-upload-dialog';
 import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachmentDialogResult } from '../api-edit-attachment-dialog/api-edit-attachment-dialog';
 
@@ -76,6 +78,7 @@ export class ApiForm implements OnInit {
   private readonly entryService = inject(DictionaryEntryService);
   private readonly transportLayerService = inject(TransportLayerService);
   private readonly dataDomainService = inject(DataDomainService);
+  private readonly governanceService = inject(GovernanceService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
@@ -98,6 +101,7 @@ export class ApiForm implements OnInit {
   protected readonly api = signal<ApiDto | null>(null);
   protected readonly owners = signal<ApiOwnerDto[]>([]);
   protected readonly attachments = signal<ApiAttachmentDto[]>([]);
+  protected readonly governanceEnabled = signal(false);
 
   protected readonly statuses = signal<DictionaryEntryDto[]>([]);
   protected readonly types = signal<DictionaryEntryDto[]>([]);
@@ -173,6 +177,7 @@ export class ApiForm implements OnInit {
 
   ngOnInit(): void {
     this.loadDictionaries();
+    this.governanceService.isGovernanceEnabledOnApiCreate().subscribe(enabled => this.governanceEnabled.set(enabled));
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.apiId.set(id);
@@ -384,6 +389,10 @@ export class ApiForm implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
+    if (!this.isEditMode() && this.governanceEnabled() && !this.owners().length) {
+      this.toast.error(this.t.translate('api.error.governanceOwnerRequired'));
+      return;
+    }
     this.saving.set(true);
     const v = this.form.getRawValue();
     const payload = {
@@ -428,8 +437,20 @@ export class ApiForm implements OnInit {
         },
       });
     } else {
-      this.service.create({ ...payload, code: v.code || null }).subscribe({
-        next: (created) => this.persistPendingOwners(created),
+      const owners: ApiOwnerCreateRequest[] = this.owners().map(o => ({
+        roleId: o.role.id,
+        firstName: o.firstName,
+        lastName: o.lastName,
+        email: o.email,
+        validFrom: o.validFrom,
+        validTo: o.validTo,
+      }));
+      this.service.create({ ...payload, code: v.code || null, owners: owners.length ? owners : null }).subscribe({
+        next: (created) => {
+          this.saving.set(false);
+          this.toast.success(this.t.translate('api.toast.created'));
+          this.router.navigate(['/apis'], { state: { selectId: created.id } });
+        },
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
           this.handleError(err);
@@ -438,8 +459,37 @@ export class ApiForm implements OnInit {
     }
   }
 
+  protected openApproveDialog(): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.matDialog.open(ApiVerifyDialog, {
+      width: '480px', maxWidth: '95vw', disableClose: true,
+      data: { apiId: id, action: 'approve' } satisfies ApiVerifyDialogData,
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.toast.success(this.t.translate('api.governance.toastApproved'));
+        this.loadApi(id);
+      }
+    });
+  }
+
+  protected openRejectDialog(): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.matDialog.open(ApiVerifyDialog, {
+      width: '480px', maxWidth: '95vw', disableClose: true,
+      data: { apiId: id, action: 'reject' } satisfies ApiVerifyDialogData,
+    }).afterClosed().subscribe((confirmed: boolean) => {
+      if (confirmed) {
+        this.toast.success(this.t.translate('api.governance.toastRejected'));
+        this.loadApi(id);
+      }
+    });
+  }
+
   protected cancel(): void {
-    this.router.navigate(['/apis']);
+    const id = this.apiId();
+    this.router.navigate(['/apis'], id ? { state: { selectId: id } } : undefined);
   }
 
   protected openHistory(): void {
@@ -511,38 +561,6 @@ export class ApiForm implements OnInit {
       role: tr('role'), validFrom: tr('validFrom'), validTo: tr('validTo'),
       systemCode: tr('systemCode'), systemName: tr('systemName'),
     };
-  }
-
-  private persistPendingOwners(created: ApiDto): void {
-    const pending = this.owners();
-    if (!pending.length) {
-      this.saving.set(false);
-      this.toast.success(this.t.translate('api.toast.created'));
-      this.router.navigate(['/apis', created.id, 'edit']);
-      return;
-    }
-
-    const requests = pending.map((owner): ApiOwnerCreateRequest => ({
-      roleId: owner.role.id,
-      firstName: owner.firstName,
-      lastName: owner.lastName,
-      email: owner.email,
-      validFrom: owner.validFrom,
-      validTo: owner.validTo,
-    }));
-
-    forkJoin(requests.map(req => this.service.createOwner(created.id, req))).subscribe({
-      next: () => {
-        this.saving.set(false);
-        this.toast.success(this.t.translate('api.toast.created'));
-        this.router.navigate(['/apis', created.id, 'edit']);
-      },
-      error: () => {
-        this.saving.set(false);
-        this.toast.warn(this.t.translate('api.toast.createdOwnersFailed'));
-        this.router.navigate(['/apis', created.id, 'edit']);
-      },
-    });
   }
 
   private loadApi(id: string): void {

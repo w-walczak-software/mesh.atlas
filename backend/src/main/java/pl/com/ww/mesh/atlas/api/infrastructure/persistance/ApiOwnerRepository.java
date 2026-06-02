@@ -9,4 +9,6 @@ import java.util.UUID;
 public interface ApiOwnerRepository extends JpaRepository<ApiOwnerEntity, UUID> {
 
     List<ApiOwnerEntity> findByApiId(UUID apiId);
+
+    List<ApiOwnerEntity> findByEmailIgnoreCase(String email);
 }

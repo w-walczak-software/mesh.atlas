@@ -23,7 +23,7 @@ import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemStatsDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemSummaryDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemUpdateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.service.ItSystemService;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasSystemOrAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
 import java.util.UUID;
@@ -71,14 +71,14 @@ public class ItSystemController {
     }
 
     @PostMapping
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.CREATED)
     public ItSystemDto create(@Valid @RequestBody ItSystemCreateRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     public ItSystemDto update(
             @PathVariable UUID id,
             @Valid @RequestBody ItSystemUpdateRequest request) {
@@ -86,7 +86,7 @@ public class ItSystemController {
     }
 
     @DeleteMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);

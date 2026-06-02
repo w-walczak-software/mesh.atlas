@@ -28,7 +28,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.service.ApiRevisionService;
 import pl.com.ww.mesh.atlas.api.application.service.ApiService;
 import pl.com.ww.mesh.atlas.global.audit.RevisionEntryDto;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasSystemOrAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
 import java.util.List;
@@ -66,10 +66,11 @@ public class ApiController {
             @RequestParam(required = false) String description,
             @RequestParam(required = false) UUID integrationPatternId,
             @RequestParam(required = false) List<UUID> dataDomainIds,
+            @RequestParam(required = false) Boolean pendingVerificationOnly,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         var criteria = new ApiSearchCriteria(query, statusId, typeId, transportLayerId,
                 active, producerSystemIds, consumerSystemIds, tag, environmentId,
-                description, integrationPatternId, dataDomainIds);
+                description, integrationPatternId, dataDomainIds, pendingVerificationOnly);
         return service.findAll(criteria, pageable);
     }
 
@@ -86,14 +87,14 @@ public class ApiController {
     }
 
     @PostMapping
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.CREATED)
     public ApiDto create(@Valid @RequestBody ApiCreateRequest request) {
         return service.create(request);
     }
 
     @PutMapping(UUID_REGEX)
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     public ApiDto update(
             @PathVariable UUID id,
             @Valid @RequestBody ApiUpdateRequest request) {
@@ -101,7 +102,7 @@ public class ApiController {
     }
 
     @DeleteMapping(UUID_REGEX)
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);
@@ -132,7 +133,7 @@ public class ApiController {
     }
 
     @PutMapping(UUID_REGEX + "/data-domains")
-    @IsAtlasSystemOrAdmin
+    @IsAtlasUserOrAdmin
     public ApiDto updateDataDomains(
             @PathVariable UUID id,
             @RequestBody List<UUID> dataDomainIds) {
