@@ -17,6 +17,7 @@ public interface ItSystemMapper {
     @Mapping(target = "owners", expression = "java(java.util.List.of())")
     ItSystemDto mapSnapshot(ItSystemEntity entity);
 
+    @Mapping(target = "canEdit", constant = "false")
     ItSystemSummaryDto mapSummary(ItSystemEntity entity);
 
     @Mapping(target = "id", ignore = true)

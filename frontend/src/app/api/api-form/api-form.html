@@ -45,7 +45,28 @@
           </div>
 
           <div class="card-body">
-            <div class="field-row field-row--code-name">
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>{{ t('api.field.name') }}</mat-label>
+              <input matInput formControlName="name" [attr.aria-required]="true" />
+              @if (form.controls.name.errors?.['required']) {
+                <mat-error>{{ t('common.validation.required') }}</mat-error>
+              }
+              @if (form.controls.name.errors?.['maxlength']) {
+                <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="field-row field-row--equal">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.externalId') }}</mat-label>
+                <input matInput formControlName="externalId" />
+                <mat-icon matSuffix>link</mat-icon>
+                <mat-hint>{{ t('api.field.externalIdHint') }}</mat-hint>
+                @if (form.controls.externalId.errors?.['maxlength']) {
+                  <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
+                }
+              </mat-form-field>
+
               <mat-form-field appearance="outline">
                 <mat-label>{{ t('api.field.code') }}</mat-label>
                 <input matInput formControlName="code" />
@@ -60,28 +81,7 @@
                   <mat-error>{{ t('api.error.codePattern') }}</mat-error>
                 }
               </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.name') }}</mat-label>
-                <input matInput formControlName="name" [attr.aria-required]="true" />
-                @if (form.controls.name.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-                @if (form.controls.name.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
-                }
-              </mat-form-field>
             </div>
-
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('api.field.externalId') }}</mat-label>
-              <input matInput formControlName="externalId" />
-              <mat-icon matSuffix>link</mat-icon>
-              <mat-hint>{{ t('api.field.externalIdHint') }}</mat-hint>
-              @if (form.controls.externalId.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
-              }
-            </mat-form-field>
 
             <mat-form-field appearance="outline" class="field-full">
               <mat-label>{{ t('api.field.description') }}</mat-label>
@@ -157,7 +157,8 @@
             <div class="field-row field-row--equal">
               <app-it-system-select
                 formControlName="producerSystemId"
-                [label]="t('api.field.producerSystem')" />
+                [label]="t('api.field.producerSystem')"
+                [allowedSystems]="allowedProducerSystems()" />
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ t('api.field.dataFlowDirection') }}</mat-label>

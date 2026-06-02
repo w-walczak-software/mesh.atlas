@@ -68,6 +68,10 @@ export class ItSystemService {
     return this.http.delete<void>(`${this.baseUrl}/${systemId}/owners/${ownerId}`);
   }
 
+  getMyProducerSystems(): Observable<ItSystemSummaryDto[]> {
+    return this.http.get<ItSystemSummaryDto[]>(`${this.baseUrl}/me/producer-systems`);
+  }
+
   getStats(): Observable<ItSystemStatsDto> {
     return this.http.get<ItSystemStatsDto>(`${this.baseUrl}/stats`);
   }

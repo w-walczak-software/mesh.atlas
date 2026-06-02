@@ -158,6 +158,7 @@
     "selectToEdit": "Select an API to edit",
     "selectToDeactivate": "Select an API to deactivate",
     "alreadyInactive": "API is already inactive",
+    "noPermissionToEdit": "You do not have permission to edit this API",
     "graphSelected": "Show {{ count }} selected API(s) on the Integration Map",
     "selectToViewDocs": "Select an API to view documentation"
   },

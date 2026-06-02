@@ -22,6 +22,7 @@ export interface ItSystemSummaryDto {
   businessCriticality: DictionaryEntryRef;
   systemType: DictionaryEntryRef;
   active: boolean;
+  canEdit: boolean;
 }
 
 export interface ItSystemOwnerDto {

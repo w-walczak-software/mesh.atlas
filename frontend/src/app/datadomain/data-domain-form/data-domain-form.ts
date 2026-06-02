@@ -83,6 +83,7 @@ export class DataDomainForm implements OnInit {
   protected readonly canWrite = computed(() =>
     this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
   );
+  protected readonly readonly = computed(() => this.isEditMode() && !this.canWrite());
 
   private readonly domainId = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.domainId() !== null);
@@ -331,7 +332,11 @@ export class DataDomainForm implements OnInit {
           documentationUrl: domain.documentationUrl ?? '',
           groupId: domain.group?.id ?? null,
         });
-        this.form.controls.code.disable();
+        if (this.readonly()) {
+          this.form.disable();
+        } else {
+          this.form.controls.code.disable();
+        }
         this.loading.set(false);
       },
       error: () => {

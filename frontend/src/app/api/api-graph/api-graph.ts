@@ -311,7 +311,7 @@ export class ApiGraph implements OnInit {
     this.dialog
       .open<SystemPreviewDialog, SystemPreviewDialogData, SystemPreviewDialogResult>(
         SystemPreviewDialog,
-        { data: { system: data }, width: '420px', autoFocus: false },
+        { data: { system: data }, width: '500px', autoFocus: false },
       )
       .afterClosed()
       .subscribe(result => {
@@ -347,7 +347,7 @@ export class ApiGraph implements OnInit {
         ApiPreviewDialog,
         {
           data: { api, edgeColor, systemNamesById: this.systemNamesById },
-          width:     '440px',
+          width:     '580px',
           autoFocus: false,
         },
       )

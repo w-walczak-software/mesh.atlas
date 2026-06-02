@@ -57,6 +57,21 @@
   flex-shrink: 0;
 }
 
+.form-readonly-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 12px;
+  height: 36px;
+  border-radius: 4px;
+  background: var(--mat-sys-surface-variant, #e7e0ec);
+  color: var(--mat-sys-on-surface-variant, #49454f);
+  font-size: 14px;
+  font-weight: 500;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
 // ─── Content area ─────────────────────────────────────────────────────────────
 
 .form-content {

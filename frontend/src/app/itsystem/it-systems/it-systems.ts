@@ -52,7 +52,7 @@ export class ItSystems implements OnInit {
   private readonly apiFilterState = inject(ApiFilterStateService);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
-  protected readonly canWrite = computed(() =>
+  protected readonly canCreate = computed(() =>
     this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
   );
 
@@ -159,44 +159,40 @@ export class ItSystems implements OnInit {
         pageSize:        this.pageSize(),
         pageSizeOptions: [10, 20, 50],
       },
-      toolbar: this.canWrite() ? [
-        {
+      toolbar: [
+        ...(this.canCreate() ? [{
           label:  this.t.translate('itsystem.action.new'),
           icon:   'add',
           action: () => this.router.navigate(['/it-systems/new']),
-        },
+        }] : []),
         {
           label:    this.t.translate('itsystem.action.edit'),
           icon:     'edit',
-          disabled: !effective || multiChecked,
+          disabled: !effective || multiChecked || !effective.canEdit,
           tooltip:  multiChecked
             ? this.t.translate('itsystem.toolbar.multipleChecked')
             : !effective
               ? this.t.translate('itsystem.toolbar.selectToEdit')
-              : undefined,
+              : !effective.canEdit
+                ? this.t.translate('itsystem.toolbar.noPermissionToEdit')
+                : undefined,
           action: () => { if (effective && !multiChecked) this.router.navigate(['/it-systems', effective.id, 'edit']); },
         },
         {
           label:    this.t.translate('itsystem.action.deactivate'),
           icon:     'block',
-          disabled: !effective || !effective.active || multiChecked,
+          disabled: !effective || multiChecked || !effective.canEdit || !effective.active,
           tooltip:  multiChecked
             ? this.t.translate('itsystem.toolbar.multipleChecked')
             : !effective
               ? this.t.translate('itsystem.toolbar.selectToDeactivate')
-              : !effective.active
-                ? this.t.translate('itsystem.toolbar.alreadyInactive')
-                : undefined,
+              : !effective.canEdit
+                ? this.t.translate('itsystem.toolbar.noPermissionToEdit')
+                : !effective.active
+                  ? this.t.translate('itsystem.toolbar.alreadyInactive')
+                  : undefined,
           action: () => { if (effective && !multiChecked) this.confirmDeactivate(effective); },
         },
-        {
-          label:    this.t.translate('itsystem.action.graph'),
-          icon:     'hub',
-          disabled: !graphEnabled,
-          tooltip:  !graphEnabled ? this.t.translate('itsystem.toolbar.selectForGraph') : undefined,
-          action:   () => this.openGraph(),
-        },
-      ] : [
         {
           label:    this.t.translate('itsystem.action.graph'),
           icon:     'hub',
@@ -210,14 +206,14 @@ export class ItSystems implements OnInit {
         {
           label:   this.t.translate('itsystem.action.edit'),
           icon:    'edit',
-          visible: () => this.canWrite(),
+          visible: (row) => row.canEdit,
           action:  (row) => this.router.navigate(['/it-systems', row.id, 'edit']),
         },
         {
           label:    this.t.translate('itsystem.action.deactivate'),
           icon:     'block',
           color:    'error',
-          visible:  () => this.canWrite(),
+          visible:  (row) => row.canEdit,
           disabled: (row) => !row.active,
           action:   (row) => this.confirmDeactivate(row),
         },

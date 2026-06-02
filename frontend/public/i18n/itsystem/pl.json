@@ -94,7 +94,8 @@
     "selectToDeactivate": "Zaznacz wiersz, aby dezaktywować",
     "alreadyInactive": "Ten system jest już nieaktywny",
     "multipleChecked": "Zaznaczono więcej niż 1 system — edycja i dezaktywacja niedostępne",
-    "selectForGraph": "Brak systemów w tabeli do wyświetlenia na mapie integracji"
+    "selectForGraph": "Brak systemów w tabeli do wyświetlenia na mapie integracji",
+    "noPermissionToEdit": "Nie masz uprawnień do edycji tego systemu"
   },
   "confirm": {
     "deactivate": "Czy na pewno chcesz dezaktywować ten system IT? Nie będzie on widoczny na liście aktywnych systemów.",

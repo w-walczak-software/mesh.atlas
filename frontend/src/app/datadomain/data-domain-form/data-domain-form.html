@@ -22,10 +22,17 @@
         <button mat-stroked-button type="button" (click)="cancel()">
           {{ t('datadomain.action.cancel') }}
         </button>
-        <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
-          <mat-icon>save</mat-icon>
-          {{ t('datadomain.action.save') }}
-        </button>
+        @if (readonly()) {
+          <span class="form-readonly-badge">
+            <mat-icon>lock</mat-icon>
+            {{ t('common.readOnly') }}
+          </span>
+        } @else {
+          <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
+            <mat-icon>save</mat-icon>
+            {{ t('datadomain.action.save') }}
+          </button>
+        }
       </div>
     </div>
 
@@ -114,25 +121,29 @@
           </div>
 
           <div class="card-body">
-            <div class="tags-input-row">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
-                <mat-label>{{ t('datadomain.action.addTag') }}</mat-label>
-                <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
-                <mat-icon matSuffix>add_circle_outline</mat-icon>
-              </mat-form-field>
-              <button mat-stroked-button type="button" (click)="addTag()">
-                <mat-icon>add</mat-icon>
-                {{ t('datadomain.action.addTag') }}
-              </button>
-            </div>
+            @if (!readonly()) {
+              <div class="tags-input-row">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
+                  <mat-label>{{ t('datadomain.action.addTag') }}</mat-label>
+                  <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
+                  <mat-icon matSuffix>add_circle_outline</mat-icon>
+                </mat-form-field>
+                <button mat-stroked-button type="button" (click)="addTag()">
+                  <mat-icon>add</mat-icon>
+                  {{ t('datadomain.action.addTag') }}
+                </button>
+              </div>
+            }
             @if (tags().length) {
               <mat-chip-set aria-label="Tags">
                 @for (tag of tags(); track tag) {
-                  <mat-chip (removed)="removeTag(tag)">
+                  <mat-chip [removable]="!readonly()" (removed)="removeTag(tag)">
                     {{ tag }}
-                    <button matChipRemove [attr.aria-label]="t('datadomain.action.removeTag') + ' ' + tag">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
+                    @if (!readonly()) {
+                      <button matChipRemove [attr.aria-label]="t('datadomain.action.removeTag') + ' ' + tag">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    }
                   </mat-chip>
                 }
               </mat-chip-set>

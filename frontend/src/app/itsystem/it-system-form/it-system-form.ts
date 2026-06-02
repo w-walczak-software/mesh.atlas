@@ -23,6 +23,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
 import { DialogService } from '@shared/dialogs/dialog.service';
+import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
 import { GovernanceService } from '@shared/governance/governance.service';
 import { HistoryService } from '@shared/history/history.service';
@@ -69,6 +70,7 @@ export class ItSystemForm implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
   private readonly dialogs = inject(DialogService);
+  private readonly auth = inject(AuthService);
   private readonly matDialog = inject(MatDialog);
   private readonly t = inject(TranslocoService);
   private readonly fb = inject(FormBuilder);
@@ -77,6 +79,8 @@ export class ItSystemForm implements OnInit {
 
   private readonly systemId = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.systemId() !== null);
+  private readonly _readonly = signal(false);
+  protected readonly readonly = this._readonly.asReadonly();
   protected readonly saving = signal(false);
   protected readonly loading = signal(false);
   protected readonly system = signal<ItSystemDto | null>(null);
@@ -407,7 +411,24 @@ export class ItSystemForm implements OnInit {
   }
 
   private loadOwners(id: string): void {
-    this.service.findOwners(id).subscribe(owners => this.owners.set(owners));
+    this.service.findOwners(id).subscribe(owners => {
+      this.owners.set(owners);
+      this.applyReadonlyIfNeeded(owners);
+    });
+  }
+
+  private applyReadonlyIfNeeded(owners: ItSystemOwnerDto[]): void {
+    if (this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])) return;
+    const email = this.auth.currentUser()?.email?.toLowerCase();
+    const today = new Date();
+    const isOwner = !!email && owners.some(o =>
+      o.email.toLowerCase() === email &&
+      (!o.validTo || new Date(o.validTo) >= today)
+    );
+    if (!isOwner) {
+      this._readonly.set(true);
+      this.form.disable();
+    }
   }
 
   private loadDictionaries(): void {

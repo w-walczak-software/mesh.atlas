@@ -38,6 +38,12 @@ public class GovernanceService {
     }
 
     @Transactional(readOnly = true)
+    public Set<UUID> getDefineApiSystemIds(String userEmail) {
+        if (userEmail == null) return Set.of();
+        return itSystemOwnerRepository.findDefineApiSystemIdsByEmail(userEmail);
+    }
+
+    @Transactional(readOnly = true)
     public Set<String> getVerifierEmailsForSystem(UUID systemId) {
         if (systemId == null) return Set.of();
         return itSystemOwnerRepository.findVerifierEmailsBySystemId(systemId);

@@ -19,5 +19,6 @@ public record ApiSummaryDto(
         TransportLayerRefDto transportLayer,
         List<String> tags,
         boolean active,
-        GovernanceStatus governanceStatus
+        GovernanceStatus governanceStatus,
+        boolean canEdit
 ) {}

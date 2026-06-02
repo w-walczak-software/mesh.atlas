@@ -59,6 +59,8 @@ export class ItSystemSelectComponent implements ControlValueAccessor, OnInit {
   readonly label = input('');
   readonly required = input(false);
   readonly excludeIds = input<string[]>([]);
+  /** When provided, the dropdown is restricted to this fixed list (no backend search). */
+  readonly allowedSystems = input<ItSystemSummaryDto[] | null>(null);
 
   readonly systemChange = output<ItSystemSummaryDto | ItSystemSummaryDto[] | null>();
 
@@ -78,6 +80,12 @@ export class ItSystemSelectComponent implements ControlValueAccessor, OnInit {
     if (this.ngControl) {
       this.ngControl.valueAccessor = this;
     }
+
+    // Re-fetch options whenever the allowed list changes
+    effect(() => {
+      this.allowedSystems(); // track
+      untracked(() => this.fetchOptions(''));
+    }, { allowSignalWrites: true });
 
     effect(() => {
       const excluded = this.excludeIds();
@@ -110,6 +118,11 @@ export class ItSystemSelectComponent implements ControlValueAccessor, OnInit {
       switchMap(v => {
         if (v && typeof v === 'object') return of(null); // just selected — skip
         const query = typeof v === 'string' ? v.trim() : '';
+        const allowed = this.allowedSystems();
+        if (allowed !== null) {
+          // Restricted mode: filter the fixed list locally
+          return of({ content: this.filterAllowed(allowed, query) });
+        }
         return this.itSystemService.findAll({ active: true, query: query || undefined, size: 20, sort: 'name' });
       }),
       takeUntilDestroyed(this.destroyRef),
@@ -237,17 +250,34 @@ export class ItSystemSelectComponent implements ControlValueAccessor, OnInit {
       id: s.id, code: s.code, name: s.name, icon: s.icon,
       status: s.status, lifecycleStage: s.lifecycleStage,
       businessCriticality: s.businessCriticality, systemType: s.systemType,
-      active: s.active,
+      active: s.active, canEdit: false,
     };
   }
 
   private fetchOptions(query: string): void {
     const excluded = this.excludeIds();
     const selectedIds = this.selectedMultiple().map(s => s.id);
+    const allowed = this.allowedSystems();
+
+    if (allowed !== null) {
+      const filtered = this.filterAllowed(allowed, query)
+        .filter(s => !excluded.includes(s.id) && !selectedIds.includes(s.id));
+      this.options.set(filtered);
+      return;
+    }
+
     this.itSystemService.findAll({ active: true, query: query || undefined, size: 20, sort: 'name' }).pipe(
       takeUntilDestroyed(this.destroyRef),
     ).subscribe(page => {
       this.options.set(page.content.filter(s => !excluded.includes(s.id) && !selectedIds.includes(s.id)));
     });
+  }
+
+  private filterAllowed(systems: ItSystemSummaryDto[], query: string): ItSystemSummaryDto[] {
+    if (!query) return systems;
+    const q = query.toLowerCase();
+    return systems.filter(s =>
+      s.name.toLowerCase().includes(q) || s.code.toLowerCase().includes(q)
+    );
   }
 }

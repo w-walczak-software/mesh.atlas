@@ -22,10 +22,17 @@
         <button mat-stroked-button type="button" (click)="cancel()">
           {{ t('transportlayer.action.cancel') }}
         </button>
-        <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
-          <mat-icon>save</mat-icon>
-          {{ t('transportlayer.action.save') }}
-        </button>
+        @if (readonly()) {
+          <span class="form-readonly-badge">
+            <mat-icon>lock</mat-icon>
+            {{ t('common.readOnly') }}
+          </span>
+        } @else {
+          <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
+            <mat-icon>save</mat-icon>
+            {{ t('transportlayer.action.save') }}
+          </button>
+        }
       </div>
     </div>
 
@@ -52,50 +59,66 @@
                 <div class="icon-preview" [class.icon-preview--has-icon]="effectiveIcon()">
                   <mat-icon class="icon-preview-icon">{{ effectiveIcon() || 'alt_route' }}</mat-icon>
                 </div>
-                <button mat-stroked-button type="button" (click)="openIconPicker()">
-                  <mat-icon>{{ icon() ? 'edit' : 'add_photo_alternate' }}</mat-icon>
-                  {{ icon() ? t('transportlayer.iconPicker.change') : t('transportlayer.iconPicker.choose') }}
-                </button>
-                @if (icon()) {
-                  <button mat-icon-button type="button" (click)="icon.set(null)"
-                          [matTooltip]="t('transportlayer.iconPicker.clear')">
-                    <mat-icon>close</mat-icon>
+                @if (!readonly()) {
+                  <button mat-stroked-button type="button" (click)="openIconPicker()">
+                    <mat-icon>{{ icon() ? 'edit' : 'add_photo_alternate' }}</mat-icon>
+                    {{ icon() ? t('transportlayer.iconPicker.change') : t('transportlayer.iconPicker.choose') }}
                   </button>
+                  @if (icon()) {
+                    <button mat-icon-button type="button" (click)="icon.set(null)"
+                            [matTooltip]="t('transportlayer.iconPicker.clear')">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  }
                 }
               </div>
             </div>
 
             <!-- Color palette -->
-            <div class="color-palette-field">
-              <span class="color-palette-label">{{ t('transportlayer.field.color') }}</span>
-              <div class="color-palette-wrap">
-                <div class="color-palette-grid" role="radiogroup"
-                     [attr.aria-label]="t('transportlayer.field.color')">
-                  @for (hex of COLOR_PALETTE; track hex) {
-                    <button type="button"
-                            class="palette-swatch"
-                            [class.palette-swatch--selected]="color() === hex"
-                            [style.background-color]="hex"
-                            [attr.aria-label]="hex"
-                            [attr.aria-pressed]="color() === hex"
-                            (click)="selectColor(hex)">
-                      @if (color() === hex) {
-                        <mat-icon class="palette-check">check</mat-icon>
-                      }
-                    </button>
+            @if (!readonly()) {
+              <div class="color-palette-field">
+                <span class="color-palette-label">{{ t('transportlayer.field.color') }}</span>
+                <div class="color-palette-wrap">
+                  <div class="color-palette-grid" role="radiogroup"
+                       [attr.aria-label]="t('transportlayer.field.color')">
+                    @for (hex of COLOR_PALETTE; track hex) {
+                      <button type="button"
+                              class="palette-swatch"
+                              [class.palette-swatch--selected]="color() === hex"
+                              [style.background-color]="hex"
+                              [attr.aria-label]="hex"
+                              [attr.aria-pressed]="color() === hex"
+                              (click)="selectColor(hex)">
+                        @if (color() === hex) {
+                          <mat-icon class="palette-check">check</mat-icon>
+                        }
+                      </button>
+                    }
+                  </div>
+                  @if (color()) {
+                    <div class="color-palette-selected">
+                      <span class="color-hex">{{ color() }}</span>
+                      <button mat-icon-button type="button" (click)="color.set(null)"
+                              [matTooltip]="t('transportlayer.colorPicker.clear')">
+                        <mat-icon>close</mat-icon>
+                      </button>
+                    </div>
                   }
                 </div>
-                @if (color()) {
-                  <div class="color-palette-selected">
-                    <span class="color-hex">{{ color() }}</span>
-                    <button mat-icon-button type="button" (click)="color.set(null)"
-                            [matTooltip]="t('transportlayer.colorPicker.clear')">
-                      <mat-icon>close</mat-icon>
-                    </button>
-                  </div>
-                }
               </div>
-            </div>
+            } @else {
+              @if (color()) {
+                <div class="color-palette-field">
+                  <span class="color-palette-label">{{ t('transportlayer.field.color') }}</span>
+                  <div class="color-palette-wrap">
+                    <div class="color-palette-selected">
+                      <div class="palette-swatch palette-swatch--selected" [style.background-color]="color()"></div>
+                      <span class="color-hex">{{ color() }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            }
 
             <div class="field-row field-row--code-name">
               <mat-form-field appearance="outline">

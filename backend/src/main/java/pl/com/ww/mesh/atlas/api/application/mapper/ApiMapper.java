@@ -21,8 +21,11 @@ import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 public interface ApiMapper {
 
     @Mapping(target = "canVerify", constant = "false")
+    @Mapping(target = "canEdit", constant = "false")
+    @Mapping(target = "canChangeProducerSystem", constant = "false")
     ApiDto map(ApiEntity entity);
 
+    @Mapping(target = "canEdit", constant = "false")
     ApiSummaryDto mapSummary(ApiEntity entity);
 
     DataDomainRefDto mapDomain(DataDomainEntity entity);

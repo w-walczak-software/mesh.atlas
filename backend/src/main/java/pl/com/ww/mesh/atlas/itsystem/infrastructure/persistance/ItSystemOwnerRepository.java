@@ -28,6 +28,36 @@ public interface ItSystemOwnerRepository extends JpaRepository<ItSystemOwnerEnti
             """, nativeQuery = true)
     Set<UUID> findVerifiableSystemIdsByEmail(@Param("email") String email);
 
+    /** Returns IDs of all systems where the user has any active ownership. */
+    @Query(value = """
+            SELECT DISTINCT iso.it_system_id
+            FROM atlas.it_system_owner iso
+            WHERE iso.email = :email
+              AND (iso.valid_to IS NULL OR iso.valid_to >= CURRENT_DATE)
+            """, nativeQuery = true)
+    Set<UUID> findOwnedSystemIdsByEmail(@Param("email") String email);
+
+    /** Returns true if user has any active ownership entry for this system. */
+    @Query(value = """
+            SELECT COUNT(*) > 0
+            FROM atlas.it_system_owner iso
+            WHERE iso.email = :email
+              AND iso.it_system_id = :systemId
+              AND (iso.valid_to IS NULL OR iso.valid_to >= CURRENT_DATE)
+            """, nativeQuery = true)
+    boolean existsActiveOwnerByEmailAndSystemId(@Param("email") String email, @Param("systemId") UUID systemId);
+
+    /** Returns IDs of systems where the user owns with a role that has canDefineApi=true. */
+    @Query(value = """
+            SELECT DISTINCT iso.it_system_id
+            FROM atlas.it_system_owner iso
+            JOIN atlas.dictionary_entry de ON de.id = iso.role_id
+            WHERE iso.email = :email
+              AND (de.metadata->>'canDefineApi')::boolean = true
+              AND (iso.valid_to IS NULL OR iso.valid_to >= CURRENT_DATE)
+            """, nativeQuery = true)
+    Set<UUID> findDefineApiSystemIdsByEmail(@Param("email") String email);
+
     /** Returns emails of all active verifiers for a given system (canVerifyApi=true). */
     @Query(value = """
             SELECT DISTINCT iso.email

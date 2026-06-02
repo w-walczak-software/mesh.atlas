@@ -49,6 +49,7 @@
       "maxlength": "Maximum length of {{ max }} characters exceeded.",
       "min": "Minimum value is {{ min }}."
     },
+    "readOnly": "View only",
     "error": {
       "unexpected": "An unexpected error occurred. Please try again.",
       "save": "Failed to save. Please try again."

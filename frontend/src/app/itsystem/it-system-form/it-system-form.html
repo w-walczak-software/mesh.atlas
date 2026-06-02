@@ -22,10 +22,17 @@
         <button mat-stroked-button type="button" (click)="cancel()">
           {{ t('itsystem.action.cancel') }}
         </button>
-        <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
-          <mat-icon>save</mat-icon>
-          {{ t('itsystem.action.save') }}
-        </button>
+        @if (readonly()) {
+          <span class="form-readonly-badge">
+            <mat-icon>lock</mat-icon>
+            {{ t('common.readOnly') }}
+          </span>
+        } @else {
+          <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
+            <mat-icon>save</mat-icon>
+            {{ t('itsystem.action.save') }}
+          </button>
+        }
       </div>
     </div>
 
@@ -51,15 +58,17 @@
                 <div class="icon-preview" [class.icon-preview--has-icon]="icon()">
                   <mat-icon class="icon-preview-icon">{{ icon() || 'category' }}</mat-icon>
                 </div>
-                <button mat-stroked-button type="button" (click)="openIconPicker()">
-                  <mat-icon>{{ icon() ? 'edit' : 'add_photo_alternate' }}</mat-icon>
-                  {{ icon() ? t('itsystem.iconPicker.change') : t('itsystem.iconPicker.choose') }}
-                </button>
-                @if (icon()) {
-                  <button mat-icon-button type="button" (click)="icon.set(null)"
-                          [matTooltip]="t('itsystem.iconPicker.clear')">
-                    <mat-icon>close</mat-icon>
+                @if (!readonly()) {
+                  <button mat-stroked-button type="button" (click)="openIconPicker()">
+                    <mat-icon>{{ icon() ? 'edit' : 'add_photo_alternate' }}</mat-icon>
+                    {{ icon() ? t('itsystem.iconPicker.change') : t('itsystem.iconPicker.choose') }}
                   </button>
+                  @if (icon()) {
+                    <button mat-icon-button type="button" (click)="icon.set(null)"
+                            [matTooltip]="t('itsystem.iconPicker.clear')">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  }
                 }
               </div>
             </div>
@@ -278,25 +287,29 @@
           </div>
 
           <div class="card-body">
-            <div class="tags-input-row">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
-                <mat-label>{{ t('itsystem.action.addTag') }}</mat-label>
-                <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
-                <mat-icon matSuffix>add_circle_outline</mat-icon>
-              </mat-form-field>
-              <button mat-stroked-button type="button" (click)="addTag()">
-                <mat-icon>add</mat-icon>
-                {{ t('itsystem.action.addTag') }}
-              </button>
-            </div>
+            @if (!readonly()) {
+              <div class="tags-input-row">
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
+                  <mat-label>{{ t('itsystem.action.addTag') }}</mat-label>
+                  <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
+                  <mat-icon matSuffix>add_circle_outline</mat-icon>
+                </mat-form-field>
+                <button mat-stroked-button type="button" (click)="addTag()">
+                  <mat-icon>add</mat-icon>
+                  {{ t('itsystem.action.addTag') }}
+                </button>
+              </div>
+            }
             @if (tags().length) {
               <mat-chip-set aria-label="Tags">
                 @for (tag of tags(); track tag) {
-                  <mat-chip (removed)="removeTag(tag)">
+                  <mat-chip [removable]="!readonly()" (removed)="removeTag(tag)">
                     {{ tag }}
-                    <button matChipRemove [attr.aria-label]="t('itsystem.action.removeTag') + ' ' + tag">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
+                    @if (!readonly()) {
+                      <button matChipRemove [attr.aria-label]="t('itsystem.action.removeTag') + ' ' + tag">
+                        <mat-icon>cancel</mat-icon>
+                      </button>
+                    }
                   </mat-chip>
                 }
               </mat-chip-set>
@@ -320,10 +333,12 @@
               <span class="card-head-subtitle">{{ t('itsystem.owner.pendingHint') }}</span>
             }
           </div>
-          <button mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
-            <mat-icon>person_add</mat-icon>
-            {{ t('itsystem.owner.add') }}
-          </button>
+          @if (!readonly()) {
+            <button mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
+              <mat-icon>person_add</mat-icon>
+              {{ t('itsystem.owner.add') }}
+            </button>
+          }
         </div>
 
         @if (owners().length) {
@@ -370,12 +385,14 @@
                     <mat-icon>history</mat-icon>
                   </button>
                 }
-                <button mat-icon-button [matTooltip]="t('itsystem.owner.edit')" (click)="openEditOwnerDialog(row)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" [matTooltip]="t('itsystem.owner.delete')" (click)="confirmDeleteOwner(row)">
-                  <mat-icon>delete</mat-icon>
-                </button>
+                @if (!readonly()) {
+                  <button mat-icon-button [matTooltip]="t('itsystem.owner.edit')" (click)="openEditOwnerDialog(row)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" [matTooltip]="t('itsystem.owner.delete')" (click)="confirmDeleteOwner(row)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                }
               </td>
             </ng-container>
 
@@ -386,10 +403,12 @@
           <div class="owners-empty">
             <mat-icon class="owners-empty-icon" aria-hidden="true">group_off</mat-icon>
             <p class="owners-empty-text">{{ t('itsystem.owner.noOwners') }}</p>
-            <button mat-stroked-button type="button" (click)="openAddOwnerDialog()">
-              <mat-icon>person_add</mat-icon>
-              {{ t('itsystem.owner.add') }}
-            </button>
+            @if (!readonly()) {
+              <button mat-stroked-button type="button" (click)="openAddOwnerDialog()">
+                <mat-icon>person_add</mat-icon>
+                {{ t('itsystem.owner.add') }}
+              </button>
+            }
           </div>
         }
       </mat-card>

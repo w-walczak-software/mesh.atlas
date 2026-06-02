@@ -213,6 +213,14 @@
   }
 }
 
+.field-quarter {
+  width: 25%;
+
+  @media (max-width: 300px) {
+    width: 100%;
+  }
+}
+
 .field-grid-3 {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

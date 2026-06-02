@@ -13,5 +13,6 @@ public record ItSystemSummaryDto(
         DictionaryEntryRefDto lifecycleStage,
         DictionaryEntryRefDto businessCriticality,
         DictionaryEntryRefDto systemType,
-        boolean active
+        boolean active,
+        boolean canEdit
 ) {}

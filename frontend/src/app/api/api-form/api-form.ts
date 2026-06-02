@@ -40,6 +40,8 @@ import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
 import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
 import { ApiAttachmentDto, ApiDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
+import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
+import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiOwnerDialog, ApiOwnerDialogData } from './api-owner.dialog';
 import { ApiVerifyDialog, ApiVerifyDialogData } from './api-verify.dialog';
 import { GovernanceService } from '@shared/governance/governance.service';
@@ -74,6 +76,7 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
 })
 export class ApiForm implements OnInit {
   private readonly service = inject(ApiService);
+  private readonly itSystemService = inject(ItSystemService);
   private readonly historyService = inject(HistoryService);
   private readonly entryService = inject(DictionaryEntryService);
   private readonly transportLayerService = inject(TransportLayerService);
@@ -92,6 +95,8 @@ export class ApiForm implements OnInit {
   protected readonly canWrite = computed(() =>
     this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
   );
+  /** Non-admin: restricted list of producer systems; null means no restriction (admin). */
+  protected readonly allowedProducerSystems = signal<ItSystemSummaryDto[] | null>(null);
 
   private readonly apiId = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.apiId() !== null);
@@ -178,6 +183,11 @@ export class ApiForm implements OnInit {
   ngOnInit(): void {
     this.loadDictionaries();
     this.governanceService.isGovernanceEnabledOnApiCreate().subscribe(enabled => this.governanceEnabled.set(enabled));
+    if (!this.canWrite()) {
+      this.itSystemService.getMyProducerSystems().subscribe(systems =>
+        this.allowedProducerSystems.set(systems)
+      );
+    }
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.apiId.set(id);

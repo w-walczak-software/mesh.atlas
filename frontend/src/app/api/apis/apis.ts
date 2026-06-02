@@ -26,6 +26,7 @@ import { DataDomainService } from '../../datadomain/service/data-domain.service'
 import { ApiService } from '../service/api.service';
 import { ApiSearchParams, ApiSummaryDto } from '../model/api.model';
 import { ApiFilterStateService } from '../service/api-filter-state.service';
+import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiDocumentationDialog, ApiDocumentationDialogData } from '../api-documentation-dialog/api-documentation-dialog';
 import { ApiVerifyDialog, ApiVerifyDialogData } from '../api-form/api-verify.dialog';
 
@@ -52,6 +53,7 @@ import { ApiVerifyDialog, ApiVerifyDialogData } from '../api-form/api-verify.dia
 })
 export class Apis implements OnInit {
   private readonly service = inject(ApiService);
+  private readonly itSystemService = inject(ItSystemService);
   private readonly entryService = inject(DictionaryEntryService);
   private readonly transportLayerService = inject(TransportLayerService);
   private readonly dataDomainService = inject(DataDomainService);
@@ -68,8 +70,9 @@ export class Apis implements OnInit {
   protected readonly pendingVerificationOnly = signal(false);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
-  protected readonly canWrite = computed(() =>
-    this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
+  private readonly _hasProducerSystems = signal(false);
+  protected readonly canCreate = computed(() =>
+    this.auth.hasAnyRole(['atlas_admin', 'atlas_system']) || this._hasProducerSystems()
   );
 
   protected readonly activeTab = signal<'basic' | 'advanced'>('basic');
@@ -250,38 +253,42 @@ export class Apis implements OnInit {
           tooltip:  !selected ? this.t.translate('api.toolbar.selectToViewDocs') : undefined,
           action:   () => { if (selected) this.openDocumentation(selected); },
         },
-        ...(this.canWrite() ? [
-        {
-          label: this.t.translate('api.action.new'),
-          icon: 'add',
-          action: () => this.router.navigate(['/apis/new']),
-        },
-        {
-          label: this.t.translate('api.action.edit'),
-          icon: 'edit',
-          disabled: !selected,
-          tooltip: !selected ? this.t.translate('api.toolbar.selectToEdit') : undefined,
-          action: () => { if (selected) this.router.navigate(['/apis', selected.id, 'edit']); },
-        },
-        {
-          label: this.t.translate('api.action.deactivate'),
-          icon: 'block',
-          disabled: !selected || !selected.active,
-          tooltip: !selected
-            ? this.t.translate('api.toolbar.selectToDeactivate')
+        ...(this.canCreate() ? [{
+        label: this.t.translate('api.action.new'),
+        icon: 'add',
+        action: () => this.router.navigate(['/apis/new']),
+      }] : []),
+      {
+        label: this.t.translate('api.action.edit'),
+        icon: 'edit',
+        disabled: !selected || !selected.canEdit,
+        tooltip: !selected
+          ? this.t.translate('api.toolbar.selectToEdit')
+          : !selected.canEdit
+            ? this.t.translate('api.toolbar.noPermissionToEdit')
+            : undefined,
+        action: () => { if (selected) this.router.navigate(['/apis', selected.id, 'edit']); },
+      },
+      {
+        label: this.t.translate('api.action.deactivate'),
+        icon: 'block',
+        disabled: !selected || !selected.canEdit || !selected.active,
+        tooltip: !selected
+          ? this.t.translate('api.toolbar.selectToDeactivate')
+          : !selected.canEdit
+            ? this.t.translate('api.toolbar.noPermissionToEdit')
             : !selected.active
               ? this.t.translate('api.toolbar.alreadyInactive')
               : undefined,
-          action: () => { if (selected) this.confirmDeactivate(selected); },
-        },
-      ] : []),
+        action: () => { if (selected) this.confirmDeactivate(selected); },
+      },
       ],
       rowDblClick: (row) => this.router.navigate(['/apis', row.id, 'edit']),
       actions: [
         {
           label: this.t.translate('api.action.edit'),
           icon: 'edit',
-          visible: () => this.canWrite(),
+          visible: (row) => row.canEdit,
           action: (row) => this.router.navigate(['/apis', row.id, 'edit']),
         },
         {
@@ -301,7 +308,7 @@ export class Apis implements OnInit {
           label: this.t.translate('api.action.deactivate'),
           icon: 'block',
           color: 'error',
-          visible: () => this.canWrite(),
+          visible: (row) => row.canEdit,
           disabled: (row) => !row.active,
           action: (row) => this.confirmDeactivate(row),
         },
@@ -311,6 +318,11 @@ export class Apis implements OnInit {
 
   ngOnInit(): void {
     this.loadDictionaries();
+    if (!this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])) {
+      this.itSystemService.getMyProducerSystems().subscribe(systems =>
+        this._hasProducerSystems.set(systems.length > 0)
+      );
+    }
 
     const saved = this.filterState.snapshot();
 

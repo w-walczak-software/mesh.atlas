@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.com.ww.mesh.atlas.global.audit.RevisionEntryDto;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasPrivileged;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 import pl.com.ww.mesh.atlas.transportlayer.application.dto.TransportLayerCreateRequest;
 import pl.com.ww.mesh.atlas.transportlayer.application.dto.TransportLayerDto;
@@ -54,14 +54,14 @@ public class TransportLayerController {
     }
 
     @PostMapping
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     @ResponseStatus(HttpStatus.CREATED)
     public TransportLayerDto create(@Valid @RequestBody TransportLayerCreateRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     public TransportLayerDto update(
             @PathVariable UUID id,
             @Valid @RequestBody TransportLayerUpdateRequest request) {
@@ -69,7 +69,7 @@ public class TransportLayerController {
     }
 
     @DeleteMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);

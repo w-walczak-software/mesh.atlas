@@ -148,6 +148,8 @@ public class ApiRevisionService {
                 entity.getGovernanceStatus(),
                 entity.getGovernanceNote(),
                 false,
+                false,
+                false,
                 entity.getCreatedAt(),
                 entity.getCreatedBy(),
                 entity.getUpdatedAt(),

@@ -34,7 +34,7 @@ import pl.com.ww.mesh.atlas.datadomain.application.service.DataDomainRevisionSer
 import pl.com.ww.mesh.atlas.datadomain.application.service.DataDomainService;
 import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainAttachmentEntity;
 import pl.com.ww.mesh.atlas.global.audit.RevisionEntryDto;
-import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
+import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasPrivileged;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
 import java.util.List;
@@ -72,14 +72,14 @@ public class DataDomainController {
     }
 
     @PostMapping
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     @ResponseStatus(HttpStatus.CREATED)
     public DataDomainDto create(@Valid @RequestBody DataDomainCreateRequest request) {
         return service.create(request);
     }
 
     @PutMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     public DataDomainDto update(
             @PathVariable UUID id,
             @Valid @RequestBody DataDomainUpdateRequest request) {
@@ -87,7 +87,7 @@ public class DataDomainController {
     }
 
     @DeleteMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);
@@ -116,7 +116,7 @@ public class DataDomainController {
     }
 
     @PostMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/attachments")
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     @ResponseStatus(HttpStatus.CREATED)
     public DataDomainAttachmentDto uploadAttachment(
             @PathVariable UUID id,
@@ -126,7 +126,7 @@ public class DataDomainController {
     }
 
     @PatchMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/attachments/{attachmentId:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     public DataDomainAttachmentDto updateAttachment(
             @PathVariable UUID id,
             @PathVariable UUID attachmentId,
@@ -150,7 +150,7 @@ public class DataDomainController {
     }
 
     @DeleteMapping("/{id:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}/attachments/{attachmentId:[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}}")
-    @IsAtlasUserOrAdmin
+    @IsAtlasPrivileged
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAttachment(
             @PathVariable UUID id,

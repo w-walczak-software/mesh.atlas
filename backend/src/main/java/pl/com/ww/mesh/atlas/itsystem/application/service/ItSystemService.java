@@ -9,7 +9,9 @@ import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryEntryNotF
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.dictionary.infrastructure.persistance.DictionaryEntryRepository;
 import pl.com.ww.mesh.atlas.global.GovernanceService;
+import pl.com.ww.mesh.atlas.global.domain.exception.AtlasAccessForbiddenException;
 import pl.com.ww.mesh.atlas.global.domain.exception.AtlasGovernanceViolationException;
+import pl.com.ww.mesh.atlas.security.auth.UserContextService;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemCreateRequest;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemDto;
 import pl.com.ww.mesh.atlas.itsystem.application.dto.ItSystemOwnerCreateRequest;
@@ -30,6 +32,7 @@ import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemSpecific
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -42,11 +45,23 @@ public class ItSystemService {
     private final ItSystemMapper mapper;
     private final ItSystemOwnerMapper ownerMapper;
     private final GovernanceService governanceService;
+    private final UserContextService userContextService;
 
     @Transactional(readOnly = true)
     public Page<ItSystemSummaryDto> findAll(ItSystemSearchCriteria criteria, Pageable pageable) {
+        var user = userContextService.getCurrentUser();
+        boolean privileged = user.isPrivileged();
+        Set<UUID> ownedSystemIds = privileged ? Set.of() : ownerRepository.findOwnedSystemIdsByEmail(user.email());
         return repository.findAll(new ItSystemSpecification(criteria), pageable)
-                .map(mapper::mapSummary);
+                .map(entity -> enrichSummary(mapper.mapSummary(entity), entity.getId(), privileged, ownedSystemIds));
+    }
+
+    private ItSystemSummaryDto enrichSummary(ItSystemSummaryDto base, UUID entityId,
+                                              boolean privileged, Set<UUID> ownedSystemIds) {
+        boolean canEdit = privileged || ownedSystemIds.contains(entityId);
+        return new ItSystemSummaryDto(base.id(), base.code(), base.name(), base.icon(),
+                base.status(), base.lifecycleStage(), base.businessCriticality(),
+                base.systemType(), base.active(), canEdit);
     }
 
     @Transactional(readOnly = true)
@@ -92,6 +107,10 @@ public class ItSystemService {
 
     @Transactional
     public ItSystemDto update(UUID id, ItSystemUpdateRequest request) {
+        var user = userContextService.getCurrentUser();
+        if (!user.isPrivileged() && !ownerRepository.existsActiveOwnerByEmailAndSystemId(user.email(), id)) {
+            throw new AtlasAccessForbiddenException("not authorized to modify this IT system");
+        }
         ItSystemEntity entity = repository.findById(id)
                 .orElseThrow(() -> new AtlasItSystemNotFoundException(id.toString()));
         mapper.updateEntity(request, entity);
@@ -104,6 +123,10 @@ public class ItSystemService {
 
     @Transactional
     public void deactivate(UUID id) {
+        var user = userContextService.getCurrentUser();
+        if (!user.isPrivileged() && !ownerRepository.existsActiveOwnerByEmailAndSystemId(user.email(), id)) {
+            throw new AtlasAccessForbiddenException("not authorized to deactivate this IT system");
+        }
         ItSystemEntity entity = repository.findById(id)
                 .orElseThrow(() -> new AtlasItSystemNotFoundException(id.toString()));
         entity.setActive(false);
@@ -115,6 +138,17 @@ public class ItSystemService {
         long total = repository.count();
         long addedLastMonth = repository.countByCreatedAtAfter(LocalDateTime.now().minusMonths(1));
         return new ItSystemStatsDto(total, addedLastMonth);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ItSystemSummaryDto> getProducerSystemsForCurrentUser() {
+        var user = userContextService.getCurrentUser();
+        if (user.isPrivileged()) {
+            return repository.findAllByActive(true).stream().map(mapper::mapSummary).toList();
+        }
+        Set<UUID> ids = governanceService.getDefineApiSystemIds(user.email());
+        if (ids.isEmpty()) return List.of();
+        return repository.findAllByIdInAndActive(ids, true).stream().map(mapper::mapSummary).toList();
     }
 
     ItSystemEntity getSystemOrThrow(UUID systemId) {

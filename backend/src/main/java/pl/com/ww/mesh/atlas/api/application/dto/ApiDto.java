@@ -42,6 +42,8 @@ public record ApiDto(
         GovernanceStatus governanceStatus,
         String governanceNote,
         boolean canVerify,
+        boolean canEdit,
+        boolean canChangeProducerSystem,
         LocalDateTime createdAt,
         String createdBy,
         LocalDateTime updatedAt,

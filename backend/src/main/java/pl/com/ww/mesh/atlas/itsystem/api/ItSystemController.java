@@ -26,6 +26,7 @@ import pl.com.ww.mesh.atlas.itsystem.application.service.ItSystemService;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUserOrAdmin;
 import pl.com.ww.mesh.atlas.security.auth.preauthorizers.IsAtlasUser;
 
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -34,6 +35,12 @@ import java.util.UUID;
 public class ItSystemController {
 
     private final ItSystemService service;
+
+    @GetMapping("/me/producer-systems")
+    @IsAtlasUser
+    public List<ItSystemSummaryDto> getProducerSystemsForCurrentUser() {
+        return service.getProducerSystemsForCurrentUser();
+    }
 
     @GetMapping("/stats")
     @IsAtlasUser

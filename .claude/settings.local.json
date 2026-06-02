@@ -63,7 +63,11 @@
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 5)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 8)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile 2>&1 | Select-String \"ERROR\" | Select-Object -First 10)",
-      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile 2>&1 | Select-String \"ERROR\" | Select-Object -First 8)"
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"$env:JAVA_HOME\\\\bin;$env:PATH\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile 2>&1 | Select-String \"ERROR\" | Select-Object -First 8)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile 2>&1 | Select-Object -Last 60)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile 2>&1 | Select-Object -Last 30)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw test 2>&1 | Select-Object -Last 40)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile 2>&1 | Select-Object -Last 20)"
     ]
   }
 }

@@ -8,4 +8,9 @@ public record AuthenticatedUser(
         String lastName,
         String email,
         Set<String> roles
-) {}
+) {
+    public boolean isPrivileged() {
+        return roles.stream().anyMatch(r ->
+            r.equalsIgnoreCase("ATLAS_ADMIN") || r.equalsIgnoreCase("ATLAS_SUPERUSER"));
+    }
+}

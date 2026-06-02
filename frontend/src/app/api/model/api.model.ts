@@ -73,6 +73,7 @@ export interface ApiSummaryDto {
   tags: string[] | null;
   active: boolean;
   governanceStatus: GovernanceStatus;
+  canEdit: boolean;
 }
 
 export type GovernanceStatus = 'PENDING_VERIFICATION' | 'VERIFIED' | 'REQUIRES_MODIFICATION' | 'PENDING_REVIEW';
@@ -110,6 +111,8 @@ export interface ApiDto {
   governanceStatus: GovernanceStatus;
   governanceNote: string | null;
   canVerify: boolean;
+  canEdit: boolean;
+  canChangeProducerSystem: boolean;
   createdAt: string;
   createdBy: string;
   updatedAt: string;

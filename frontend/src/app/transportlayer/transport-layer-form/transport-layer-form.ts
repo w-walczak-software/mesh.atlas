@@ -20,6 +20,7 @@ import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@js
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
+import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
 import { HistoryService } from '@shared/history/history.service';
 import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
@@ -55,11 +56,14 @@ export class TransportLayerForm implements OnInit {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly toast = inject(ToastService);
+  private readonly auth = inject(AuthService);
   private readonly matDialog = inject(MatDialog);
   private readonly t = inject(TranslocoService);
   private readonly fb = inject(FormBuilder);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
+  protected readonly canWrite = computed(() => this.auth.hasAnyRole(['atlas_admin', 'atlas_system']));
+  protected readonly readonly = computed(() => this.isEditMode() && !this.canWrite());
 
   private readonly layerId = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.layerId() !== null);
@@ -200,7 +204,11 @@ export class TransportLayerForm implements OnInit {
           description: layer.description ?? '',
           itSystemId: layer.itSystem?.id ?? null,
         });
-        this.form.controls.code.disable();
+        if (this.readonly()) {
+          this.form.disable();
+        } else {
+          this.form.controls.code.disable();
+        }
         this.loading.set(false);
       },
       error: () => {

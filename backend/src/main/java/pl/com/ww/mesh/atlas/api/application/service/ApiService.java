@@ -25,6 +25,7 @@ import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiSpecification;
 import org.springframework.context.ApplicationEventPublisher;
 import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 import pl.com.ww.mesh.atlas.global.GovernanceService;
+import pl.com.ww.mesh.atlas.global.domain.exception.AtlasAccessForbiddenException;
 import pl.com.ww.mesh.atlas.global.domain.exception.AtlasGovernanceViolationException;
 import pl.com.ww.mesh.atlas.security.auth.UserContextService;
 import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
@@ -67,8 +68,20 @@ public class ApiService {
     public Page<ApiSummaryDto> findAll(ApiSearchCriteria criteria, Pageable pageable) {
         var user = userContextService.getCurrentUser();
         var verifiable = governanceService.getVerifiableSystemIds(user.email());
+        Set<UUID> defineApiSystemIds = user.isPrivileged() ? Set.of() : governanceService.getDefineApiSystemIds(user.email());
+        Set<UUID> editableApiIds = user.isPrivileged() ? Set.of() : ownerRepository.findEditableApiIdsByEmail(user.email());
         return apiRepository.findAll(new ApiSpecification(criteria, user.email(), verifiable), pageable)
-                .map(mapper::mapSummary);
+                .map(entity -> enrichSummary(mapper.mapSummary(entity), entity, user.isPrivileged(), defineApiSystemIds, editableApiIds));
+    }
+
+    private ApiSummaryDto enrichSummary(ApiSummaryDto base, ApiEntity entity, boolean privileged,
+                                        Set<UUID> defineApiSystemIds, Set<UUID> editableApiIds) {
+        boolean canEdit = privileged
+                || (entity.getProducerSystem() != null && defineApiSystemIds.contains(entity.getProducerSystem().getId()))
+                || editableApiIds.contains(entity.getId());
+        return new ApiSummaryDto(base.id(), base.code(), base.name(), base.apiVersion(),
+                base.type(), base.status(), base.producerSystem(), base.consumerSystems(),
+                base.transportLayer(), base.tags(), base.active(), base.governanceStatus(), canEdit);
     }
 
     @Transactional(readOnly = true)
@@ -102,6 +115,18 @@ public class ApiService {
         UUID producerSystemId = entity.getProducerSystem() != null ? entity.getProducerSystem().getId() : null;
         boolean canVerify = governanceService.isVerifierForSystem(user.email(), producerSystemId)
                 && entity.getGovernanceStatus() != GovernanceStatus.VERIFIED;
+        boolean canEdit;
+        boolean canChangeProducerSystem;
+        if (user.isPrivileged()) {
+            canEdit = true;
+            canChangeProducerSystem = true;
+        } else {
+            Set<UUID> defineApiSystemIds = governanceService.getDefineApiSystemIds(user.email());
+            boolean canDefineForSystem = producerSystemId != null && defineApiSystemIds.contains(producerSystemId);
+            boolean canEditAsOwner = ownerRepository.existsActiveApiEditOwner(user.email(), entity.getId());
+            canEdit = canDefineForSystem || canEditAsOwner;
+            canChangeProducerSystem = canDefineForSystem;
+        }
         ApiDto base = mapper.map(entity);
         return new ApiDto(base.id(), base.code(), base.name(), base.description(), base.apiVersion(),
                 base.type(), base.status(), base.producerSystem(), base.dataFlowDirection(),
@@ -110,13 +135,20 @@ public class ApiService {
                 base.slaResponseTimeMs(), base.slaUptimePct(), base.slaTier(), base.slaDescription(),
                 base.contractType(), base.contractVersion(), base.contractUrl(), base.documentationUrl(),
                 base.tags(), base.dataDomains(), base.environments(), base.externalId(), base.active(),
-                base.governanceStatus(), base.governanceNote(), canVerify,
+                base.governanceStatus(), base.governanceNote(), canVerify, canEdit, canChangeProducerSystem,
                 base.createdAt(), base.createdBy(), base.updatedAt(), base.updatedBy());
     }
 
     public ApiDto create(ApiCreateRequest request) {
         List<ApiOwnerCreateRequest> owners = request.owners() != null ? request.owners() : Collections.emptyList();
         var user = userContextService.getCurrentUser();
+
+        if (!user.isPrivileged()) {
+            Set<UUID> defineApiSystemIds = governanceService.getDefineApiSystemIds(user.email());
+            if (!defineApiSystemIds.contains(request.producerSystemId())) {
+                throw new AtlasAccessForbiddenException("not authorized to create APIs for this producer system");
+            }
+        }
 
         if (governanceService.isGovernanceEnabledOnApiCreate() && owners.isEmpty()) {
             throw new AtlasGovernanceViolationException("At least one API owner is required when governance is enabled");
@@ -180,6 +212,31 @@ public class ApiService {
     public ApiDto update(UUID id, ApiUpdateRequest request) {
         var user = userContextService.getCurrentUser();
         ApiEntity entity = getApiOrThrow(id);
+
+        if (!user.isPrivileged()) {
+            UUID currentProducerSystemId = entity.getProducerSystem() != null ? entity.getProducerSystem().getId() : null;
+            Set<UUID> defineApiSystemIds = governanceService.getDefineApiSystemIds(user.email());
+            boolean canDefineForCurrentSystem = defineApiSystemIds.contains(currentProducerSystemId);
+            boolean canEditAsOwner = ownerRepository.existsActiveApiEditOwner(user.email(), id);
+
+            if (!canDefineForCurrentSystem && !canEditAsOwner) {
+                throw new AtlasAccessForbiddenException("not authorized to modify this API");
+            }
+
+            UUID requestedProducerSystemId = request.producerSystemId();
+            boolean producerSystemChanging = requestedProducerSystemId != null
+                    && !requestedProducerSystemId.equals(currentProducerSystemId);
+
+            if (producerSystemChanging) {
+                if (!canDefineForCurrentSystem) {
+                    throw new AtlasAccessForbiddenException("API owner cannot change the producer system");
+                }
+                if (!defineApiSystemIds.contains(requestedProducerSystemId)) {
+                    throw new AtlasAccessForbiddenException("not authorized to assign this producer system");
+                }
+            }
+        }
+
         mapper.updateEntity(request, entity);
         applyFkRefs(entity,
                 request.statusId(), request.typeId(),
