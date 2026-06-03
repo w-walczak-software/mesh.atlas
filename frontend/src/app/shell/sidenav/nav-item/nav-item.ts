@@ -15,8 +15,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { filter, map, startWith } from 'rxjs';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
-import type { NavItem } from '../../../core/navigation/navigation.model';
-import { ShellStateService } from '../../../shared/services/shell-state.service';
+import type { NavItem } from '@core/navigation/navigation.model';
+import { ShellStateService } from '@shared/services/shell-state.service';
 
 @Component({
   selector: 'app-nav-item',

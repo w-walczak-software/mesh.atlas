@@ -21,93 +21,29 @@
           "roles": ["atlas_admin", "atlas_user"]
         },
         {
-          "id": "apis-versions",
-          "label": "nav.menu.apisVersions",
-          "icon": "commit",
-          "route": "/apis/versions",
+          "id": "it-systems",
+          "label": "nav.menu.itSystems",
+          "icon": "hub",
+          "route": "/it-systems",
           "roles": ["atlas_admin", "atlas_user"]
         },
         {
-          "id": "apis-consumers",
-          "label": "nav.menu.apisConsumers",
-          "icon": "group",
-          "route": "/apis/consumers",
-          "roles": ["atlas_admin"]
-        }
-      ]
-    },
-    {
-      "id": "environments",
-      "label": "nav.menu.environments",
-      "icon": "cloud",
-      "roles": ["atlas_admin", "atlas_user"],
-      "children": [
-        {
-          "id": "env-list",
-          "label": "nav.menu.envList",
-          "icon": "dns",
-          "route": "/environments",
+          "id": "data-domains",
+          "label": "nav.menu.dataDomains",
+          "icon": "schema",
+          "route": "/data-domains",
           "roles": ["atlas_admin", "atlas_user"]
         },
         {
-          "id": "env-gateways",
-          "label": "nav.menu.envGateways",
-          "icon": "router",
-          "route": "/environments/gateways",
-          "roles": ["atlas_admin"]
-        }
-      ]
-    },
-    {
-      "id": "it-systems",
-      "label": "nav.menu.itSystems",
-      "icon": "hub",
-      "route": "/it-systems",
-      "roles": ["atlas_admin", "atlas_user"]
-    },
-    {
-      "id": "data-domains",
-      "label": "nav.menu.dataDomains",
-      "icon": "schema",
-      "route": "/data-domains",
-      "roles": ["atlas_admin", "atlas_user"]
-    },
-    {
-      "id": "transport-layers",
-      "label": "nav.menu.transportLayers",
-      "icon": "alt_route",
-      "route": "/transport-layers",
-      "roles": ["atlas_admin", "atlas_user"]
-    },
-    {
-      "id": "subscriptions",
-      "label": "nav.menu.subscriptions",
-      "icon": "subscriptions",
-      "route": "/subscriptions",
-      "roles": ["atlas_admin", "atlas_user"]
-    },
-    {
-      "id": "analytics",
-      "label": "nav.menu.analytics",
-      "icon": "analytics",
-      "roles": ["atlas_admin", "atlas_user"],
-      "children": [
-        {
-          "id": "analytics-usage",
-          "label": "nav.menu.analyticsUsage",
-          "icon": "bar_chart",
-          "route": "/analytics/usage",
+          "id": "transport-layers",
+          "label": "nav.menu.transportLayers",
+          "icon": "alt_route",
+          "route": "/transport-layers",
           "roles": ["atlas_admin", "atlas_user"]
-        },
-        {
-          "id": "analytics-perf",
-          "label": "nav.menu.analyticsPerf",
-          "icon": "speed",
-          "route": "/analytics/performance",
-          "roles": ["atlas_admin"]
         }
       ]
     },
+
     {
       "id": "admin",
       "label": "nav.menu.admin",
