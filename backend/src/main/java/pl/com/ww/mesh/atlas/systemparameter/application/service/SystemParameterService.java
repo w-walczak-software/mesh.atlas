@@ -73,6 +73,14 @@ public class SystemParameterService {
         return mapper.map(saved);
     }
 
+    @Transactional(readOnly = true)
+    public String getDefaultLanguage() {
+        return repository.findByParameterKey("DEFAULT_LANGUAGE")
+                .map(SystemParameterEntity::getStringValue)
+                .filter(v -> v != null && !v.isBlank())
+                .orElse("en");
+    }
+
     private String valueSnapshot(SystemParameterEntity e) {
         return switch (e.getParameterType()) {
             case STRING -> String.valueOf(e.getStringValue());

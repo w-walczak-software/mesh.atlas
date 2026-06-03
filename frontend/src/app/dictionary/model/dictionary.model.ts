@@ -57,3 +57,20 @@ export interface DictionaryEntryUpdateRequest {
   active: boolean;
   metadata: Record<string, unknown> | null;
 }
+
+export interface DictionaryEntryTranslationDto {
+  id: string;
+  entryId: string;
+  langCode: string;
+  name: string;
+  description: string | null;
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string | null;
+  updatedBy: string | null;
+}
+
+export interface DictionaryEntryTranslationRequest {
+  name: string;
+  description: string | null;
+}

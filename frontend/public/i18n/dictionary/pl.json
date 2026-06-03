@@ -41,7 +41,10 @@
     },
     "editEntry": {
       "title": "Edycja wartości słownika",
-      "readonlyHint": "Kod jest tylko do odczytu."
+      "readonlyHint": "Kod jest tylko do odczytu.",
+      "tabBasic": "Dane podstawowe",
+      "tabTranslations": "Tłumaczenia",
+      "translationHint": "Pozostaw puste, aby użyć wartości domyślnej"
     }
   },
   "action": {

@@ -41,7 +41,10 @@
     },
     "editEntry": {
       "title": "Edit Dictionary Value",
-      "readonlyHint": "Code is read-only."
+      "readonlyHint": "Code is read-only.",
+      "tabBasic": "Basic Data",
+      "tabTranslations": "Translations",
+      "translationHint": "Leave empty to use the default value"
     }
   },
   "action": {

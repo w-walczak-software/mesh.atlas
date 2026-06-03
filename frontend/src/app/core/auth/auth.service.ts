@@ -1,12 +1,19 @@
-import { Injectable, signal, computed } from '@angular/core';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import Keycloak from 'keycloak-js';
 import type { KeycloakTokenParsed } from 'keycloak-js';
+import { TranslocoService } from '@jsverse/transloco';
 import { environment } from '@environments/environment';
 import type { AuthUser } from './jwt.model';
+
+const SUPPORTED_LANGS = ['pl', 'en'];
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
   private keycloak!: Keycloak;
+  private readonly http = inject(HttpClient);
+  private readonly transloco = inject(TranslocoService);
 
   private readonly _user = signal<AuthUser | null>(null);
 
@@ -25,6 +32,7 @@ export class AuthService {
 
     this._user.set(this.parseUser(this.keycloak.tokenParsed));
     this.scheduleTokenRefresh();
+    await this.syncLanguage();
   }
 
   hasRole(role: string): boolean {
@@ -84,6 +92,20 @@ export class AuthService {
       return `${firstName[0]}${lastName[0]}`.toUpperCase();
     }
     return (fullName ?? '??').slice(0, 2).toUpperCase();
+  }
+
+  private async syncLanguage(): Promise<void> {
+    try {
+      const url = `${environment.APIUrl}/api/v1/admin/system-parameters/by-key/DEFAULT_LANGUAGE`;
+      const param = await firstValueFrom(this.http.get<{ stringValue: string }>(url));
+      const lang = param.stringValue?.toLowerCase();
+      if (lang && SUPPORTED_LANGS.includes(lang)) {
+        localStorage.setItem('lang', lang);
+        this.transloco.setActiveLang(lang);
+      }
+    } catch {
+      // keep language already set from localStorage
+    }
   }
 
   private scheduleTokenRefresh(): void {

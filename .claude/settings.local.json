@@ -69,7 +69,12 @@
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw test 2>&1 | Select-Object -Last 40)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile 2>&1 | Select-Object -Last 20)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile 2>&1 | Select-Object -Last 12)",
-      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile 2>&1 | Select-Object -Last 8)"
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;$env:PATH\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile 2>&1 | Select-Object -Last 8)",
+      "Bash(Sort-Object Name)",
+      "Bash(Select-Object -Last 5)",
+      "Bash(Format-Table Name)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 40)",
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 20)"
     ]
   }
 }
