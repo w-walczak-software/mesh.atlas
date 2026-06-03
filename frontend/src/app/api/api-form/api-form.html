@@ -33,7 +33,7 @@
     <div class="form-content">
       <form [formGroup]="form">
 
-        <!-- Basic Information -->
+        <!-- 1. Basic Information -->
         <mat-card appearance="outlined" class="form-card">
           <div class="card-head">
             <div class="card-head-icon card-head-icon--primary">
@@ -102,7 +102,7 @@
           </div>
         </mat-card>
 
-        <!-- Status & Classification -->
+        <!-- 2. Status & Classification -->
         <mat-card appearance="outlined" class="form-card">
           <div class="card-head">
             <div class="card-head-icon card-head-icon--secondary">
@@ -141,7 +141,7 @@
           </div>
         </mat-card>
 
-        <!-- Integration (Producer / Flow Direction / Consumers / Transport) -->
+        <!-- 3. Integration -->
         <mat-card appearance="outlined" class="form-card">
           <div class="card-head">
             <div class="card-head-icon card-head-icon--tertiary">
@@ -193,129 +193,89 @@
           </div>
         </mat-card>
 
-        <!-- Protocol & Security -->
+        <!-- 4. Owners -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--security">
-              <mat-icon>security</mat-icon>
+          <div class="card-head card-head--with-action">
+            <div class="card-head-icon card-head-icon--owners">
+              <mat-icon>group</mat-icon>
             </div>
             <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.protocolSecurity') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.protocolSecurityHint') }}</span>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <div class="field-grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.protocol') }}</mat-label>
-                <mat-select formControlName="protocolId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of protocols(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.authenticationMethod') }}</mat-label>
-                <mat-select formControlName="authenticationMethodId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of authMethods(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.securityPolicy') }}</mat-label>
-                <mat-select formControlName="securityPolicyId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of securityPolicies(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.integrationPattern') }}</mat-label>
-                <mat-select formControlName="integrationPatternId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of integrationPatterns(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.messageFormat') }}</mat-label>
-                <mat-select formControlName="messageFormatId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of messageFormats(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-            </div>
-          </div>
-        </mat-card>
-
-        <!-- SLA -->
-        <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--sla">
-              <mat-icon>speed</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.sla') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.slaHint') }}</span>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <div class="field-grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.slaTier') }}</mat-label>
-                <mat-select formControlName="slaTierId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of slaTiers(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.slaResponseTimeMs') }}</mat-label>
-                <input matInput type="number" formControlName="slaResponseTimeMs" min="0" />
-                <span matTextSuffix>ms</span>
-                @if (form.controls.slaResponseTimeMs.errors?.['min']) {
-                  <mat-error>{{ t('common.validation.min', { min: 0 }) }}</mat-error>
-                }
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.slaUptimePct') }}</mat-label>
-                <input matInput type="number" formControlName="slaUptimePct" min="0" max="100" step="0.01" />
-                <span matTextSuffix>%</span>
-                @if (form.controls.slaUptimePct.errors?.['min'] || form.controls.slaUptimePct.errors?.['max']) {
-                  <mat-error>{{ t('api.error.uptimePctRange') }}</mat-error>
-                }
-              </mat-form-field>
-            </div>
-
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.slaDescription') }}</mat-label>
-              <textarea matInput formControlName="slaDescription" rows="2"></textarea>
-              @if (form.controls.slaDescription.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
+              <span class="card-head-title">{{ t('api.section.owners') }}</span>
+              @if (!isEditMode() && owners().length) {
+                <span class="card-head-subtitle">{{ t('api.owner.pendingHint') }}</span>
               }
-            </mat-form-field>
+            </div>
+            <button mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
+              <mat-icon>person_add</mat-icon>
+              {{ t('api.owner.add') }}
+            </button>
           </div>
+
+          @if (owners().length) {
+            <table mat-table [dataSource]="owners()" class="owners-table">
+              <ng-container matColumnDef="name">
+                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.name') }}</th>
+                <td mat-cell *matCellDef="let row">
+                  <div class="owner-cell">
+                    <div class="owner-avatar" aria-hidden="true">
+                      {{ row.firstName.charAt(0) }}{{ row.lastName.charAt(0) }}
+                    </div>
+                    <div class="owner-cell-info">
+                      <span class="owner-full-name">{{ row.firstName }} {{ row.lastName }}</span>
+                      <span class="owner-email">{{ row.email }}</span>
+                    </div>
+                  </div>
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="role">
+                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.role') }}</th>
+                <td mat-cell *matCellDef="let row">
+                  @if (row.role?.name) {
+                    <span class="role-badge">{{ row.role.name }}</span>
+                  }
+                </td>
+              </ng-container>
+
+              <ng-container matColumnDef="validFrom">
+                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.validFrom') }}</th>
+                <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validFrom }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="validTo">
+                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.validTo') }}</th>
+                <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validTo || '–' }}</td>
+              </ng-container>
+
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef></th>
+                <td mat-cell *matCellDef="let row" class="actions-cell">
+                  <button mat-icon-button [matTooltip]="t('api.owner.edit')" (click)="openEditOwnerDialog(row)">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button mat-icon-button color="warn" [matTooltip]="t('api.owner.delete')" (click)="confirmDeleteOwner(row)">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="ownerColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: ownerColumns;"></tr>
+            </table>
+          } @else {
+            <div class="owners-empty">
+              <mat-icon class="owners-empty-icon" aria-hidden="true">group_off</mat-icon>
+              <p class="owners-empty-text">{{ t('api.owner.noOwners') }}</p>
+              <button mat-stroked-button type="button" (click)="openAddOwnerDialog()">
+                <mat-icon>person_add</mat-icon>
+                {{ t('api.owner.add') }}
+              </button>
+            </div>
+          }
         </mat-card>
 
-        <!-- Contract & Documentation (merged with documentation files) -->
+        <!-- 5. Contract & Documentation -->
         <mat-card appearance="outlined" class="form-card">
-          <!-- Always rendered so #fileInput is in scope for both the header button and empty-state button -->
           <input #fileInput type="file" accept="*/*" (change)="onFileSelected($event)"
                  style="display:none" aria-hidden="true" />
 
@@ -498,7 +458,162 @@
           }
         </mat-card>
 
-        <!-- Environments -->
+        <!-- 6. Data Domains -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--domains">
+              <mat-icon>schema</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('api.section.dataDomains') }}</span>
+              <span class="card-head-subtitle">{{ t('api.section.dataDomainsHint') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <mat-form-field appearance="outline" class="field-half">
+              <mat-label>{{ t('api.field.domainGroup') }}</mat-label>
+              <mat-select [value]="selectedGroupId()" (selectionChange)="selectedGroupId.set($event.value)">
+                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
+                <mat-option value="__NO_GROUP__">{{ t('api.field.domainGroupNone') }}</mat-option>
+                @for (g of domainGroups(); track g.id) {
+                  <mat-option [value]="g.id">{{ g.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>{{ t('api.field.dataDomains') }}</mat-label>
+              <mat-select formControlName="dataDomainIds" multiple>
+                @for (domain of filteredDomains(); track domain.id) {
+                  <mat-option [value]="domain.id">{{ domain.code }} – {{ domain.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </mat-card>
+
+        <!-- 7. Protocol & Security -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--security">
+              <mat-icon>security</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('api.section.protocolSecurity') }}</span>
+              <span class="card-head-subtitle">{{ t('api.section.protocolSecurityHint') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="field-grid-3">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.protocol') }}</mat-label>
+                <mat-select formControlName="protocolId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of protocols(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.authenticationMethod') }}</mat-label>
+                <mat-select formControlName="authenticationMethodId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of authMethods(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.securityPolicy') }}</mat-label>
+                <mat-select formControlName="securityPolicyId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of securityPolicies(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.integrationPattern') }}</mat-label>
+                <mat-select formControlName="integrationPatternId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of integrationPatterns(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.messageFormat') }}</mat-label>
+                <mat-select formControlName="messageFormatId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of messageFormats(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </mat-card>
+
+        <!-- 8. SLA -->
+        <mat-card appearance="outlined" class="form-card">
+          <div class="card-head">
+            <div class="card-head-icon card-head-icon--sla">
+              <mat-icon>speed</mat-icon>
+            </div>
+            <div class="card-head-text">
+              <span class="card-head-title">{{ t('api.section.sla') }}</span>
+              <span class="card-head-subtitle">{{ t('api.section.slaHint') }}</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="field-grid-3">
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.slaTier') }}</mat-label>
+                <mat-select formControlName="slaTierId">
+                  <mat-option [value]="null">–</mat-option>
+                  @for (item of slaTiers(); track item.id) {
+                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.slaResponseTimeMs') }}</mat-label>
+                <input matInput type="number" formControlName="slaResponseTimeMs" min="0" />
+                <span matTextSuffix>ms</span>
+                @if (form.controls.slaResponseTimeMs.errors?.['min']) {
+                  <mat-error>{{ t('common.validation.min', { min: 0 }) }}</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>{{ t('api.field.slaUptimePct') }}</mat-label>
+                <input matInput type="number" formControlName="slaUptimePct" min="0" max="100" step="0.01" />
+                <span matTextSuffix>%</span>
+                @if (form.controls.slaUptimePct.errors?.['min'] || form.controls.slaUptimePct.errors?.['max']) {
+                  <mat-error>{{ t('api.error.uptimePctRange') }}</mat-error>
+                }
+              </mat-form-field>
+            </div>
+
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>{{ t('api.field.slaDescription') }}</mat-label>
+              <textarea matInput formControlName="slaDescription" rows="2"></textarea>
+              @if (form.controls.slaDescription.errors?.['maxlength']) {
+                <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+        </mat-card>
+
+        <!-- 9. Environments -->
         <mat-card appearance="outlined" class="form-card">
           <div class="card-head">
             <div class="card-head-icon card-head-icon--environments">
@@ -522,7 +637,7 @@
           </div>
         </mat-card>
 
-        <!-- Tags -->
+        <!-- 10. Tags -->
         <mat-card appearance="outlined" class="form-card">
           <div class="card-head">
             <div class="card-head-icon">
@@ -562,123 +677,7 @@
           </div>
         </mat-card>
 
-        <!-- Data Domains -->
-        <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--domains">
-              <mat-icon>schema</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.dataDomains') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.dataDomainsHint') }}</span>
-            </div>
-          </div>
-
-          <div class="card-body">
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('api.field.domainGroup') }}</mat-label>
-              <mat-select [value]="selectedGroupId()" (selectionChange)="selectedGroupId.set($event.value)">
-                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-                <mat-option value="__NO_GROUP__">{{ t('api.field.domainGroupNone') }}</mat-option>
-                @for (g of domainGroups(); track g.id) {
-                  <mat-option [value]="g.id">{{ g.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.dataDomains') }}</mat-label>
-              <mat-select formControlName="dataDomainIds" multiple>
-                @for (domain of filteredDomains(); track domain.id) {
-                  <mat-option [value]="domain.id">{{ domain.code }} – {{ domain.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-        </mat-card>
-
       </form>
-
-      <!-- Owners -->
-      <mat-card appearance="outlined" class="form-card">
-        <div class="card-head card-head--with-action">
-          <div class="card-head-icon card-head-icon--owners">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div class="card-head-text">
-            <span class="card-head-title">{{ t('api.section.owners') }}</span>
-            @if (!isEditMode() && owners().length) {
-              <span class="card-head-subtitle">{{ t('api.owner.pendingHint') }}</span>
-            }
-          </div>
-          <button mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
-            <mat-icon>person_add</mat-icon>
-            {{ t('api.owner.add') }}
-          </button>
-        </div>
-
-        @if (owners().length) {
-          <table mat-table [dataSource]="owners()" class="owners-table">
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.name') }}</th>
-              <td mat-cell *matCellDef="let row">
-                <div class="owner-cell">
-                  <div class="owner-avatar" aria-hidden="true">
-                    {{ row.firstName.charAt(0) }}{{ row.lastName.charAt(0) }}
-                  </div>
-                  <div class="owner-cell-info">
-                    <span class="owner-full-name">{{ row.firstName }} {{ row.lastName }}</span>
-                    <span class="owner-email">{{ row.email }}</span>
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="role">
-              <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.role') }}</th>
-              <td mat-cell *matCellDef="let row">
-                @if (row.role?.name) {
-                  <span class="role-badge">{{ row.role.name }}</span>
-                }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="validFrom">
-              <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.validFrom') }}</th>
-              <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validFrom }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="validTo">
-              <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.validTo') }}</th>
-              <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validTo || '–' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let row" class="actions-cell">
-                <button mat-icon-button [matTooltip]="t('api.owner.edit')" (click)="openEditOwnerDialog(row)">
-                  <mat-icon>edit</mat-icon>
-                </button>
-                <button mat-icon-button color="warn" [matTooltip]="t('api.owner.delete')" (click)="confirmDeleteOwner(row)">
-                  <mat-icon>delete</mat-icon>
-                </button>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="ownerColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: ownerColumns;"></tr>
-          </table>
-        } @else {
-          <div class="owners-empty">
-            <mat-icon class="owners-empty-icon" aria-hidden="true">group_off</mat-icon>
-            <p class="owners-empty-text">{{ t('api.owner.noOwners') }}</p>
-            <button mat-stroked-button type="button" (click)="openAddOwnerDialog()">
-              <mat-icon>person_add</mat-icon>
-              {{ t('api.owner.add') }}
-            </button>
-          </div>
-        }
-      </mat-card>
 
       <!-- ── Governance status ────────────────────────────────────────────── -->
       @if (isEditMode() && api()?.governanceStatus && api()?.governanceStatus !== 'VERIFIED') {

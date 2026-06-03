@@ -91,6 +91,12 @@
 
 // ─── Cards ────────────────────────────────────────────────────────────────────
 
+.form-content > form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
 .form-card {
   overflow: hidden;
 }
