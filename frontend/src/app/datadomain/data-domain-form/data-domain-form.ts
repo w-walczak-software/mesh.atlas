@@ -83,6 +83,7 @@ export class DataDomainForm implements OnInit {
   protected readonly canWrite = computed(() =>
     this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
   );
+  protected readonly isAdmin = computed(() => this.auth.hasAnyRole(['atlas_admin', 'ATLAS_ADMIN']));
   protected readonly readonly = computed(() => this.isEditMode() && !this.canWrite());
 
   private readonly domainId = signal<string | null>(null);

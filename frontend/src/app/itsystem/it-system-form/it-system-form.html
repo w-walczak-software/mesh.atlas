@@ -13,7 +13,7 @@
         <span class="form-topbar-sub">{{ t('itsystem.title') }}</span>
       </div>
       <div class="form-topbar-actions">
-        @if (isEditMode()) {
+        @if (isEditMode() && isAdmin()) {
           <button mat-icon-button type="button" (click)="openHistory()"
                   [matTooltip]="t('itsystem.action.history')" aria-label="Change history">
             <mat-icon>history</mat-icon>
@@ -380,7 +380,7 @@
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let row" class="actions-cell">
-                @if (isEditMode()) {
+                @if (isEditMode() && isAdmin()) {
                   <button mat-icon-button [matTooltip]="t('itsystem.owner.history')" (click)="openOwnerHistory(row)">
                     <mat-icon>history</mat-icon>
                   </button>

@@ -124,10 +124,12 @@
                   </div>
                   <div class="ownership-caps">
                     @if (o.canVerifyApi) {
-                      <mat-chip class="cap-chip cap-chip--verify" [matTooltip]="t('profile.cap.canVerifyApi')">
-                        <mat-icon matChipAvatar>verified</mat-icon>
+                      <button mat-flat-button class="cap-chip cap-chip--verify cap-chip--action"
+                              [matTooltip]="t('profile.cap.canVerifyApi')"
+                              (click)="$event.stopPropagation(); goToVerificationQueue()">
+                        <mat-icon>verified</mat-icon>
                         {{ t('profile.cap.verify') }}
-                      </mat-chip>
+                      </button>
                     }
                     @if (o.canDefineApi) {
                       <mat-chip class="cap-chip cap-chip--define" [matTooltip]="t('profile.cap.canDefineApi')">

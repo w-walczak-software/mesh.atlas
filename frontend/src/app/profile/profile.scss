@@ -221,6 +221,17 @@
     --mdc-chip-elevated-container-color: var(--mat-sys-primary-container);
     --mdc-chip-label-text-color: var(--mat-sys-on-primary-container);
   }
+  &--action {
+    cursor: pointer;
+    font-size: 11px !important;
+    height: 24px !important;
+    min-height: 24px !important;
+    line-height: 24px !important;
+    padding: 0 8px !important;
+    min-width: unset !important;
+
+    mat-icon { font-size: 14px !important; width: 14px !important; height: 14px !important; }
+  }
   &--define {
     --mdc-chip-elevated-container-color: var(--mat-sys-secondary-container);
     --mdc-chip-label-text-color: var(--mat-sys-on-secondary-container);

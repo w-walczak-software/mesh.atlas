@@ -7,10 +7,16 @@
     "activeApis": "Aktywne API",
     "itSystems": "Systemy IT",
     "inactiveApis": "Nieaktywne API",
+    "deprecatedApis": "Przestarzałe API",
     "deltaAdded": "+{{ n }} w tym miesiącu",
     "deltaNoNew": "brak nowych w tym miesiącu",
     "deltaActivePct": "{{ pct }}% ogółu",
     "deltaOfTotal": "z {{ total }} łącznie"
+  },
+  "deprecated": {
+    "title": "Przestarzałe API",
+    "hint": "API ze statusem cyklu życia deprecated",
+    "viewAll": "Otwórz rejestr"
   },
   "recentApis": {
     "title": "Ostatnio dodane API",
@@ -21,7 +27,8 @@
     "title": "Pokrycie API",
     "documented": "Udokumentowane",
     "versioned": "Zwersjonowane",
-    "withSla": "Z SLA"
+    "withSla": "Z SLA",
+    "withDataDomain": "Z domeną danych"
   },
   "summary": {
     "title": "Podsumowanie rejestru",

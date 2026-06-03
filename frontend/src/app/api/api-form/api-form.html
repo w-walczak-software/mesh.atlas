@@ -13,7 +13,7 @@
         <span class="form-topbar-sub">{{ t('api.title') }}</span>
       </div>
       <div class="form-topbar-actions">
-        @if (isEditMode()) {
+        @if (isEditMode() && isAdmin()) {
           <button mat-icon-button type="button" (click)="openHistory()"
                   [matTooltip]="t('api.action.history')" aria-label="Change history">
             <mat-icon>history</mat-icon>

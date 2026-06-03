@@ -63,6 +63,7 @@ export class TransportLayerForm implements OnInit {
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly canWrite = computed(() => this.auth.hasAnyRole(['atlas_admin', 'atlas_system']));
+  protected readonly isAdmin = computed(() => this.auth.hasAnyRole(['atlas_admin', 'ATLAS_ADMIN']));
   protected readonly readonly = computed(() => this.isEditMode() && !this.canWrite());
 
   private readonly layerId = signal<string | null>(null);

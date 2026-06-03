@@ -79,6 +79,7 @@ export class ItSystemForm implements OnInit {
 
   private readonly systemId = signal<string | null>(null);
   protected readonly isEditMode = computed(() => this.systemId() !== null);
+  protected readonly isAdmin = computed(() => this.auth.hasAnyRole(['atlas_admin', 'ATLAS_ADMIN']));
   private readonly _readonly = signal(false);
   protected readonly readonly = this._readonly.asReadonly();
   protected readonly saving = signal(false);

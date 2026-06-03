@@ -86,6 +86,7 @@ export class Apis implements OnInit {
   private readonly pageSize = signal(20);
   private pendingSelectId: string | null = null;
   private readonly MAX_SCAN_PAGES = 50;
+  private _presetStatusCode: string | null = null;
 
   protected readonly statuses = signal<DictionaryEntryDto[]>([]);
   protected readonly types = signal<DictionaryEntryDto[]>([]);
@@ -326,6 +327,8 @@ export class Apis implements OnInit {
 
     const saved = this.filterState.snapshot();
 
+    this._presetStatusCode = this.route.snapshot.queryParamMap.get('presetStatus');
+
     const pendingOnly = this.route.snapshot.queryParamMap.get('pendingVerificationOnly') === 'true';
     if (pendingOnly) {
       this.pendingVerificationOnly.set(true);
@@ -462,7 +465,18 @@ export class Apis implements OnInit {
   }
 
   private loadDictionaries(): void {
-    this.entryService.findByTypeCode('API_STATUS').subscribe(e => this.statuses.set(e));
+    this.entryService.findByTypeCode('API_STATUS').subscribe(e => {
+      this.statuses.set(e);
+      if (this._presetStatusCode) {
+        const code = this._presetStatusCode.toUpperCase();
+        const match = e.find(s => s.code.toUpperCase().includes(code));
+        if (match) {
+          this.searchForm.patchValue({ statusId: match.id });
+          this.load();
+        }
+        this._presetStatusCode = null;
+      }
+    });
     this.entryService.findByTypeCode('API_TYPE').subscribe(e => this.types.set(e));
     this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
     this.entryService.findByTypeCode('INTEGRATION_PATTERN').subscribe(e => this.integrationPatterns.set(e));

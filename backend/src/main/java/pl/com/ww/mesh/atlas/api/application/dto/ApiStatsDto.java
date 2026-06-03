@@ -4,8 +4,10 @@ public record ApiStatsDto(
         long total,
         long active,
         long inactive,
+        long deprecated,
         long addedLastMonth,
         long withSla,
         long withDocumentation,
-        long withVersion
+        long withVersion,
+        long withDataDomain
 ) {}

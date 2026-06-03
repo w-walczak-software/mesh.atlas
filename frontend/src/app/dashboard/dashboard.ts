@@ -64,6 +64,7 @@ export class Dashboard {
   );
 
   protected readonly loading = computed(() => this.apiStats() === null || this.itStats() === null);
+  protected readonly deprecatedCount = computed(() => this.apiStats()?.deprecated ?? 0);
 
   // ── KPI cards ──────────────────────────────────────────────────────────────
 
@@ -119,9 +120,10 @@ export class Dashboard {
     const total = api?.total ?? 0;
     const pct = (n: number) => total > 0 ? Math.round((n / total) * 100) : 0;
     return [
-      { labelKey: 'dashboard.coverage.documented', pct: pct(api?.withDocumentation ?? 0), warn: pct(api?.withDocumentation ?? 0) < 70 },
-      { labelKey: 'dashboard.coverage.versioned',  pct: pct(api?.withVersion       ?? 0), warn: pct(api?.withVersion       ?? 0) < 70 },
-      { labelKey: 'dashboard.coverage.withSla',    pct: pct(api?.withSla           ?? 0), warn: pct(api?.withSla           ?? 0) < 50 },
+      { labelKey: 'dashboard.coverage.documented',    pct: pct(api?.withDocumentation ?? 0), warn: pct(api?.withDocumentation ?? 0) < 70 },
+      { labelKey: 'dashboard.coverage.versioned',      pct: pct(api?.withVersion       ?? 0), warn: pct(api?.withVersion       ?? 0) < 70 },
+      { labelKey: 'dashboard.coverage.withSla',        pct: pct(api?.withSla           ?? 0), warn: pct(api?.withSla           ?? 0) < 50 },
+      { labelKey: 'dashboard.coverage.withDataDomain', pct: pct(api?.withDataDomain    ?? 0), warn: pct(api?.withDataDomain    ?? 0) < 70 },
     ];
   });
 
@@ -190,5 +192,9 @@ export class Dashboard {
 
   protected goToApis(): void {
     this.router.navigate(['/apis']);
+  }
+
+  protected goToDeprecatedApis(): void {
+    this.router.navigate(['/apis'], { queryParams: { presetStatus: 'DEPRECATED' } });
   }
 }

@@ -97,6 +97,10 @@ export class Profile implements OnInit {
     this.router.navigate(['/apis', id, 'edit']);
   }
 
+  protected goToVerificationQueue(): void {
+    this.router.navigate(['/apis'], { queryParams: { pendingVerificationOnly: true } });
+  }
+
   protected roleChipColor(role: string): string {
     const r = role.toLowerCase();
     if (r.includes('admin')) return 'warn';

@@ -272,10 +272,12 @@ export interface ApiStatsDto {
   total: number;
   active: number;
   inactive: number;
+  deprecated: number;
   addedLastMonth: number;
   withSla: number;
   withDocumentation: number;
   withVersion: number;
+  withDataDomain: number;
 }
 
 // ── Graph ──────────────────────────────────────────────────────────────────────

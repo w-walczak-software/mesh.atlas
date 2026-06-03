@@ -89,11 +89,13 @@ public class ApiService {
         long total = apiRepository.count();
         long active = apiRepository.countByActive(true);
         long inactive = apiRepository.countByActive(false);
+        long deprecated = apiRepository.countDeprecated();
         long addedLastMonth = apiRepository.countByCreatedAtAfter(LocalDateTime.now().minusMonths(1));
         long withSla = apiRepository.countBySlaResponseTimeMsIsNotNull();
         long withDocumentation = apiRepository.countWithDocumentation();
         long withVersion = apiRepository.countByApiVersionIsNotNull();
-        return new ApiStatsDto(total, active, inactive, addedLastMonth, withSla, withDocumentation, withVersion);
+        long withDataDomain = apiRepository.countWithDataDomain();
+        return new ApiStatsDto(total, active, inactive, deprecated, addedLastMonth, withSla, withDocumentation, withVersion, withDataDomain);
     }
 
     @Transactional(readOnly = true)

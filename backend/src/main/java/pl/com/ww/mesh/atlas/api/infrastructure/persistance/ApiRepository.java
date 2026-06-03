@@ -35,4 +35,10 @@ public interface ApiRepository extends JpaRepository<ApiEntity, UUID>, JpaSpecif
     long countWithDocumentation();
 
     long countByGovernanceStatusInAndProducerSystemIdIn(Collection<GovernanceStatus> statuses, Collection<UUID> systemIds);
+
+    @Query("SELECT COUNT(a) FROM ApiEntity a WHERE UPPER(a.status.code) LIKE '%DEPRECATED%'")
+    long countDeprecated();
+
+    @Query("SELECT COUNT(DISTINCT a) FROM ApiEntity a WHERE a.dataDomains IS NOT EMPTY")
+    long countWithDataDomain();
 }

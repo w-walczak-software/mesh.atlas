@@ -95,6 +95,7 @@ export class ApiForm implements OnInit {
   protected readonly canWrite = computed(() =>
     this.auth.hasAnyRole(['atlas_admin', 'atlas_system'])
   );
+  protected readonly isAdmin = computed(() => this.auth.hasAnyRole(['atlas_admin', 'ATLAS_ADMIN']));
   /** Non-admin: restricted list of producer systems; null means no restriction (admin). */
   protected readonly allowedProducerSystems = signal<ItSystemSummaryDto[] | null>(null);
 

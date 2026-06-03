@@ -101,6 +101,28 @@
           </mat-card-content>
         </mat-card>
 
+        <!-- Deprecated APIs -->
+        <mat-card class="deprecated-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>{{ t('dashboard.deprecated.title') }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (loading()) {
+              <div class="cov-skel-row"></div>
+            } @else {
+              <div class="deprecated-stat">
+                <mat-icon class="deprecated-icon">schedule</mat-icon>
+                <span class="deprecated-count">{{ deprecatedCount() }}</span>
+              </div>
+              <p class="deprecated-hint">{{ t('dashboard.deprecated.hint') }}</p>
+              <button mat-stroked-button class="deprecated-btn" (click)="goToDeprecatedApis()">
+                <mat-icon>open_in_new</mat-icon>
+                {{ t('dashboard.deprecated.viewAll') }}
+              </button>
+            }
+          </mat-card-content>
+        </mat-card>
+
         <!-- Summary counts -->
         <mat-card class="summary-card" appearance="outlined">
           <mat-card-header>
