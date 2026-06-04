@@ -1,0 +1,9 @@
+<mat-form-field appearance="outline" [subscriptSizing]="subscriptSizing()">
+  <mat-label>{{ label() }}</mat-label>
+  <textarea matInput
+            [formControlName]="controlName()"
+            [rows]="rows()"
+            [placeholder]="placeholder()">
+  </textarea>
+  <ng-content />
+</mat-form-field>

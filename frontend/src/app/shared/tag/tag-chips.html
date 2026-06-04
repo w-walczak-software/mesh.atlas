@@ -1,0 +1,18 @@
+@if (tags().length) {
+  <mat-chip-set aria-label="Tags">
+    @for (tag of tags(); track tag) {
+      <mat-chip [removable]="!readonly()" (removed)="removed.emit(tag)">
+        {{ displayFn()(tag) }}
+        @if (!readonly()) {
+          <button matChipRemove [attr.aria-label]="removeLabel() + ' ' + displayFn()(tag)">
+            <mat-icon>cancel</mat-icon>
+          </button>
+        }
+      </mat-chip>
+    }
+  </mat-chip-set>
+} @else {
+  @if (noTagsLabel()) {
+    <p class="tc-hint">{{ noTagsLabel() }}</p>
+  }
+}

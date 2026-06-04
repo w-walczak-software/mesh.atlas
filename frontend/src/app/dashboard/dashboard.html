@@ -2,18 +2,14 @@
   <div class="dashboard">
 
     <!-- ── Page header ──────────────────────────────────────────────────── -->
-    <div class="page-header">
-      <div class="page-title">
-        <h1 class="title">{{ t('dashboard.title') }}</h1>
-        <p class="subtitle">{{ t('dashboard.subtitle') }}</p>
-      </div>
-      <div class="header-actions">
+    <atlas-page-title [title]="t('dashboard.title')" [subtitle]="t('dashboard.subtitle')">
+      <div actions class="header-actions">
         <button mat-flat-button (click)="goToApis()">
           <mat-icon>api</mat-icon>
           {{ t('dashboard.goToApis') }}
         </button>
       </div>
-    </div>
+    </atlas-page-title>
 
     <!-- ── KPI grid ─────────────────────────────────────────────────────── -->
     <div class="kpi-grid">

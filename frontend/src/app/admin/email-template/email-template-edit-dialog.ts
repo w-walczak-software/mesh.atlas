@@ -18,6 +18,7 @@ import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@js
 import { EditorComponent } from '@tinymce/tinymce-angular';
 import type { Editor, RawEditorOptions } from 'tinymce';
 import { ToastService } from '@shared/toast/toast.service';
+import { AtlasTextInput } from '@shared/text-input/text-input';
 import { EmailTemplateDto } from '../model/admin.model';
 import { EmailTemplateService } from './email-template.service';
 
@@ -28,6 +29,7 @@ export interface EmailTemplateEditDialogData {
 @Component({
   selector: 'app-email-template-edit-dialog',
   imports: [
+    AtlasTextInput,
     ReactiveFormsModule,
     MatDialogModule,
     MatFormFieldModule,

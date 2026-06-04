@@ -20,6 +20,10 @@ import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@js
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasTextarea } from '@shared/textarea/textarea';
+import { AtlasCardHeader } from '@shared/card-header/card-header';
+import { AppToolbar } from '@shared/toolbar/toolbar';
 import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
 import { HistoryService } from '@shared/history/history.service';
@@ -34,6 +38,10 @@ import {
 @Component({
   selector: 'app-transport-layer-form',
   imports: [
+    AtlasCardHeader,
+    AtlasTextInput,
+    AtlasTextarea,
+    AppToolbar,
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,

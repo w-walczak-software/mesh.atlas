@@ -1,0 +1,10 @@
+<div [class]="iconClass()">
+  <mat-icon aria-hidden="true">{{ icon() }}</mat-icon>
+</div>
+<div class="ch-text">
+  <span class="ch-title">{{ title() }}</span>
+  @if (subtitle()) {
+    <span class="ch-subtitle" [class.ch-subtitle--warn]="subtitleWarn()">{{ subtitle() }}</span>
+  }
+</div>
+<ng-content select="[actions]" />

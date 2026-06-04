@@ -14,6 +14,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { forkJoin } from 'rxjs';
 import { DictionaryEntryDto, DictionaryEntryTranslationDto, DictionaryEntryTranslationRequest, DictionaryEntryUpdateRequest } from '../model/dictionary.model';
 import { DictionaryEntryService } from '../service/dictionary-entry.service';
+import { AtlasNumberInput } from '@shared/number-input/number-input';
 import { DictionaryEntryTranslationService } from '../service/dictionary-entry-translation.service';
 
 export const SUPPORTED_LANGS: { code: string; label: string }[] = [
@@ -24,6 +25,7 @@ export const SUPPORTED_LANGS: { code: string; label: string }[] = [
 @Component({
   selector: 'app-edit-entry-dialog',
   imports: [
+    AtlasNumberInput,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -72,16 +74,15 @@ export const SUPPORTED_LANGS: { code: string; label: string }[] = [
                   <mat-label>{{ t('dictionary.entry.description') }}</mat-label>
                   <textarea matInput formControlName="description" rows="3"></textarea>
                 </mat-form-field>
-                <mat-form-field appearance="outline" class="dlg-form-field dlg-form-field--narrow">
-                  <mat-label>{{ t('dictionary.entry.displayOrder') }}</mat-label>
-                  <input matInput type="number" formControlName="displayOrder" min="0" [attr.aria-required]="true" />
+                <atlas-number-input class="dlg-form-field dlg-form-field--narrow" controlName="displayOrder"
+                  [label]="t('dictionary.entry.displayOrder')" [min]="0" [ariaRequired]="true">
                   @if (form.controls.displayOrder.errors?.['required']) {
                     <mat-error>{{ t('common.validation.required') }}</mat-error>
                   }
                   @if (form.controls.displayOrder.errors?.['min']) {
                     <mat-error>{{ t('common.validation.min', { min: 0 }) }}</mat-error>
                   }
-                </mat-form-field>
+                </atlas-number-input>
                 @if (!data.systemDefined) {
                   <mat-checkbox formControlName="active">
                     {{ t('dictionary.entry.active') }}

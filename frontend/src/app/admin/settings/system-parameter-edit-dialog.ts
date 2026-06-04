@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { ToastService } from '@shared/toast/toast.service';
+import { AtlasNumberInput } from '@shared/number-input/number-input';
 import { SystemParameterDto, SystemParameterUpdateRequest } from '../model/admin.model';
 import { SystemParameterService } from './system-parameter.service';
 
@@ -19,6 +20,7 @@ export interface SystemParameterEditDialogData {
 @Component({
   selector: 'app-system-parameter-edit-dialog',
   imports: [
+    AtlasNumberInput,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -69,16 +71,10 @@ export interface SystemParameterEditDialogData {
               </mat-form-field>
             }
             @if (param.parameterType === 'INTEGER') {
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ t('admin.systemParam.field.value') }}</mat-label>
-                <input matInput type="number" step="1" formControlName="integerValue" />
-              </mat-form-field>
+              <atlas-number-input class="full-width" controlName="integerValue" [label]="t('admin.systemParam.field.value')" [step]="1" />
             }
             @if (param.parameterType === 'DECIMAL') {
-              <mat-form-field appearance="outline" class="full-width">
-                <mat-label>{{ t('admin.systemParam.field.value') }}</mat-label>
-                <input matInput type="number" step="0.0001" formControlName="decimalValue" />
-              </mat-form-field>
+              <atlas-number-input class="full-width" controlName="decimalValue" [label]="t('admin.systemParam.field.value')" [step]="0.0001" />
             }
             @if (param.parameterType === 'BOOLEAN') {
               <div class="toggle-row">

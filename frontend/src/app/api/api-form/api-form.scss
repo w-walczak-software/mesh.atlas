@@ -7,56 +7,6 @@
   background: var(--mat-sys-surface-container-lowest);
 }
 
-// ─── Sticky top bar ───────────────────────────────────────────────────────────
-
-.form-topbar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 0 20px 0 12px;
-  height: 64px;
-  border-bottom: 1px solid var(--mat-sys-outline-variant);
-  position: sticky;
-  top: 0;
-  background: var(--mat-sys-surface);
-  z-index: 20;
-  flex-shrink: 0;
-}
-
-.form-topbar-info {
-  flex: 1;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-}
-
-.form-topbar-title {
-  font-size: 17px;
-  font-weight: 600;
-  margin: 0;
-  color: var(--mat-sys-on-surface);
-  letter-spacing: -0.2px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.form-topbar-sub {
-  font-size: 11px;
-  color: var(--mat-sys-on-surface-variant);
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
-}
-
-.form-topbar-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-}
-
 // ─── Content area ─────────────────────────────────────────────────────────────
 
 .form-content {
@@ -241,61 +191,6 @@
   }
 }
 
-// ─── Tags ─────────────────────────────────────────────────────────────────────
-
-.tags-input-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-
-  .tag-input {
-    flex: 0 0 280px;
-    max-width: 280px;
-
-    @media (max-width: 600px) {
-      flex: 1;
-      max-width: none;
-    }
-  }
-}
-
-.field-hint {
-  font-size: 13px;
-  color: var(--mat-sys-on-surface-variant);
-  margin: 4px 0 0;
-}
-
-// ─── Owners table ─────────────────────────────────────────────────────────────
-
-.owners-table {
-  width: 100%;
-
-  .mat-mdc-header-cell {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--mat-sys-on-surface-variant);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: var(--mat-sys-surface-container-low);
-    border-bottom: 1px solid var(--mat-sys-outline-variant) !important;
-    padding: 10px 16px;
-  }
-
-  .mat-mdc-cell {
-    font-size: 13px;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--mat-sys-surface-container-high) !important;
-  }
-
-  .mat-mdc-row:last-child .mat-mdc-cell {
-    border-bottom: none !important;
-  }
-
-  .mat-mdc-row:hover {
-    background: var(--mat-sys-surface-container-low);
-  }
-}
-
 .owner-cell {
   display: flex;
   align-items: center;
@@ -381,37 +276,6 @@
   font-size: 14px;
   color: var(--mat-sys-on-surface-variant);
   margin: 0 0 8px;
-}
-
-// ─── Attachments table ────────────────────────────────────────────────────────
-
-.attachments-table {
-  width: 100%;
-
-  .mat-mdc-header-cell {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--mat-sys-on-surface-variant);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: var(--mat-sys-surface-container-low);
-    border-bottom: 1px solid var(--mat-sys-outline-variant) !important;
-    padding: 10px 16px;
-  }
-
-  .mat-mdc-cell {
-    font-size: 13px;
-    padding: 0 16px;
-    border-bottom: 1px solid var(--mat-sys-surface-container-high) !important;
-  }
-
-  .mat-mdc-row:last-child .mat-mdc-cell {
-    border-bottom: none !important;
-  }
-
-  .mat-mdc-row:hover {
-    background: var(--mat-sys-surface-container-low);
-  }
 }
 
 .file-cell {

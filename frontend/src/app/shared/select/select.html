@@ -1,0 +1,28 @@
+<mat-form-field appearance="outline" [subscriptSizing]="subscriptSizing()">
+  <mat-label>{{ label() }}</mat-label>
+
+  @if (controlName()) {
+    <mat-select [formControlName]="controlName()!"
+                [multiple]="multiple()"
+                [attr.aria-required]="ariaRequired() ? true : null">
+      @if (nullOptionLabel() !== null) {
+        <mat-option [value]="nullOptionValue()">{{ nullOptionLabel() }}</mat-option>
+      }
+      @for (opt of options(); track opt.value) {
+        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+      }
+    </mat-select>
+  } @else {
+    <mat-select [formControl]="$any(control())"
+                [multiple]="multiple()">
+      @if (nullOptionLabel() !== null) {
+        <mat-option [value]="nullOptionValue()">{{ nullOptionLabel() }}</mat-option>
+      }
+      @for (opt of options(); track opt.value) {
+        <mat-option [value]="opt.value">{{ opt.label }}</mat-option>
+      }
+    </mat-select>
+  }
+
+  <ng-content />
+</mat-form-field>

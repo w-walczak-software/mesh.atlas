@@ -45,6 +45,11 @@
     "lightMode": "Przełącz na jasny motyw",
     "darkMode": "Przełącz na ciemny motyw",
     "readOnly": "Tylko podgląd",
+    "select": {
+      "all": "Wszystkie",
+      "activeOnly": "Tylko aktywne",
+      "inactiveOnly": "Tylko nieaktywne"
+    },
     "validation": {
       "required": "To pole jest wymagane.",
       "maxlength": "Przekroczono maksymalną długość {{ max }} znaków.",

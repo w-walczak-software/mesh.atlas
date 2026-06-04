@@ -10,6 +10,9 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasPanelHeader } from '@shared/panel-header/panel-header';
+import { AtlasSelectActive } from '@shared/select/select-active';
 import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
@@ -23,6 +26,9 @@ import { ApiFilterStateService } from '../../api/service/api-filter-state.servic
 @Component({
   selector: 'app-data-domains',
   imports: [
+    AtlasPanelHeader,
+    AtlasTextInput,
+    AtlasSelectActive,
     DataTable,
     TranslocoDirective,
     ReactiveFormsModule,

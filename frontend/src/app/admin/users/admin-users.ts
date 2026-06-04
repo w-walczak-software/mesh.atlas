@@ -15,6 +15,8 @@ import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@js
 import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasPageTitle } from '@shared/page-title/page-title';
+import { AtlasTextInput } from '@shared/text-input/text-input';
 import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { ToastService } from '@shared/toast/toast.service';
 import { AdminUserDto } from '../model/admin.model';
@@ -24,6 +26,8 @@ import { UserRolesDialog, UserRolesDialogData } from './user-roles-dialog';
 @Component({
   selector: 'app-admin-users',
   imports: [
+    AtlasPageTitle,
+    AtlasTextInput,
     DataTable,
     ReactiveFormsModule,
     MatButtonModule,

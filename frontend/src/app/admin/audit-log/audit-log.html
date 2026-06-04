@@ -1,83 +1,26 @@
 <ng-container *transloco="let t; scope: 'admin'; lang: lang()">
   <div class="admin-page audit-log-page">
 
-    <div class="page-header">
-      <div class="page-title">
-        <h1 class="title">{{ t('admin.page.auditLog.title') }}</h1>
-        <p class="subtitle">{{ t('admin.page.auditLog.subtitle') }}</p>
-      </div>
-    </div>
+    <atlas-page-title [title]="t('admin.page.auditLog.title')" [subtitle]="t('admin.page.auditLog.subtitle')" />
 
     <mat-accordion class="filter-panel">
       <mat-expansion-panel>
-        <mat-expansion-panel-header>
-          <mat-panel-title>
-            <mat-icon>filter_list</mat-icon>
-            {{ t('admin.auditLog.filter.title') }}
-          </mat-panel-title>
-        </mat-expansion-panel-header>
+        <atlas-panel-header [title]="t('admin.auditLog.filter.title')" icon="filter_list" />
 
         <form [formGroup]="filterForm" class="filter-form" (ngSubmit)="applyFilters()">
           <div class="filter-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('admin.auditLog.filter.actor') }}</mat-label>
-              <input matInput formControlName="actorUsername" />
-              <mat-icon matSuffix>person_search</mat-icon>
-            </mat-form-field>
+            <atlas-text-input controlName="actorUsername" [label]="t('admin.auditLog.filter.actor')" icon="person_search" />
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('admin.auditLog.filter.category') }}</mat-label>
-              <mat-select formControlName="category">
-                <mat-option value="">{{ t('admin.auditLog.filter.all') }}</mat-option>
-                @for (cat of categories; track cat) {
-                  <mat-option [value]="cat">{{ t('admin.auditLog.category.' + cat) }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('admin.auditLog.filter.action') }}</mat-label>
-              <mat-select formControlName="action">
-                <mat-option value="">{{ t('admin.auditLog.filter.all') }}</mat-option>
-                @for (act of actions; track act) {
-                  <mat-option [value]="act">{{ t('admin.auditLog.action.' + act) }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('admin.auditLog.filter.resourceType') }}</mat-label>
-              <mat-select formControlName="resourceType">
-                <mat-option value="">{{ t('admin.auditLog.filter.all') }}</mat-option>
-                @for (rt of resourceTypes; track rt) {
-                  <mat-option [value]="rt">{{ t('admin.auditLog.resourceType.' + rt) }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('admin.auditLog.filter.outcome') }}</mat-label>
-              <mat-select formControlName="outcome">
-                <mat-option value="">{{ t('admin.auditLog.filter.all') }}</mat-option>
-                @for (o of outcomes; track o) {
-                  <mat-option [value]="o">{{ t('admin.auditLog.outcome.' + o) }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-audit-category controlName="category" [label]="t('admin.auditLog.filter.category')" />
+            <atlas-select-audit-action controlName="action" [label]="t('admin.auditLog.filter.action')" />
+            <atlas-select-audit-resource-type controlName="resourceType" [label]="t('admin.auditLog.filter.resourceType')" />
+            <atlas-select-audit-outcome controlName="outcome" [label]="t('admin.auditLog.filter.outcome')" />
           </div>
 
           <div class="filter-row">
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('admin.auditLog.filter.startDate') }}</mat-label>
-              <input matInput type="datetime-local" formControlName="startDate" />
-              <mat-icon matSuffix>calendar_today</mat-icon>
-            </mat-form-field>
+            <atlas-text-input controlName="startDate" [label]="t('admin.auditLog.filter.startDate')" type="datetime-local" icon="calendar_today" />
 
-            <mat-form-field appearance="outline">
-              <mat-label>{{ t('admin.auditLog.filter.endDate') }}</mat-label>
-              <input matInput type="datetime-local" formControlName="endDate" />
-              <mat-icon matSuffix>calendar_today</mat-icon>
-            </mat-form-field>
+            <atlas-text-input controlName="endDate" [label]="t('admin.auditLog.filter.endDate')" type="datetime-local" icon="calendar_today" />
           </div>
 
           <div class="filter-actions">

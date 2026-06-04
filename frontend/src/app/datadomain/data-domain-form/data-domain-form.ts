@@ -12,11 +12,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -25,6 +22,14 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 import { ToastService } from '@shared/toast/toast.service';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasTextarea } from '@shared/textarea/textarea';
+import { AtlasCardHeader } from '@shared/card-header/card-header';
+import { AtlasTagInput } from '@shared/tag/tag-input';
+import { AtlasTagChips } from '@shared/tag/tag-chips';
+import { AppSimpleTable } from '@shared/simple-table/simple-table';
+import { AppSimpleTableColumn } from '@shared/simple-table/simple-table-column';
+import { AppToolbar } from '@shared/toolbar/toolbar';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
@@ -46,17 +51,22 @@ import {
 @Component({
   selector: 'app-data-domain-form',
   imports: [
+    AtlasCardHeader,
+    AtlasTextInput,
+    AtlasTextarea,
+    AtlasTagInput,
+    AtlasTagChips,
+    AppSimpleTable,
+    AppSimpleTableColumn,
+    AppToolbar,
     SlicePipe,
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
     MatFormFieldModule,
-    MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatChipsModule,
-    MatTableModule,
     MatTooltipModule,
     MatProgressBarModule,
     MatDialogModule,
@@ -107,7 +117,6 @@ export class DataDomainForm implements OnInit {
     newTag: [''],
   });
 
-  protected readonly attachmentColumns = ['fileName', 'description', 'fileSize', 'createdAt', 'actions'];
 
   ngOnInit(): void {
     this.entryService.findByTypeCode('DATA_DOMAIN_GROUP').subscribe(e => this.groups.set(e));
@@ -131,13 +140,6 @@ export class DataDomainForm implements OnInit {
 
   protected removeTag(tag: string): void {
     this.tags.update(t => t.filter(x => x !== tag));
-  }
-
-  protected onTagKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      this.addTag();
-    }
   }
 
   protected triggerFileUpload(input: HTMLInputElement): void {

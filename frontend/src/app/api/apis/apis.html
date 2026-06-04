@@ -16,12 +16,7 @@
     </div>
 
     <mat-expansion-panel class="search-panel" [expanded]="!pendingVerificationOnly()">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>search</mat-icon>
-          {{ t('api.search.title') }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+      <atlas-panel-header [title]="t('api.search.title')" icon="search" />
 
       <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearch()">
         <div class="filter-header">
@@ -42,55 +37,24 @@
 
         @if (activeTab() === 'basic') {
           <div class="search-row">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>{{ t('api.search.query') }}</mat-label>
-              <input matInput formControlName="query" />
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
+            <atlas-text-input class="search-field" controlName="query" [label]="t('api.search.query')" icon="search" />
 
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>{{ t('api.search.tag') }}</mat-label>
-              <input matInput formControlName="tag" />
-              <mat-icon matSuffix>local_offer</mat-icon>
-            </mat-form-field>
+            <atlas-text-input class="search-field" controlName="tag" [label]="t('api.search.tag')" icon="local_offer" />
 
-            <mat-form-field appearance="outline" class="search-field search-field--narrow">
-              <mat-label>{{ t('api.field.status') }}</mat-label>
-              <mat-select formControlName="statusId">
-                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-                @for (item of statuses(); track item.id) {
-                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-dictionary class="search-field search-field--narrow" controlName="statusId"
+              [label]="t('api.field.status')" dictionaryCode="API_STATUS" [nullOptionLabel]="t('api.search.all')" />
 
-            <mat-form-field appearance="outline" class="search-field search-field--narrow">
-              <mat-label>{{ t('api.field.type') }}</mat-label>
-              <mat-select formControlName="typeId">
-                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-                @for (item of types(); track item.id) {
-                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-dictionary class="search-field search-field--narrow" controlName="typeId"
+              [label]="t('api.field.type')" dictionaryCode="API_TYPE" [nullOptionLabel]="t('api.search.all')" />
 
-            <mat-form-field appearance="outline" class="search-field search-field--narrow">
-              <mat-label>{{ t('api.search.activeLabel') }}</mat-label>
-              <mat-select formControlName="active">
-                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-                <mat-option [value]="true">{{ t('api.search.activeOnly') }}</mat-option>
-                <mat-option [value]="false">{{ t('api.search.inactiveOnly') }}</mat-option>
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-active class="search-field search-field--narrow" controlName="active"
+              [label]="t('api.search.activeLabel')" />
           </div>
         }
 
         @if (activeTab() === 'advanced') {
           <div class="search-row">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>{{ t('api.field.description') }}</mat-label>
-              <input matInput formControlName="description" />
-            </mat-form-field>
+            <atlas-text-input class="search-field" controlName="description" [label]="t('api.field.description')" />
 
             <mat-form-field appearance="outline" class="search-field search-field--narrow">
               <mat-label>{{ t('api.field.transportLayer') }}</mat-label>
@@ -102,25 +66,11 @@
               </mat-select>
             </mat-form-field>
 
-            <mat-form-field appearance="outline" class="search-field search-field--narrow">
-              <mat-label>{{ t('api.field.integrationPattern') }}</mat-label>
-              <mat-select formControlName="integrationPatternId">
-                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-                @for (item of integrationPatterns(); track item.id) {
-                  <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-dictionary class="search-field search-field--narrow" controlName="integrationPatternId"
+              [label]="t('api.field.integrationPattern')" dictionaryCode="INTEGRATION_PATTERN" [nullOptionLabel]="t('api.search.all')" />
 
-            <mat-form-field appearance="outline" class="search-field search-field--narrow">
-              <mat-label>{{ t('api.field.environments') }}</mat-label>
-              <mat-select formControlName="environmentId">
-                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-                @for (env of environments(); track env.id) {
-                  <mat-option [value]="env.id">{{ env.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-dictionary class="search-field search-field--narrow" controlName="environmentId"
+              [label]="t('api.field.environments')" dictionaryCode="API_ENVIRONMENT" [nullOptionLabel]="t('api.search.all')" />
           </div>
 
           <div class="search-row">

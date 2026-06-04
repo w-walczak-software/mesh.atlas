@@ -74,7 +74,14 @@
       "Bash(Select-Object -Last 5)",
       "Bash(Format-Table Name)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 40)",
-      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 20)"
+      "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; cd \"C:\\\\DEV\\\\mesh-atlas\\\\backend\"; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 20)",
+      "Bash(Get-Content -Path \"C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\src\\\\app\\\\admin\\\\audit-log\\\\audit-log.html\")",
+      "Bash(dir \"C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\src\\\\assets\\\\i18n\")",
+      "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error|Error|warning|Warning|complete' } | Select-Object -First 40)",
+      "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error|Error|complete' } | Select-Object -First 20)",
+      "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error TS|ERROR|complete' } | Select-Object -First 30)",
+      "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error TS|ERROR|complete' } | Select-Object -First 20)",
+      "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error TS|ERROR|complete' } | Select-Object -First 15)"
     ]
   }
 }

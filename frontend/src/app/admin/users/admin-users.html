@@ -1,18 +1,10 @@
 <ng-container *transloco="let t; scope: 'admin'; lang: lang()">
   <div class="admin-page">
-    <div class="page-header">
-      <div class="page-title">
-        <h1 class="title">{{ t('admin.page.users.title') }}</h1>
-        <p class="subtitle">{{ t('admin.page.users.subtitle') }}</p>
-      </div>
-    </div>
+    <atlas-page-title [title]="t('admin.page.users.title')" [subtitle]="t('admin.page.users.subtitle')" />
 
     <div class="search-bar">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>{{ t('admin.user.search') }}</mat-label>
-        <input matInput [formControl]="searchControl" [attr.aria-label]="t('admin.user.searchHint')" />
-        <mat-icon matSuffix>search</mat-icon>
-      </mat-form-field>
+      <atlas-text-input class="search-field" [control]="searchControl" [label]="t('admin.user.search')"
+                        icon="search" [ariaLabel]="t('admin.user.searchHint')" />
     </div>
 
     <app-data-table

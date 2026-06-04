@@ -5,29 +5,14 @@
     </div>
 
     <mat-expansion-panel class="search-panel" [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>search</mat-icon>
-          {{ t('transportlayer.search.title') }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+      <atlas-panel-header [title]="t('transportlayer.search.title')" icon="search" />
 
       <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearch()">
         <div class="search-row">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('transportlayer.search.query') }}</mat-label>
-            <input matInput formControlName="query" />
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
+          <atlas-text-input class="search-field" controlName="query" [label]="t('transportlayer.search.query')" icon="search" />
 
-          <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('transportlayer.search.activeLabel') }}</mat-label>
-            <mat-select formControlName="active">
-              <mat-option [value]="null">{{ t('transportlayer.search.all') }}</mat-option>
-              <mat-option [value]="true">{{ t('transportlayer.search.activeOnly') }}</mat-option>
-              <mat-option [value]="false">{{ t('transportlayer.search.inactiveOnly') }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <atlas-select-active class="search-field search-field--narrow" controlName="active"
+            [label]="t('transportlayer.search.activeLabel')" />
         </div>
 
         <div class="search-actions">

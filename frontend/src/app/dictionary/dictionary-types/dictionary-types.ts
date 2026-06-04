@@ -6,6 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasPageTitle } from '@shared/page-title/page-title';
 import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
@@ -17,7 +18,7 @@ import { EditTypeDialog } from './edit-type.dialog';
 
 @Component({
   selector: 'app-dictionary-types',
-  imports: [DataTable, TranslocoDirective, MatIconModule, MatButtonModule],
+  imports: [AtlasPageTitle, DataTable, TranslocoDirective, MatIconModule, MatButtonModule],
   providers: [provideTranslocoScope('dictionary')],
   templateUrl: './dictionary-types.html',
   styleUrl: './dictionary-types.scss',

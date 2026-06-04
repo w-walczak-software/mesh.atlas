@@ -12,12 +12,15 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasPanelHeader } from '@shared/panel-header/panel-header';
+import { AtlasSelectDictionary } from '@shared/select/select-dictionary';
+import { AtlasSelectActive } from '@shared/select/select-active';
 import { BadgeConfig, PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { AuthService } from '@core/auth/auth.service';
 import { ItSystemSelectComponent } from '@shared/it-system-select/it-system-select';
-import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
 import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
 import { TransportLayerSummaryDto } from '../../transportlayer/model/transport-layer.model';
 import { TransportLayerService } from '../../transportlayer/service/transport-layer.service';
@@ -33,6 +36,10 @@ import { ApiVerifyDialog, ApiVerifyDialogData } from '../api-form/api-verify.dia
 @Component({
   selector: 'app-apis',
   imports: [
+    AtlasPanelHeader,
+    AtlasTextInput,
+    AtlasSelectDictionary,
+    AtlasSelectActive,
     DataTable,
     TranslocoDirective,
     ReactiveFormsModule,
@@ -88,10 +95,6 @@ export class Apis implements OnInit {
   private readonly MAX_SCAN_PAGES = 50;
   private _presetStatusCode: string | null = null;
 
-  protected readonly statuses = signal<DictionaryEntryDto[]>([]);
-  protected readonly types = signal<DictionaryEntryDto[]>([]);
-  protected readonly environments = signal<DictionaryEntryDto[]>([]);
-  protected readonly integrationPatterns = signal<DictionaryEntryDto[]>([]);
   protected readonly transportLayers = signal<TransportLayerSummaryDto[]>([]);
   protected readonly dataDomains = signal<DataDomainSummaryDto[]>([]);
 
@@ -465,21 +468,17 @@ export class Apis implements OnInit {
   }
 
   private loadDictionaries(): void {
-    this.entryService.findByTypeCode('API_STATUS').subscribe(e => {
-      this.statuses.set(e);
-      if (this._presetStatusCode) {
-        const code = this._presetStatusCode.toUpperCase();
-        const match = e.find(s => s.code.toUpperCase().includes(code));
+    if (this._presetStatusCode) {
+      this.entryService.findByTypeCode('API_STATUS').subscribe(entries => {
+        const code = this._presetStatusCode!.toUpperCase();
+        const match = entries.find(s => s.code.toUpperCase().includes(code));
         if (match) {
           this.searchForm.patchValue({ statusId: match.id });
           this.load();
         }
         this._presetStatusCode = null;
-      }
-    });
-    this.entryService.findByTypeCode('API_TYPE').subscribe(e => this.types.set(e));
-    this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
-    this.entryService.findByTypeCode('INTEGRATION_PATTERN').subscribe(e => this.integrationPatterns.set(e));
+      });
+    }
     this.transportLayerService.findAll({ active: true, size: 200, sort: 'name' }).subscribe(p => this.transportLayers.set(p.content));
     this.dataDomainService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(p => this.dataDomains.set(p.content));
   }

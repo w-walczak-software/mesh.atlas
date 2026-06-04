@@ -10,27 +10,8 @@
 
 // ── Page header ──────────────────────────────────────────────────────────────
 
-.page-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+atlas-page-title {
   margin-bottom: 28px;
-  flex-wrap: wrap;
-}
-
-.title {
-  font-size: 22px;
-  font-weight: 600;
-  color: var(--mat-sys-on-surface);
-  margin: 0 0 4px;
-  letter-spacing: -0.3px;
-}
-
-.subtitle {
-  font-size: 13px;
-  color: var(--mat-sys-on-surface-variant);
-  margin: 0;
 }
 
 .header-actions {

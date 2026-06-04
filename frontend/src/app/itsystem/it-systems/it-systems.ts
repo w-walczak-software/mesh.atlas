@@ -10,12 +10,15 @@ import { MatExpansionModule } from '@angular/material/expansion';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasPanelHeader } from '@shared/panel-header/panel-header';
+import { AtlasSelectDictionary } from '@shared/select/select-dictionary';
+import { AtlasSelectActive } from '@shared/select/select-active';
 import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { AuthService } from '@core/auth/auth.service';
-import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
-import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
+
 import { ItSystemService } from '../service/itsystem.service';
 import { ItSystemSearchParams, ItSystemSummaryDto } from '../model/itsystem.model';
 import { ItSystemFilterStateService } from '../service/itsystem-filter-state.service';
@@ -24,6 +27,10 @@ import { ApiFilterStateService } from '../../api/service/api-filter-state.servic
 @Component({
   selector: 'app-it-systems',
   imports: [
+    AtlasPanelHeader,
+    AtlasTextInput,
+    AtlasSelectDictionary,
+    AtlasSelectActive,
     DataTable,
     TranslocoDirective,
     ReactiveFormsModule,
@@ -41,7 +48,6 @@ import { ApiFilterStateService } from '../../api/service/api-filter-state.servic
 })
 export class ItSystems implements OnInit {
   private readonly service       = inject(ItSystemService);
-  private readonly entryService  = inject(DictionaryEntryService);
   private readonly router        = inject(Router);
   private readonly dialogs       = inject(DialogService);
   private readonly toast         = inject(ToastService);
@@ -82,10 +88,6 @@ export class ItSystems implements OnInit {
   private pendingSelectId: string | null = null;
   private readonly MAX_SCAN_PAGES = 50;
 
-  protected readonly statuses              = signal<DictionaryEntryDto[]>([]);
-  protected readonly lifecycleStages       = signal<DictionaryEntryDto[]>([]);
-  protected readonly businessCriticalities = signal<DictionaryEntryDto[]>([]);
-  protected readonly systemTypes           = signal<DictionaryEntryDto[]>([]);
 
   protected readonly searchForm = this.fb.group({
     query:                 [''],
@@ -222,7 +224,6 @@ export class ItSystems implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadDictionaries();
     this.restoreOrLoad();
   }
 
@@ -351,12 +352,6 @@ export class ItSystems implements OnInit {
     });
   }
 
-  private loadDictionaries(): void {
-    this.entryService.findByTypeCode('SYSTEM_STATUS').subscribe(e => this.statuses.set(e));
-    this.entryService.findByTypeCode('LIFECYCLE_STAGE').subscribe(e => this.lifecycleStages.set(e));
-    this.entryService.findByTypeCode('BUSINESS_CRITICALITY').subscribe(e => this.businessCriticalities.set(e));
-    this.entryService.findByTypeCode('SYSTEM_TYPE').subscribe(e => this.systemTypes.set(e));
-  }
 
   private confirmDeactivate(row: ItSystemSummaryDto): void {
     this.dialogs.question(

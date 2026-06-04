@@ -2,39 +2,21 @@
   <div class="form-page">
 
     <!-- Sticky top bar -->
-    <div class="form-topbar">
-      <button mat-icon-button (click)="cancel()" [attr.aria-label]="t('datadomain.action.back')">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="form-topbar-info">
-        <h1 class="form-topbar-title">
-          {{ isEditMode() ? (domain()?.name || t('datadomain.edit')) : t('datadomain.new') }}
-        </h1>
-        <span class="form-topbar-sub">{{ t('datadomain.title') }}</span>
-      </div>
-      <div class="form-topbar-actions">
-        @if (isEditMode() && isAdmin()) {
-          <button mat-icon-button type="button" (click)="openHistory()"
-                  [matTooltip]="t('datadomain.action.history')" aria-label="Change history">
-            <mat-icon>history</mat-icon>
-          </button>
-        }
-        <button mat-stroked-button type="button" (click)="cancel()">
-          {{ t('datadomain.action.cancel') }}
-        </button>
-        @if (readonly()) {
-          <span class="form-readonly-badge">
-            <mat-icon>lock</mat-icon>
-            {{ t('common.readOnly') }}
-          </span>
-        } @else {
-          <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
-            <mat-icon>save</mat-icon>
-            {{ t('datadomain.action.save') }}
-          </button>
-        }
-      </div>
-    </div>
+    <app-toolbar
+      [title]="isEditMode() ? (domain()?.name || t('datadomain.edit')) : t('datadomain.new')"
+      [subtitle]="t('datadomain.title')"
+      [backLabel]="t('datadomain.action.back')"
+      [cancelLabel]="t('datadomain.action.cancel')"
+      [saveLabel]="t('datadomain.action.save')"
+      [historyLabel]="t('datadomain.action.history')"
+      [readonlyLabel]="t('common.readOnly')"
+      [showHistory]="isEditMode() && isAdmin()"
+      [readonly]="readonly()"
+      [saveDisabled]="form.invalid || saving()"
+      (back)="cancel()"
+      (cancel)="cancel()"
+      (save)="save()"
+      (history)="openHistory()" />
 
     <!-- Main content -->
     <div class="form-content">
@@ -42,21 +24,11 @@
 
         <!-- Basic Information -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--primary">
-              <mat-icon>schema</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('datadomain.section.basic') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="schema" iconColor="primary" [title]="t('datadomain.section.basic')" />
 
           <div class="card-body">
             <div class="field-row field-row--code-name">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('datadomain.field.code') }}</mat-label>
-                <input matInput formControlName="code" [attr.aria-required]="true" />
-                <mat-icon matSuffix>tag</mat-icon>
+              <atlas-text-input controlName="code" [label]="t('datadomain.field.code')" icon="tag" [ariaRequired]="true">
                 @if (form.controls.code.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
@@ -66,36 +38,29 @@
                 @if (form.controls.code.errors?.['pattern']) {
                   <mat-error>{{ t('datadomain.error.codePattern') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('datadomain.field.name') }}</mat-label>
-                <input matInput formControlName="name" [attr.aria-required]="true" />
+              <atlas-text-input controlName="name" [label]="t('datadomain.field.name')" [ariaRequired]="true">
                 @if (form.controls.name.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
                 @if (form.controls.name.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
             </div>
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('datadomain.field.description') }}</mat-label>
-              <textarea matInput formControlName="description" rows="4"></textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('datadomain.field.description')" [rows]="4">
               @if (form.controls.description.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-textarea>
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('datadomain.field.documentationUrl') }}</mat-label>
-              <input matInput formControlName="documentationUrl" />
-              <mat-icon matSuffix>open_in_new</mat-icon>
+            <atlas-text-input class="field-full" controlName="documentationUrl" [label]="t('datadomain.field.documentationUrl')" icon="open_in_new">
               @if (form.controls.documentationUrl.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-text-input>
 
             <mat-form-field appearance="outline" class="field-half">
               <mat-label>{{ t('datadomain.field.group') }}</mat-label>
@@ -111,45 +76,19 @@
 
         <!-- Tags -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon">
-              <mat-icon>local_offer</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('datadomain.section.tags') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="local_offer" [title]="t('datadomain.section.tags')" />
 
           <div class="card-body">
-            @if (!readonly()) {
-              <div class="tags-input-row">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
-                  <mat-label>{{ t('datadomain.action.addTag') }}</mat-label>
-                  <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
-                  <mat-icon matSuffix>add_circle_outline</mat-icon>
-                </mat-form-field>
-                <button mat-stroked-button type="button" (click)="addTag()">
-                  <mat-icon>add</mat-icon>
-                  {{ t('datadomain.action.addTag') }}
-                </button>
-              </div>
-            }
-            @if (tags().length) {
-              <mat-chip-set aria-label="Tags">
-                @for (tag of tags(); track tag) {
-                  <mat-chip [removable]="!readonly()" (removed)="removeTag(tag)">
-                    {{ tag }}
-                    @if (!readonly()) {
-                      <button matChipRemove [attr.aria-label]="t('datadomain.action.removeTag') + ' ' + tag">
-                        <mat-icon>cancel</mat-icon>
-                      </button>
-                    }
-                  </mat-chip>
-                }
-              </mat-chip-set>
-            } @else {
-              <p class="field-hint">{{ t('datadomain.tags.noTags') }}</p>
-            }
+            <atlas-tag-input
+              [addLabel]="t('datadomain.action.addTag')"
+              [readonly]="readonly()"
+              (addTag)="addTag()" />
+            <atlas-tag-chips
+              [tags]="tags()"
+              [readonly]="readonly()"
+              [removeLabel]="t('datadomain.action.removeTag')"
+              [noTagsLabel]="t('datadomain.tags.noTags')"
+              (removed)="removeTag($event)" />
           </div>
         </mat-card>
 
@@ -162,89 +101,77 @@
                style="display:none" aria-hidden="true" />
 
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head card-head--with-action">
-            <div class="card-head-icon card-head-icon--secondary">
-              <mat-icon>attach_file</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('datadomain.section.attachments') }}</span>
-              <span class="card-head-subtitle">{{ t('datadomain.section.attachmentsHint') }}</span>
-            </div>
+          <atlas-card-header icon="attach_file" iconColor="secondary"
+            [title]="t('datadomain.section.attachments')" [subtitle]="t('datadomain.section.attachmentsHint')">
             @if (canWrite()) {
-              <button mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)"
+              <button actions mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)"
                       [disabled]="uploading()" class="card-head-btn">
                 <mat-icon>upload_file</mat-icon>
                 {{ t('datadomain.attachment.upload') }}
               </button>
             }
-          </div>
+          </atlas-card-header>
 
           @if (uploading()) {
             <mat-progress-bar mode="indeterminate" />
           }
 
           @if (attachments().length) {
-            <table mat-table [dataSource]="attachments()" class="attachments-table">
-              <ng-container matColumnDef="fileName">
-                <th mat-header-cell *matHeaderCellDef>{{ t('datadomain.attachment.fileName') }}</th>
-                <td mat-cell *matCellDef="let row">
+            <app-simple-table [dataSource]="attachments()">
+              <app-column name="fileName" [header]="t('datadomain.attachment.fileName')">
+                <ng-template #cell let-row>
                   <div class="file-cell">
                     <mat-icon class="file-icon" aria-hidden="true">description</mat-icon>
                     <span>{{ row.fileName }}</span>
                   </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="description">
-                <th mat-header-cell *matHeaderCellDef>{{ t('datadomain.attachment.description') }}</th>
-                <td mat-cell *matCellDef="let row" class="description-cell">
-                  @if (row.description) {
-                    <span [matTooltip]="row.description" matTooltipShowDelay="300" class="description-text">
-                      {{ row.description }}
-                    </span>
-                  } @else {
-                    <span class="no-description">—</span>
-                  }
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="fileSize">
-                <th mat-header-cell *matHeaderCellDef>{{ t('datadomain.attachment.fileSize') }}</th>
-                <td mat-cell *matCellDef="let row" class="size-cell">{{ formatFileSize(row.fileSize) }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="createdAt">
-                <th mat-header-cell *matHeaderCellDef>{{ t('datadomain.attachment.uploadedAt') }}</th>
-                <td mat-cell *matCellDef="let row" class="date-cell">
-                  {{ row.createdAt | slice:0:16 }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef></th>
-                <td mat-cell *matCellDef="let row" class="actions-cell">
-                  <button mat-icon-button [matTooltip]="t('datadomain.attachment.download')"
-                          (click)="downloadAttachment(row)">
-                    <mat-icon>download</mat-icon>
-                  </button>
-                  @if (canWrite()) {
-                    <button mat-icon-button
-                            [matTooltip]="t('datadomain.attachment.editDescription')"
-                            (click)="editAttachmentDescription(row)">
-                      <mat-icon>edit_note</mat-icon>
+                </ng-template>
+              </app-column>
+              <app-column name="description" [header]="t('datadomain.attachment.description')">
+                <ng-template #cell let-row>
+                  <div class="description-cell">
+                    @if (row.description) {
+                      <span [matTooltip]="row.description" matTooltipShowDelay="300" class="description-text">
+                        {{ row.description }}
+                      </span>
+                    } @else {
+                      <span class="no-description">—</span>
+                    }
+                  </div>
+                </ng-template>
+              </app-column>
+              <app-column name="fileSize" [header]="t('datadomain.attachment.fileSize')">
+                <ng-template #cell let-row>
+                  <span class="size-cell">{{ formatFileSize(row.fileSize) }}</span>
+                </ng-template>
+              </app-column>
+              <app-column name="createdAt" [header]="t('datadomain.attachment.uploadedAt')">
+                <ng-template #cell let-row>
+                  <span class="date-cell">{{ row.createdAt | slice:0:16 }}</span>
+                </ng-template>
+              </app-column>
+              <app-column name="actions" header="">
+                <ng-template #cell let-row>
+                  <div class="actions-cell">
+                    <button mat-icon-button [matTooltip]="t('datadomain.attachment.download')"
+                            (click)="downloadAttachment(row)">
+                      <mat-icon>download</mat-icon>
                     </button>
-                    <button mat-icon-button color="warn"
-                            [matTooltip]="t('datadomain.attachment.delete')"
-                            (click)="confirmDeleteAttachment(row)">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  }
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="attachmentColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: attachmentColumns;"></tr>
-            </table>
+                    @if (canWrite()) {
+                      <button mat-icon-button
+                              [matTooltip]="t('datadomain.attachment.editDescription')"
+                              (click)="editAttachmentDescription(row)">
+                        <mat-icon>edit_note</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn"
+                              [matTooltip]="t('datadomain.attachment.delete')"
+                              (click)="confirmDeleteAttachment(row)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    }
+                  </div>
+                </ng-template>
+              </app-column>
+            </app-simple-table>
           } @else {
             <div class="attachments-empty">
               <mat-icon class="attachments-empty-icon" aria-hidden="true">folder_open</mat-icon>

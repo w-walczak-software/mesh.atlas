@@ -8,12 +8,14 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatIconModule } from '@angular/material/icon';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
+import { AtlasTextInput } from '@shared/text-input/text-input';
 import { DictionaryTypeDto, DictionaryTypeUpdateRequest } from '../model/dictionary.model';
 import { DictionaryTypeService } from '../service/dictionary-type.service';
 
 @Component({
   selector: 'app-edit-type-dialog',
   imports: [
+    AtlasTextInput,
     MatDialogModule,
     MatButtonModule,
     MatFormFieldModule,
@@ -38,16 +40,14 @@ import { DictionaryTypeService } from '../service/dictionary-type.service';
         </div>
         <p class="dlg-hint">{{ t('dictionary.dialog.editType.readonlyHint') }}</p>
         <form [formGroup]="form" class="dlg-form">
-          <mat-form-field appearance="outline" class="dlg-form-field">
-            <mat-label>{{ t('dictionary.type.name') }}</mat-label>
-            <input matInput formControlName="name" [attr.aria-required]="true" />
+          <atlas-text-input class="dlg-form-field" controlName="name" [label]="t('dictionary.type.name')" [ariaRequired]="true">
             @if (form.controls.name.errors?.['required']) {
               <mat-error>{{ t('common.validation.required') }}</mat-error>
             }
             @if (form.controls.name.errors?.['maxlength']) {
               <mat-error>{{ t('common.validation.maxlength', { max: 200 }) }}</mat-error>
             }
-          </mat-form-field>
+          </atlas-text-input>
           <mat-form-field appearance="outline" class="dlg-form-field">
             <mat-label>{{ t('dictionary.type.description') }}</mat-label>
             <textarea matInput formControlName="description" rows="3"></textarea>

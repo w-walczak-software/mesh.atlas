@@ -2,39 +2,21 @@
   <div class="form-page">
 
     <!-- Sticky top bar -->
-    <div class="form-topbar">
-      <button mat-icon-button (click)="cancel()" [attr.aria-label]="t('transportlayer.action.back')">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="form-topbar-info">
-        <h1 class="form-topbar-title">
-          {{ isEditMode() ? (layer()?.name || t('transportlayer.edit')) : t('transportlayer.new') }}
-        </h1>
-        <span class="form-topbar-sub">{{ t('transportlayer.title') }}</span>
-      </div>
-      <div class="form-topbar-actions">
-        @if (isEditMode() && isAdmin()) {
-          <button mat-icon-button type="button" (click)="openHistory()"
-                  [matTooltip]="t('transportlayer.action.history')" aria-label="Change history">
-            <mat-icon>history</mat-icon>
-          </button>
-        }
-        <button mat-stroked-button type="button" (click)="cancel()">
-          {{ t('transportlayer.action.cancel') }}
-        </button>
-        @if (readonly()) {
-          <span class="form-readonly-badge">
-            <mat-icon>lock</mat-icon>
-            {{ t('common.readOnly') }}
-          </span>
-        } @else {
-          <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
-            <mat-icon>save</mat-icon>
-            {{ t('transportlayer.action.save') }}
-          </button>
-        }
-      </div>
-    </div>
+    <app-toolbar
+      [title]="isEditMode() ? (layer()?.name || t('transportlayer.edit')) : t('transportlayer.new')"
+      [subtitle]="t('transportlayer.title')"
+      [backLabel]="t('transportlayer.action.back')"
+      [cancelLabel]="t('transportlayer.action.cancel')"
+      [saveLabel]="t('transportlayer.action.save')"
+      [historyLabel]="t('transportlayer.action.history')"
+      [readonlyLabel]="t('common.readOnly')"
+      [showHistory]="isEditMode() && isAdmin()"
+      [readonly]="readonly()"
+      [saveDisabled]="form.invalid || saving()"
+      (back)="cancel()"
+      (cancel)="cancel()"
+      (save)="save()"
+      (history)="openHistory()" />
 
     <!-- Main content -->
     <div class="form-content">
@@ -42,14 +24,7 @@
 
         <!-- Basic Information -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--primary">
-              <mat-icon>alt_route</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('transportlayer.section.basic') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="alt_route" iconColor="primary" [title]="t('transportlayer.section.basic')" />
 
           <div class="card-body">
             <!-- Icon picker -->
@@ -121,10 +96,7 @@
             }
 
             <div class="field-row field-row--code-name">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('transportlayer.field.code') }}</mat-label>
-                <input matInput formControlName="code" [attr.aria-required]="true" />
-                <mat-icon matSuffix>tag</mat-icon>
+              <atlas-text-input controlName="code" [label]="t('transportlayer.field.code')" icon="tag" [ariaRequired]="true">
                 @if (form.controls.code.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
@@ -134,41 +106,29 @@
                 @if (form.controls.code.errors?.['pattern']) {
                   <mat-error>{{ t('transportlayer.error.codePattern') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('transportlayer.field.name') }}</mat-label>
-                <input matInput formControlName="name" [attr.aria-required]="true" />
+              <atlas-text-input controlName="name" [label]="t('transportlayer.field.name')" [ariaRequired]="true">
                 @if (form.controls.name.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
                 @if (form.controls.name.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
             </div>
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('transportlayer.field.description') }}</mat-label>
-              <textarea matInput formControlName="description" rows="3"></textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('transportlayer.field.description')" [rows]="3">
               @if (form.controls.description.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-textarea>
           </div>
         </mat-card>
 
         <!-- IT System Assignment -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--secondary">
-              <mat-icon>hub</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('transportlayer.section.itSystem') }}</span>
-              <span class="card-head-subtitle">{{ t('transportlayer.section.itSystemHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="hub" iconColor="secondary" [title]="t('transportlayer.section.itSystem')" [subtitle]="t('transportlayer.section.itSystemHint')" />
 
           <div class="card-body">
             <app-it-system-select

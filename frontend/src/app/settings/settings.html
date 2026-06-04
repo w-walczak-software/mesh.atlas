@@ -1,11 +1,6 @@
 <ng-container *transloco="let t; scope: 'settings'; lang: activeLang()">
   <div class="settings">
-    <div class="page-header">
-      <div class="page-title">
-        <h1 class="title">{{ t('settings.title') }}</h1>
-        <p class="subtitle">{{ t('settings.subtitle') }}</p>
-      </div>
-    </div>
+    <atlas-page-title [title]="t('settings.title')" [subtitle]="t('settings.subtitle')" />
 
     <div class="settings-grid">
       <mat-card appearance="outlined" class="settings-card">

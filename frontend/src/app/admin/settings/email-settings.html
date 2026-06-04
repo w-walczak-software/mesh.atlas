@@ -1,12 +1,7 @@
 <ng-container *transloco="let t; scope: 'admin'; lang: lang()">
   <div class="admin-page email-settings-page">
 
-    <div class="page-header">
-      <div class="page-title">
-        <h1 class="title">{{ t('admin.emailSettings.page.title') }}</h1>
-        <p class="subtitle">{{ t('admin.emailSettings.page.subtitle') }}</p>
-      </div>
-    </div>
+    <atlas-page-title [title]="t('admin.emailSettings.page.title')" [subtitle]="t('admin.emailSettings.page.subtitle')" />
 
     @if (loading()) {
       <div class="loading-center" aria-live="polite">
@@ -38,14 +33,8 @@
               </mat-form-field>
 
               <div class="row-fields">
-                <mat-form-field appearance="outline" class="host-field">
-                  <mat-label>{{ t('admin.emailSettings.field.host') }}</mat-label>
-                  <input matInput formControlName="host" placeholder="smtp.example.com" />
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="port-field">
-                  <mat-label>{{ t('admin.emailSettings.field.port') }}</mat-label>
-                  <input matInput type="number" formControlName="port" min="1" max="65535" />
-                </mat-form-field>
+                <atlas-text-input class="host-field" controlName="host" [label]="t('admin.emailSettings.field.host')" placeholder="smtp.example.com" />
+                <atlas-text-input class="port-field" controlName="port" [label]="t('admin.emailSettings.field.port')" type="number" min="1" max="65535" />
               </div>
 
               <mat-form-field appearance="outline">
@@ -57,11 +46,7 @@
                 </mat-select>
               </mat-form-field>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('admin.emailSettings.field.username') }}</mat-label>
-                <mat-icon matPrefix>person</mat-icon>
-                <input matInput formControlName="username" autocomplete="off" />
-              </mat-form-field>
+              <atlas-text-input controlName="username" [label]="t('admin.emailSettings.field.username')" icon="person" iconPosition="prefix" autocomplete="off" />
 
               <mat-form-field appearance="outline">
                 <mat-label>{{ t('admin.emailSettings.field.password') }}</mat-label>
@@ -81,16 +66,9 @@
                 }
               </mat-form-field>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('admin.emailSettings.field.fromAddress') }}</mat-label>
-                <mat-icon matPrefix>alternate_email</mat-icon>
-                <input matInput type="email" formControlName="fromAddress" placeholder="no-reply@example.com" />
-              </mat-form-field>
+              <atlas-text-input controlName="fromAddress" [label]="t('admin.emailSettings.field.fromAddress')" type="email" icon="alternate_email" iconPosition="prefix" placeholder="no-reply@example.com" />
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('admin.emailSettings.field.fromDisplayName') }}</mat-label>
-                <input matInput formControlName="fromDisplayName" placeholder="mesh.atlas" />
-              </mat-form-field>
+              <atlas-text-input controlName="fromDisplayName" [label]="t('admin.emailSettings.field.fromDisplayName')" placeholder="mesh.atlas" />
 
               <div class="toggle-row">
                 <mat-slide-toggle formControlName="enabled" color="primary">
@@ -129,11 +107,7 @@
 
           <mat-card-content>
             <form [formGroup]="testForm" class="settings-form" id="test-email-form">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('admin.emailSettings.test.recipient') }}</mat-label>
-                <mat-icon matPrefix>email</mat-icon>
-                <input matInput type="email" formControlName="recipient" />
-              </mat-form-field>
+              <atlas-text-input controlName="recipient" [label]="t('admin.emailSettings.test.recipient')" type="email" icon="email" iconPosition="prefix" />
             </form>
           </mat-card-content>
 

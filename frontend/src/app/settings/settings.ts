@@ -4,6 +4,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
 import { TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { AtlasPageTitle } from '@shared/page-title/page-title';
 import { provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 
@@ -16,7 +17,7 @@ interface Language {
 
 @Component({
   selector: 'app-settings',
-  imports: [NgOptimizedImage, MatCardModule, MatIconModule, MatRippleModule, TranslocoDirective],
+  imports: [AtlasPageTitle, NgOptimizedImage, MatCardModule, MatIconModule, MatRippleModule, TranslocoDirective],
   providers: [provideTranslocoScope('settings')],
   templateUrl: './settings.html',
   styleUrl: './settings.scss',

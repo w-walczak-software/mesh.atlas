@@ -1,0 +1,13 @@
+<mat-form-field appearance="outline" [subscriptSizing]="subscriptSizing()">
+  <mat-label>{{ label() }}</mat-label>
+  <mat-select [formControlName]="controlName()">
+    <mat-option [value]="null">{{ nullOptionLabel() }}</mat-option>
+    @for (tl of transportLayers(); track tl.id) {
+      <mat-option [value]="tl.id">
+        @if (tl.icon) { <mat-icon>{{ tl.icon }}</mat-icon> }
+        {{ tl.code }} – {{ tl.name }}
+      </mat-option>
+    }
+  </mat-select>
+  <ng-content />
+</mat-form-field>

@@ -50,6 +50,11 @@
       "min": "Minimum value is {{ min }}."
     },
     "readOnly": "View only",
+    "select": {
+      "all": "All",
+      "activeOnly": "Active only",
+      "inactiveOnly": "Inactive only"
+    },
     "error": {
       "unexpected": "An unexpected error occurred. Please try again.",
       "save": "Failed to save. Please try again."

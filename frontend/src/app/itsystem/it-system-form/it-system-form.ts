@@ -10,18 +10,23 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasTextarea } from '@shared/textarea/textarea';
+import { AtlasCardHeader } from '@shared/card-header/card-header';
+import { AtlasSelectDictionary } from '@shared/select/select-dictionary';
+import { AtlasTagInput } from '@shared/tag/tag-input';
+import { AtlasTagChips } from '@shared/tag/tag-chips';
+import { AppSimpleTable } from '@shared/simple-table/simple-table';
+import { AppSimpleTableColumn } from '@shared/simple-table/simple-table-column';
+import { AppToolbar } from '@shared/toolbar/toolbar';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
@@ -43,17 +48,22 @@ import {
 @Component({
   selector: 'app-it-system-form',
   imports: [
+    AtlasCardHeader,
+    AtlasTextInput,
+    AtlasTextarea,
+    AtlasSelectDictionary,
+    AtlasTagInput,
+    AtlasTagChips,
+    AppSimpleTable,
+    AppSimpleTableColumn,
+    AppToolbar,
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatChipsModule,
     MatDialogModule,
-    MatTableModule,
     MatTooltipModule,
   ],
   providers: [provideTranslocoScope('itsystem')],
@@ -87,15 +97,6 @@ export class ItSystemForm implements OnInit {
   protected readonly system = signal<ItSystemDto | null>(null);
   protected readonly owners = signal<ItSystemOwnerDto[]>([]);
 
-  protected readonly statuses = signal<DictionaryEntryDto[]>([]);
-  protected readonly lifecycleStages = signal<DictionaryEntryDto[]>([]);
-  protected readonly businessCriticalities = signal<DictionaryEntryDto[]>([]);
-  protected readonly dataClassifications = signal<DictionaryEntryDto[]>([]);
-  protected readonly systemTypes = signal<DictionaryEntryDto[]>([]);
-  protected readonly architectureStyles = signal<DictionaryEntryDto[]>([]);
-  protected readonly deploymentModels = signal<DictionaryEntryDto[]>([]);
-  protected readonly runtimeEnvironments = signal<DictionaryEntryDto[]>([]);
-  protected readonly systemScopes = signal<DictionaryEntryDto[]>([]);
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
 
   protected readonly tags = signal<string[]>([]);
@@ -122,7 +123,6 @@ export class ItSystemForm implements OnInit {
     newTag: [''],
   });
 
-  protected readonly ownerColumns = ['name', 'role', 'validFrom', 'validTo', 'actions'];
 
   ngOnInit(): void {
     this.loadDictionaries();
@@ -147,13 +147,6 @@ export class ItSystemForm implements OnInit {
 
   protected removeTag(tag: string): void {
     this.tags.update(t => t.filter(x => x !== tag));
-  }
-
-  protected onTagKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      this.addTag();
-    }
   }
 
   protected openAddOwnerDialog(): void {
@@ -433,15 +426,6 @@ export class ItSystemForm implements OnInit {
   }
 
   private loadDictionaries(): void {
-    this.entryService.findByTypeCode('SYSTEM_STATUS').subscribe(e => this.statuses.set(e));
-    this.entryService.findByTypeCode('LIFECYCLE_STAGE').subscribe(e => this.lifecycleStages.set(e));
-    this.entryService.findByTypeCode('BUSINESS_CRITICALITY').subscribe(e => this.businessCriticalities.set(e));
-    this.entryService.findByTypeCode('DATA_CLASSIFICATION').subscribe(e => this.dataClassifications.set(e));
-    this.entryService.findByTypeCode('SYSTEM_TYPE').subscribe(e => this.systemTypes.set(e));
-    this.entryService.findByTypeCode('ARCHITECTURE_STYLE').subscribe(e => this.architectureStyles.set(e));
-    this.entryService.findByTypeCode('DEPLOYMENT_MODEL').subscribe(e => this.deploymentModels.set(e));
-    this.entryService.findByTypeCode('RUNTIME_ENVIRONMENT').subscribe(e => this.runtimeEnvironments.set(e));
-    this.entryService.findByTypeCode('SYSTEM_SCOPE').subscribe(e => this.systemScopes.set(e));
     this.entryService.findByTypeCode('SYSTEM_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
   }
 

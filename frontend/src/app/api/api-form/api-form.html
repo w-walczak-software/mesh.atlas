@@ -2,32 +2,19 @@
   <div class="form-page">
 
     <!-- Sticky top bar -->
-    <div class="form-topbar">
-      <button mat-icon-button (click)="cancel()" [attr.aria-label]="t('api.action.back')">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="form-topbar-info">
-        <h1 class="form-topbar-title">
-          {{ isEditMode() ? (api()?.name || t('api.edit')) : t('api.new') }}
-        </h1>
-        <span class="form-topbar-sub">{{ t('api.title') }}</span>
-      </div>
-      <div class="form-topbar-actions">
-        @if (isEditMode() && isAdmin()) {
-          <button mat-icon-button type="button" (click)="openHistory()"
-                  [matTooltip]="t('api.action.history')" aria-label="Change history">
-            <mat-icon>history</mat-icon>
-          </button>
-        }
-        <button mat-stroked-button type="button" (click)="cancel()">
-          {{ t('api.action.cancel') }}
-        </button>
-        <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
-          <mat-icon>save</mat-icon>
-          {{ t('api.action.save') }}
-        </button>
-      </div>
-    </div>
+    <app-toolbar
+      [title]="isEditMode() ? (api()?.name || t('api.edit')) : t('api.new')"
+      [subtitle]="t('api.title')"
+      [backLabel]="t('api.action.back')"
+      [cancelLabel]="t('api.action.cancel')"
+      [saveLabel]="t('api.action.save')"
+      [historyLabel]="t('api.action.history')"
+      [showHistory]="isEditMode() && isAdmin()"
+      [saveDisabled]="form.invalid || saving()"
+      (back)="cancel()"
+      (cancel)="cancel()"
+      (save)="save()"
+      (history)="openHistory()" />
 
     <!-- Main content -->
     <div class="form-content">
@@ -35,42 +22,26 @@
 
         <!-- 1. Basic Information -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--primary">
-              <mat-icon>api</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.basic') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="api" iconColor="primary" [title]="t('api.section.basic')" />
 
           <div class="card-body">
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.name') }}</mat-label>
-              <input matInput formControlName="name" [attr.aria-required]="true" />
+            <atlas-text-input class="field-full" controlName="name" [label]="t('api.field.name')" [ariaRequired]="true">
               @if (form.controls.name.errors?.['required']) {
                 <mat-error>{{ t('common.validation.required') }}</mat-error>
               }
               @if (form.controls.name.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-text-input>
 
             <div class="field-row field-row--equal">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.externalId') }}</mat-label>
-                <input matInput formControlName="externalId" />
-                <mat-icon matSuffix>link</mat-icon>
-                <mat-hint>{{ t('api.field.externalIdHint') }}</mat-hint>
+              <atlas-text-input controlName="externalId" [label]="t('api.field.externalId')" icon="link" [hint]="t('api.field.externalIdHint')">
                 @if (form.controls.externalId.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.code') }}</mat-label>
-                <input matInput formControlName="code" />
-                <mat-icon matSuffix>tag</mat-icon>
+              <atlas-text-input controlName="code" [label]="t('api.field.code')" icon="tag">
                 @if (!isEditMode()) {
                   <mat-hint>{{ t('api.field.codeHint') }}</mat-hint>
                 }
@@ -80,78 +51,43 @@
                 @if (form.controls.code.errors?.['pattern']) {
                   <mat-error>{{ t('api.error.codePattern') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
             </div>
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.description') }}</mat-label>
-              <textarea matInput formControlName="description" rows="3"></textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('api.field.description')" [rows]="3">
               @if (form.controls.description.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-textarea>
 
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('api.field.apiVersion') }}</mat-label>
-              <input matInput formControlName="apiVersion" placeholder="e.g. 1.0.0, v2" />
-              <mat-icon matSuffix>commit</mat-icon>
+            <atlas-text-input class="field-half" controlName="apiVersion" [label]="t('api.field.apiVersion')" placeholder="e.g. 1.0.0, v2" icon="commit">
               @if (form.controls.apiVersion.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-text-input>
           </div>
         </mat-card>
 
         <!-- 2. Status & Classification -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--secondary">
-              <mat-icon>label</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.classification') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.classificationHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="label" iconColor="secondary" [title]="t('api.section.classification')" [subtitle]="t('api.section.classificationHint')" />
 
           <div class="card-body">
             <div class="field-row field-row--equal">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.status') }}</mat-label>
-                <mat-select formControlName="statusId" [attr.aria-required]="true">
-                  @for (item of statuses(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
+              <atlas-select-status controlName="statusId" [label]="t('api.field.status')" [ariaRequired]="true">
                 @if (form.controls.statusId.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-select-status>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.type') }}</mat-label>
-                <mat-select formControlName="typeId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of types(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-type controlName="typeId" [label]="t('api.field.type')" />
             </div>
           </div>
         </mat-card>
 
         <!-- 3. Integration -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--tertiary">
-              <mat-icon>swap_horiz</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.integration') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.integrationHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="swap_horiz" iconColor="tertiary" [title]="t('api.section.integration')" [subtitle]="t('api.section.integrationHint')" />
 
           <div class="card-body">
             <div class="field-row field-row--equal">
@@ -160,15 +96,7 @@
                 [label]="t('api.field.producerSystem')"
                 [allowedSystems]="allowedProducerSystems()" />
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.dataFlowDirection') }}</mat-label>
-                <mat-select formControlName="dataFlowDirectionId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of dataFlowDirections(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-data-flow-direction controlName="dataFlowDirectionId" [label]="t('api.field.dataFlowDirection')" />
             </div>
 
             <app-it-system-select
@@ -178,44 +106,25 @@
               [label]="t('api.field.consumerSystems')"
               [excludeIds]="excludeFromConsumer()" />
 
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('api.field.transportLayer') }}</mat-label>
-              <mat-select formControlName="transportLayerId">
-                <mat-option [value]="null">–</mat-option>
-                @for (tl of transportLayers(); track tl.id) {
-                  <mat-option [value]="tl.id">
-                    @if (tl.icon) { <mat-icon>{{ tl.icon }}</mat-icon> }
-                    {{ tl.code }} – {{ tl.name }}
-                  </mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-transport-layer class="field-half" controlName="transportLayerId" [label]="t('api.field.transportLayer')" />
           </div>
         </mat-card>
 
         <!-- 4. Owners -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head card-head--with-action">
-            <div class="card-head-icon card-head-icon--owners">
-              <mat-icon>group</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.owners') }}</span>
-              @if (!isEditMode() && owners().length) {
-                <span class="card-head-subtitle">{{ t('api.owner.pendingHint') }}</span>
-              }
-            </div>
-            <button mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
+          <atlas-card-header icon="group" iconColor="owners"
+            [title]="t('api.section.owners')"
+            [subtitle]="(!isEditMode() && owners().length) ? t('api.owner.pendingHint') : ''">
+            <button actions mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
               <mat-icon>person_add</mat-icon>
               {{ t('api.owner.add') }}
             </button>
-          </div>
+          </atlas-card-header>
 
           @if (owners().length) {
-            <table mat-table [dataSource]="owners()" class="owners-table">
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.name') }}</th>
-                <td mat-cell *matCellDef="let row">
+            <app-simple-table [dataSource]="owners()">
+              <app-column name="name" [header]="t('api.owner.name')">
+                <ng-template #cell let-row>
                   <div class="owner-cell">
                     <div class="owner-avatar" aria-hidden="true">
                       {{ row.firstName.charAt(0) }}{{ row.lastName.charAt(0) }}
@@ -225,43 +134,38 @@
                       <span class="owner-email">{{ row.email }}</span>
                     </div>
                   </div>
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="role">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.role') }}</th>
-                <td mat-cell *matCellDef="let row">
+                </ng-template>
+              </app-column>
+              <app-column name="role" [header]="t('api.owner.role')">
+                <ng-template #cell let-row>
                   @if (row.role?.name) {
                     <span class="role-badge">{{ row.role.name }}</span>
                   }
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="validFrom">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.validFrom') }}</th>
-                <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validFrom }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="validTo">
-                <th mat-header-cell *matHeaderCellDef>{{ t('api.owner.validTo') }}</th>
-                <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validTo || '–' }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef></th>
-                <td mat-cell *matCellDef="let row" class="actions-cell">
-                  <button mat-icon-button [matTooltip]="t('api.owner.edit')" (click)="openEditOwnerDialog(row)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" [matTooltip]="t('api.owner.delete')" (click)="confirmDeleteOwner(row)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="ownerColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: ownerColumns;"></tr>
-            </table>
+                </ng-template>
+              </app-column>
+              <app-column name="validFrom" [header]="t('api.owner.validFrom')">
+                <ng-template #cell let-row>
+                  <span class="date-cell">{{ row.validFrom }}</span>
+                </ng-template>
+              </app-column>
+              <app-column name="validTo" [header]="t('api.owner.validTo')">
+                <ng-template #cell let-row>
+                  <span class="date-cell">{{ row.validTo || '–' }}</span>
+                </ng-template>
+              </app-column>
+              <app-column name="actions" header="">
+                <ng-template #cell let-row>
+                  <div class="actions-cell">
+                    <button mat-icon-button [matTooltip]="t('api.owner.edit')" (click)="openEditOwnerDialog(row)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" [matTooltip]="t('api.owner.delete')" (click)="confirmDeleteOwner(row)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </ng-template>
+              </app-column>
+            </app-simple-table>
           } @else {
             <div class="owners-empty">
               <mat-icon class="owners-empty-icon" aria-hidden="true">group_off</mat-icon>
@@ -279,65 +183,43 @@
           <input #fileInput type="file" accept="*/*" (change)="onFileSelected($event)"
                  style="display:none" aria-hidden="true" />
 
-          <div class="card-head" [class.card-head--with-action]="isEditMode() && canWrite()">
-            <div class="card-head-icon card-head-icon--contract">
-              <mat-icon>menu_book</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.contract') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.contractHint') }}</span>
-            </div>
+          <atlas-card-header icon="menu_book" iconColor="contract"
+            [title]="t('api.section.contract')" [subtitle]="t('api.section.contractHint')">
             @if (isEditMode() && canWrite()) {
-              <button mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)"
+              <button actions mat-stroked-button type="button" (click)="triggerFileUpload(fileInput)"
                       [disabled]="uploading()" class="card-head-btn">
                 <mat-icon>upload_file</mat-icon>
                 {{ t('api.attachment.upload') }}
               </button>
             }
-          </div>
+          </atlas-card-header>
 
           <div class="card-body">
             <div class="field-row field-row--equal">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.contractType') }}</mat-label>
-                <mat-select formControlName="contractTypeId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of contractTypes(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-contract-type controlName="contractTypeId" [label]="t('api.field.contractType')" />
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.contractVersion') }}</mat-label>
-                <mat-icon matPrefix>tag</mat-icon>
-                <input matInput formControlName="contractVersion"
-                       [placeholder]="t('api.field.contractVersionPlaceholder')" />
+              <atlas-text-input controlName="contractVersion" [label]="t('api.field.contractVersion')"
+                               icon="tag" iconPosition="prefix"
+                               [placeholder]="t('api.field.contractVersionPlaceholder')"
+                               [hint]="t('api.field.contractVersionHint')">
                 @if (form.controls.contractVersion.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
                 }
-                <mat-hint>{{ t('api.field.contractVersionHint') }}</mat-hint>
-              </mat-form-field>
+              </atlas-text-input>
             </div>
 
             <div class="field-row field-row--equal">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.contractUrl') }}</mat-label>
-                <input matInput formControlName="contractUrl" />
-                <mat-icon matSuffix>open_in_new</mat-icon>
+              <atlas-text-input controlName="contractUrl" [label]="t('api.field.contractUrl')" icon="open_in_new">
                 @if (form.controls.contractUrl.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.documentationUrl') }}</mat-label>
-                <input matInput formControlName="documentationUrl" />
-                <mat-icon matSuffix>menu_book</mat-icon>
+              <atlas-text-input controlName="documentationUrl" [label]="t('api.field.documentationUrl')" icon="menu_book">
                 @if (form.controls.documentationUrl.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
             </div>
           </div>
 
@@ -349,42 +231,37 @@
             }
 
             @if (attachments().length) {
-              <table mat-table [dataSource]="attachments()" class="attachments-table">
-                <ng-container matColumnDef="fileName">
-                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.fileName') }}</th>
-                  <td mat-cell *matCellDef="let row">
+              <app-simple-table [dataSource]="attachments()">
+                <app-column name="fileName" [header]="t('api.attachment.fileName')">
+                  <ng-template #cell let-row>
                     <div class="file-cell">
                       <mat-icon class="file-icon" aria-hidden="true">description</mat-icon>
                       <span>{{ row.fileName }}</span>
                     </div>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="contractType">
-                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.contractType') }}</th>
-                  <td mat-cell *matCellDef="let row">
+                  </ng-template>
+                </app-column>
+                <app-column name="contractType" [header]="t('api.attachment.contractType')">
+                  <ng-template #cell let-row>
                     @if (row.contractType?.name) {
                       <span class="contract-type-badge">{{ row.contractType.name }}</span>
                     } @else {
                       <span class="no-description">–</span>
                     }
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="attachmentVersion">
-                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentVersion') }}</th>
-                  <td mat-cell *matCellDef="let row" class="version-cell">
-                    @if (row.attachmentVersion) {
-                      <span class="version-badge">{{ row.attachmentVersion }}</span>
-                    } @else {
-                      <span class="no-description">–</span>
-                    }
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="attachmentStatus">
-                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.attachmentStatus') }}</th>
-                  <td mat-cell *matCellDef="let row">
+                  </ng-template>
+                </app-column>
+                <app-column name="attachmentVersion" [header]="t('api.attachment.attachmentVersion')">
+                  <ng-template #cell let-row>
+                    <span class="version-cell">
+                      @if (row.attachmentVersion) {
+                        <span class="version-badge">{{ row.attachmentVersion }}</span>
+                      } @else {
+                        <span class="no-description">–</span>
+                      }
+                    </span>
+                  </ng-template>
+                </app-column>
+                <app-column name="attachmentStatus" [header]="t('api.attachment.attachmentStatus')">
+                  <ng-template #cell let-row>
                     @if (row.attachmentStatus?.name) {
                       <span class="attachment-status-badge attachment-status-badge--{{ row.attachmentStatus.code | lowercase }}">
                         {{ row.attachmentStatus.name }}
@@ -392,57 +269,52 @@
                     } @else {
                       <span class="no-description">–</span>
                     }
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.description') }}</th>
-                  <td mat-cell *matCellDef="let row" class="description-cell">
-                    @if (row.description) {
-                      <span [matTooltip]="row.description" matTooltipShowDelay="300" class="description-text">
-                        {{ row.description }}
-                      </span>
-                    } @else {
-                      <span class="no-description">–</span>
-                    }
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="fileSize">
-                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.fileSize') }}</th>
-                  <td mat-cell *matCellDef="let row" class="size-cell">{{ formatFileSize(row.fileSize) }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="createdAt">
-                  <th mat-header-cell *matHeaderCellDef>{{ t('api.attachment.uploadedAt') }}</th>
-                  <td mat-cell *matCellDef="let row" class="date-cell">
-                    {{ row.createdAt | slice:0:16 }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef></th>
-                  <td mat-cell *matCellDef="let row" class="actions-cell">
-                    <button mat-icon-button [matTooltip]="t('api.attachment.download')"
-                            (click)="downloadAttachment(row)">
-                      <mat-icon>download</mat-icon>
-                    </button>
-                    @if (canWrite()) {
-                      <button mat-icon-button [matTooltip]="t('api.attachment.edit')"
-                              (click)="editAttachment(row)">
-                        <mat-icon>edit_note</mat-icon>
+                  </ng-template>
+                </app-column>
+                <app-column name="description" [header]="t('api.attachment.description')">
+                  <ng-template #cell let-row>
+                    <div class="description-cell">
+                      @if (row.description) {
+                        <span [matTooltip]="row.description" matTooltipShowDelay="300" class="description-text">
+                          {{ row.description }}
+                        </span>
+                      } @else {
+                        <span class="no-description">–</span>
+                      }
+                    </div>
+                  </ng-template>
+                </app-column>
+                <app-column name="fileSize" [header]="t('api.attachment.fileSize')">
+                  <ng-template #cell let-row>
+                    <span class="size-cell">{{ formatFileSize(row.fileSize) }}</span>
+                  </ng-template>
+                </app-column>
+                <app-column name="createdAt" [header]="t('api.attachment.uploadedAt')">
+                  <ng-template #cell let-row>
+                    <span class="date-cell">{{ row.createdAt | slice:0:16 }}</span>
+                  </ng-template>
+                </app-column>
+                <app-column name="actions" header="">
+                  <ng-template #cell let-row>
+                    <div class="actions-cell">
+                      <button mat-icon-button [matTooltip]="t('api.attachment.download')"
+                              (click)="downloadAttachment(row)">
+                        <mat-icon>download</mat-icon>
                       </button>
-                      <button mat-icon-button color="warn" [matTooltip]="t('api.attachment.delete')"
-                              (click)="confirmDeleteAttachment(row)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    }
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="attachmentColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: attachmentColumns;"></tr>
-              </table>
+                      @if (canWrite()) {
+                        <button mat-icon-button [matTooltip]="t('api.attachment.edit')"
+                                (click)="editAttachment(row)">
+                          <mat-icon>edit_note</mat-icon>
+                        </button>
+                        <button mat-icon-button color="warn" [matTooltip]="t('api.attachment.delete')"
+                                (click)="confirmDeleteAttachment(row)">
+                          <mat-icon>delete</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  </ng-template>
+                </app-column>
+              </app-simple-table>
             } @else {
               <div class="attachments-empty">
                 <mat-icon class="attachments-empty-icon" aria-hidden="true">folder_open</mat-icon>
@@ -460,220 +332,89 @@
 
         <!-- 6. Data Domains -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--domains">
-              <mat-icon>schema</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.dataDomains') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.dataDomainsHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="schema" iconColor="domains" [title]="t('api.section.dataDomains')" [subtitle]="t('api.section.dataDomainsHint')" />
 
           <div class="card-body">
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('api.field.domainGroup') }}</mat-label>
-              <mat-select [value]="selectedGroupId()" (selectionChange)="selectedGroupId.set($event.value)">
-                <mat-option [value]="null">{{ t('api.search.all') }}</mat-option>
-                <mat-option value="__NO_GROUP__">{{ t('api.field.domainGroupNone') }}</mat-option>
-                @for (g of domainGroups(); track g.id) {
-                  <mat-option [value]="g.id">{{ g.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-domain-group class="field-half"
+              [label]="t('api.field.domainGroup')"
+              [value]="selectedGroupId()"
+              (valueChange)="selectedGroupId.set($event)"
+              [allOptionLabel]="t('api.search.all')"
+              [noGroupLabel]="t('api.field.domainGroupNone')" />
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.dataDomains') }}</mat-label>
-              <mat-select formControlName="dataDomainIds" multiple>
-                @for (domain of filteredDomains(); track domain.id) {
-                  <mat-option [value]="domain.id">{{ domain.code }} – {{ domain.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-data-domains class="field-full"
+              controlName="dataDomainIds"
+              [label]="t('api.field.dataDomains')"
+              [groupId]="selectedGroupId()" />
           </div>
         </mat-card>
 
         <!-- 7. Protocol & Security -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--security">
-              <mat-icon>security</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.protocolSecurity') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.protocolSecurityHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="security" iconColor="security" [title]="t('api.section.protocolSecurity')" [subtitle]="t('api.section.protocolSecurityHint')" />
 
           <div class="card-body">
             <div class="field-grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.protocol') }}</mat-label>
-                <mat-select formControlName="protocolId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of protocols(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.authenticationMethod') }}</mat-label>
-                <mat-select formControlName="authenticationMethodId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of authMethods(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.securityPolicy') }}</mat-label>
-                <mat-select formControlName="securityPolicyId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of securityPolicies(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.integrationPattern') }}</mat-label>
-                <mat-select formControlName="integrationPatternId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of integrationPatterns(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
-
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.messageFormat') }}</mat-label>
-                <mat-select formControlName="messageFormatId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of messageFormats(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-dictionary controlName="protocolId" [label]="t('api.field.protocol')" dictionaryCode="PROTOCOL" nullOptionLabel="–" />
+              <atlas-select-dictionary controlName="authenticationMethodId" [label]="t('api.field.authenticationMethod')" dictionaryCode="AUTHENTICATION_METHOD" nullOptionLabel="–" />
+              <atlas-select-dictionary controlName="securityPolicyId" [label]="t('api.field.securityPolicy')" dictionaryCode="SECURITY_POLICY" nullOptionLabel="–" />
+              <atlas-select-dictionary controlName="integrationPatternId" [label]="t('api.field.integrationPattern')" dictionaryCode="INTEGRATION_PATTERN" nullOptionLabel="–" />
+              <atlas-select-dictionary controlName="messageFormatId" [label]="t('api.field.messageFormat')" dictionaryCode="MESSAGE_FORMAT" nullOptionLabel="–" />
             </div>
           </div>
         </mat-card>
 
         <!-- 8. SLA -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--sla">
-              <mat-icon>speed</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.sla') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.slaHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="speed" iconColor="sla" [title]="t('api.section.sla')" [subtitle]="t('api.section.slaHint')" />
 
           <div class="card-body">
             <div class="field-grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.slaTier') }}</mat-label>
-                <mat-select formControlName="slaTierId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of slaTiers(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-dictionary controlName="slaTierId" [label]="t('api.field.slaTier')" dictionaryCode="SLA_TIER" nullOptionLabel="–" />
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.slaResponseTimeMs') }}</mat-label>
-                <input matInput type="number" formControlName="slaResponseTimeMs" min="0" />
-                <span matTextSuffix>ms</span>
+              <atlas-number-input controlName="slaResponseTimeMs" [label]="t('api.field.slaResponseTimeMs')" [min]="0" suffix="ms">
                 @if (form.controls.slaResponseTimeMs.errors?.['min']) {
                   <mat-error>{{ t('common.validation.min', { min: 0 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-number-input>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('api.field.slaUptimePct') }}</mat-label>
-                <input matInput type="number" formControlName="slaUptimePct" min="0" max="100" step="0.01" />
-                <span matTextSuffix>%</span>
+              <atlas-number-input controlName="slaUptimePct" [label]="t('api.field.slaUptimePct')" [min]="0" [max]="100" [step]="0.01" suffix="%">
                 @if (form.controls.slaUptimePct.errors?.['min'] || form.controls.slaUptimePct.errors?.['max']) {
                   <mat-error>{{ t('api.error.uptimePctRange') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-number-input>
             </div>
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.slaDescription') }}</mat-label>
-              <textarea matInput formControlName="slaDescription" rows="2"></textarea>
+            <atlas-textarea class="field-full" controlName="slaDescription" [label]="t('api.field.slaDescription')" [rows]="2">
               @if (form.controls.slaDescription.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-textarea>
           </div>
         </mat-card>
 
         <!-- 9. Environments -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--environments">
-              <mat-icon>dns</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.environments') }}</span>
-              <span class="card-head-subtitle">{{ t('api.section.environmentsHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="dns" iconColor="environments" [title]="t('api.section.environments')" [subtitle]="t('api.section.environmentsHint')" />
 
           <div class="card-body">
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('api.field.environments') }}</mat-label>
-              <mat-select formControlName="environmentIds" multiple>
-                @for (env of environments(); track env.id) {
-                  <mat-option [value]="env.id">{{ env.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-dictionary class="field-full" controlName="environmentIds" [label]="t('api.field.environments')" dictionaryCode="API_ENVIRONMENT" [multiple]="true" />
           </div>
         </mat-card>
 
         <!-- 10. Tags -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon">
-              <mat-icon>local_offer</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('api.section.tags') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="local_offer" [title]="t('api.section.tags')" />
 
           <div class="card-body">
-            <div class="tags-input-row">
-              <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
-                <mat-label>{{ t('api.action.addTag') }}</mat-label>
-                <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
-                <mat-icon matSuffix>add_circle_outline</mat-icon>
-              </mat-form-field>
-              <button mat-stroked-button type="button" (click)="addTag()">
-                <mat-icon>add</mat-icon>
-                {{ t('api.action.addTag') }}
-              </button>
-            </div>
-            @if (tags().length) {
-              <mat-chip-set aria-label="Tags">
-                @for (tag of tags(); track tag) {
-                  <mat-chip (removed)="removeTag(tag)">
-                    {{ tag }}
-                    <button matChipRemove [attr.aria-label]="t('api.action.removeTag') + ' ' + tag">
-                      <mat-icon>cancel</mat-icon>
-                    </button>
-                  </mat-chip>
-                }
-              </mat-chip-set>
-            } @else {
-              <p class="field-hint">{{ t('api.tags.noTags') }}</p>
-            }
+            <atlas-tag-input
+              [addLabel]="t('api.action.addTag')"
+              (addTag)="addTag()" />
+            <atlas-tag-chips
+              [tags]="tags()"
+              [removeLabel]="t('api.action.removeTag')"
+              [noTagsLabel]="t('api.tags.noTags')"
+              (removed)="removeTag($event)" />
           </div>
         </mat-card>
 

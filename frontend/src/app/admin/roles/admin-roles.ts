@@ -8,13 +8,14 @@ import {
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasPageTitle } from '@shared/page-title/page-title';
 import { TableConfig } from '@shared/data-table/data-table.models';
 import { AdminRoleDto } from '../model/admin.model';
 import { AdminRoleService } from '../service/admin-role.service';
 
 @Component({
   selector: 'app-admin-roles',
-  imports: [DataTable, TranslocoDirective],
+  imports: [AtlasPageTitle, DataTable, TranslocoDirective],
   providers: [provideTranslocoScope('admin')],
   templateUrl: './admin-roles.html',
   styleUrl: './admin-roles.scss',

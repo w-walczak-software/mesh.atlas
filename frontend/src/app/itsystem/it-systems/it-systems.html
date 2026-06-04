@@ -5,83 +5,32 @@
     </div>
 
     <mat-expansion-panel class="search-panel" [expanded]="true">
-      <mat-expansion-panel-header>
-        <mat-panel-title>
-          <mat-icon>search</mat-icon>
-          {{ t('itsystem.search.title') }}
-        </mat-panel-title>
-      </mat-expansion-panel-header>
+      <atlas-panel-header [title]="t('itsystem.search.title')" icon="search" />
 
       <form [formGroup]="searchForm" class="search-form" (ngSubmit)="onSearch()">
         <div class="search-row">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('itsystem.search.query') }}</mat-label>
-            <input matInput formControlName="query" />
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
+          <atlas-text-input class="search-field" controlName="query" [label]="t('itsystem.search.query')" icon="search" />
 
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('itsystem.search.ownerQuery') }}</mat-label>
-            <input matInput formControlName="ownerQuery" />
-            <mat-icon matSuffix>person_search</mat-icon>
-          </mat-form-field>
+          <atlas-text-input class="search-field" controlName="ownerQuery" [label]="t('itsystem.search.ownerQuery')" icon="person_search" />
 
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('itsystem.search.tag') }}</mat-label>
-            <input matInput formControlName="tag" />
-            <mat-icon matSuffix>local_offer</mat-icon>
-          </mat-form-field>
+          <atlas-text-input class="search-field" controlName="tag" [label]="t('itsystem.search.tag')" icon="local_offer" />
         </div>
 
         <div class="search-row">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('itsystem.field.status') }}</mat-label>
-            <mat-select formControlName="statusId">
-              <mat-option [value]="null">{{ t('itsystem.search.all') }}</mat-option>
-              @for (item of statuses(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <atlas-select-dictionary class="search-field" controlName="statusId"
+            [label]="t('itsystem.field.status')" dictionaryCode="SYSTEM_STATUS" [nullOptionLabel]="t('itsystem.search.all')" />
 
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('itsystem.field.lifecycleStage') }}</mat-label>
-            <mat-select formControlName="lifecycleStageId">
-              <mat-option [value]="null">{{ t('itsystem.search.all') }}</mat-option>
-              @for (item of lifecycleStages(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <atlas-select-dictionary class="search-field" controlName="lifecycleStageId"
+            [label]="t('itsystem.field.lifecycleStage')" dictionaryCode="LIFECYCLE_STAGE" [nullOptionLabel]="t('itsystem.search.all')" />
 
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('itsystem.field.businessCriticality') }}</mat-label>
-            <mat-select formControlName="businessCriticalityId">
-              <mat-option [value]="null">{{ t('itsystem.search.all') }}</mat-option>
-              @for (item of businessCriticalities(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <atlas-select-dictionary class="search-field" controlName="businessCriticalityId"
+            [label]="t('itsystem.field.businessCriticality')" dictionaryCode="BUSINESS_CRITICALITY" [nullOptionLabel]="t('itsystem.search.all')" />
 
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ t('itsystem.field.systemType') }}</mat-label>
-            <mat-select formControlName="systemTypeId">
-              <mat-option [value]="null">{{ t('itsystem.search.all') }}</mat-option>
-              @for (item of systemTypes(); track item.id) {
-                <mat-option [value]="item.id">{{ item.name }}</mat-option>
-              }
-            </mat-select>
-          </mat-form-field>
+          <atlas-select-dictionary class="search-field" controlName="systemTypeId"
+            [label]="t('itsystem.field.systemType')" dictionaryCode="SYSTEM_TYPE" [nullOptionLabel]="t('itsystem.search.all')" />
 
-          <mat-form-field appearance="outline" class="search-field search-field--narrow">
-            <mat-label>{{ t('itsystem.search.activeLabel') }}</mat-label>
-            <mat-select formControlName="active">
-              <mat-option [value]="null">{{ t('itsystem.search.all') }}</mat-option>
-              <mat-option [value]="true">{{ t('itsystem.search.activeOnly') }}</mat-option>
-              <mat-option [value]="false">{{ t('itsystem.search.inactiveOnly') }}</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <atlas-select-active class="search-field search-field--narrow" controlName="active"
+            [label]="t('itsystem.search.activeLabel')" />
         </div>
 
         <div class="search-actions">

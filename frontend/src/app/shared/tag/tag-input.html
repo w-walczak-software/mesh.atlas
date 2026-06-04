@@ -1,0 +1,13 @@
+@if (!readonly()) {
+  <div class="ti-row">
+    <mat-form-field appearance="outline" subscriptSizing="dynamic" class="ti-field">
+      <mat-label>{{ addLabel() }}</mat-label>
+      <input matInput [formControlName]="controlName()" (keydown)="onKeydown($event)" />
+      <mat-icon matSuffix>add_circle_outline</mat-icon>
+    </mat-form-field>
+    <button mat-stroked-button type="button" (click)="addTag.emit()">
+      <mat-icon>add</mat-icon>
+      {{ addLabel() }}
+    </button>
+  </div>
+}

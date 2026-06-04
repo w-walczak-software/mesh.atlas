@@ -12,13 +12,9 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatDividerModule } from '@angular/material/divider';
@@ -26,6 +22,20 @@ import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@js
 import { toSignal } from '@angular/core/rxjs-interop';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ToastService } from '@shared/toast/toast.service';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasTextarea } from '@shared/textarea/textarea';
+import { AtlasNumberInput } from '@shared/number-input/number-input';
+import { AtlasCardHeader } from '@shared/card-header/card-header';
+import { AtlasTagInput } from '@shared/tag/tag-input';
+import { AtlasTagChips } from '@shared/tag/tag-chips';
+import { AppSimpleTable } from '@shared/simple-table/simple-table';
+import { AppSimpleTableColumn } from '@shared/simple-table/simple-table-column';
+import { AppToolbar } from '@shared/toolbar/toolbar';
+import { AtlasSelectDictionary } from '@shared/select/select-dictionary';
+import { AtlasSelectStatus, AtlasSelectType, AtlasSelectDataFlowDirection, AtlasSelectContractType } from '@shared/select/select-domain-selects';
+import { AtlasSelectTransportLayer } from '@shared/select/select-transport-layer';
+import { AtlasSelectDomainGroup } from '@shared/select/select-domain-group';
+import { AtlasSelectDataDomains } from '@shared/select/select-data-domains';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
@@ -51,19 +61,32 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
 @Component({
   selector: 'app-api-form',
   imports: [
+    AtlasCardHeader,
+    AtlasTextInput,
+    AtlasTextarea,
+    AtlasNumberInput,
+    AtlasSelectDictionary,
+    AtlasSelectStatus,
+    AtlasSelectType,
+    AtlasSelectDataFlowDirection,
+    AtlasSelectContractType,
+    AtlasSelectTransportLayer,
+    AtlasSelectDomainGroup,
+    AtlasSelectDataDomains,
+    AtlasTagInput,
+    AtlasTagChips,
+    AppSimpleTable,
+    AppSimpleTableColumn,
+    AppToolbar,
     LowerCasePipe,
     SlicePipe,
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatInputModule,
     MatSelectModule,
     MatIconModule,
-    MatChipsModule,
     MatDialogModule,
-    MatTableModule,
     MatTooltipModule,
     MatProgressBarModule,
     MatDividerModule,
@@ -79,8 +102,7 @@ export class ApiForm implements OnInit {
   private readonly itSystemService = inject(ItSystemService);
   private readonly historyService = inject(HistoryService);
   private readonly entryService = inject(DictionaryEntryService);
-  private readonly transportLayerService = inject(TransportLayerService);
-  private readonly dataDomainService = inject(DataDomainService);
+
   private readonly governanceService = inject(GovernanceService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -109,31 +131,10 @@ export class ApiForm implements OnInit {
   protected readonly attachments = signal<ApiAttachmentDto[]>([]);
   protected readonly governanceEnabled = signal(false);
 
-  protected readonly statuses = signal<DictionaryEntryDto[]>([]);
-  protected readonly types = signal<DictionaryEntryDto[]>([]);
-  protected readonly protocols = signal<DictionaryEntryDto[]>([]);
-  protected readonly authMethods = signal<DictionaryEntryDto[]>([]);
-  protected readonly securityPolicies = signal<DictionaryEntryDto[]>([]);
-  protected readonly integrationPatterns = signal<DictionaryEntryDto[]>([]);
-  protected readonly messageFormats = signal<DictionaryEntryDto[]>([]);
-  protected readonly slaTiers = signal<DictionaryEntryDto[]>([]);
-  protected readonly contractTypes       = signal<DictionaryEntryDto[]>([]);
-  protected readonly attachmentStatuses  = signal<DictionaryEntryDto[]>([]);
+  protected readonly attachmentStatuses = signal<DictionaryEntryDto[]>([]);
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
-  protected readonly environments = signal<DictionaryEntryDto[]>([]);
-  protected readonly dataFlowDirections = signal<DictionaryEntryDto[]>([]);
-  protected readonly transportLayers = signal<TransportLayerSummaryDto[]>([]);
-  protected readonly dataDomains = signal<DataDomainSummaryDto[]>([]);
-
-  protected readonly domainGroups = signal<DictionaryEntryDto[]>([]);
+  protected readonly contractTypes = signal<DictionaryEntryDto[]>([]);
   protected readonly selectedGroupId = signal<string | null>(null);
-  protected readonly filteredDomains = computed(() => {
-    const gid = this.selectedGroupId();
-    const all = this.dataDomains();
-    if (!gid) return all;
-    if (gid === '__NO_GROUP__') return all.filter(d => !d.group);
-    return all.filter(d => d.group?.id === gid);
-  });
 
   protected readonly tags = signal<string[]>([]);
 
@@ -178,8 +179,6 @@ export class ApiForm implements OnInit {
     return id ? [id] : [];
   });
 
-  protected readonly ownerColumns = ['name', 'role', 'validFrom', 'validTo', 'actions'];
-  protected readonly attachmentColumns = ['fileName', 'contractType', 'attachmentVersion', 'attachmentStatus', 'description', 'fileSize', 'createdAt', 'actions'];
 
   ngOnInit(): void {
     this.loadDictionaries();
@@ -210,13 +209,6 @@ export class ApiForm implements OnInit {
 
   protected removeTag(tag: string): void {
     this.tags.update(t => t.filter(x => x !== tag));
-  }
-
-  protected onTagKeydown(event: KeyboardEvent): void {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      this.addTag();
-    }
   }
 
   protected openAddOwnerDialog(): void {
@@ -628,26 +620,9 @@ export class ApiForm implements OnInit {
   }
 
   private loadDictionaries(): void {
-    this.entryService.findByTypeCode('API_STATUS').subscribe(e => this.statuses.set(e));
-    this.entryService.findByTypeCode('API_TYPE').subscribe(e => this.types.set(e));
-    this.entryService.findByTypeCode('PROTOCOL').subscribe(e => this.protocols.set(e));
-    this.entryService.findByTypeCode('AUTHENTICATION_METHOD').subscribe(e => this.authMethods.set(e));
-    this.entryService.findByTypeCode('SECURITY_POLICY').subscribe(e => this.securityPolicies.set(e));
-    this.entryService.findByTypeCode('INTEGRATION_PATTERN').subscribe(e => this.integrationPatterns.set(e));
-    this.entryService.findByTypeCode('MESSAGE_FORMAT').subscribe(e => this.messageFormats.set(e));
-    this.entryService.findByTypeCode('SLA_TIER').subscribe(e => this.slaTiers.set(e));
-    this.entryService.findByTypeCode('CONTRACT_TYPE').subscribe(e => this.contractTypes.set(e));
     this.entryService.findByTypeCode('ATTACHMENT_STATUS').subscribe(e => this.attachmentStatuses.set(e));
     this.entryService.findByTypeCode('API_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
-    this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environments.set(e));
-    this.entryService.findByTypeCode('DATA_FLOW_DIRECTION').subscribe(e => this.dataFlowDirections.set(e));
-    this.transportLayerService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
-      page => this.transportLayers.set(page.content),
-    );
-    this.dataDomainService.findAll({ active: true, size: 500, sort: 'name' }).subscribe(
-      page => this.dataDomains.set(page.content),
-    );
-    this.entryService.findByTypeCode('DATA_DOMAIN_GROUP').subscribe(e => this.domainGroups.set(e));
+    this.entryService.findByTypeCode('CONTRACT_TYPE').subscribe(e => this.contractTypes.set(e));
   }
 
   private handleError(err: HttpErrorResponse): void {

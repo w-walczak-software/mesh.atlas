@@ -1,0 +1,31 @@
+<button mat-icon-button (click)="back.emit()" [attr.aria-label]="backLabel()">
+  <mat-icon>arrow_back</mat-icon>
+</button>
+
+<div class="tb-info">
+  <h1 class="tb-title">{{ title() }}</h1>
+  <span class="tb-sub">{{ subtitle() }}</span>
+</div>
+
+<div class="tb-actions">
+  @if (showHistory()) {
+    <button mat-icon-button type="button" (click)="history.emit()"
+            [matTooltip]="historyLabel()" [attr.aria-label]="historyLabel()">
+      <mat-icon>history</mat-icon>
+    </button>
+  }
+  <button mat-stroked-button type="button" (click)="cancel.emit()">
+    {{ cancelLabel() }}
+  </button>
+  @if (readonly()) {
+    <span class="tb-readonly-badge">
+      <mat-icon>lock</mat-icon>
+      {{ readonlyLabel() }}
+    </span>
+  } @else {
+    <button mat-flat-button type="button" [disabled]="saveDisabled()" (click)="save.emit()">
+      <mat-icon>save</mat-icon>
+      {{ saveLabel() }}
+    </button>
+  }
+</div>

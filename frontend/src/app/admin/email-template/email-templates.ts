@@ -11,6 +11,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasPageTitle } from '@shared/page-title/page-title';
 import { ColumnDef, PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
@@ -25,7 +26,7 @@ import {
 
 @Component({
   selector: 'app-email-templates',
-  imports: [DataTable, TranslocoDirective, MatButtonModule, MatIconModule],
+  imports: [AtlasPageTitle, DataTable, TranslocoDirective, MatButtonModule, MatIconModule],
   providers: [provideTranslocoScope('admin')],
   templateUrl: './email-templates.html',
   styleUrl: './email-templates.scss',

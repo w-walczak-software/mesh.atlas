@@ -1,0 +1,30 @@
+:host {
+  display: block;
+}
+
+.pt-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.pt-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.pt-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+  margin: 0 0 4px;
+  letter-spacing: -0.3px;
+}
+
+.pt-subtitle {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  margin: 0;
+}

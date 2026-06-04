@@ -19,6 +19,8 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasTextInput } from '@shared/text-input/text-input';
+import { AtlasPageTitle } from '@shared/page-title/page-title';
 import { ColumnDef, PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { ToastService } from '@shared/toast/toast.service';
 import { EmailConfigDto, EmailConfigSaveRequest, EmailLogDto } from '../model/admin.model';
@@ -27,6 +29,8 @@ import { EmailConfigService } from './email-config.service';
 @Component({
   selector: 'app-email-settings',
   imports: [
+    AtlasPageTitle,
+    AtlasTextInput,
     MatButtonModule,
     MatCardModule,
     MatDividerModule,

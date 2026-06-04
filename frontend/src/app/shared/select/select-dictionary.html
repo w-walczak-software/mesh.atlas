@@ -1,0 +1,14 @@
+<mat-form-field appearance="outline" [subscriptSizing]="subscriptSizing()">
+  <mat-label>{{ label() }}</mat-label>
+  <mat-select [formControlName]="controlName()"
+              [multiple]="multiple()"
+              [attr.aria-required]="ariaRequired() ? true : null">
+    @if (nullOptionLabel() !== null) {
+      <mat-option [value]="null">{{ nullOptionLabel() }}</mat-option>
+    }
+    @for (entry of entries(); track entry.id) {
+      <mat-option [value]="entry.id">{{ entry.name }}</mat-option>
+    }
+  </mat-select>
+  <ng-content />
+</mat-form-field>

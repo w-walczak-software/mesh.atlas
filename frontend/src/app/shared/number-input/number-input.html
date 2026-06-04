@@ -1,0 +1,14 @@
+<mat-form-field appearance="outline" [subscriptSizing]="subscriptSizing()">
+  <mat-label>{{ label() }}</mat-label>
+  <input matInput
+         type="number"
+         [formControlName]="controlName()"
+         [attr.min]="min() ?? null"
+         [attr.max]="max() ?? null"
+         [attr.step]="step() ?? null"
+         [attr.aria-required]="ariaRequired() ? true : null" />
+  @if (suffix()) {
+    <span matTextSuffix>{{ suffix() }}</span>
+  }
+  <ng-content />
+</mat-form-field>

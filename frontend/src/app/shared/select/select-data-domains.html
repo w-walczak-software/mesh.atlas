@@ -1,0 +1,9 @@
+<mat-form-field appearance="outline" [subscriptSizing]="subscriptSizing()">
+  <mat-label>{{ label() }}</mat-label>
+  <mat-select [formControlName]="controlName()" multiple>
+    @for (domain of filteredDomains(); track domain.id) {
+      <mat-option [value]="domain.id">{{ domain.code }} – {{ domain.name }}</mat-option>
+    }
+  </mat-select>
+  <ng-content />
+</mat-form-field>

@@ -12,6 +12,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { DataTable } from '@shared/data-table/data-table';
+import { AtlasPageTitle } from '@shared/page-title/page-title';
 import { TableConfig } from '@shared/data-table/data-table.models';
 import { ApiService } from '../api/service/api.service';
 import { ApiSummaryDto } from '../api/model/api.model';
@@ -36,6 +37,7 @@ interface CoverageItem {
 @Component({
   selector: 'app-dashboard',
   imports: [
+    AtlasPageTitle,
     MatCardModule,
     MatIconModule,
     MatButtonModule,

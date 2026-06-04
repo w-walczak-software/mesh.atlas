@@ -2,39 +2,21 @@
   <div class="form-page">
 
     <!-- Sticky top bar -->
-    <div class="form-topbar">
-      <button mat-icon-button (click)="cancel()" [attr.aria-label]="t('itsystem.action.back')">
-        <mat-icon>arrow_back</mat-icon>
-      </button>
-      <div class="form-topbar-info">
-        <h1 class="form-topbar-title">
-          {{ isEditMode() ? (system()?.name || t('itsystem.edit')) : t('itsystem.new') }}
-        </h1>
-        <span class="form-topbar-sub">{{ t('itsystem.title') }}</span>
-      </div>
-      <div class="form-topbar-actions">
-        @if (isEditMode() && isAdmin()) {
-          <button mat-icon-button type="button" (click)="openHistory()"
-                  [matTooltip]="t('itsystem.action.history')" aria-label="Change history">
-            <mat-icon>history</mat-icon>
-          </button>
-        }
-        <button mat-stroked-button type="button" (click)="cancel()">
-          {{ t('itsystem.action.cancel') }}
-        </button>
-        @if (readonly()) {
-          <span class="form-readonly-badge">
-            <mat-icon>lock</mat-icon>
-            {{ t('common.readOnly') }}
-          </span>
-        } @else {
-          <button mat-flat-button type="button" [disabled]="form.invalid || saving()" (click)="save()">
-            <mat-icon>save</mat-icon>
-            {{ t('itsystem.action.save') }}
-          </button>
-        }
-      </div>
-    </div>
+    <app-toolbar
+      [title]="isEditMode() ? (system()?.name || t('itsystem.edit')) : t('itsystem.new')"
+      [subtitle]="t('itsystem.title')"
+      [backLabel]="t('itsystem.action.back')"
+      [cancelLabel]="t('itsystem.action.cancel')"
+      [saveLabel]="t('itsystem.action.save')"
+      [historyLabel]="t('itsystem.action.history')"
+      [readonlyLabel]="t('common.readOnly')"
+      [showHistory]="isEditMode() && isAdmin()"
+      [readonly]="readonly()"
+      [saveDisabled]="form.invalid || saving()"
+      (back)="cancel()"
+      (cancel)="cancel()"
+      (save)="save()"
+      (history)="openHistory()" />
 
     <!-- Main content -->
     <div class="form-content">
@@ -42,14 +24,7 @@
 
         <!-- Basic Information -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--primary">
-              <mat-icon>inventory_2</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('itsystem.section.basic') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="inventory_2" iconColor="primary" [title]="t('itsystem.section.basic')" />
 
           <div class="card-body">
             <div class="icon-picker-field">
@@ -74,10 +49,7 @@
             </div>
 
             <div class="field-row field-row--code-name">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.code') }}</mat-label>
-                <input matInput formControlName="code" [attr.aria-required]="true" />
-                <mat-icon matSuffix>tag</mat-icon>
+              <atlas-text-input controlName="code" [label]="t('itsystem.field.code')" icon="tag" [ariaRequired]="true">
                 @if (form.controls.code.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
@@ -87,235 +59,127 @@
                 @if (form.controls.code.errors?.['pattern']) {
                   <mat-error>{{ t('itsystem.error.codePattern') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.name') }}</mat-label>
-                <input matInput formControlName="name" [attr.aria-required]="true" />
+              <atlas-text-input controlName="name" [label]="t('itsystem.field.name')" [ariaRequired]="true">
                 @if (form.controls.name.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
                 @if (form.controls.name.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
             </div>
 
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('itsystem.field.externalId') }}</mat-label>
-              <input matInput formControlName="externalId" />
-              <mat-icon matSuffix>link</mat-icon>
-              <mat-hint>{{ t('itsystem.field.externalIdHint') }}</mat-hint>
+            <atlas-text-input class="field-half" controlName="externalId" [label]="t('itsystem.field.externalId')"
+                             icon="link" [hint]="t('itsystem.field.externalIdHint')">
               @if (form.controls.externalId.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-text-input>
 
-            <mat-form-field appearance="outline" class="field-full">
-              <mat-label>{{ t('itsystem.field.description') }}</mat-label>
-              <textarea matInput formControlName="description" rows="3"></textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('itsystem.field.description')" [rows]="3">
               @if (form.controls.description.errors?.['maxlength']) {
                 <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
               }
-            </mat-form-field>
+            </atlas-textarea>
 
             <div class="field-row field-row--equal">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.documentationUrl') }}</mat-label>
-                <input matInput formControlName="documentationUrl" />
-                <mat-icon matSuffix>open_in_new</mat-icon>
+              <atlas-text-input controlName="documentationUrl" [label]="t('itsystem.field.documentationUrl')" icon="open_in_new">
                 @if (form.controls.documentationUrl.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.repositoryUrl') }}</mat-label>
-                <input matInput formControlName="repositoryUrl" />
-                <mat-icon matSuffix>code</mat-icon>
+              <atlas-text-input controlName="repositoryUrl" [label]="t('itsystem.field.repositoryUrl')" icon="code">
                 @if (form.controls.repositoryUrl.errors?.['maxlength']) {
                   <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-text-input>
             </div>
           </div>
         </mat-card>
 
         <!-- Classification -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--secondary">
-              <mat-icon>label</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('itsystem.section.classification') }}</span>
-              <span class="card-head-subtitle">{{ t('itsystem.section.classificationHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="label" iconColor="secondary" [title]="t('itsystem.section.classification')" [subtitle]="t('itsystem.section.classificationHint')" />
 
           <div class="card-body">
             <div class="field-grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.status') }}</mat-label>
-                <mat-select formControlName="statusId" [attr.aria-required]="true">
-                  @for (item of statuses(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
+              <atlas-select-dictionary controlName="statusId" [label]="t('itsystem.field.status')"
+                dictionaryCode="SYSTEM_STATUS" [ariaRequired]="true">
                 @if (form.controls.statusId.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-select-dictionary>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.lifecycleStage') }}</mat-label>
-                <mat-select formControlName="lifecycleStageId" [attr.aria-required]="true">
-                  @for (item of lifecycleStages(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
+              <atlas-select-dictionary controlName="lifecycleStageId" [label]="t('itsystem.field.lifecycleStage')"
+                dictionaryCode="LIFECYCLE_STAGE" [ariaRequired]="true">
                 @if (form.controls.lifecycleStageId.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-select-dictionary>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.businessCriticality') }}</mat-label>
-                <mat-select formControlName="businessCriticalityId" [attr.aria-required]="true">
-                  @for (item of businessCriticalities(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
+              <atlas-select-dictionary controlName="businessCriticalityId" [label]="t('itsystem.field.businessCriticality')"
+                dictionaryCode="BUSINESS_CRITICALITY" [ariaRequired]="true">
                 @if (form.controls.businessCriticalityId.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-select-dictionary>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.dataClassification') }}</mat-label>
-                <mat-select formControlName="dataClassificationId" [attr.aria-required]="true">
-                  @for (item of dataClassifications(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
+              <atlas-select-dictionary controlName="dataClassificationId" [label]="t('itsystem.field.dataClassification')"
+                dictionaryCode="DATA_CLASSIFICATION" [ariaRequired]="true">
                 @if (form.controls.dataClassificationId.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-select-dictionary>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.systemType') }}</mat-label>
-                <mat-select formControlName="systemTypeId" [attr.aria-required]="true">
-                  @for (item of systemTypes(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
+              <atlas-select-dictionary controlName="systemTypeId" [label]="t('itsystem.field.systemType')"
+                dictionaryCode="SYSTEM_TYPE" [ariaRequired]="true">
                 @if (form.controls.systemTypeId.errors?.['required']) {
                   <mat-error>{{ t('common.validation.required') }}</mat-error>
                 }
-              </mat-form-field>
+              </atlas-select-dictionary>
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.scope') }}</mat-label>
-                <mat-select formControlName="scopeId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of systemScopes(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-dictionary controlName="scopeId" [label]="t('itsystem.field.scope')"
+                dictionaryCode="SYSTEM_SCOPE" nullOptionLabel="–" />
             </div>
           </div>
         </mat-card>
 
         <!-- Technical Details -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon card-head-icon--tertiary">
-              <mat-icon>settings</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('itsystem.section.technical') }}</span>
-              <span class="card-head-subtitle">{{ t('itsystem.section.technicalHint') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="settings" iconColor="tertiary" [title]="t('itsystem.section.technical')" [subtitle]="t('itsystem.section.technicalHint')" />
 
           <div class="card-body">
             <div class="field-grid-3">
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.architectureStyle') }}</mat-label>
-                <mat-select formControlName="architectureStyleId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of architectureStyles(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-dictionary controlName="architectureStyleId" [label]="t('itsystem.field.architectureStyle')"
+                dictionaryCode="ARCHITECTURE_STYLE" nullOptionLabel="–" />
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.deploymentModel') }}</mat-label>
-                <mat-select formControlName="deploymentModelId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of deploymentModels(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-dictionary controlName="deploymentModelId" [label]="t('itsystem.field.deploymentModel')"
+                dictionaryCode="DEPLOYMENT_MODEL" nullOptionLabel="–" />
 
-              <mat-form-field appearance="outline">
-                <mat-label>{{ t('itsystem.field.runtimeEnvironment') }}</mat-label>
-                <mat-select formControlName="runtimeEnvironmentId">
-                  <mat-option [value]="null">–</mat-option>
-                  @for (item of runtimeEnvironments(); track item.id) {
-                    <mat-option [value]="item.id">{{ item.name }}</mat-option>
-                  }
-                </mat-select>
-              </mat-form-field>
+              <atlas-select-dictionary controlName="runtimeEnvironmentId" [label]="t('itsystem.field.runtimeEnvironment')"
+                dictionaryCode="RUNTIME_ENVIRONMENT" nullOptionLabel="–" />
             </div>
           </div>
         </mat-card>
 
         <!-- Tags -->
         <mat-card appearance="outlined" class="form-card">
-          <div class="card-head">
-            <div class="card-head-icon">
-              <mat-icon>local_offer</mat-icon>
-            </div>
-            <div class="card-head-text">
-              <span class="card-head-title">{{ t('itsystem.section.tags') }}</span>
-            </div>
-          </div>
+          <atlas-card-header icon="local_offer" [title]="t('itsystem.section.tags')" />
 
           <div class="card-body">
-            @if (!readonly()) {
-              <div class="tags-input-row">
-                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="tag-input">
-                  <mat-label>{{ t('itsystem.action.addTag') }}</mat-label>
-                  <input matInput formControlName="newTag" (keydown)="onTagKeydown($event)" />
-                  <mat-icon matSuffix>add_circle_outline</mat-icon>
-                </mat-form-field>
-                <button mat-stroked-button type="button" (click)="addTag()">
-                  <mat-icon>add</mat-icon>
-                  {{ t('itsystem.action.addTag') }}
-                </button>
-              </div>
-            }
-            @if (tags().length) {
-              <mat-chip-set aria-label="Tags">
-                @for (tag of tags(); track tag) {
-                  <mat-chip [removable]="!readonly()" (removed)="removeTag(tag)">
-                    {{ tag }}
-                    @if (!readonly()) {
-                      <button matChipRemove [attr.aria-label]="t('itsystem.action.removeTag') + ' ' + tag">
-                        <mat-icon>cancel</mat-icon>
-                      </button>
-                    }
-                  </mat-chip>
-                }
-              </mat-chip-set>
-            } @else {
-              <p class="field-hint">{{ t('itsystem.tags.noTags') }}</p>
-            }
+            <atlas-tag-input
+              [addLabel]="t('itsystem.action.addTag')"
+              [readonly]="readonly()"
+              (addTag)="addTag()" />
+            <atlas-tag-chips
+              [tags]="tags()"
+              [readonly]="readonly()"
+              [removeLabel]="t('itsystem.action.removeTag')"
+              [noTagsLabel]="t('itsystem.tags.noTags')"
+              (removed)="removeTag($event)" />
           </div>
         </mat-card>
 
@@ -323,29 +187,21 @@
 
       <!-- Owners -->
       <mat-card appearance="outlined" class="form-card">
-        <div class="card-head card-head--with-action">
-          <div class="card-head-icon card-head-icon--owners">
-            <mat-icon>group</mat-icon>
-          </div>
-          <div class="card-head-text">
-            <span class="card-head-title">{{ t('itsystem.section.owners') }}</span>
-            @if (!isEditMode() && owners().length) {
-              <span class="card-head-subtitle">{{ t('itsystem.owner.pendingHint') }}</span>
-            }
-          </div>
+        <atlas-card-header icon="group" iconColor="owners"
+          [title]="t('itsystem.section.owners')"
+          [subtitle]="(!isEditMode() && owners().length) ? t('itsystem.owner.pendingHint') : ''">
           @if (!readonly()) {
-            <button mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
+            <button actions mat-stroked-button type="button" (click)="openAddOwnerDialog()" class="card-head-btn">
               <mat-icon>person_add</mat-icon>
               {{ t('itsystem.owner.add') }}
             </button>
           }
-        </div>
+        </atlas-card-header>
 
         @if (owners().length) {
-          <table mat-table [dataSource]="owners()" class="owners-table">
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.name') }}</th>
-              <td mat-cell *matCellDef="let row">
+          <app-simple-table [dataSource]="owners()">
+            <app-column name="name" [header]="t('itsystem.owner.name')">
+              <ng-template #cell let-row>
                 <div class="owner-cell">
                   <div class="owner-avatar" aria-hidden="true">
                     {{ row.firstName.charAt(0) }}{{ row.lastName.charAt(0) }}
@@ -355,50 +211,45 @@
                     <span class="owner-email">{{ row.email }}</span>
                   </div>
                 </div>
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="role">
-              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.role') }}</th>
-              <td mat-cell *matCellDef="let row">
+              </ng-template>
+            </app-column>
+            <app-column name="role" [header]="t('itsystem.owner.role')">
+              <ng-template #cell let-row>
                 @if (row.role?.name) {
                   <span class="role-badge">{{ row.role.name }}</span>
                 }
-              </td>
-            </ng-container>
-
-            <ng-container matColumnDef="validFrom">
-              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.validFrom') }}</th>
-              <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validFrom }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="validTo">
-              <th mat-header-cell *matHeaderCellDef>{{ t('itsystem.owner.validTo') }}</th>
-              <td mat-cell *matCellDef="let row" class="date-cell">{{ row.validTo || '–' }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef></th>
-              <td mat-cell *matCellDef="let row" class="actions-cell">
-                @if (isEditMode() && isAdmin()) {
-                  <button mat-icon-button [matTooltip]="t('itsystem.owner.history')" (click)="openOwnerHistory(row)">
-                    <mat-icon>history</mat-icon>
-                  </button>
-                }
-                @if (!readonly()) {
-                  <button mat-icon-button [matTooltip]="t('itsystem.owner.edit')" (click)="openEditOwnerDialog(row)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
-                  <button mat-icon-button color="warn" [matTooltip]="t('itsystem.owner.delete')" (click)="confirmDeleteOwner(row)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                }
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="ownerColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: ownerColumns;"></tr>
-          </table>
+              </ng-template>
+            </app-column>
+            <app-column name="validFrom" [header]="t('itsystem.owner.validFrom')">
+              <ng-template #cell let-row>
+                <span class="date-cell">{{ row.validFrom }}</span>
+              </ng-template>
+            </app-column>
+            <app-column name="validTo" [header]="t('itsystem.owner.validTo')">
+              <ng-template #cell let-row>
+                <span class="date-cell">{{ row.validTo || '–' }}</span>
+              </ng-template>
+            </app-column>
+            <app-column name="actions" header="">
+              <ng-template #cell let-row>
+                <div class="actions-cell">
+                  @if (isEditMode() && isAdmin()) {
+                    <button mat-icon-button [matTooltip]="t('itsystem.owner.history')" (click)="openOwnerHistory(row)">
+                      <mat-icon>history</mat-icon>
+                    </button>
+                  }
+                  @if (!readonly()) {
+                    <button mat-icon-button [matTooltip]="t('itsystem.owner.edit')" (click)="openEditOwnerDialog(row)">
+                      <mat-icon>edit</mat-icon>
+                    </button>
+                    <button mat-icon-button color="warn" [matTooltip]="t('itsystem.owner.delete')" (click)="confirmDeleteOwner(row)">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  }
+                </div>
+              </ng-template>
+            </app-column>
+          </app-simple-table>
         } @else {
           <div class="owners-empty">
             <mat-icon class="owners-empty-icon" aria-hidden="true">group_off</mat-icon>

@@ -13,6 +13,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { DictionaryEntryCreateRequest, DictionaryEntryDto } from '../model/dictionary.model';
 import { DictionaryEntryService } from '../service/dictionary-entry.service';
 import { ToastService } from '@shared/toast/toast.service';
+import { AtlasNumberInput } from '@shared/number-input/number-input';
 
 export interface AddEntryDialogData {
   typeId: string;
@@ -22,6 +23,7 @@ export interface AddEntryDialogData {
 @Component({
   selector: 'app-add-entry-dialog',
   imports: [
+    AtlasNumberInput,
     MatDialogModule,
     MatButtonModule,
     MatCheckboxModule,
@@ -70,16 +72,15 @@ export interface AddEntryDialogData {
             <mat-label>{{ t('dictionary.entry.description') }}</mat-label>
             <textarea matInput formControlName="description" rows="3"></textarea>
           </mat-form-field>
-          <mat-form-field appearance="outline" class="dlg-form-field dlg-form-field--narrow">
-            <mat-label>{{ t('dictionary.entry.displayOrder') }}</mat-label>
-            <input matInput type="number" formControlName="displayOrder" min="0" [attr.aria-required]="true" />
+          <atlas-number-input class="dlg-form-field dlg-form-field--narrow" controlName="displayOrder"
+            [label]="t('dictionary.entry.displayOrder')" [min]="0" [ariaRequired]="true">
             @if (form.controls.displayOrder.errors?.['required']) {
               <mat-error>{{ t('common.validation.required') }}</mat-error>
             }
             @if (form.controls.displayOrder.errors?.['min']) {
               <mat-error>{{ t('common.validation.min', { min: 0 }) }}</mat-error>
             }
-          </mat-form-field>
+          </atlas-number-input>
 
           @if (isSystemOwnerRole || isApiOwnerRole) {
             <mat-divider class="dlg-divider" />

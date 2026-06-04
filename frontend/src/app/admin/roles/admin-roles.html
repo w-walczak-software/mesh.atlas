@@ -1,11 +1,6 @@
 <ng-container *transloco="let t; scope: 'admin'; lang: lang()">
   <div class="admin-page">
-    <div class="page-header">
-      <div class="page-title">
-        <h1 class="title">{{ t('admin.page.roles.title') }}</h1>
-        <p class="subtitle">{{ t('admin.page.roles.subtitle') }}</p>
-      </div>
-    </div>
+    <atlas-page-title [title]="t('admin.page.roles.title')" [subtitle]="t('admin.page.roles.subtitle')" />
 
     <app-data-table
       [config]="tableConfig()"

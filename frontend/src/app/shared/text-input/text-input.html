@@ -1,0 +1,39 @@
+<mat-form-field appearance="outline" [subscriptSizing]="subscriptSizing()">
+  <mat-label>{{ label() }}</mat-label>
+
+  @if (icon() && iconPosition() === 'prefix') {
+    <mat-icon matPrefix>{{ icon() }}</mat-icon>
+  }
+
+  @if (controlName()) {
+    <input matInput
+           [formControlName]="controlName()!"
+           [type]="type()"
+           [placeholder]="placeholder()"
+           [attr.autocomplete]="autocomplete() ?? null"
+           [attr.aria-required]="ariaRequired() ? true : null"
+           [attr.aria-label]="ariaLabel() ?? null"
+           [attr.min]="min() ?? null"
+           [attr.max]="max() ?? null" />
+  } @else {
+    <input matInput
+           [formControl]="$any(control())"
+           [type]="type()"
+           [placeholder]="placeholder()"
+           [attr.autocomplete]="autocomplete() ?? null"
+           [attr.aria-required]="ariaRequired() ? true : null"
+           [attr.aria-label]="ariaLabel() ?? null"
+           [attr.min]="min() ?? null"
+           [attr.max]="max() ?? null" />
+  }
+
+  @if (icon() && iconPosition() === 'suffix') {
+    <mat-icon matSuffix>{{ icon() }}</mat-icon>
+  }
+
+  @if (hint()) {
+    <mat-hint>{{ hint() }}</mat-hint>
+  }
+
+  <ng-content />
+</mat-form-field>
