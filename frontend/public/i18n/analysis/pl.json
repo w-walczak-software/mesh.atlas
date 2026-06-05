@@ -1,0 +1,38 @@
+{
+  "title": "Analiza Blast Radius",
+  "subtitle": "Określ, które systemy i API zostałyby dotknięte awarią lub zmianą wybranego systemu lub API",
+  "loading": "Trwa analiza…",
+  "form": {
+    "sourceType": "Punkt startowy",
+    "sourceTypeSystem": "System IT",
+    "sourceTypeApi": "API",
+    "system": "Wyszukaj system IT",
+    "api": "Wyszukaj API",
+    "maxDepth": "Maks. głębokość",
+    "maxDepthHint": "Liczba skoków zależności (1–10)",
+    "analyze": "Analizuj",
+    "clear": "Wyczyść"
+  },
+  "severity": {
+    "NONE": "Brak",
+    "LOW": "Niski",
+    "MEDIUM": "Średni",
+    "HIGH": "Wysoki",
+    "CRITICAL": "Krytyczny"
+  },
+  "result": {
+    "impactedSystems": "Dotknięte systemy",
+    "impactedApis": "Dotknięte API",
+    "severityLabel": "Poziom ryzyka",
+    "depthLabel": "Głębokość {{ depth }}",
+    "maxDepthWarning": "Osiągnięto maksymalną głębokość analizy — mogą istnieć dodatkowe dotknięte zasoby niewidoczne na liście.",
+    "noImpact": "Nie wykryto żadnego wpływu downstream. Brak aktywnych konsumentów ani zależnych systemów.",
+    "producedBy": "Produkowane przez: {{ name }}",
+    "goToSystem": "Otwórz system",
+    "goToApi": "Otwórz API"
+  },
+  "empty": {
+    "title": "Gotowy do analizy",
+    "subtitle": "Wybierz punkt startowy, ustaw głębokość i kliknij Analizuj"
+  }
+}

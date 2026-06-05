@@ -1,0 +1,260 @@
+<ng-container *transloco="let t; prefix: 'analysis'">
+  <div class="blast-radius-page">
+
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="header-icon">
+        <mat-icon>radar</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">{{ t('title') }}</h1>
+        <p class="page-subtitle">{{ t('subtitle') }}</p>
+      </div>
+    </div>
+
+    <!-- ── Configuration card ──────────────────────────────────────────── -->
+    <mat-card class="config-card" appearance="outlined">
+      <mat-card-content>
+        <form [formGroup]="form" class="config-form">
+
+          <!-- Source type -->
+          <div class="form-row">
+            <span class="form-label">{{ t('form.sourceType') }}</span>
+            <mat-radio-group formControlName="sourceType" class="radio-group" aria-label="Analysis source type">
+              <mat-radio-button value="SYSTEM">
+                <mat-icon class="radio-icon">hub</mat-icon>
+                {{ t('form.sourceTypeSystem') }}
+              </mat-radio-button>
+              <mat-radio-button value="API">
+                <mat-icon class="radio-icon">api</mat-icon>
+                {{ t('form.sourceTypeApi') }}
+              </mat-radio-button>
+            </mat-radio-group>
+          </div>
+
+          <mat-divider class="form-divider" />
+
+          <!-- Search + depth row -->
+          <div class="form-row inputs-row">
+            <!-- Autocomplete -->
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>
+                {{ sourceType() === 'SYSTEM' ? t('form.system') : t('form.api') }}
+              </mat-label>
+              <input
+                matInput
+                formControlName="search"
+                [matAutocomplete]="auto"
+                autocomplete="off"
+              />
+              @if (searchLoading()) {
+                <mat-spinner matSuffix diameter="18" />
+              } @else if (selectedId()) {
+                <mat-icon matSuffix class="selected-icon">check_circle</mat-icon>
+              } @else {
+                <mat-icon matSuffix>search</mat-icon>
+              }
+              <mat-autocomplete
+                #auto="matAutocomplete"
+                (optionSelected)="onOptionSelected($event)"
+              >
+                @for (item of suggestions(); track item.id) {
+                  <mat-option [value]="item">
+                    <span class="option-code">{{ item.code }}</span>
+                    <span class="option-name">{{ item.name }}</span>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Max depth -->
+            <mat-form-field appearance="outline" class="depth-field">
+              <mat-label>{{ t('form.maxDepth') }}</mat-label>
+              <input matInput type="number" formControlName="maxDepth" min="1" max="10" />
+              <mat-hint>{{ t('form.maxDepthHint') }}</mat-hint>
+            </mat-form-field>
+
+            <!-- Actions -->
+            <div class="action-buttons">
+              <button
+                mat-flat-button
+                color="primary"
+                (click)="analyze()"
+                [disabled]="!canAnalyze()"
+                aria-label="Run blast radius analysis"
+              >
+                @if (loading()) {
+                  <mat-spinner diameter="18" />
+                } @else {
+                  <mat-icon>radar</mat-icon>
+                }
+                {{ t('form.analyze') }}
+              </button>
+              <button mat-stroked-button (click)="clear()" [disabled]="loading()">
+                <mat-icon>clear</mat-icon>
+                {{ t('form.clear') }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ── Loading ─────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="48" />
+        <p>{{ t('loading') }}</p>
+      </div>
+    }
+
+    <!-- ── Results ─────────────────────────────────────────────────────── -->
+    @if (result(); as res) {
+
+      <!-- Summary row -->
+      <div class="summary-row">
+        <mat-card class="stat-card" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>hub</mat-icon></div>
+            <div class="stat-value">{{ res.totalSystems }}</div>
+            <div class="stat-label">{{ t('result.impactedSystems') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>api</mat-icon></div>
+            <div class="stat-value">{{ res.totalApis }}</div>
+            <div class="stat-label">{{ t('result.impactedApis') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card [class]="'stat-card severity-card ' + severityClass(res.severity)" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>crisis_alert</mat-icon></div>
+            <div class="stat-value">{{ t('severity.' + res.severity) }}</div>
+            <div class="stat-label">{{ t('result.severityLabel') }}</div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Max depth warning -->
+      @if (res.maxDepthReached) {
+        <div class="depth-warning" role="alert">
+          <mat-icon>warning_amber</mat-icon>
+          <span>{{ t('result.maxDepthWarning') }}</span>
+        </div>
+      }
+
+      <!-- No impact -->
+      @if (res.totalSystems === 0 && res.totalApis === 0) {
+        <mat-card class="no-impact-card" appearance="outlined">
+          <mat-card-content>
+            <mat-icon class="no-impact-icon">check_circle</mat-icon>
+            <p>{{ t('result.noImpact') }}</p>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+
+        <!-- Impact grid -->
+        <div class="impact-grid">
+
+          <!-- Impacted Systems -->
+          <mat-card class="impact-card" appearance="outlined">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>hub</mat-icon>
+              <mat-card-title>
+                {{ t('result.impactedSystems') }}
+                <span class="count-badge">{{ res.totalSystems }}</span>
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @for (depth of sortedSystemDepths(); track depth) {
+                <div class="depth-group">
+                  <div class="depth-header">
+                    <span class="depth-badge">{{ t('result.depthLabel', { depth }) }}</span>
+                  </div>
+                  @for (system of systemsByDepth().get(depth) ?? []; track system.id) {
+                    <div class="impact-item">
+                      <mat-icon class="item-icon system-icon">
+                        {{ system.icon || 'hub' }}
+                      </mat-icon>
+                      <div class="item-info">
+                        <div class="item-code">{{ system.code }}</div>
+                        <div class="item-name">{{ system.name }}</div>
+                        @if (system.businessCriticalityName) {
+                          <div class="item-meta">{{ system.businessCriticalityName }}</div>
+                        }
+                      </div>
+                      <button
+                        mat-icon-button
+                        (click)="navigateTo('system', system.id)"
+                        [matTooltip]="t('result.goToSystem')"
+                        aria-label="Open system details"
+                      >
+                        <mat-icon>open_in_new</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Impacted APIs -->
+          <mat-card class="impact-card" appearance="outlined">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>api</mat-icon>
+              <mat-card-title>
+                {{ t('result.impactedApis') }}
+                <span class="count-badge">{{ res.totalApis }}</span>
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @for (depth of sortedApiDepths(); track depth) {
+                <div class="depth-group">
+                  <div class="depth-header">
+                    <span class="depth-badge">{{ t('result.depthLabel', { depth }) }}</span>
+                  </div>
+                  @for (api of apisByDepth().get(depth) ?? []; track api.id) {
+                    <div class="impact-item">
+                      <mat-icon class="item-icon api-icon">alt_route</mat-icon>
+                      <div class="item-info">
+                        <div class="item-code">{{ api.code }}</div>
+                        <div class="item-name">{{ api.name }}</div>
+                        @if (api.producerSystemName) {
+                          <div class="item-meta">
+                            {{ t('result.producedBy', { name: api.producerSystemName }) }}
+                          </div>
+                        }
+                      </div>
+                      <button
+                        mat-icon-button
+                        (click)="navigateTo('api', api.id)"
+                        [matTooltip]="t('result.goToApi')"
+                        aria-label="Open API details"
+                      >
+                        <mat-icon>open_in_new</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
+        </div>
+      }
+    }
+
+    <!-- ── Empty state ─────────────────────────────────────────────────── -->
+    @if (!result() && !loading()) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">radar</mat-icon>
+        <h2>{{ t('empty.title') }}</h2>
+        <p>{{ t('empty.subtitle') }}</p>
+      </div>
+    }
+
+  </div>
+</ng-container>

@@ -8,6 +8,7 @@ import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -41,4 +42,6 @@ public interface ApiRepository extends JpaRepository<ApiEntity, UUID>, JpaSpecif
 
     @Query("SELECT COUNT(DISTINCT a) FROM ApiEntity a WHERE a.dataDomains IS NOT EMPTY")
     long countWithDataDomain();
+
+    List<ApiEntity> findAllByProducerSystemIdAndActive(UUID producerSystemId, boolean active);
 }

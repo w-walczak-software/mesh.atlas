@@ -29,7 +29,9 @@
       "adminAudit": "Audit Log",
       "adminSettings": "System Parameters",
       "adminEmailSettings": "Email Settings",
-      "adminEmailTemplates": "Email Templates"
+      "adminEmailTemplates": "Email Templates",
+      "analysis": "Analysis",
+      "blastRadius": "Blast Radius"
     }
   },
   "common": {

@@ -1,0 +1,38 @@
+{
+  "title": "Blast Radius Analysis",
+  "subtitle": "Determine which systems and APIs would be affected by the failure or change of a selected system or API",
+  "loading": "Running analysis…",
+  "form": {
+    "sourceType": "Starting point",
+    "sourceTypeSystem": "IT System",
+    "sourceTypeApi": "API",
+    "system": "Search IT System",
+    "api": "Search API",
+    "maxDepth": "Max depth",
+    "maxDepthHint": "Dependency hops to follow (1–10)",
+    "analyze": "Analyze",
+    "clear": "Clear"
+  },
+  "severity": {
+    "NONE": "None",
+    "LOW": "Low",
+    "MEDIUM": "Medium",
+    "HIGH": "High",
+    "CRITICAL": "Critical"
+  },
+  "result": {
+    "impactedSystems": "Impacted Systems",
+    "impactedApis": "Impacted APIs",
+    "severityLabel": "Impact Severity",
+    "depthLabel": "Depth {{ depth }}",
+    "maxDepthWarning": "Maximum analysis depth reached — there may be additional affected resources not shown.",
+    "noImpact": "No downstream impact detected. No active consumers or dependent systems found.",
+    "producedBy": "Produced by: {{ name }}",
+    "goToSystem": "Open system",
+    "goToApi": "Open API"
+  },
+  "empty": {
+    "title": "Ready to analyze",
+    "subtitle": "Select a starting point above, set the depth, and click Analyze"
+  }
+}

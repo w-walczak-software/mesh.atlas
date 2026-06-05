@@ -45,6 +45,22 @@
     },
 
     {
+      "id": "analysis",
+      "label": "nav.menu.analysis",
+      "icon": "crisis_alert",
+      "roles": ["atlas_admin", "atlas_user"],
+      "children": [
+        {
+          "id": "blast-radius",
+          "label": "nav.menu.blastRadius",
+          "icon": "radar",
+          "route": "/analysis/blast-radius",
+          "roles": ["atlas_admin", "atlas_user"]
+        }
+      ]
+    },
+
+    {
       "id": "admin",
       "label": "nav.menu.admin",
       "icon": "admin_panel_settings",

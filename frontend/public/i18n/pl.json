@@ -29,7 +29,9 @@
       "adminAudit": "Dziennik audytu",
       "adminSettings": "Parametry systemowe",
       "adminEmailSettings": "Ustawienia email",
-      "adminEmailTemplates": "Szablony email"
+      "adminEmailTemplates": "Szablony email",
+      "analysis": "Analiza",
+      "blastRadius": "Blast Radius"
     }
   },
   "common": {
