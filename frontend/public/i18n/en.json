@@ -32,7 +32,8 @@
       "adminEmailTemplates": "Email Templates",
       "analysis": "Analysis",
       "blastRadius": "Blast Radius",
-      "deprecationImpact": "Deprecation Impact"
+      "deprecationImpact": "Deprecation Impact",
+      "whatIf": "What-if Analysis"
     }
   },
   "common": {

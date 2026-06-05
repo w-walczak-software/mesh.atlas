@@ -3,6 +3,7 @@ package pl.com.ww.mesh.atlas.api.infrastructure.persistance;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 
@@ -47,4 +48,16 @@ public interface ApiRepository extends JpaRepository<ApiEntity, UUID>, JpaSpecif
 
     @Query("SELECT a FROM ApiEntity a WHERE UPPER(a.status.code) LIKE '%DEPRECATED%' AND a.active = true")
     List<ApiEntity> findAllDeprecatedAndActive();
+
+    @Query("""
+            SELECT DISTINCT a FROM ApiEntity a
+            JOIN a.dataDomains dd
+            WHERE dd.id = :dataDomainId
+              AND a.active = true
+              AND a.producerSystem.id != :excludedSystemId
+            """)
+    List<ApiEntity> findAlternativeActiveApisByDataDomain(
+            @Param("dataDomainId") UUID dataDomainId,
+            @Param("excludedSystemId") UUID excludedSystemId
+    );
 }

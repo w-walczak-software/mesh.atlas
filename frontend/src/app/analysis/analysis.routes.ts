@@ -13,6 +13,11 @@ export const analysisRoutes: Routes = [
     loadComponent: () => import('./deprecation-impact/deprecation-impact').then(m => m.DeprecationImpact),
   },
   {
+    path: 'what-if',
+    canActivate: [atlasUserGuard],
+    loadComponent: () => import('./what-if/what-if').then(m => m.WhatIf),
+  },
+  {
     path: '',
     redirectTo: 'blast-radius',
     pathMatch: 'full',

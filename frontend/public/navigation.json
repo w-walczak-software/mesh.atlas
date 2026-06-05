@@ -63,6 +63,13 @@
           "icon": "warning_amber",
           "route": "/analysis/deprecation-impact",
           "roles": ["atlas_admin", "atlas_user"]
+        },
+        {
+          "id": "what-if",
+          "label": "nav.menu.whatIf",
+          "icon": "psychology_alt",
+          "route": "/analysis/what-if",
+          "roles": ["atlas_admin", "atlas_user"]
         }
       ]
     },

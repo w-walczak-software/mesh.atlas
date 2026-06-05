@@ -1,0 +1,391 @@
+<ng-container *transloco="let t; prefix: 'analysis.whatIf'">
+  <div class="what-if-page">
+
+    <!-- ── Header ──────────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="header-icon">
+        <mat-icon>psychology_alt</mat-icon>
+      </div>
+      <div>
+        <h1 class="page-title">{{ t('title') }}</h1>
+        <p class="page-subtitle">{{ t('subtitle') }}</p>
+      </div>
+    </div>
+
+    <!-- ── Configuration card ──────────────────────────────────────────── -->
+    <mat-card class="config-card" appearance="outlined">
+      <mat-card-content>
+        <form [formGroup]="form" class="config-form">
+          <div class="form-row inputs-row">
+
+            <!-- System autocomplete -->
+            <mat-form-field appearance="outline" class="search-field">
+              <mat-label>{{ t('form.system') }}</mat-label>
+              <input
+                matInput
+                formControlName="search"
+                [matAutocomplete]="auto"
+                autocomplete="off"
+              />
+              @if (searchLoading()) {
+                <mat-spinner matSuffix diameter="18" />
+              } @else if (selectedId()) {
+                <mat-icon matSuffix class="selected-icon">check_circle</mat-icon>
+              } @else {
+                <mat-icon matSuffix>search</mat-icon>
+              }
+              <mat-autocomplete
+                #auto="matAutocomplete"
+                (optionSelected)="onOptionSelected($event)"
+              >
+                @for (item of suggestions(); track item.id) {
+                  <mat-option [value]="item">
+                    <span class="option-code">{{ item.code }}</span>
+                    <span class="option-name">{{ item.name }}</span>
+                  </mat-option>
+                }
+              </mat-autocomplete>
+            </mat-form-field>
+
+            <!-- Max depth -->
+            <mat-form-field appearance="outline" class="depth-field">
+              <mat-label>{{ t('form.maxDepth') }}</mat-label>
+              <input matInput type="number" formControlName="maxDepth" min="1" max="10" />
+              <mat-hint>{{ t('form.maxDepthHint') }}</mat-hint>
+            </mat-form-field>
+
+            <!-- Actions -->
+            <div class="action-buttons">
+              <button
+                mat-flat-button
+                color="warn"
+                (click)="analyze()"
+                [disabled]="!canAnalyze()"
+                aria-label="Simulate system decommissioning"
+              >
+                @if (loading()) {
+                  <mat-spinner diameter="18" />
+                } @else {
+                  <mat-icon>power_settings_new</mat-icon>
+                }
+                {{ t('form.analyze') }}
+              </button>
+              <button mat-stroked-button (click)="clear()" [disabled]="loading()">
+                <mat-icon>clear</mat-icon>
+                {{ t('form.clear') }}
+              </button>
+            </div>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- ── Loading ─────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="48" />
+        <p>{{ t('loading') }}</p>
+      </div>
+    }
+
+    <!-- ── Results ─────────────────────────────────────────────────────── -->
+    @if (result(); as res) {
+
+      <!-- Summary row -->
+      <div class="summary-row">
+        <mat-card class="stat-card" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>api</mat-icon></div>
+            <div class="stat-value">{{ res.totalDecommissionedApis }}</div>
+            <div class="stat-label">{{ t('summary.apisOffline') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>hub</mat-icon></div>
+            <div class="stat-value">{{ res.totalAffectedSystems }}</div>
+            <div class="stat-label">{{ t('summary.affectedSystems') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>schema</mat-icon></div>
+            <div class="stat-value">{{ res.totalAffectedDataDomains }}</div>
+            <div class="stat-label">{{ t('summary.dataDomains') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card
+          class="stat-card"
+          [class.orphan-danger]="res.orphanedDataDomains > 0"
+          appearance="outlined"
+        >
+          <mat-card-content>
+            <div class="stat-icon">
+              <mat-icon>{{ res.orphanedDataDomains > 0 ? 'link_off' : 'check_circle' }}</mat-icon>
+            </div>
+            <div class="stat-value">{{ res.orphanedDataDomains }}</div>
+            <div class="stat-label">{{ t('summary.orphanedDomains') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card [class]="'stat-card risk-card ' + riskClass(res.overallRisk)" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>crisis_alert</mat-icon></div>
+            <div class="stat-value">{{ t('risk.' + res.overallRisk) }}</div>
+            <div class="stat-label">{{ t('summary.overallRisk') }}</div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Max depth warning -->
+      @if (res.maxDepthReached) {
+        <div class="depth-warning" role="alert">
+          <mat-icon>warning_amber</mat-icon>
+          <span>{{ t('maxDepthWarning') }}</span>
+        </div>
+      }
+
+      <!-- No impact -->
+      @if (res.totalDecommissionedApis === 0 && res.totalAffectedSystems === 0) {
+        <mat-card class="no-impact-card" appearance="outlined">
+          <mat-card-content>
+            <mat-icon class="no-impact-icon">check_circle</mat-icon>
+            <p>{{ t('noImpact') }}</p>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+
+        <!-- Recommendations -->
+        @if (res.recommendations.length > 0) {
+          <mat-card class="recommendations-card" appearance="outlined">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>checklist</mat-icon>
+              <mat-card-title>{{ t('recommendations.title') }}</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="recommendations-list">
+                @for (rec of res.recommendations; track $index) {
+                  <div [class]="'rec-item rec-' + rec.level.toLowerCase()">
+                    <mat-icon class="rec-icon">{{ recommendationIcon(rec.level) }}</mat-icon>
+                    <div class="rec-body">
+                      <span class="rec-level">{{ t('recommendations.level.' + rec.level) }}</span>
+                      <p class="rec-message">{{ rec.message }}</p>
+                    </div>
+                  </div>
+                }
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <!-- Impact grid -->
+        <div class="impact-grid">
+
+          <!-- APIs going offline -->
+          <mat-card class="impact-card" appearance="outlined">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>power_off</mat-icon>
+              <mat-card-title>
+                {{ t('decommissionedApis.title') }}
+                <span class="count-badge">{{ res.totalDecommissionedApis }}</span>
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @for (api of res.decommissionedApis; track api.id) {
+                <div class="impact-item api-item">
+                  <mat-icon class="item-icon api-icon">alt_route</mat-icon>
+                  <div class="item-info">
+                    <div class="item-code">{{ api.code }}</div>
+                    <div class="item-name">{{ api.name }}
+                      @if (api.apiVersion) {
+                        <span class="item-version">v{{ api.apiVersion }}</span>
+                      }
+                    </div>
+                    <div class="item-meta-row">
+                      @if (api.transportLayerName) {
+                        <span class="meta-chip transport">{{ api.transportLayerName }}</span>
+                      }
+                      @if (api.slaTierName) {
+                        <span [class]="'meta-chip sla sla-' + api.slaTierName.toLowerCase()">{{ api.slaTierName }} SLA</span>
+                      }
+                      <span class="meta-chip consumers">
+                        <mat-icon class="chip-icon">hub</mat-icon>
+                        {{ t('decommissionedApis.consumers', { count: api.directConsumerCount }) }}
+                      </span>
+                    </div>
+                    @if (api.dataDomainNames.length > 0) {
+                      <div class="domain-tags">
+                        @for (domain of api.dataDomainNames; track domain) {
+                          <span class="domain-tag"><mat-icon class="tag-icon">schema</mat-icon>{{ domain }}</span>
+                        }
+                      </div>
+                    } @else {
+                      <div class="item-meta">{{ t('decommissionedApis.noDomains') }}</div>
+                    }
+                  </div>
+                  <button
+                    mat-icon-button
+                    (click)="navigateTo('api', api.id)"
+                    [matTooltip]="t('decommissionedApis.goToApi')"
+                    aria-label="Open API details"
+                  >
+                    <mat-icon>open_in_new</mat-icon>
+                  </button>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Affected systems -->
+          <mat-card class="impact-card" appearance="outlined">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>hub</mat-icon>
+              <mat-card-title>
+                {{ t('affectedSystems.title') }}
+                <span class="count-badge">{{ res.totalAffectedSystems }}</span>
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @for (depth of sortedDepths(); track depth) {
+                <div class="depth-group">
+                  <div class="depth-header">
+                    <span class="depth-badge">
+                      @if (depth === 1) {
+                        {{ t('affectedSystems.depth1') }}
+                      } @else {
+                        {{ t('affectedSystems.depthN', { depth }) }}
+                      }
+                    </span>
+                  </div>
+                  @for (system of systemsByDepth().get(depth) ?? []; track system.id) {
+                    <div class="impact-item">
+                      <mat-icon class="item-icon system-icon">{{ system.icon || 'hub' }}</mat-icon>
+                      <div class="item-info">
+                        <div class="item-code">{{ system.code }}</div>
+                        <div class="item-name">{{ system.name }}</div>
+                        <div class="item-meta-row">
+                          @if (system.businessCriticalityName) {
+                            <span [class]="'meta-chip risk-chip ' + riskClass(system.risk)">
+                              {{ system.businessCriticalityName }}
+                            </span>
+                          }
+                          @if (system.lifecycleStageName) {
+                            <span class="meta-chip">{{ system.lifecycleStageName }}</span>
+                          }
+                        </div>
+                        @if (system.consumedAffectedApiNames.length > 0) {
+                          <div class="item-meta consumed-apis">
+                            {{ t('affectedSystems.consumesApis', { apis: systemConsumedApis(system) }) }}
+                          </div>
+                        } @else if (depth > 1) {
+                          <div class="item-meta">{{ t('affectedSystems.cascading') }}</div>
+                        }
+                      </div>
+                      <button
+                        mat-icon-button
+                        (click)="navigateTo('system', system.id)"
+                        [matTooltip]="t('affectedSystems.goToSystem')"
+                        aria-label="Open system details"
+                      >
+                        <mat-icon>open_in_new</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
+        </div>
+
+        <!-- Data domain impact (full width) -->
+        @if (res.totalAffectedDataDomains > 0) {
+          <mat-card class="domain-impact-card" appearance="outlined">
+            <mat-card-header>
+              <mat-icon mat-card-avatar>schema</mat-icon>
+              <mat-card-title>
+                {{ t('dataDomains.title') }}
+                <span class="count-badge">{{ res.totalAffectedDataDomains }}</span>
+                @if (res.orphanedDataDomains > 0) {
+                  <span class="orphan-badge">
+                    <mat-icon>link_off</mat-icon>
+                    {{ res.orphanedDataDomains }} orphaned
+                  </span>
+                }
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="domain-grid">
+
+                <!-- Orphaned domains first -->
+                @for (domain of orphanedDomains(); track domain.id) {
+                  <div class="domain-item domain-item--orphaned">
+                    <div class="domain-orphan-indicator">
+                      <mat-icon>link_off</mat-icon>
+                    </div>
+                    <div class="domain-info">
+                      <div class="domain-header-row">
+                        <span class="item-code">{{ domain.code }}</span>
+                        @if (domain.groupName) {
+                          <span class="meta-chip">{{ domain.groupName }}</span>
+                        }
+                      </div>
+                      <div class="item-name">{{ domain.name }}</div>
+                      <div class="domain-status orphaned-label">
+                        <mat-icon>warning</mat-icon>
+                        {{ t('dataDomains.orphaned') }}
+                      </div>
+                      <div class="item-meta">
+                        {{ t('dataDomains.servedBy', { apis: domainSummary(domain) }) }}
+                      </div>
+                    </div>
+                  </div>
+                }
+
+                <!-- Domains with alternatives -->
+                @for (domain of coveredDomains(); track domain.id) {
+                  <div class="domain-item">
+                    <div class="domain-ok-indicator">
+                      <mat-icon>check_circle</mat-icon>
+                    </div>
+                    <div class="domain-info">
+                      <div class="domain-header-row">
+                        <span class="item-code">{{ domain.code }}</span>
+                        @if (domain.groupName) {
+                          <span class="meta-chip">{{ domain.groupName }}</span>
+                        }
+                      </div>
+                      <div class="item-name">{{ domain.name }}</div>
+                      <div class="domain-status covered-label">
+                        <mat-icon>alt_route</mat-icon>
+                        {{ t('dataDomains.alternatives', { count: domain.alternativeProviderCount }) }}
+                      </div>
+                      <div class="item-meta">
+                        {{ t('dataDomains.servedBy', { apis: domainSummary(domain) }) }}
+                      </div>
+                    </div>
+                  </div>
+                }
+
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+
+      }
+    }
+
+    <!-- ── Empty state ─────────────────────────────────────────────────── -->
+    @if (!result() && !loading()) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">psychology_alt</mat-icon>
+        <h2>{{ t('empty.title') }}</h2>
+        <p>{{ t('empty.subtitle') }}</p>
+      </div>
+    }
+
+  </div>
+</ng-container>

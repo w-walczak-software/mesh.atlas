@@ -84,3 +84,81 @@ export interface DeprecationImpactResultDto {
   riskDistribution: Record<DeprecationRisk, number>;
   analysedAt: string;
 }
+
+// ── What-if Analysis ──────────────────────────────────────────────────────────
+
+export type WhatIfScenarioType = 'SYSTEM_SHUTDOWN';
+export type WhatIfRisk = 'NONE' | 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+export type WhatIfRecommendationLevel = 'INFO' | 'WARNING' | 'CRITICAL';
+
+export interface WhatIfRequest {
+  scenarioType: WhatIfScenarioType;
+  systemId: string;
+  maxDepth: number;
+}
+
+export interface WhatIfScenarioNodeDto {
+  id: string;
+  code: string;
+  name: string;
+  icon: string | null;
+  statusName: string | null;
+  businessCriticalityName: string | null;
+  lifecycleStageName: string | null;
+}
+
+export interface WhatIfDecommissionedApiDto {
+  id: string;
+  code: string;
+  name: string;
+  apiVersion: string | null;
+  transportLayerName: string | null;
+  statusName: string | null;
+  slaTierName: string | null;
+  dataDomainNames: string[];
+  directConsumerCount: number;
+}
+
+export interface WhatIfAffectedSystemDto {
+  id: string;
+  code: string;
+  name: string;
+  icon: string | null;
+  statusName: string | null;
+  businessCriticalityName: string | null;
+  lifecycleStageName: string | null;
+  consumedAffectedApiNames: string[];
+  depth: number;
+  risk: WhatIfRisk;
+}
+
+export interface WhatIfDataDomainImpactDto {
+  id: string;
+  code: string;
+  name: string;
+  groupName: string | null;
+  affectedApiNames: string[];
+  alternativeProviderCount: number;
+  orphaned: boolean;
+}
+
+export interface WhatIfRecommendationDto {
+  level: WhatIfRecommendationLevel;
+  message: string;
+}
+
+export interface WhatIfResultDto {
+  origin: WhatIfScenarioNodeDto;
+  scenarioType: WhatIfScenarioType;
+  decommissionedApis: WhatIfDecommissionedApiDto[];
+  affectedSystems: WhatIfAffectedSystemDto[];
+  affectedDataDomains: WhatIfDataDomainImpactDto[];
+  totalDecommissionedApis: number;
+  totalAffectedSystems: number;
+  totalAffectedDataDomains: number;
+  orphanedDataDomains: number;
+  overallRisk: WhatIfRisk;
+  maxDepthReached: boolean;
+  recommendations: WhatIfRecommendationDto[];
+  analysedAt: string;
+}

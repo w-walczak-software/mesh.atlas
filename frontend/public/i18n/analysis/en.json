@@ -1,4 +1,65 @@
 {
+  "whatIf": {
+    "title": "What-if Analysis",
+    "subtitle": "Simulate the full impact of decommissioning a system — APIs, consumers, and data domains",
+    "loading": "Running simulation…",
+    "form": {
+      "system": "Search IT System to decommission",
+      "maxDepth": "Cascade depth",
+      "maxDepthHint": "Dependency hops to follow (1–10)",
+      "analyze": "Simulate Decommissioning",
+      "clear": "Clear"
+    },
+    "risk": {
+      "NONE": "None",
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "summary": {
+      "apisOffline": "APIs Going Offline",
+      "affectedSystems": "Affected Systems",
+      "dataDomains": "Data Domains at Risk",
+      "orphanedDomains": "Orphaned Domains",
+      "overallRisk": "Overall Risk"
+    },
+    "recommendations": {
+      "title": "Recommendations",
+      "level": {
+        "INFO": "Info",
+        "WARNING": "Warning",
+        "CRITICAL": "Critical Action Required"
+      }
+    },
+    "decommissionedApis": {
+      "title": "APIs Going Offline",
+      "consumers": "{{ count }} consumer(s)",
+      "noDomains": "No data domains",
+      "noSla": "No SLA tier",
+      "goToApi": "Open API"
+    },
+    "affectedSystems": {
+      "title": "Affected Systems",
+      "depth1": "Direct consumers (depth 1)",
+      "depthN": "Cascading impact (depth {{ depth }})",
+      "consumesApis": "Consuming: {{ apis }}",
+      "cascading": "Cascading indirect impact",
+      "goToSystem": "Open system"
+    },
+    "dataDomains": {
+      "title": "Data Domain Impact",
+      "orphaned": "Orphaned — no alternative provider",
+      "alternatives": "{{ count }} alternative provider(s) available",
+      "servedBy": "Was served by: {{ apis }}"
+    },
+    "maxDepthWarning": "Maximum cascade depth reached — additional downstream impacts may not be shown.",
+    "noImpact": "No downstream impact detected. This system has no active API consumers or configured data domains.",
+    "empty": {
+      "title": "Ready to simulate",
+      "subtitle": "Select a system, set the cascade depth, and click Simulate Decommissioning"
+    }
+  },
   "deprecationImpact": {
     "title": "Deprecation Impact Report",
     "subtitle": "Identify all deprecated APIs, their active consumers, and the migration risk for each",

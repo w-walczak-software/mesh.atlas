@@ -1,4 +1,65 @@
 {
+  "whatIf": {
+    "title": "Analiza What-if",
+    "subtitle": "Symuluj pełny wpływ wyłączenia systemu — API, konsumenci i domeny danych",
+    "loading": "Trwa symulacja…",
+    "form": {
+      "system": "Wyszukaj system IT do wyłączenia",
+      "maxDepth": "Głębokość kaskady",
+      "maxDepthHint": "Liczba skoków zależności (1–10)",
+      "analyze": "Symuluj wyłączenie",
+      "clear": "Wyczyść"
+    },
+    "risk": {
+      "NONE": "Brak",
+      "LOW": "Niskie",
+      "MEDIUM": "Średnie",
+      "HIGH": "Wysokie",
+      "CRITICAL": "Krytyczne"
+    },
+    "summary": {
+      "apisOffline": "API przestaje działać",
+      "affectedSystems": "Dotknięte systemy",
+      "dataDomains": "Domeny danych zagrożone",
+      "orphanedDomains": "Osierocone domeny",
+      "overallRisk": "Całkowite ryzyko"
+    },
+    "recommendations": {
+      "title": "Rekomendacje",
+      "level": {
+        "INFO": "Informacja",
+        "WARNING": "Ostrzeżenie",
+        "CRITICAL": "Wymagane działanie"
+      }
+    },
+    "decommissionedApis": {
+      "title": "API przestające działać",
+      "consumers": "{{ count }} konsument(ów)",
+      "noDomains": "Brak domen danych",
+      "noSla": "Brak poziomu SLA",
+      "goToApi": "Otwórz API"
+    },
+    "affectedSystems": {
+      "title": "Dotknięte systemy",
+      "depth1": "Bezpośredni konsumenci (głębokość 1)",
+      "depthN": "Wpływ kaskadowy (głębokość {{ depth }})",
+      "consumesApis": "Konsumuje: {{ apis }}",
+      "cascading": "Pośredni wpływ kaskadowy",
+      "goToSystem": "Otwórz system"
+    },
+    "dataDomains": {
+      "title": "Wpływ na domeny danych",
+      "orphaned": "Osierocona — brak alternatywnego dostawcy",
+      "alternatives": "{{ count }} alternatywny/ch dostawca/ów",
+      "servedBy": "Obsługiwana przez: {{ apis }}"
+    },
+    "maxDepthWarning": "Osiągnięto maksymalną głębokość kaskady — mogą istnieć dodatkowe dotknięte zasoby.",
+    "noImpact": "Nie wykryto wpływu. Ten system nie ma aktywnych konsumentów API ani skonfigurowanych domen danych.",
+    "empty": {
+      "title": "Gotowy do symulacji",
+      "subtitle": "Wybierz system, ustaw głębokość kaskady i kliknij Symuluj wyłączenie"
+    }
+  },
   "deprecationImpact": {
     "title": "Raport Wpływu Deprecacji",
     "subtitle": "Identyfikuj wszystkie zdeprecjonowane API, ich aktywnych konsumentów oraz ryzyko migracji",

@@ -2,7 +2,13 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
-import { BlastRadiusRequest, BlastRadiusResultDto, DeprecationImpactResultDto } from '../model/analysis.model';
+import {
+  BlastRadiusRequest,
+  BlastRadiusResultDto,
+  DeprecationImpactResultDto,
+  WhatIfRequest,
+  WhatIfResultDto,
+} from '../model/analysis.model';
 
 @Injectable({ providedIn: 'root' })
 export class AnalysisService {
@@ -15,5 +21,9 @@ export class AnalysisService {
 
   getDeprecationImpact(): Observable<DeprecationImpactResultDto> {
     return this.http.get<DeprecationImpactResultDto>(`${this.baseUrl}/deprecation-impact`);
+  }
+
+  analyzeWhatIf(request: WhatIfRequest): Observable<WhatIfResultDto> {
+    return this.http.post<WhatIfResultDto>(`${this.baseUrl}/what-if`, request);
   }
 }
