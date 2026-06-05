@@ -56,6 +56,13 @@
           "icon": "radar",
           "route": "/analysis/blast-radius",
           "roles": ["atlas_admin", "atlas_user"]
+        },
+        {
+          "id": "deprecation-impact",
+          "label": "nav.menu.deprecationImpact",
+          "icon": "warning_amber",
+          "route": "/analysis/deprecation-impact",
+          "roles": ["atlas_admin", "atlas_user"]
         }
       ]
     },

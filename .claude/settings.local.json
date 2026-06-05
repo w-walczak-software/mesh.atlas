@@ -83,7 +83,8 @@
       "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error TS|ERROR|complete' } | Select-Object -First 20)",
       "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error TS|ERROR|complete' } | Select-Object -First 15)",
       "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; \\(npm run build 2>&1\\) | Where-Object { $_ -match \"TS\\\\d{4}\" } | Select-Object -First 20)",
-      "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; $output = npm run build 2>&1; $tsErrors = $output | Where-Object { $_ -match \"TS\\\\d{4}:\" }; if \\($tsErrors\\) { $tsErrors } else { \"No TypeScript errors\" })"
+      "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; $output = npm run build 2>&1; $tsErrors = $output | Where-Object { $_ -match \"TS\\\\d{4}:\" }; if \\($tsErrors\\) { $tsErrors } else { \"No TypeScript errors\" })",
+      "Bash(cmd /c \"mvnw.cmd compile -q 2>&1\")"
     ]
   }
 }

@@ -8,6 +8,11 @@ export const analysisRoutes: Routes = [
     loadComponent: () => import('./blast-radius/blast-radius').then(m => m.BlastRadius),
   },
   {
+    path: 'deprecation-impact',
+    canActivate: [atlasUserGuard],
+    loadComponent: () => import('./deprecation-impact/deprecation-impact').then(m => m.DeprecationImpact),
+  },
+  {
     path: '',
     redirectTo: 'blast-radius',
     pathMatch: 'full',

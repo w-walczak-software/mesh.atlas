@@ -1,4 +1,37 @@
 {
+  "deprecationImpact": {
+    "title": "Deprecation Impact Report",
+    "subtitle": "Identify all deprecated APIs, their active consumers, and the migration risk for each",
+    "loading": "Generating report…",
+    "refresh": "Refresh",
+    "analysedAt": "Report generated",
+    "risk": {
+      "label": "Overall Risk",
+      "NONE": "No risk",
+      "LOW": "Low",
+      "MEDIUM": "Medium",
+      "HIGH": "High",
+      "CRITICAL": "Critical"
+    },
+    "filter": {
+      "all": "All"
+    },
+    "result": {
+      "deprecatedApis": "Deprecated APIs",
+      "affectedSystems": "Affected Systems",
+      "noDeprecatedApis": "No deprecated APIs found. All APIs are in a healthy state.",
+      "noMatch": "No APIs match the selected risk filter.",
+      "consumers": "Active consumers requiring migration",
+      "consumerCount": "{{ count }} consumer(s)",
+      "noConsumers": "No active consumers — safe to retire",
+      "goToApi": "Open API",
+      "goToSystem": "Open system"
+    },
+    "empty": {
+      "title": "Ready to generate report",
+      "subtitle": "The report will load automatically on page open"
+    }
+  },
   "title": "Blast Radius Analysis",
   "subtitle": "Determine which systems and APIs would be affected by the failure or change of a selected system or API",
   "loading": "Running analysis…",

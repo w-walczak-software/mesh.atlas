@@ -1,0 +1,210 @@
+<ng-container *transloco="let t; prefix: 'analysis.deprecationImpact'">
+  <div class="deprecation-impact-page">
+
+    <!-- ── Header ─────────────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="header-icon">
+        <mat-icon>warning_amber</mat-icon>
+      </div>
+      <div class="header-text">
+        <h1 class="page-title">{{ t('title') }}</h1>
+        <p class="page-subtitle">{{ t('subtitle') }}</p>
+      </div>
+      <div class="header-actions">
+        <button mat-stroked-button (click)="refresh()" [disabled]="loading()">
+          <mat-icon>refresh</mat-icon>
+          {{ t('refresh') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="loading-state">
+        <mat-spinner diameter="48" />
+        <p>{{ t('loading') }}</p>
+      </div>
+    }
+
+    <!-- ── Results ─────────────────────────────────────────────────────────── -->
+    @if (result(); as res) {
+
+      <!-- Summary stats -->
+      <div class="summary-row">
+        <mat-card class="stat-card" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>warning</mat-icon></div>
+            <div class="stat-value">{{ res.totalDeprecatedApis }}</div>
+            <div class="stat-label">{{ t('result.deprecatedApis') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card class="stat-card" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>hub</mat-icon></div>
+            <div class="stat-value">{{ res.totalAffectedSystems }}</div>
+            <div class="stat-label">{{ t('result.affectedSystems') }}</div>
+          </mat-card-content>
+        </mat-card>
+
+        <mat-card [class]="'stat-card risk-card ' + riskClass(res.overallRisk)" appearance="outlined">
+          <mat-card-content>
+            <div class="stat-icon"><mat-icon>shield</mat-icon></div>
+            <div class="stat-value">{{ t('risk.' + res.overallRisk) }}</div>
+            <div class="stat-label">{{ t('risk.label') }}</div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+
+      <!-- Timestamp -->
+      <p class="analysed-at">
+        <mat-icon inline>schedule</mat-icon>
+        {{ t('analysedAt') }}: {{ res.analysedAt | date:'dd MMM yyyy, HH:mm' }}
+      </p>
+
+      <!-- All clear -->
+      @if (res.totalDeprecatedApis === 0) {
+        <mat-card class="all-clear-card" appearance="outlined">
+          <mat-card-content>
+            <mat-icon class="all-clear-icon">check_circle</mat-icon>
+            <p>{{ t('result.noDeprecatedApis') }}</p>
+          </mat-card-content>
+        </mat-card>
+      } @else {
+
+        <!-- Risk filter chips -->
+        <div class="filter-bar">
+          <mat-chip-listbox
+            [value]="activeFilter()"
+            (change)="onFilterChange($event)"
+            aria-label="Filter deprecated APIs by migration risk"
+          >
+            <mat-chip-option value="ALL">
+              {{ t('filter.all') }}
+              <span class="chip-count">{{ res.totalDeprecatedApis }}</span>
+            </mat-chip-option>
+            @for (r of riskLevels(); track r.level) {
+              <mat-chip-option [value]="r.level" [class]="'chip-' + r.level.toLowerCase()">
+                {{ t('risk.' + r.level) }}
+                <span class="chip-count">{{ r.count }}</span>
+              </mat-chip-option>
+            }
+          </mat-chip-listbox>
+        </div>
+
+        <!-- Deprecated API accordion -->
+        @if (filteredApis().length === 0) {
+          <div class="no-match">
+            <mat-icon>filter_list_off</mat-icon>
+            <span>{{ t('result.noMatch') }}</span>
+          </div>
+        } @else {
+          <mat-accordion multi class="api-accordion">
+            @for (api of filteredApis(); track api.id) {
+              <mat-expansion-panel class="api-panel">
+
+                <mat-expansion-panel-header>
+                  <mat-panel-title>
+                    <span [class]="'risk-badge ' + riskClass(api.risk)">
+                      {{ t('risk.' + api.risk) }}
+                    </span>
+                    <span class="api-code">{{ api.code }}</span>
+                    <span class="api-name">{{ api.name }}</span>
+                    @if (api.apiVersion) {
+                      <span class="api-version">v{{ api.apiVersion }}</span>
+                    }
+                  </mat-panel-title>
+                  <mat-panel-description>
+                    @if (api.producerSystemName) {
+                      <span class="producer-chip">
+                        <mat-icon inline>hub</mat-icon>
+                        {{ api.producerSystemName }}
+                      </span>
+                    }
+                    <span class="consumer-chip" [class.has-consumers]="api.consumerCount > 0">
+                      <mat-icon inline>group</mat-icon>
+                      {{ t('result.consumerCount', { count: api.consumerCount }) }}
+                    </span>
+                  </mat-panel-description>
+                </mat-expansion-panel-header>
+
+                <!-- Panel body -->
+                <div class="panel-body">
+
+                  <!-- Governance note -->
+                  @if (api.governanceNote) {
+                    <div class="governance-note" role="note">
+                      <mat-icon>info_outline</mat-icon>
+                      <span>{{ api.governanceNote }}</span>
+                    </div>
+                  }
+
+                  <!-- Quick action -->
+                  <div class="panel-actions">
+                    <button mat-stroked-button (click)="navigateToApi(api.id)" aria-label="Open API details">
+                      <mat-icon>open_in_new</mat-icon>
+                      {{ t('result.goToApi') }}
+                    </button>
+                  </div>
+
+                  <!-- Consumers -->
+                  @if (api.consumerCount === 0) {
+                    <div class="no-consumers">
+                      <mat-icon>check_circle</mat-icon>
+                      <span>{{ t('result.noConsumers') }}</span>
+                    </div>
+                  } @else {
+                    <div class="consumers-section">
+                      <h4 class="consumers-heading">
+                        <mat-icon>group</mat-icon>
+                        {{ t('result.consumers') }}
+                      </h4>
+                      <div class="consumers-list">
+                        @for (consumer of api.consumers; track consumer.id) {
+                          <div class="consumer-row">
+                            <mat-icon class="consumer-icon">{{ consumer.icon || 'hub' }}</mat-icon>
+                            <div class="consumer-info">
+                              <span class="consumer-code">{{ consumer.code }}</span>
+                              <span class="consumer-name">{{ consumer.name }}</span>
+                              @if (consumer.businessCriticalityName) {
+                                <span [class]="'criticality-badge ' + criticalityClass(consumer.businessCriticalityName)">
+                                  {{ consumer.businessCriticalityName }}
+                                </span>
+                              }
+                              @if (consumer.lifecycleStageName) {
+                                <span class="lifecycle-badge">{{ consumer.lifecycleStageName }}</span>
+                              }
+                            </div>
+                            <button
+                              mat-icon-button
+                              (click)="navigateToSystem(consumer.id)"
+                              [matTooltip]="t('result.goToSystem')"
+                              aria-label="Open system details"
+                            >
+                              <mat-icon>open_in_new</mat-icon>
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    </div>
+                  }
+                </div>
+
+              </mat-expansion-panel>
+            }
+          </mat-accordion>
+        }
+      }
+    }
+
+    <!-- ── Empty state ─────────────────────────────────────────────────────── -->
+    @if (!result() && !loading()) {
+      <div class="empty-state">
+        <mat-icon class="empty-icon">warning_amber</mat-icon>
+        <h2>{{ t('empty.title') }}</h2>
+        <p>{{ t('empty.subtitle') }}</p>
+      </div>
+    }
+
+  </div>
+</ng-container>

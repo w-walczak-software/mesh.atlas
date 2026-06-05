@@ -1,4 +1,37 @@
 {
+  "deprecationImpact": {
+    "title": "Raport Wpływu Deprecacji",
+    "subtitle": "Identyfikuj wszystkie zdeprecjonowane API, ich aktywnych konsumentów oraz ryzyko migracji",
+    "loading": "Generowanie raportu…",
+    "refresh": "Odśwież",
+    "analysedAt": "Raport wygenerowany",
+    "risk": {
+      "label": "Całkowite ryzyko",
+      "NONE": "Brak ryzyka",
+      "LOW": "Niskie",
+      "MEDIUM": "Średnie",
+      "HIGH": "Wysokie",
+      "CRITICAL": "Krytyczne"
+    },
+    "filter": {
+      "all": "Wszystkie"
+    },
+    "result": {
+      "deprecatedApis": "Zdeprecjonowane API",
+      "affectedSystems": "Dotknięte systemy",
+      "noDeprecatedApis": "Nie znaleziono zdeprecjonowanych API. Wszystkie API są w dobrym stanie.",
+      "noMatch": "Brak API pasujących do wybranego filtra ryzyka.",
+      "consumers": "Aktywni konsumenci wymagający migracji",
+      "consumerCount": "{{ count }} konsument(ów)",
+      "noConsumers": "Brak aktywnych konsumentów — można bezpiecznie wycofać",
+      "goToApi": "Otwórz API",
+      "goToSystem": "Otwórz system"
+    },
+    "empty": {
+      "title": "Gotowy do wygenerowania raportu",
+      "subtitle": "Raport załaduje się automatycznie po otwarciu strony"
+    }
+  },
   "title": "Analiza Blast Radius",
   "subtitle": "Określ, które systemy i API zostałyby dotknięte awarią lub zmianą wybranego systemu lub API",
   "loading": "Trwa analiza…",

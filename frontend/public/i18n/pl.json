@@ -31,7 +31,8 @@
       "adminEmailSettings": "Ustawienia email",
       "adminEmailTemplates": "Szablony email",
       "analysis": "Analiza",
-      "blastRadius": "Blast Radius"
+      "blastRadius": "Blast Radius",
+      "deprecationImpact": "Raport Deprecacji"
     }
   },
   "common": {

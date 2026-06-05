@@ -44,4 +44,7 @@ public interface ApiRepository extends JpaRepository<ApiEntity, UUID>, JpaSpecif
     long countWithDataDomain();
 
     List<ApiEntity> findAllByProducerSystemIdAndActive(UUID producerSystemId, boolean active);
+
+    @Query("SELECT a FROM ApiEntity a WHERE UPPER(a.status.code) LIKE '%DEPRECATED%' AND a.active = true")
+    List<ApiEntity> findAllDeprecatedAndActive();
 }

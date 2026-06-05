@@ -1,0 +1,526 @@
+:host {
+  display: block;
+}
+
+.deprecation-impact-page {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+// ── Header ───────────────────────────────────────────────────────────────────
+
+.page-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: color-mix(in srgb, #ff9800 15%, var(--mat-sys-surface-container));
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 28px;
+    width: 28px;
+    height: 28px;
+    color: #ff9800;
+  }
+}
+
+.header-text {
+  flex: 1;
+}
+
+.page-title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface);
+}
+
+.page-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: var(--mat-sys-on-surface-variant);
+  line-height: 1.5;
+}
+
+.header-actions {
+  flex-shrink: 0;
+
+  button mat-icon {
+    margin-right: 4px;
+  }
+}
+
+// ── Loading ──────────────────────────────────────────────────────────────────
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// ── Summary stats ─────────────────────────────────────────────────────────────
+
+.summary-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.stat-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 24px 16px !important;
+  }
+}
+
+.stat-icon mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--mat-sys-on-surface);
+  line-height: 1;
+}
+
+.stat-label {
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  text-align: center;
+}
+
+// Risk-coloured stat card
+.risk-card {
+  &.risk-none     { --risk-color: var(--mat-sys-outline); }
+  &.risk-low      { --risk-color: #4caf50; }
+  &.risk-medium   { --risk-color: #ff9800; }
+  &.risk-high     { --risk-color: #f44336; }
+  &.risk-critical { --risk-color: #b71c1c; }
+
+  border-color: var(--risk-color, var(--mat-sys-outline)) !important;
+
+  .stat-value { color: var(--risk-color, var(--mat-sys-on-surface)); }
+  .stat-icon mat-icon { color: var(--risk-color, var(--mat-sys-on-surface-variant)); }
+}
+
+// ── Timestamp ────────────────────────────────────────────────────────────────
+
+.analysed-at {
+  margin: -12px 0 0;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// ── All clear card ────────────────────────────────────────────────────────────
+
+.all-clear-card {
+  mat-card-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 40px !important;
+    text-align: center;
+  }
+}
+
+.all-clear-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #4caf50;
+}
+
+// ── Filter bar ────────────────────────────────────────────────────────────────
+
+.filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  background: var(--mat-sys-surface-container-highest);
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 0 6px;
+  margin-left: 4px;
+}
+
+// Risk-coloured chips
+.chip-critical ::ng-deep .mdc-evolution-chip__text-label { color: #b71c1c; }
+.chip-high     ::ng-deep .mdc-evolution-chip__text-label { color: #f44336; }
+.chip-medium   ::ng-deep .mdc-evolution-chip__text-label { color: #ff9800; }
+.chip-low      ::ng-deep .mdc-evolution-chip__text-label { color: #4caf50; }
+
+// ── No match ──────────────────────────────────────────────────────────────────
+
+.no-match {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 32px;
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+
+  mat-icon { font-size: 20px; width: 20px; height: 20px; }
+}
+
+// ── Accordion ─────────────────────────────────────────────────────────────────
+
+.api-accordion {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.api-panel {
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+// Panel title row
+mat-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  min-width: 0;
+}
+
+.api-code {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mat-sys-primary);
+}
+
+.api-name {
+  font-size: 14px;
+  color: var(--mat-sys-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.api-version {
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-container);
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+// Panel description row
+mat-panel-description {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.producer-chip,
+.consumer-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: var(--mat-sys-on-surface-variant);
+
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.consumer-chip.has-consumers {
+  color: var(--mat-sys-on-surface);
+  font-weight: 500;
+}
+
+// ── Risk badge ────────────────────────────────────────────────────────────────
+
+.risk-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  flex-shrink: 0;
+
+  &.risk-none {
+    background: color-mix(in srgb, var(--mat-sys-outline) 12%, transparent);
+    color: var(--mat-sys-outline);
+  }
+  &.risk-low {
+    background: color-mix(in srgb, #4caf50 15%, transparent);
+    color: #388e3c;
+  }
+  &.risk-medium {
+    background: color-mix(in srgb, #ff9800 15%, transparent);
+    color: #e65100;
+  }
+  &.risk-high {
+    background: color-mix(in srgb, #f44336 15%, transparent);
+    color: #c62828;
+  }
+  &.risk-critical {
+    background: color-mix(in srgb, #b71c1c 20%, transparent);
+    color: #b71c1c;
+  }
+}
+
+// ── Panel body ────────────────────────────────────────────────────────────────
+
+.panel-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 4px;
+}
+
+.governance-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--mat-sys-primary) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--mat-sys-primary) 20%, transparent);
+  font-size: 14px;
+  color: var(--mat-sys-on-surface);
+  line-height: 1.5;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--mat-sys-primary);
+    margin-top: 1px;
+  }
+}
+
+.panel-actions {
+  display: flex;
+  gap: 10px;
+
+  button mat-icon { margin-right: 4px; }
+}
+
+.no-consumers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #388e3c;
+  font-size: 14px;
+
+  mat-icon { font-size: 18px; width: 18px; height: 18px; }
+}
+
+// ── Consumers list ────────────────────────────────────────────────────────────
+
+.consumers-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.consumers-heading {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--mat-sys-on-surface-variant);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+
+  mat-icon { font-size: 16px; width: 16px; height: 16px; }
+}
+
+.consumers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+}
+
+.consumer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: var(--mat-sys-surface);
+  transition: background 150ms ease;
+
+  &:hover { background: var(--mat-sys-surface-container); }
+  & + & { border-top: 1px solid var(--mat-sys-outline-variant); }
+}
+
+.consumer-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+  color: var(--mat-sys-primary);
+  flex-shrink: 0;
+}
+
+.consumer-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  min-width: 0;
+}
+
+.consumer-code {
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--mat-sys-primary);
+}
+
+.consumer-name {
+  font-size: 14px;
+  color: var(--mat-sys-on-surface);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+// ── Criticality badges ────────────────────────────────────────────────────────
+
+.criticality-badge,
+.lifecycle-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.criticality-badge {
+  &.criticality-critical {
+    background: color-mix(in srgb, #b71c1c 15%, transparent);
+    color: #b71c1c;
+  }
+  &.criticality-high {
+    background: color-mix(in srgb, #f44336 12%, transparent);
+    color: #c62828;
+  }
+  &.criticality-medium {
+    background: color-mix(in srgb, #ff9800 12%, transparent);
+    color: #e65100;
+  }
+  &.criticality-low {
+    background: color-mix(in srgb, #4caf50 12%, transparent);
+    color: #388e3c;
+  }
+}
+
+.lifecycle-badge {
+  background: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+// ── Empty state ───────────────────────────────────────────────────────────────
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 64px 24px;
+  text-align: center;
+  color: var(--mat-sys-on-surface-variant);
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--mat-sys-on-surface);
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    max-width: 400px;
+  }
+}
+
+.empty-icon {
+  font-size: 64px;
+  width: 64px;
+  height: 64px;
+  color: var(--mat-sys-outline);
+}
+
+// ── Responsive ────────────────────────────────────────────────────────────────
+
+@media (width < 900px) {
+  .deprecation-impact-page {
+    padding: 16px;
+  }
+
+  .summary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .page-header {
+    flex-wrap: wrap;
+  }
+
+  .header-actions {
+    width: 100%;
+  }
+}
