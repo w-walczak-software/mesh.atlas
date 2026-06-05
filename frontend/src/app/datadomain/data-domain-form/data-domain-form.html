@@ -28,49 +28,29 @@
 
           <div class="card-body">
             <div class="field-row field-row--code-name">
-              <atlas-text-input controlName="code" [label]="t('datadomain.field.code')" icon="tag" [ariaRequired]="true">
-                @if (form.controls.code.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-                @if (form.controls.code.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
-                }
-                @if (form.controls.code.errors?.['pattern']) {
-                  <mat-error>{{ t('datadomain.error.codePattern') }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="code" [label]="t('datadomain.field.code')" icon="tag" [ariaRequired]="true"
+                [errorMessages]="{
+                  required: t('common.validation.required'),
+                  maxlength: t('common.validation.maxlength', { max: 100 }),
+                  pattern: t('datadomain.error.codePattern')
+                }" />
 
-              <atlas-text-input controlName="name" [label]="t('datadomain.field.name')" [ariaRequired]="true">
-                @if (form.controls.name.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-                @if (form.controls.name.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="name" [label]="t('datadomain.field.name')" [ariaRequired]="true"
+                [errorMessages]="{
+                  required: t('common.validation.required'),
+                  maxlength: t('common.validation.maxlength', { max: 300 })
+                }" />
             </div>
 
-            <atlas-textarea class="field-full" controlName="description" [label]="t('datadomain.field.description')" [rows]="4">
-              @if (form.controls.description.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
-              }
-            </atlas-textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('datadomain.field.description')" [rows]="4"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 4000 }) }" />
 
-            <atlas-text-input class="field-full" controlName="documentationUrl" [label]="t('datadomain.field.documentationUrl')" icon="open_in_new">
-              @if (form.controls.documentationUrl.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
-              }
-            </atlas-text-input>
+            <atlas-text-input class="field-full" controlName="documentationUrl" [label]="t('datadomain.field.documentationUrl')" icon="open_in_new"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 2000 }) }" />
 
-            <mat-form-field appearance="outline" class="field-half">
-              <mat-label>{{ t('datadomain.field.group') }}</mat-label>
-              <mat-select formControlName="groupId">
-                <mat-option [value]="null">–</mat-option>
-                @for (group of groups(); track group.id) {
-                  <mat-option [value]="group.id">{{ group.name }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <atlas-select-datadomain-group class="field-half"
+              controlName="groupId"
+              [label]="t('datadomain.field.group')" />
           </div>
         </mat-card>
 

@@ -7,24 +7,19 @@
       <!-- Meta fields -->
       <div class="meta-row">
         <atlas-text-input class="field-code" controlName="code" [label]="t('admin.emailTemplate.field.code')"
-                          placeholder="WELCOME_EMAIL" autocomplete="off">
-          @if (form.controls.code.hasError('required')) {
-            <mat-error>{{ t('common.validation.required') }}</mat-error>
-          } @else if (form.controls.code.hasError('pattern')) {
-            <mat-error>{{ t('admin.emailTemplate.validation.codePattern') }}</mat-error>
-          } @else if (form.controls.code.hasError('maxlength')) {
-            <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
-          }
-        </atlas-text-input>
+          placeholder="WELCOME_EMAIL" autocomplete="off"
+          [errorMessages]="{
+            required: t('common.validation.required'),
+            pattern: t('admin.emailTemplate.validation.codePattern'),
+            maxlength: t('common.validation.maxlength', { max: 100 })
+          }" />
 
         <atlas-text-input class="field-title" controlName="title" [label]="t('admin.emailTemplate.field.title')"
-                          autocomplete="off">
-          @if (form.controls.title.hasError('required')) {
-            <mat-error>{{ t('common.validation.required') }}</mat-error>
-          } @else if (form.controls.title.hasError('maxlength')) {
-            <mat-error>{{ t('common.validation.maxlength', { max: 500 }) }}</mat-error>
-          }
-        </atlas-text-input>
+          autocomplete="off"
+          [errorMessages]="{
+            required: t('common.validation.required'),
+            maxlength: t('common.validation.maxlength', { max: 500 })
+          }" />
       </div>
 
       <mat-form-field appearance="outline" class="field-full">

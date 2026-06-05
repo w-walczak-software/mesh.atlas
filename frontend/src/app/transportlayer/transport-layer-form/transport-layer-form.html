@@ -96,33 +96,22 @@
             }
 
             <div class="field-row field-row--code-name">
-              <atlas-text-input controlName="code" [label]="t('transportlayer.field.code')" icon="tag" [ariaRequired]="true">
-                @if (form.controls.code.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-                @if (form.controls.code.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
-                }
-                @if (form.controls.code.errors?.['pattern']) {
-                  <mat-error>{{ t('transportlayer.error.codePattern') }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="code" [label]="t('transportlayer.field.code')" icon="tag" [ariaRequired]="true"
+                [errorMessages]="{
+                  required: t('common.validation.required'),
+                  maxlength: t('common.validation.maxlength', { max: 100 }),
+                  pattern: t('transportlayer.error.codePattern')
+                }" />
 
-              <atlas-text-input controlName="name" [label]="t('transportlayer.field.name')" [ariaRequired]="true">
-                @if (form.controls.name.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-                @if (form.controls.name.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="name" [label]="t('transportlayer.field.name')" [ariaRequired]="true"
+                [errorMessages]="{
+                  required: t('common.validation.required'),
+                  maxlength: t('common.validation.maxlength', { max: 300 })
+                }" />
             </div>
 
-            <atlas-textarea class="field-full" controlName="description" [label]="t('transportlayer.field.description')" [rows]="3">
-              @if (form.controls.description.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
-              }
-            </atlas-textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('transportlayer.field.description')" [rows]="3"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 4000 }) }" />
           </div>
         </mat-card>
 

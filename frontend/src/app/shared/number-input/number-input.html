@@ -10,5 +10,8 @@
   @if (suffix()) {
     <span matTextSuffix>{{ suffix() }}</span>
   }
+  @for (msg of errorsToShow(); track msg) {
+    <mat-error>{{ msg }}</mat-error>
+  }
   <ng-content />
 </mat-form-field>

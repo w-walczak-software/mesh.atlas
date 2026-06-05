@@ -10,5 +10,8 @@
       <mat-option [value]="entry.id">{{ entry.name }}</mat-option>
     }
   </mat-select>
+  @for (msg of errorsToShow(); track msg) {
+    <mat-error>{{ msg }}</mat-error>
+  }
   <ng-content />
 </mat-form-field>

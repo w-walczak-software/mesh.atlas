@@ -25,7 +25,8 @@ const WRAPPER_STYLES = [':host { display: block; }'];
       [label]="label()"
       [dictionaryCode]="dictionaryCode()"
       [ariaRequired]="ariaRequired()"
-      [subscriptSizing]="subscriptSizing()">
+      [subscriptSizing]="subscriptSizing()"
+      [errorMessages]="errorMessages()">
       <ng-content />
     </atlas-select-dictionary>
   `,
@@ -33,10 +34,10 @@ const WRAPPER_STYLES = [':host { display: block; }'];
 export class AtlasSelectStatus {
   readonly controlName = input.required<string>();
   readonly label = input.required<string>();
-  /** Override to use a different status dictionary (e.g. SYSTEM_STATUS). */
   readonly dictionaryCode = input('API_STATUS');
   readonly ariaRequired = input(false);
   readonly subscriptSizing = input<'fixed' | 'dynamic'>('fixed');
+  readonly errorMessages = input<Record<string, string>>({});
 }
 
 // ── atlas-select-type ────────────────────────────────────────────────────────

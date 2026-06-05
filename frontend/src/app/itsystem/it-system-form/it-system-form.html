@@ -49,53 +49,33 @@
             </div>
 
             <div class="field-row field-row--code-name">
-              <atlas-text-input controlName="code" [label]="t('itsystem.field.code')" icon="tag" [ariaRequired]="true">
-                @if (form.controls.code.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-                @if (form.controls.code.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
-                }
-                @if (form.controls.code.errors?.['pattern']) {
-                  <mat-error>{{ t('itsystem.error.codePattern') }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="code" [label]="t('itsystem.field.code')" icon="tag" [ariaRequired]="true"
+                [errorMessages]="{
+                  required: t('common.validation.required'),
+                  maxlength: t('common.validation.maxlength', { max: 100 }),
+                  pattern: t('itsystem.error.codePattern')
+                }" />
 
-              <atlas-text-input controlName="name" [label]="t('itsystem.field.name')" [ariaRequired]="true">
-                @if (form.controls.name.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-                @if (form.controls.name.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="name" [label]="t('itsystem.field.name')" [ariaRequired]="true"
+                [errorMessages]="{
+                  required: t('common.validation.required'),
+                  maxlength: t('common.validation.maxlength', { max: 300 })
+                }" />
             </div>
 
             <atlas-text-input class="field-half" controlName="externalId" [label]="t('itsystem.field.externalId')"
-                             icon="link" [hint]="t('itsystem.field.externalIdHint')">
-              @if (form.controls.externalId.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
-              }
-            </atlas-text-input>
+              icon="link" [hint]="t('itsystem.field.externalIdHint')"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 50 }) }" />
 
-            <atlas-textarea class="field-full" controlName="description" [label]="t('itsystem.field.description')" [rows]="3">
-              @if (form.controls.description.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
-              }
-            </atlas-textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('itsystem.field.description')" [rows]="3"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 4000 }) }" />
 
             <div class="field-row field-row--equal">
-              <atlas-text-input controlName="documentationUrl" [label]="t('itsystem.field.documentationUrl')" icon="open_in_new">
-                @if (form.controls.documentationUrl.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="documentationUrl" [label]="t('itsystem.field.documentationUrl')" icon="open_in_new"
+                [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 2000 }) }" />
 
-              <atlas-text-input controlName="repositoryUrl" [label]="t('itsystem.field.repositoryUrl')" icon="code">
-                @if (form.controls.repositoryUrl.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="repositoryUrl" [label]="t('itsystem.field.repositoryUrl')" icon="code"
+                [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 2000 }) }" />
             </div>
           </div>
         </mat-card>
@@ -107,39 +87,24 @@
           <div class="card-body">
             <div class="field-grid-3">
               <atlas-select-dictionary controlName="statusId" [label]="t('itsystem.field.status')"
-                dictionaryCode="SYSTEM_STATUS" [ariaRequired]="true">
-                @if (form.controls.statusId.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-              </atlas-select-dictionary>
+                dictionaryCode="SYSTEM_STATUS" [ariaRequired]="true"
+                [errorMessages]="{ required: t('common.validation.required') }" />
 
               <atlas-select-dictionary controlName="lifecycleStageId" [label]="t('itsystem.field.lifecycleStage')"
-                dictionaryCode="LIFECYCLE_STAGE" [ariaRequired]="true">
-                @if (form.controls.lifecycleStageId.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-              </atlas-select-dictionary>
+                dictionaryCode="LIFECYCLE_STAGE" [ariaRequired]="true"
+                [errorMessages]="{ required: t('common.validation.required') }" />
 
               <atlas-select-dictionary controlName="businessCriticalityId" [label]="t('itsystem.field.businessCriticality')"
-                dictionaryCode="BUSINESS_CRITICALITY" [ariaRequired]="true">
-                @if (form.controls.businessCriticalityId.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-              </atlas-select-dictionary>
+                dictionaryCode="BUSINESS_CRITICALITY" [ariaRequired]="true"
+                [errorMessages]="{ required: t('common.validation.required') }" />
 
               <atlas-select-dictionary controlName="dataClassificationId" [label]="t('itsystem.field.dataClassification')"
-                dictionaryCode="DATA_CLASSIFICATION" [ariaRequired]="true">
-                @if (form.controls.dataClassificationId.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-              </atlas-select-dictionary>
+                dictionaryCode="DATA_CLASSIFICATION" [ariaRequired]="true"
+                [errorMessages]="{ required: t('common.validation.required') }" />
 
               <atlas-select-dictionary controlName="systemTypeId" [label]="t('itsystem.field.systemType')"
-                dictionaryCode="SYSTEM_TYPE" [ariaRequired]="true">
-                @if (form.controls.systemTypeId.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-              </atlas-select-dictionary>
+                dictionaryCode="SYSTEM_TYPE" [ariaRequired]="true"
+                [errorMessages]="{ required: t('common.validation.required') }" />
 
               <atlas-select-dictionary controlName="scopeId" [label]="t('itsystem.field.scope')"
                 dictionaryCode="SYSTEM_SCOPE" nullOptionLabel="–" />

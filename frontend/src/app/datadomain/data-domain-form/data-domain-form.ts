@@ -11,8 +11,6 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
@@ -35,8 +33,7 @@ import { AuthService } from '@core/auth/auth.service';
 import { HistoryDialog, HistoryDialogData } from '@shared/history/history.dialog';
 import { HistoryService } from '@shared/history/history.service';
 import { RevisionEntryDto, RevisionType } from '@shared/history/history.model';
-import { DictionaryEntryDto } from '../../dictionary/model/dictionary.model';
-import { DictionaryEntryService } from '../../dictionary/service/dictionary-entry.service';
+import { AtlasSelectDatadomainGroup } from '@shared/select/select-datadomain-group';
 import { DataDomainService } from '../service/data-domain.service';
 import { DataDomainAttachmentDto, DataDomainDto } from '../model/data-domain.model';
 import {
@@ -59,13 +56,12 @@ import {
     AppSimpleTable,
     AppSimpleTableColumn,
     AppToolbar,
+    AtlasSelectDatadomainGroup,
     SlicePipe,
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
-    MatFormFieldModule,
-    MatSelectModule,
     MatIconModule,
     MatTooltipModule,
     MatProgressBarModule,
@@ -78,7 +74,6 @@ import {
 })
 export class DataDomainForm implements OnInit {
   private readonly service = inject(DataDomainService);
-  private readonly entryService = inject(DictionaryEntryService);
   private readonly historyService = inject(HistoryService);
   private readonly matDialog = inject(MatDialog);
   private readonly router = inject(Router);
@@ -104,7 +99,6 @@ export class DataDomainForm implements OnInit {
   protected readonly domain = signal<DataDomainDto | null>(null);
   protected readonly attachments = signal<DataDomainAttachmentDto[]>([]);
 
-  protected readonly groups = signal<DictionaryEntryDto[]>([]);
   protected readonly tags = signal<string[]>([]);
 
   protected readonly form = this.fb.group({
@@ -119,7 +113,6 @@ export class DataDomainForm implements OnInit {
 
 
   ngOnInit(): void {
-    this.entryService.findByTypeCode('DATA_DOMAIN_GROUP').subscribe(e => this.groups.set(e));
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.domainId.set(id);

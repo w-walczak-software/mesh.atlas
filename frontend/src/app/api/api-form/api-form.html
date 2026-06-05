@@ -25,46 +25,32 @@
           <atlas-card-header icon="api" iconColor="primary" [title]="t('api.section.basic')" />
 
           <div class="card-body">
-            <atlas-text-input class="field-full" controlName="name" [label]="t('api.field.name')" [ariaRequired]="true">
-              @if (form.controls.name.errors?.['required']) {
-                <mat-error>{{ t('common.validation.required') }}</mat-error>
-              }
-              @if (form.controls.name.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 300 }) }}</mat-error>
-              }
-            </atlas-text-input>
+            <atlas-text-input class="field-full" controlName="name" [label]="t('api.field.name')" [ariaRequired]="true"
+              [errorMessages]="{
+                required: t('common.validation.required'),
+                maxlength: t('common.validation.maxlength', { max: 300 })
+              }" />
 
             <div class="field-row field-row--equal">
-              <atlas-text-input controlName="externalId" [label]="t('api.field.externalId')" icon="link" [hint]="t('api.field.externalIdHint')">
-                @if (form.controls.externalId.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 50 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="externalId" [label]="t('api.field.externalId')" icon="link" [hint]="t('api.field.externalIdHint')"
+                [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 50 }) }" />
 
-              <atlas-text-input controlName="code" [label]="t('api.field.code')" icon="tag">
+              <atlas-text-input controlName="code" [label]="t('api.field.code')" icon="tag"
+                [errorMessages]="{
+                  maxlength: t('common.validation.maxlength', { max: 100 }),
+                  pattern: t('api.error.codePattern')
+                }">
                 @if (!isEditMode()) {
                   <mat-hint>{{ t('api.field.codeHint') }}</mat-hint>
-                }
-                @if (form.controls.code.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
-                }
-                @if (form.controls.code.errors?.['pattern']) {
-                  <mat-error>{{ t('api.error.codePattern') }}</mat-error>
                 }
               </atlas-text-input>
             </div>
 
-            <atlas-textarea class="field-full" controlName="description" [label]="t('api.field.description')" [rows]="3">
-              @if (form.controls.description.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 4000 }) }}</mat-error>
-              }
-            </atlas-textarea>
+            <atlas-textarea class="field-full" controlName="description" [label]="t('api.field.description')" [rows]="3"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 4000 }) }" />
 
-            <atlas-text-input class="field-half" controlName="apiVersion" [label]="t('api.field.apiVersion')" placeholder="e.g. 1.0.0, v2" icon="commit">
-              @if (form.controls.apiVersion.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
-              }
-            </atlas-text-input>
+            <atlas-text-input class="field-half" controlName="apiVersion" [label]="t('api.field.apiVersion')" placeholder="e.g. 1.0.0, v2" icon="commit"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 100 }) }" />
           </div>
         </mat-card>
 
@@ -74,11 +60,8 @@
 
           <div class="card-body">
             <div class="field-row field-row--equal">
-              <atlas-select-status controlName="statusId" [label]="t('api.field.status')" [ariaRequired]="true">
-                @if (form.controls.statusId.errors?.['required']) {
-                  <mat-error>{{ t('common.validation.required') }}</mat-error>
-                }
-              </atlas-select-status>
+              <atlas-select-status controlName="statusId" [label]="t('api.field.status')" [ariaRequired]="true"
+                [errorMessages]="{ required: t('common.validation.required') }" />
 
               <atlas-select-type controlName="typeId" [label]="t('api.field.type')" />
             </div>
@@ -199,27 +182,18 @@
               <atlas-select-contract-type controlName="contractTypeId" [label]="t('api.field.contractType')" />
 
               <atlas-text-input controlName="contractVersion" [label]="t('api.field.contractVersion')"
-                               icon="tag" iconPosition="prefix"
-                               [placeholder]="t('api.field.contractVersionPlaceholder')"
-                               [hint]="t('api.field.contractVersionHint')">
-                @if (form.controls.contractVersion.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 100 }) }}</mat-error>
-                }
-              </atlas-text-input>
+                icon="tag" iconPosition="prefix"
+                [placeholder]="t('api.field.contractVersionPlaceholder')"
+                [hint]="t('api.field.contractVersionHint')"
+                [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 100 }) }" />
             </div>
 
             <div class="field-row field-row--equal">
-              <atlas-text-input controlName="contractUrl" [label]="t('api.field.contractUrl')" icon="open_in_new">
-                @if (form.controls.contractUrl.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="contractUrl" [label]="t('api.field.contractUrl')" icon="open_in_new"
+                [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 2000 }) }" />
 
-              <atlas-text-input controlName="documentationUrl" [label]="t('api.field.documentationUrl')" icon="menu_book">
-                @if (form.controls.documentationUrl.errors?.['maxlength']) {
-                  <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
-                }
-              </atlas-text-input>
+              <atlas-text-input controlName="documentationUrl" [label]="t('api.field.documentationUrl')" icon="menu_book"
+                [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 2000 }) }" />
             </div>
           </div>
 
@@ -372,24 +346,18 @@
             <div class="field-grid-3">
               <atlas-select-dictionary controlName="slaTierId" [label]="t('api.field.slaTier')" dictionaryCode="SLA_TIER" nullOptionLabel="–" />
 
-              <atlas-number-input controlName="slaResponseTimeMs" [label]="t('api.field.slaResponseTimeMs')" [min]="0" suffix="ms">
-                @if (form.controls.slaResponseTimeMs.errors?.['min']) {
-                  <mat-error>{{ t('common.validation.min', { min: 0 }) }}</mat-error>
-                }
-              </atlas-number-input>
+              <atlas-number-input controlName="slaResponseTimeMs" [label]="t('api.field.slaResponseTimeMs')" [min]="0" suffix="ms"
+                [errorMessages]="{ min: t('common.validation.min', { min: 0 }) }" />
 
-              <atlas-number-input controlName="slaUptimePct" [label]="t('api.field.slaUptimePct')" [min]="0" [max]="100" [step]="0.01" suffix="%">
-                @if (form.controls.slaUptimePct.errors?.['min'] || form.controls.slaUptimePct.errors?.['max']) {
-                  <mat-error>{{ t('api.error.uptimePctRange') }}</mat-error>
-                }
-              </atlas-number-input>
+              <atlas-number-input controlName="slaUptimePct" [label]="t('api.field.slaUptimePct')" [min]="0" [max]="100" [step]="0.01" suffix="%"
+                [errorMessages]="{
+                  min: t('api.error.uptimePctRange'),
+                  max: t('api.error.uptimePctRange')
+                }" />
             </div>
 
-            <atlas-textarea class="field-full" controlName="slaDescription" [label]="t('api.field.slaDescription')" [rows]="2">
-              @if (form.controls.slaDescription.errors?.['maxlength']) {
-                <mat-error>{{ t('common.validation.maxlength', { max: 2000 }) }}</mat-error>
-              }
-            </atlas-textarea>
+            <atlas-textarea class="field-full" controlName="slaDescription" [label]="t('api.field.slaDescription')" [rows]="2"
+              [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 2000 }) }" />
           </div>
         </mat-card>
 

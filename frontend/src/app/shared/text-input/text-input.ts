@@ -1,4 +1,5 @@
-import { ChangeDetectionStrategy, Component, inject, input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
   ControlContainer,
@@ -20,13 +21,14 @@ import { MatInputModule } from '@angular/material/input';
     useFactory: () => inject(ControlContainer, { optional: true, skipSelf: true }),
   }],
 })
-export class AtlasTextInput {
+export class AtlasTextInput implements OnInit {
+  private readonly container = inject(ControlContainer, { optional: true, skipSelf: true });
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly _tick = signal(0);
+
   readonly label = input.required<string>();
-  /** For reactive forms inside a formGroup — pass the control name as a string. */
   readonly controlName = input<string>();
-  /** For standalone reactive controls — pass the FormControl instance directly. */
   readonly control = input<AbstractControl | null>();
-  /** Material icon name. */
   readonly icon = input<string>();
   readonly iconPosition = input<'prefix' | 'suffix'>('suffix');
   readonly type = input('text');
@@ -38,4 +40,29 @@ export class AtlasTextInput {
   readonly subscriptSizing = input<'fixed' | 'dynamic'>('fixed');
   readonly min = input<string>();
   readonly max = input<string>();
+  readonly errorMessages = input<Record<string, string>>({});
+
+  ngOnInit(): void {
+    const name = this.controlName();
+    const ctrl = name ? this.container?.control?.get(name) : this.control();
+    ctrl?.statusChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this._tick.update(n => n + 1));
+  }
+
+  protected readonly errorsToShow = computed((): string[] => {
+    this._tick();
+    const msgs = this.errorMessages();
+    const entries = Object.entries(msgs);
+    if (!entries.length) return [];
+    const name = this.controlName();
+    const ctrl = name ? this.container?.control?.get(name) : this.control();
+    const errors = ctrl?.errors;
+    if (!errors) return [];
+    const seen = new Set<string>();
+    return entries.reduce<string[]>((acc, [key, msg]) => {
+      if (key in errors && !seen.has(msg)) { seen.add(msg); acc.push(msg); }
+      return acc;
+    }, []);
+  });
 }
