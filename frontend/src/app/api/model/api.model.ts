@@ -25,6 +25,38 @@ export interface TransportLayerRef {
   name: string;
   icon: string | null;
   color: string | null;
+  metadata: Record<string, unknown> | null;
+}
+
+export interface ApiMessagingEndpointDto {
+  id: string;
+  name: string;
+  endpointType: DictionaryEntryRef | null;
+  direction: DictionaryEntryRef | null;
+  messageFormat: DictionaryEntryRef | null;
+  description: string | null;
+  displayOrder: number;
+  active: boolean;
+  createdAt: string;
+  createdBy: string;
+}
+
+export interface ApiMessagingEndpointCreateRequest {
+  name: string;
+  endpointTypeId: string | null;
+  directionId: string | null;
+  messageFormatId: string | null;
+  description: string | null;
+  displayOrder: number;
+}
+
+export interface ApiMessagingEndpointUpdateRequest {
+  name: string;
+  endpointTypeId: string | null;
+  directionId: string | null;
+  messageFormatId: string | null;
+  description: string | null;
+  displayOrder: number;
 }
 
 export interface DataDomainRef {
@@ -148,6 +180,7 @@ export interface ApiCreateRequest {
   environmentIds: string[] | null;
   externalId: string | null;
   owners: ApiOwnerCreateRequest[] | null;
+  messagingEndpoints: ApiMessagingEndpointCreateRequest[] | null;
 }
 
 export interface ApiUpdateRequest {

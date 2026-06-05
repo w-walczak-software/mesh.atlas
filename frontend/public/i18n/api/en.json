@@ -209,6 +209,26 @@
     "consumerConflict": "The producer system cannot also be listed as a consumer of this API.",
     "governanceOwnerRequired": "Governance policy requires at least one owner to be assigned before registering a new API."
   },
+  "messagingEndpoint": {
+    "defaultSectionTitle": "Topics / Queues",
+    "sectionHint": "Register Kafka topics or JMS/MQ queues handled by this API",
+    "add": "Add topic / queue",
+    "edit": "Edit topic / queue",
+    "editAction": "Edit",
+    "delete": "Remove topic / queue",
+    "confirmDelete": "Are you sure you want to remove this topic / queue?",
+    "noEndpoints": "No topics or queues registered.",
+    "name": "Topic / Queue name",
+    "endpointType": "Type",
+    "direction": "Direction",
+    "messageFormat": "Message Format",
+    "description": "Description",
+    "toast": {
+      "added": "Topic / queue added.",
+      "updated": "Topic / queue updated.",
+      "deleted": "Topic / queue removed."
+    }
+  },
   "confirm": {
     "deactivate": "Are you sure you want to deactivate this API? It will no longer be visible in the active registry.",
     "deleteOwner": "Are you sure you want to remove this owner?",

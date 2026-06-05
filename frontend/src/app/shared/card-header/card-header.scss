@@ -41,6 +41,10 @@
   &--sla,
   &--environments { background: var(--mat-sys-tertiary-container); color: var(--mat-sys-on-tertiary-container); }
   &--contract  { background: var(--mat-sys-secondary-container); color: var(--mat-sys-on-secondary-container); }
+  &--messaging {
+    background: color-mix(in srgb, #0284c7 14%, var(--mat-sys-surface));
+    color: #0369a1;
+  }
 }
 
 .ch-text {

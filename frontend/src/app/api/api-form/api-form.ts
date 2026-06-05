@@ -49,11 +49,12 @@ import { TransportLayerService } from '../../transportlayer/service/transport-la
 import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
 import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
-import { ApiAttachmentDto, ApiDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
+import { ApiAttachmentDto, ApiDto, ApiMessagingEndpointDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
 import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
 import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiOwnerDialog, ApiOwnerDialogData } from './api-owner.dialog';
 import { ApiVerifyDialog, ApiVerifyDialogData } from './api-verify.dialog';
+import { ApiMessagingEndpointDialog, ApiMessagingEndpointDialogData } from './api-messaging-endpoint.dialog';
 import { GovernanceService } from '@shared/governance/governance.service';
 import { ApiUploadDialog, ApiUploadDialogData, ApiUploadDialogResult } from '../api-upload-dialog/api-upload-dialog';
 import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachmentDialogResult } from '../api-edit-attachment-dialog/api-edit-attachment-dialog';
@@ -102,6 +103,7 @@ export class ApiForm implements OnInit {
   private readonly itSystemService = inject(ItSystemService);
   private readonly historyService = inject(HistoryService);
   private readonly entryService = inject(DictionaryEntryService);
+  private readonly transportLayerService = inject(TransportLayerService);
 
   private readonly governanceService = inject(GovernanceService);
   private readonly router = inject(Router);
@@ -135,6 +137,31 @@ export class ApiForm implements OnInit {
   protected readonly ownerRoles = signal<DictionaryEntryDto[]>([]);
   protected readonly contractTypes = signal<DictionaryEntryDto[]>([]);
   protected readonly selectedGroupId = signal<string | null>(null);
+  protected readonly messagingEndpointTypes = signal<DictionaryEntryDto[]>([]);
+  protected readonly messagingDirections = signal<DictionaryEntryDto[]>([]);
+  protected readonly messageFormats = signal<DictionaryEntryDto[]>([]);
+  protected readonly messagingEndpoints = signal<ApiMessagingEndpointDto[]>([]);
+  private readonly allTransportLayers = signal<TransportLayerSummaryDto[]>([]);
+
+  protected readonly selectedTransportLayer = computed(() => {
+    const id = this.transportLayerId$();
+    if (!id) return null;
+    return this.allTransportLayers().find(tl => tl.id === id) ?? null;
+  });
+
+  protected readonly supportsEndpointRegistration = computed(() => {
+    const tl = this.selectedTransportLayer();
+    return tl?.metadata?.['supportsEndpointRegistration'] === true;
+  });
+
+  protected readonly endpointSectionLabel = computed(() => {
+    const tl = this.selectedTransportLayer();
+    if (!tl?.metadata) return this.t.translate<string>('api.messagingEndpoint.defaultSectionTitle');
+    const lang = this.lang();
+    const labelEn = (tl.metadata['endpointLabel'] as string) ?? '';
+    const labelPl = (tl.metadata['endpointLabelPl'] as string) ?? labelEn;
+    return lang === 'pl' ? labelPl : labelEn;
+  });
 
   protected readonly tags = signal<string[]>([]);
 
@@ -174,6 +201,11 @@ export class ApiForm implements OnInit {
     { initialValue: null },
   );
 
+  private readonly transportLayerId$ = toSignal(
+    this.form.controls.transportLayerId.valueChanges,
+    { initialValue: null },
+  );
+
   protected readonly excludeFromConsumer = computed(() => {
     const id = this.producerSystemId$();
     return id ? [id] : [];
@@ -194,6 +226,7 @@ export class ApiForm implements OnInit {
       this.loadApi(id);
       this.loadOwners(id);
       this.loadAttachments(id);
+      this.loadMessagingEndpoints(id);
     } else {
       this.form.controls.code.enable();
     }
@@ -448,7 +481,20 @@ export class ApiForm implements OnInit {
         validFrom: o.validFrom,
         validTo: o.validTo,
       }));
-      this.service.create({ ...payload, code: v.code || null, owners: owners.length ? owners : null }).subscribe({
+      const messagingEndpointRequests = this.messagingEndpoints().map((e, idx) => ({
+        name: e.name,
+        endpointTypeId: e.endpointType?.id ?? null,
+        directionId: e.direction?.id ?? null,
+        messageFormatId: e.messageFormat?.id ?? null,
+        description: e.description,
+        displayOrder: idx,
+      }));
+      this.service.create({
+        ...payload,
+        code: v.code || null,
+        owners: owners.length ? owners : null,
+        messagingEndpoints: messagingEndpointRequests.length ? messagingEndpointRequests : null,
+      }).subscribe({
         next: (created) => {
           this.saving.set(false);
           this.toast.success(this.t.translate('api.toast.created'));
@@ -619,10 +665,92 @@ export class ApiForm implements OnInit {
     this.service.findAttachments(id).subscribe(list => this.attachments.set(list));
   }
 
+  private loadMessagingEndpoints(id: string): void {
+    this.service.findMessagingEndpoints(id).subscribe(list => this.messagingEndpoints.set(list));
+  }
+
+  protected openAddMessagingEndpointDialog(): void {
+    this.matDialog
+      .open(ApiMessagingEndpointDialog, {
+        width: '560px',
+        maxWidth: '95vw',
+        disableClose: true,
+        data: {
+          apiId: this.apiId(),
+          endpointTypes: this.messagingEndpointTypes(),
+          directions: this.messagingDirections(),
+          messageFormats: this.messageFormats(),
+          endpoint: null,
+          displayOrder: this.messagingEndpoints().length,
+        } satisfies ApiMessagingEndpointDialogData,
+      })
+      .afterClosed()
+      .subscribe((result: ApiMessagingEndpointDto | undefined) => {
+        if (!result) return;
+        if (this.isEditMode()) {
+          this.toast.success(this.t.translate('api.messagingEndpoint.toast.added'));
+          this.loadMessagingEndpoints(this.apiId()!);
+        } else {
+          this.messagingEndpoints.update(list => [...list, result]);
+        }
+      });
+  }
+
+  protected openEditMessagingEndpointDialog(endpoint: ApiMessagingEndpointDto): void {
+    this.matDialog
+      .open(ApiMessagingEndpointDialog, {
+        width: '560px',
+        maxWidth: '95vw',
+        disableClose: true,
+        data: {
+          apiId: this.apiId(),
+          endpointTypes: this.messagingEndpointTypes(),
+          directions: this.messagingDirections(),
+          messageFormats: this.messageFormats(),
+          endpoint,
+          displayOrder: endpoint.displayOrder,
+        } satisfies ApiMessagingEndpointDialogData,
+      })
+      .afterClosed()
+      .subscribe((result: ApiMessagingEndpointDto | undefined) => {
+        if (!result) return;
+        if (this.isEditMode()) {
+          this.toast.success(this.t.translate('api.messagingEndpoint.toast.updated'));
+          this.loadMessagingEndpoints(this.apiId()!);
+        } else {
+          this.messagingEndpoints.update(list => list.map(e => e.id === result.id ? result : e));
+        }
+      });
+  }
+
+  protected confirmDeleteMessagingEndpoint(endpoint: ApiMessagingEndpointDto): void {
+    this.dialogs.question(
+      this.t.translate('api.messagingEndpoint.delete'),
+      this.t.translate('api.messagingEndpoint.confirmDelete'),
+      () => {
+        if (!this.isEditMode()) {
+          this.messagingEndpoints.update(list => list.filter(e => e.id !== endpoint.id));
+          return;
+        }
+        this.service.deleteMessagingEndpoint(this.apiId()!, endpoint.id).subscribe({
+          next: () => {
+            this.toast.success(this.t.translate('api.messagingEndpoint.toast.deleted'));
+            this.loadMessagingEndpoints(this.apiId()!);
+          },
+        });
+      },
+    );
+  }
+
   private loadDictionaries(): void {
     this.entryService.findByTypeCode('ATTACHMENT_STATUS').subscribe(e => this.attachmentStatuses.set(e));
     this.entryService.findByTypeCode('API_OWNER_ROLE').subscribe(e => this.ownerRoles.set(e));
     this.entryService.findByTypeCode('CONTRACT_TYPE').subscribe(e => this.contractTypes.set(e));
+    this.entryService.findByTypeCode('MESSAGING_ENDPOINT_TYPE').subscribe(e => this.messagingEndpointTypes.set(e));
+    this.entryService.findByTypeCode('MESSAGING_DIRECTION').subscribe(e => this.messagingDirections.set(e));
+    this.entryService.findByTypeCode('MESSAGE_FORMAT').subscribe(e => this.messageFormats.set(e));
+    this.transportLayerService.findAll({ active: true, size: 200, sort: 'name' })
+      .subscribe(p => this.allTransportLayers.set(p.content));
   }
 
   private handleError(err: HttpErrorResponse): void {

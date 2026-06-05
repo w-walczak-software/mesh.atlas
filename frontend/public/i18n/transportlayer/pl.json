@@ -19,7 +19,12 @@
     "icon": "Ikona",
     "color": "Kolor",
     "itSystem": "System IT",
-    "active": "Aktywna"
+    "active": "Aktywna",
+    "supportsEndpointRegistration": "Rejestruj tematy / kolejki dla API korzystających z tej warstwy",
+    "endpointLabel": "Etykieta (EN)",
+    "endpointLabelHint": "Nazwa sekcji w formularzu API (angielski), np. Kafka Topic",
+    "endpointLabelPl": "Etykieta (PL)",
+    "endpointLabelPlHint": "Nazwa sekcji w formularzu API (polski), np. Temat Kafka"
   },
   "iconPicker": {
     "choose": "Wybierz ikonę",
@@ -34,7 +39,9 @@
   "section": {
     "basic": "Informacje podstawowe",
     "itSystem": "Przypisanie systemu IT",
-    "itSystemHint": "Opcjonalnie wskaż system IT implementujący tę warstwę transportową"
+    "itSystemHint": "Opcjonalnie wskaż system IT implementujący tę warstwę transportową",
+    "messagingConfig": "Konfiguracja rejestracji tematów / kolejek",
+    "messagingConfigHint": "Określ czy API korzystające z tej warstwy transportowej mogą rejestrować tematy Kafka lub kolejki JMS/MQ"
   },
   "action": {
     "new": "Nowa warstwa transportowa",

@@ -85,6 +85,11 @@
     color: var(--mat-sys-on-primary-container);
   }
 
+  &--messaging {
+    background: color-mix(in srgb, #0284c7 14%, var(--mat-sys-surface));
+    color: #0369a1;
+  }
+
   &--security {
     background: color-mix(in srgb, var(--mat-sys-error-container) 60%, var(--mat-sys-surface));
     color: var(--mat-sys-on-error-container);
@@ -409,4 +414,56 @@
   font-size: 14px;
   color: var(--mat-sys-on-surface-variant);
   margin: 0 0 8px;
+}
+
+// ── Messaging endpoints ────────────────────────────────────────────────────────
+
+.endpoint-name-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 0;
+
+  .endpoint-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: #0284c7;
+    flex-shrink: 0;
+  }
+}
+
+.endpoint-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 10px;
+  background: color-mix(in srgb, #0284c7 12%, transparent);
+  color: #0369a1;
+  white-space: nowrap;
+}
+
+.direction-badge {
+  font-size: 11px;
+  font-weight: 500;
+  padding: 3px 9px;
+  border-radius: 10px;
+  white-space: nowrap;
+  background: var(--mat-sys-surface-container-high);
+  color: var(--mat-sys-on-surface-variant);
+
+  &--producer {
+    background: color-mix(in srgb, #10b981 14%, transparent);
+    color: #047857;
+  }
+
+  &--consumer {
+    background: color-mix(in srgb, #f59e0b 14%, transparent);
+    color: #b45309;
+  }
+
+  &--producer_consumer {
+    background: color-mix(in srgb, #6366f1 14%, transparent);
+    color: #4338ca;
+  }
 }

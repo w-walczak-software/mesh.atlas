@@ -10,6 +10,9 @@ import {
   ApiGovernancePendingCountDto,
   ApiGraphResultDto,
   ApiGraphSearchCriteria,
+  ApiMessagingEndpointCreateRequest,
+  ApiMessagingEndpointDto,
+  ApiMessagingEndpointUpdateRequest,
   ApiOwnerCreateRequest,
   ApiOwnerDto,
   ApiOwnerUpdateRequest,
@@ -144,5 +147,21 @@ export class ApiService {
 
   reject(apiId: string, request: ApiVerifyRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/governance/${apiId}/reject`, request);
+  }
+
+  findMessagingEndpoints(apiId: string): Observable<ApiMessagingEndpointDto[]> {
+    return this.http.get<ApiMessagingEndpointDto[]>(`${this.baseUrl}/${apiId}/messaging-endpoints`);
+  }
+
+  createMessagingEndpoint(apiId: string, request: ApiMessagingEndpointCreateRequest): Observable<ApiMessagingEndpointDto> {
+    return this.http.post<ApiMessagingEndpointDto>(`${this.baseUrl}/${apiId}/messaging-endpoints`, request);
+  }
+
+  updateMessagingEndpoint(apiId: string, endpointId: string, request: ApiMessagingEndpointUpdateRequest): Observable<ApiMessagingEndpointDto> {
+    return this.http.put<ApiMessagingEndpointDto>(`${this.baseUrl}/${apiId}/messaging-endpoints/${endpointId}`, request);
+  }
+
+  deleteMessagingEndpoint(apiId: string, endpointId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${apiId}/messaging-endpoints/${endpointId}`);
   }
 }

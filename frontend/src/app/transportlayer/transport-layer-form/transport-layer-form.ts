@@ -10,6 +10,7 @@ import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { ItSystemSelectComponent } from '@shared/it-system-select/it-system-select';
@@ -46,6 +47,7 @@ import {
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
+    MatCheckboxModule,
     MatFormFieldModule,
     MatInputModule,
     MatIconModule,
@@ -91,6 +93,9 @@ export class TransportLayerForm implements OnInit {
     name: ['', [Validators.required, Validators.maxLength(300)]],
     description: ['', Validators.maxLength(4000)],
     itSystemId: [null as string | null],
+    supportsEndpointRegistration: [false],
+    endpointLabel: ['', Validators.maxLength(100)],
+    endpointLabelPl: ['', Validators.maxLength(100)],
   });
 
   protected onItSystemChange(sys: ItSystemSummaryDto | ItSystemSummaryDto[] | null): void {
@@ -156,12 +161,14 @@ export class TransportLayerForm implements OnInit {
     }
     this.saving.set(true);
     const v = this.form.getRawValue();
+    const metadata = this.buildMetadata(v);
     if (this.isEditMode()) {
       this.service.update(this.layerId()!, {
         name: v.name!,
         description: v.description || null,
         icon: this.icon() || null,
         color: this.color() || null,
+        metadata,
         itSystemId: v.itSystemId || null,
       }).subscribe({
         next: () => {
@@ -181,6 +188,7 @@ export class TransportLayerForm implements OnInit {
         description: v.description || null,
         icon: this.icon() || null,
         color: this.color() || null,
+        metadata,
         itSystemId: v.itSystemId || null,
       }).subscribe({
         next: (created) => {
@@ -196,6 +204,15 @@ export class TransportLayerForm implements OnInit {
     }
   }
 
+  private buildMetadata(v: ReturnType<typeof this.form.getRawValue>): Record<string, unknown> | null {
+    if (!v.supportsEndpointRegistration) return null;
+    return {
+      supportsEndpointRegistration: true,
+      endpointLabel: v.endpointLabel || null,
+      endpointLabelPl: v.endpointLabelPl || null,
+    };
+  }
+
   protected cancel(): void {
     this.router.navigate(['/transport-layers']);
   }
@@ -207,11 +224,15 @@ export class TransportLayerForm implements OnInit {
         this.layer.set(layer);
         this.icon.set(layer.icon ?? null);
         this.color.set(layer.color ?? null);
+        const meta = layer.metadata ?? {};
         this.form.patchValue({
           code: layer.code,
           name: layer.name,
           description: layer.description ?? '',
           itSystemId: layer.itSystem?.id ?? null,
+          supportsEndpointRegistration: meta['supportsEndpointRegistration'] === true,
+          endpointLabel: (meta['endpointLabel'] as string) ?? '',
+          endpointLabelPl: (meta['endpointLabelPl'] as string) ?? '',
         });
         if (this.readonly()) {
           this.form.disable();

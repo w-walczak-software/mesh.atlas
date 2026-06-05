@@ -30,4 +30,5 @@ public interface TransportLayerMapper {
     @Mapping(target = "active", ignore = true)
     @Mapping(target = "itSystem", ignore = true)
     void updateEntity(TransportLayerUpdateRequest request, @MappingTarget TransportLayerEntity entity);
+
 }

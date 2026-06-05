@@ -5,12 +5,19 @@ export interface ItSystemRef {
   icon: string | null;
 }
 
+export interface TransportLayerMessagingConfig {
+  supportsEndpointRegistration: boolean;
+  endpointLabel: string;
+  endpointLabelPl: string;
+}
+
 export interface TransportLayerSummaryDto {
   id: string;
   code: string;
   name: string;
   icon: string | null;
   color: string | null;
+  metadata: Record<string, unknown> | null;
   itSystem: ItSystemRef | null;
   active: boolean;
 }
@@ -22,6 +29,7 @@ export interface TransportLayerDto {
   description: string | null;
   icon: string | null;
   color: string | null;
+  metadata: Record<string, unknown> | null;
   itSystem: ItSystemRef | null;
   active: boolean;
   createdAt: string;
@@ -36,6 +44,7 @@ export interface TransportLayerCreateRequest {
   description: string | null;
   icon: string | null;
   color: string | null;
+  metadata: Record<string, unknown> | null;
   itSystemId: string | null;
 }
 
@@ -44,6 +53,7 @@ export interface TransportLayerUpdateRequest {
   description: string | null;
   icon: string | null;
   color: string | null;
+  metadata: Record<string, unknown> | null;
   itSystemId: string | null;
 }
 

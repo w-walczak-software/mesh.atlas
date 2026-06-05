@@ -93,6 +93,94 @@
           </div>
         </mat-card>
 
+        <!-- 3b. Messaging Endpoints (conditional: shown when transport layer supports endpoint registration) -->
+        @if (supportsEndpointRegistration()) {
+          <mat-card appearance="outlined" class="form-card">
+            <atlas-card-header icon="topic" iconColor="messaging"
+              [title]="endpointSectionLabel() || t('api.messagingEndpoint.defaultSectionTitle')"
+              [subtitle]="t('api.messagingEndpoint.sectionHint')">
+              @if (isEditMode() ? canWrite() : true) {
+                <button actions mat-stroked-button type="button" (click)="openAddMessagingEndpointDialog()" class="card-head-btn">
+                  <mat-icon>add</mat-icon>
+                  {{ t('api.messagingEndpoint.add') }}
+                </button>
+              }
+            </atlas-card-header>
+
+            @if (messagingEndpoints().length) {
+              <app-simple-table [dataSource]="messagingEndpoints()">
+                <app-column name="name" [header]="t('api.messagingEndpoint.name')">
+                  <ng-template #cell let-row>
+                    <div class="endpoint-name-cell">
+                      <mat-icon class="endpoint-icon" aria-hidden="true">topic</mat-icon>
+                      <span>{{ row.name }}</span>
+                    </div>
+                  </ng-template>
+                </app-column>
+                <app-column name="endpointType" [header]="t('api.messagingEndpoint.endpointType')">
+                  <ng-template #cell let-row>
+                    @if (row.endpointType?.name) {
+                      <span class="endpoint-badge">{{ row.endpointType.name }}</span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </ng-template>
+                </app-column>
+                <app-column name="direction" [header]="t('api.messagingEndpoint.direction')">
+                  <ng-template #cell let-row>
+                    @if (row.direction?.name) {
+                      <span class="direction-badge direction-badge--{{ row.direction.code | lowercase }}">{{ row.direction.name }}</span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </ng-template>
+                </app-column>
+                <app-column name="messageFormat" [header]="t('api.messagingEndpoint.messageFormat')">
+                  <ng-template #cell let-row>
+                    @if (row.messageFormat?.name) {
+                      <span>{{ row.messageFormat.name }}</span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </ng-template>
+                </app-column>
+                <app-column name="description" [header]="t('api.messagingEndpoint.description')">
+                  <ng-template #cell let-row>
+                    @if (row.description) {
+                      <span class="description-text" [matTooltip]="row.description" matTooltipShowDelay="300">{{ row.description }}</span>
+                    } @else {
+                      <span class="no-description">–</span>
+                    }
+                  </ng-template>
+                </app-column>
+                <app-column name="actions" header="">
+                  <ng-template #cell let-row>
+                    <div class="actions-cell">
+                      <button mat-icon-button [matTooltip]="t('api.messagingEndpoint.editAction')" (click)="openEditMessagingEndpointDialog(row)">
+                        <mat-icon>edit</mat-icon>
+                      </button>
+                      <button mat-icon-button color="warn" [matTooltip]="t('api.messagingEndpoint.delete')" (click)="confirmDeleteMessagingEndpoint(row)">
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+                  </ng-template>
+                </app-column>
+              </app-simple-table>
+            } @else {
+              <div class="owners-empty">
+                <mat-icon class="owners-empty-icon" aria-hidden="true">topic</mat-icon>
+                <p class="owners-empty-text">{{ t('api.messagingEndpoint.noEndpoints') }}</p>
+                @if (isEditMode() ? canWrite() : true) {
+                  <button mat-stroked-button type="button" (click)="openAddMessagingEndpointDialog()">
+                    <mat-icon>add</mat-icon>
+                    {{ t('api.messagingEndpoint.add') }}
+                  </button>
+                }
+              </div>
+            }
+          </mat-card>
+        }
+
         <!-- 4. Owners -->
         <mat-card appearance="outlined" class="form-card">
           <atlas-card-header icon="group" iconColor="owners"

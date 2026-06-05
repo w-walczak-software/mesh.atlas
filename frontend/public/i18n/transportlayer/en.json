@@ -19,7 +19,12 @@
     "icon": "Icon",
     "color": "Color",
     "itSystem": "IT System",
-    "active": "Active"
+    "active": "Active",
+    "supportsEndpointRegistration": "Register topics / queues for APIs using this transport layer",
+    "endpointLabel": "Section label (EN)",
+    "endpointLabelHint": "Section title shown in the API form (English), e.g. Kafka Topic",
+    "endpointLabelPl": "Section label (PL)",
+    "endpointLabelPlHint": "Section title shown in the API form (Polish), e.g. Temat Kafka"
   },
   "iconPicker": {
     "choose": "Choose Icon",
@@ -34,7 +39,9 @@
   "section": {
     "basic": "Basic Information",
     "itSystem": "IT System Assignment",
-    "itSystemHint": "Optionally assign the IT system that implements this transport layer"
+    "itSystemHint": "Optionally assign the IT system that implements this transport layer",
+    "messagingConfig": "Messaging Endpoint Registration",
+    "messagingConfigHint": "Configure whether APIs using this transport layer can register Kafka topics or JMS/MQ queues"
   },
   "action": {
     "new": "New Transport Layer",

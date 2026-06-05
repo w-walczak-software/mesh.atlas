@@ -209,6 +209,26 @@
     "consumerConflict": "System producenta nie może jednocześnie figurować jako konsument API.",
     "governanceOwnerRequired": "Polityka governance wymaga wskazania co najmniej jednego właściciela przed rejestracją nowego API."
   },
+  "messagingEndpoint": {
+    "defaultSectionTitle": "Tematy / Kolejki",
+    "sectionHint": "Zarejestruj tematy Kafka lub kolejki JMS/MQ obsługiwane przez to API",
+    "add": "Dodaj temat / kolejkę",
+    "edit": "Edytuj temat / kolejkę",
+    "editAction": "Edytuj",
+    "delete": "Usuń temat / kolejkę",
+    "confirmDelete": "Czy na pewno chcesz usunąć ten temat / kolejkę?",
+    "noEndpoints": "Brak zarejestrowanych tematów / kolejek.",
+    "name": "Nazwa tematu / kolejki",
+    "endpointType": "Typ",
+    "direction": "Kierunek",
+    "messageFormat": "Format wiadomości",
+    "description": "Opis",
+    "toast": {
+      "added": "Temat / kolejka dodana.",
+      "updated": "Temat / kolejka zaktualizowana.",
+      "deleted": "Temat / kolejka usunięta."
+    }
+  },
   "confirm": {
     "deactivate": "Czy na pewno chcesz dezaktywować to API? Nie będzie widoczne w aktywnym rejestrze.",
     "deleteOwner": "Czy na pewno chcesz usunąć tego właściciela?",

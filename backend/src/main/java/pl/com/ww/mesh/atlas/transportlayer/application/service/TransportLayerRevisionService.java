@@ -73,6 +73,7 @@ public class TransportLayerRevisionService {
                 entity.getDescription(),
                 entity.getIcon(),
                 entity.getColor(),
+                entity.getMetadata(),
                 itSystemRef,
                 entity.isActive(),
                 entity.getCreatedAt(),

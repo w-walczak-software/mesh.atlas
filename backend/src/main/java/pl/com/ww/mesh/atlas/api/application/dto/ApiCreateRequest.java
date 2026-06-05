@@ -69,5 +69,8 @@ public record ApiCreateRequest(
         String externalId,
 
         @Valid
-        List<ApiOwnerCreateRequest> owners
+        List<ApiOwnerCreateRequest> owners,
+
+        @Valid
+        List<ApiMessagingEndpointCreateRequest> messagingEndpoints
 ) {}

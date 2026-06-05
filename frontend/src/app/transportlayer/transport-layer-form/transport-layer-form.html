@@ -134,6 +134,31 @@
           </div>
         </mat-card>
 
+        <!-- Messaging Endpoint Registration -->
+        <mat-card appearance="outlined" class="form-card">
+          <atlas-card-header icon="topic" iconColor="messaging" [title]="t('transportlayer.section.messagingConfig')" [subtitle]="t('transportlayer.section.messagingConfigHint')" />
+
+          <div class="card-body">
+            <mat-checkbox formControlName="supportsEndpointRegistration">
+              {{ t('transportlayer.field.supportsEndpointRegistration') }}
+            </mat-checkbox>
+
+            @if (form.controls.supportsEndpointRegistration.value) {
+              <div class="field-row field-row--equal">
+                <atlas-text-input controlName="endpointLabel"
+                  [label]="t('transportlayer.field.endpointLabel')"
+                  [hint]="t('transportlayer.field.endpointLabelHint')"
+                  [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 100 }) }" />
+
+                <atlas-text-input controlName="endpointLabelPl"
+                  [label]="t('transportlayer.field.endpointLabelPl')"
+                  [hint]="t('transportlayer.field.endpointLabelPlHint')"
+                  [errorMessages]="{ maxlength: t('common.validation.maxlength', { max: 100 }) }" />
+              </div>
+            }
+          </div>
+        </mat-card>
+
       </form>
     </div>
   </div>

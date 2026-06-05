@@ -7,18 +7,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiMessagingEndpointCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiStatsDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSummaryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiUpdateRequest;
 import pl.com.ww.mesh.atlas.api.application.mapper.ApiMapper;
+import pl.com.ww.mesh.atlas.api.application.mapper.ApiMessagingEndpointMapper;
 import pl.com.ww.mesh.atlas.api.application.mapper.ApiOwnerMapper;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiConsumerConflictException;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiDuplicateCodeException;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiNotFoundException;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiMessagingEndpointEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiOwnerEntity;
+import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiMessagingEndpointRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiOwnerRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiSpecification;
@@ -53,12 +57,14 @@ public class ApiService {
 
     private final ApiRepository apiRepository;
     private final ApiOwnerRepository ownerRepository;
+    private final ApiMessagingEndpointRepository messagingEndpointRepository;
     private final DictionaryEntryRepository entryRepository;
     private final ItSystemRepository itSystemRepository;
     private final TransportLayerRepository transportLayerRepository;
     private final DataDomainRepository dataDomainRepository;
     private final ApiMapper mapper;
     private final ApiOwnerMapper ownerMapper;
+    private final ApiMessagingEndpointMapper messagingEndpointMapper;
     private final GovernanceService governanceService;
     private final UserContextService userContextService;
     private final ApiGovernanceNotificationService notificationService;
@@ -198,6 +204,16 @@ public class ApiService {
             owner.setApi(saved);
             owner.setRole(resolveEntry(ownerRequest.roleId()));
             ownerRepository.save(owner);
+        });
+        List<ApiMessagingEndpointCreateRequest> endpoints =
+                request.messagingEndpoints() != null ? request.messagingEndpoints() : Collections.emptyList();
+        endpoints.forEach(epRequest -> {
+            ApiMessagingEndpointEntity ep = messagingEndpointMapper.map(epRequest);
+            ep.setApi(saved);
+            ep.setEndpointType(resolveEntry(epRequest.endpointTypeId()));
+            ep.setDirection(resolveEntry(epRequest.directionId()));
+            ep.setMessageFormat(resolveEntry(epRequest.messageFormatId()));
+            messagingEndpointRepository.save(ep);
         });
 
         if (pendingAfterCreate) {

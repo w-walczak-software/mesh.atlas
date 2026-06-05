@@ -22,6 +22,7 @@ import org.hibernate.envers.RelationTargetAuditMode;
 import pl.com.ww.mesh.atlas.global.domain.common.AuditableEntity;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
 
+import java.util.Map;
 import java.util.UUID;
 
 @Audited
@@ -63,6 +64,9 @@ public class TransportLayerEntity extends AuditableEntity {
     @JoinColumn(name = "it_system_id",
             foreignKey = @ForeignKey(name = "fk_transport_layer_it_system"))
     private ItSystemEntity itSystem;
+
+    @Column(name = "metadata", columnDefinition = "jsonb")
+    private Map<String, Object> metadata;
 
     @Column(name = "active", nullable = false)
     private boolean active;

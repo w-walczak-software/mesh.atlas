@@ -3,6 +3,7 @@ package pl.com.ww.mesh.atlas.transportlayer.application.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.util.Map;
 import java.util.UUID;
 
 public record TransportLayerUpdateRequest(
@@ -19,6 +20,8 @@ public record TransportLayerUpdateRequest(
 
         @Size(max = 30)
         String color,
+
+        Map<String, Object> metadata,
 
         UUID itSystemId
 ) {}
