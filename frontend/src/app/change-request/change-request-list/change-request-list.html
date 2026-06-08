@@ -1,0 +1,76 @@
+<ng-container *transloco="let t; scope: 'changeRequest'; lang: lang()">
+  <div class="page-container">
+    <div class="page-header">
+      <h1 class="page-title">{{ t('changeRequest.list.title') }}</h1>
+    </div>
+
+    <mat-expansion-panel class="search-panel" [expanded]="true">
+      <atlas-panel-header [title]="t('changeRequest.list.filters')" icon="search" />
+
+      <form [formGroup]="filterForm" class="search-form" (ngSubmit)="onSearch()">
+        <div class="search-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ t('changeRequest.list.filterSearch') }}</mat-label>
+            <input matInput formControlName="searchText" />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="search-field search-field--narrow">
+            <mat-label>{{ t('changeRequest.field.status') }}</mat-label>
+            <mat-select formControlName="status">
+              <mat-option value="">{{ t('changeRequest.list.allStatuses') }}</mat-option>
+              <mat-option value="SUBMITTED">{{ t('changeRequest.status.SUBMITTED') }}</mat-option>
+              <mat-option value="UNDER_REVIEW">{{ t('changeRequest.status.UNDER_REVIEW') }}</mat-option>
+              <mat-option value="APPROVED">{{ t('changeRequest.status.APPROVED') }}</mat-option>
+              <mat-option value="REJECTED">{{ t('changeRequest.status.REJECTED') }}</mat-option>
+              <mat-option value="DEFERRED">{{ t('changeRequest.status.DEFERRED') }}</mat-option>
+              <mat-option value="IMPLEMENTED">{{ t('changeRequest.status.IMPLEMENTED') }}</mat-option>
+              <mat-option value="CANCELLED">{{ t('changeRequest.status.CANCELLED') }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <atlas-select-dictionary
+            class="search-field search-field--narrow"
+            controlName="changeTypeId"
+            dictionaryCode="CHANGE_REQUEST_TYPE"
+            [label]="t('changeRequest.field.changeType')"
+            [nullOptionLabel]="t('changeRequest.list.allStatuses')"
+          />
+
+          <atlas-select-dictionary
+            class="search-field search-field--narrow"
+            controlName="priorityId"
+            dictionaryCode="CHANGE_REQUEST_PRIORITY"
+            [label]="t('changeRequest.field.priority')"
+            [nullOptionLabel]="t('changeRequest.list.allStatuses')"
+          />
+
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ t('changeRequest.list.filterRequester') }}</mat-label>
+            <input matInput formControlName="requesterEmail" />
+          </mat-form-field>
+        </div>
+
+        <div class="search-actions">
+          <button mat-stroked-button type="button" (click)="resetFilters()">
+            <mat-icon>clear</mat-icon>
+            {{ t('changeRequest.list.clearFilters') }}
+          </button>
+          <button mat-flat-button type="submit">
+            <mat-icon>search</mat-icon>
+            {{ t('changeRequest.list.search') }}
+          </button>
+        </div>
+      </form>
+    </mat-expansion-panel>
+
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+      [currentPage]="pageIndex()"
+      (pageChange)="onPageChange($event)"
+      (rowSelect)="selectedRow.set($event)"
+    />
+  </div>
+</ng-container>

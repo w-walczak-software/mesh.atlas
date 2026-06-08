@@ -52,6 +52,11 @@ export const routes: Routes = [
           import('./dictionary/dictionary.routes').then(m => m.dictionaryRoutes),
       },
       {
+        path: 'change-requests',
+        loadChildren: () =>
+          import('./change-request/change-request.routes').then(m => m.changeRequestRoutes),
+      },
+      {
         path: 'analysis',
         loadChildren: () => import('./analysis/analysis.routes').then(m => m.analysisRoutes),
       },

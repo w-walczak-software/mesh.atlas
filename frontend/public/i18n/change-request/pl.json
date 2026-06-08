@@ -1,0 +1,81 @@
+{
+  "list": {
+    "title": "Żądania Zmian API",
+    "subtitle": "Zarządzaj i przeglądaj żądania zmian API",
+    "filters": "Filtry",
+    "allStatuses": "Wszystkie statusy",
+    "filterSearch": "Szukaj (tytuł, zgłaszający)",
+    "filterRequester": "Email zgłaszającego",
+    "clearFilters": "Wyczyść filtry"
+  },
+  "field": {
+    "api": "API",
+    "title": "Tytuł",
+    "changeType": "Typ zmiany",
+    "priority": "Priorytet",
+    "status": "Status",
+    "requester": "Zgłaszający",
+    "submittedAt": "Data zgłoszenia",
+    "plannedVersion": "Planowana wersja",
+    "description": "Opis",
+    "plannedDate": "Planowana data wdrożenia",
+    "implementedVersion": "Wdrożona wersja",
+    "reviews": "Historia recenzji",
+    "reviewer": "Recenzent",
+    "decision": "Decyzja",
+    "reviewDate": "Data recenzji",
+    "comment": "Komentarz"
+  },
+  "status": {
+    "SUBMITTED": "Złożone",
+    "UNDER_REVIEW": "W przeglądzie",
+    "APPROVED": "Zatwierdzone",
+    "REJECTED": "Odrzucone",
+    "DEFERRED": "Odroczone",
+    "IMPLEMENTED": "Wdrożone",
+    "CANCELLED": "Anulowane"
+  },
+  "decision": {
+    "APPROVED": "Zatwierdź",
+    "REJECTED": "Odrzuć",
+    "DEFERRED": "Odrocz",
+    "NEEDS_CLARIFICATION": "Wymaga wyjaśnienia"
+  },
+  "action": {
+    "submit": "Złóż żądanie",
+    "submitReview": "Zapisz decyzję",
+    "markImplemented": "Oznacz jako wdrożone",
+    "review": "Recenzuj",
+    "cancel": "Anuluj",
+    "saving": "Zapisywanie…"
+  },
+  "form": {
+    "title": "Złóż żądanie zmiany",
+    "fieldTitle": "Tytuł żądania",
+    "titleRequired": "Tytuł jest wymagany",
+    "changeType": "Typ zmiany",
+    "priority": "Priorytet",
+    "description": "Opis zmiany (cel, uzasadnienie, zakres)",
+    "descriptionRequired": "Opis jest wymagany"
+  },
+  "review": {
+    "title": "Recenzja żądania zmiany",
+    "titleImplement": "Oznacz jako wdrożone",
+    "decision": "Decyzja",
+    "comment": "Komentarz recenzenta",
+    "plannedDate": "Planowana data wdrożenia",
+    "plannedVersion": "Planowana wersja",
+    "implementedVersion": "Wdrożona wersja"
+  },
+  "confirm": {
+    "cancel": {
+      "title": "Anuluj żądanie zmiany",
+      "message": "Czy na pewno chcesz anulować żądanie \"{{ title }}\"?"
+    }
+  },
+  "toast": {
+    "submitted": "Żądanie zmiany zostało złożone. Właściciele API otrzymają powiadomienie email.",
+    "reviewSaved": "Decyzja została zapisana. Zgłaszający otrzyma powiadomienie email.",
+    "cancelled": "Żądanie zmiany zostało anulowane."
+  }
+}

@@ -37,4 +37,13 @@ public interface ApiOwnerRepository extends JpaRepository<ApiOwnerEntity, UUID> 
               AND (ao.valid_to IS NULL OR ao.valid_to >= CURRENT_DATE)
             """, nativeQuery = true)
     Set<UUID> findEditableApiIdsByEmail(@Param("email") String email);
+
+    /** Returns IDs of all APIs where user has any active ownership role (for change request visibility). */
+    @Query(value = """
+            SELECT DISTINCT ao.api_id
+            FROM atlas.api_owner ao
+            WHERE ao.email = :email
+              AND (ao.valid_to IS NULL OR ao.valid_to >= CURRENT_DATE)
+            """, nativeQuery = true)
+    Set<UUID> findActiveOwnedApiIds(@Param("email") String email);
 }

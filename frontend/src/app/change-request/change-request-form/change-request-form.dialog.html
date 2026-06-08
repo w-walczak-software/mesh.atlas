@@ -1,0 +1,65 @@
+<ng-container *transloco="let t; scope: 'changeRequest'">
+
+  <div class="cr-dlg-header">
+    <div class="cr-dlg-header__icon-wrap">
+      <mat-icon class="cr-dlg-header__icon">rate_review</mat-icon>
+    </div>
+    <div class="cr-dlg-header__text">
+      <span class="cr-dlg-header__sub">{{ data.apiName }}</span>
+      <span class="cr-dlg-header__title">{{ t('changeRequest.form.title') }}</span>
+    </div>
+    <button mat-icon-button class="cr-dlg-close" (click)="close()" [disabled]="saving()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <form [formGroup]="form" class="cr-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ t('changeRequest.form.fieldTitle') }}</mat-label>
+        <input matInput formControlName="title" maxlength="255" />
+        <mat-hint align="end">{{ form.value.title?.length ?? 0 }}/255</mat-hint>
+        @if (form.controls.title.touched && form.controls.title.hasError('required')) {
+          <mat-error>{{ t('changeRequest.form.titleRequired') }}</mat-error>
+        }
+      </mat-form-field>
+
+      <div class="row-2col">
+        <atlas-select-dictionary
+          controlName="changeTypeId"
+          dictionaryCode="CHANGE_REQUEST_TYPE"
+          [label]="t('changeRequest.form.changeType')"
+        />
+        <atlas-select-dictionary
+          controlName="priorityId"
+          dictionaryCode="CHANGE_REQUEST_PRIORITY"
+          [label]="t('changeRequest.form.priority')"
+        />
+      </div>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ t('changeRequest.form.description') }}</mat-label>
+        <textarea matInput formControlName="description" rows="6" maxlength="8000"></textarea>
+        <mat-hint align="end">{{ form.value.description?.length ?? 0 }}/8000</mat-hint>
+        @if (form.controls.description.touched && form.controls.description.hasError('required')) {
+          <mat-error>{{ t('changeRequest.form.descriptionRequired') }}</mat-error>
+        }
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="cr-dlg-actions">
+    <button mat-stroked-button (click)="close()" [disabled]="saving()">
+      <mat-icon>close</mat-icon>
+      {{ t('changeRequest.action.cancel') }}
+    </button>
+    <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid || saving()">
+      @if (saving()) {
+        {{ t('changeRequest.action.saving') }}
+      } @else {
+        {{ t('changeRequest.action.submit') }}
+      }
+    </button>
+  </mat-dialog-actions>
+
+</ng-container>

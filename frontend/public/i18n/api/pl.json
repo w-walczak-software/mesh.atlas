@@ -112,7 +112,8 @@
     "addEnvironment": "Dodaj środowisko",
     "removeEnvironment": "Usuń środowisko",
     "graph": "Mapa integracji",
-    "docs": "Dokumentacja"
+    "docs": "Dokumentacja",
+    "changeRequest": "Złóż żądanie zmiany"
   },
   "graph": {
     "title": "Mapa integracji",
@@ -165,7 +166,8 @@
     "alreadyInactive": "API jest już nieaktywne",
     "noPermissionToEdit": "Nie masz uprawnień do edycji tego API",
     "graphSelected": "Pokaż {{ count }} zaznaczone API na mapie integracji",
-    "selectToViewDocs": "Wybierz API, aby wyświetlić dokumentację"
+    "selectToViewDocs": "Wybierz API, aby wyświetlić dokumentację",
+    "selectForChangeRequest": "Wybierz API, aby złożyć żądanie zmiany"
   },
   "docs": {
     "title": "Dokumentacja API",

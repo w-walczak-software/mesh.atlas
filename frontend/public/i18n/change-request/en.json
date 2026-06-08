@@ -1,0 +1,81 @@
+{
+  "list": {
+    "title": "API Change Requests",
+    "subtitle": "Manage and review API change requests",
+    "filters": "Filters",
+    "allStatuses": "All statuses",
+    "filterSearch": "Search (title, requester)",
+    "filterRequester": "Requester email",
+    "clearFilters": "Clear filters"
+  },
+  "field": {
+    "api": "API",
+    "title": "Title",
+    "changeType": "Change type",
+    "priority": "Priority",
+    "status": "Status",
+    "requester": "Requester",
+    "submittedAt": "Submitted at",
+    "plannedVersion": "Planned version",
+    "description": "Description",
+    "plannedDate": "Planned implementation date",
+    "implementedVersion": "Implemented version",
+    "reviews": "Review history",
+    "reviewer": "Reviewer",
+    "decision": "Decision",
+    "reviewDate": "Review date",
+    "comment": "Comment"
+  },
+  "status": {
+    "SUBMITTED": "Submitted",
+    "UNDER_REVIEW": "Under review",
+    "APPROVED": "Approved",
+    "REJECTED": "Rejected",
+    "DEFERRED": "Deferred",
+    "IMPLEMENTED": "Implemented",
+    "CANCELLED": "Cancelled"
+  },
+  "decision": {
+    "APPROVED": "Approve",
+    "REJECTED": "Reject",
+    "DEFERRED": "Defer",
+    "NEEDS_CLARIFICATION": "Needs clarification"
+  },
+  "action": {
+    "submit": "Submit request",
+    "submitReview": "Save decision",
+    "markImplemented": "Mark as implemented",
+    "review": "Review",
+    "cancel": "Cancel",
+    "saving": "Saving…"
+  },
+  "form": {
+    "title": "Submit Change Request",
+    "fieldTitle": "Request title",
+    "titleRequired": "Title is required",
+    "changeType": "Change type",
+    "priority": "Priority",
+    "description": "Change description (purpose, justification, scope)",
+    "descriptionRequired": "Description is required"
+  },
+  "review": {
+    "title": "Review change request",
+    "titleImplement": "Mark as implemented",
+    "decision": "Decision",
+    "comment": "Reviewer comment",
+    "plannedDate": "Planned implementation date",
+    "plannedVersion": "Planned version",
+    "implementedVersion": "Implemented version"
+  },
+  "confirm": {
+    "cancel": {
+      "title": "Cancel change request",
+      "message": "Are you sure you want to cancel the request \"{{ title }}\"?"
+    }
+  },
+  "toast": {
+    "submitted": "Change request submitted. API owners will receive an email notification.",
+    "reviewSaved": "Decision saved. The requester will receive an email notification.",
+    "cancelled": "Change request has been cancelled."
+  }
+}

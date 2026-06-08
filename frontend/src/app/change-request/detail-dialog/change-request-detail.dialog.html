@@ -1,0 +1,136 @@
+<ng-container *transloco="let t; scope: 'changeRequest'; lang: lang()">
+
+  <div class="cr-dlg-header">
+    <div class="cr-dlg-header__icon-wrap">
+      <mat-icon class="cr-dlg-header__icon">assignment</mat-icon>
+    </div>
+    <div class="cr-dlg-header__text">
+      @if (cr(); as dto) {
+        <span class="cr-dlg-header__sub">{{ dto.apiName }} ({{ dto.apiCode }})</span>
+        <span class="cr-dlg-header__title">{{ dto.title }}</span>
+      } @else {
+        <span class="cr-dlg-header__title">{{ t('changeRequest.detail.title') }}</span>
+      }
+    </div>
+    <button mat-icon-button class="cr-dlg-close" (click)="close()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="cr-detail-body">
+
+    @if (loading()) {
+      <div class="cr-detail-spinner">
+        <mat-spinner diameter="36" />
+      </div>
+    } @else if (cr(); as dto) {
+
+      <!-- Status bar -->
+      <div class="cr-status-bar">
+        <span class="cr-badge"
+              [style.background]="statusBadgeStyle(dto.status).background"
+              [style.color]="statusBadgeStyle(dto.status).color">
+          {{ t('changeRequest.status.' + dto.status) }}
+        </span>
+        <span class="cr-meta-item">
+          <mat-icon>category</mat-icon>{{ dto.changeType?.name ?? '—' }}
+        </span>
+        <span class="cr-meta-item">
+          <mat-icon>flag</mat-icon>{{ dto.priority?.name ?? '—' }}
+        </span>
+        <span class="cr-meta-item">
+          <mat-icon>person</mat-icon>{{ dto.requesterName ?? dto.requesterEmail }}
+        </span>
+        <span class="cr-meta-item">
+          <mat-icon>calendar_today</mat-icon>{{ dto.createdAt | date:'dd.MM.yyyy' }}
+        </span>
+      </div>
+
+      <!-- Description -->
+      <div class="cr-section">
+        <div class="cr-section__label">{{ t('changeRequest.form.description') }}</div>
+        <p class="cr-description">{{ dto.description }}</p>
+      </div>
+
+      <!-- Planned / Implemented info -->
+      @if (dto.plannedImplementationDate || dto.plannedVersion || dto.implementedVersion) {
+        <div class="cr-section cr-section--row">
+          @if (dto.plannedImplementationDate) {
+            <div class="cr-info-chip">
+              <mat-icon>event</mat-icon>
+              <span>{{ t('changeRequest.review.plannedDate') }}: <strong>{{ dto.plannedImplementationDate | date:'dd.MM.yyyy' }}</strong></span>
+            </div>
+          }
+          @if (dto.plannedVersion) {
+            <div class="cr-info-chip">
+              <mat-icon>tag</mat-icon>
+              <span>{{ t('changeRequest.review.plannedVersion') }}: <strong>{{ dto.plannedVersion }}</strong></span>
+            </div>
+          }
+          @if (dto.implementedVersion) {
+            <div class="cr-info-chip cr-info-chip--implemented">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{ t('changeRequest.review.implementedVersion') }}: <strong>{{ dto.implementedVersion }}</strong></span>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- Reviews timeline -->
+      <div class="cr-section">
+        <div class="cr-section__label">{{ t('changeRequest.detail.reviewHistory') }}</div>
+
+        @if (!dto.reviews || dto.reviews.length === 0) {
+          <div class="cr-empty">
+            <mat-icon>hourglass_empty</mat-icon>
+            <span>{{ t('changeRequest.detail.noReviews') }}</span>
+          </div>
+        } @else {
+          <div class="cr-timeline">
+            @for (review of dto.reviews; track review.id; let last = $last) {
+              <div class="cr-timeline__item" [class.cr-timeline__item--last]="last">
+                <div class="cr-timeline__dot"
+                     [style.background]="decisionStyle(review.decision).background"
+                     [style.color]="decisionStyle(review.decision).color">
+                  <mat-icon>{{ decisionIcon(review.decision) }}</mat-icon>
+                </div>
+                <div class="cr-timeline__line" [class.cr-timeline__line--hidden]="last"></div>
+
+                <div class="cr-timeline__card">
+                  <div class="cr-timeline__card-header">
+                    <span class="cr-badge cr-badge--sm"
+                          [style.background]="decisionStyle(review.decision).background"
+                          [style.color]="decisionStyle(review.decision).color">
+                      {{ t('changeRequest.decision.' + review.decision) }}
+                    </span>
+                    <span class="cr-timeline__reviewer">
+                      {{ review.reviewerName ?? review.reviewerEmail }}
+                    </span>
+                    <span class="cr-timeline__role">
+                      {{ t('changeRequest.reviewerRole.' + review.reviewerRole) }}
+                    </span>
+                    <span class="cr-timeline__date">
+                      {{ review.reviewedAt | date:'dd.MM.yyyy, HH:mm' }}
+                    </span>
+                  </div>
+                  @if (review.comment) {
+                    <p class="cr-timeline__comment">{{ review.comment }}</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="cr-dlg-actions">
+    <button mat-stroked-button (click)="close()">
+      <mat-icon>close</mat-icon>
+      {{ t('changeRequest.action.close') }}
+    </button>
+  </mat-dialog-actions>
+
+</ng-container>

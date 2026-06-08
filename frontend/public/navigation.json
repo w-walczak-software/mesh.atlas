@@ -51,6 +51,13 @@
       "route": "/subscriptions",
       "roles": ["atlas_admin", "atlas_user"]
     },
+    {
+      "id": "change-requests",
+      "label": "nav.menu.changeRequests",
+      "icon": "task_alt",
+      "route": "/change-requests",
+      "roles": ["atlas_admin", "atlas_user"]
+    },
 
     {
       "id": "analysis",

@@ -33,6 +33,7 @@ import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiDocumentationDialog, ApiDocumentationDialogData } from '../api-documentation-dialog/api-documentation-dialog';
 import { ApiVerifyDialog, ApiVerifyDialogData } from '../api-form/api-verify.dialog';
 import { ApiRatingDialog, ApiRatingDialogData } from '../api-rating-dialog/api-rating.dialog';
+import { ChangeRequestFormDialog, ChangeRequestFormDialogData } from '../../change-request/change-request-form/change-request-form.dialog';
 
 @Component({
   selector: 'app-apis',
@@ -151,6 +152,15 @@ export class Apis implements OnInit {
       data: { apiId: row.id, apiCode: row.code, apiName: row.name } satisfies ApiDocumentationDialogData,
       width: '680px',
       maxWidth: '95vw',
+    });
+  }
+
+  protected openChangeRequestDialog(row: ApiSummaryDto): void {
+    this.dialog.open(ChangeRequestFormDialog, {
+      data: { apiId: row.id, apiName: row.name } satisfies ChangeRequestFormDialogData,
+      width: '840px',
+      maxWidth: '95vw',
+      disableClose: true,
     });
   }
 
@@ -292,6 +302,13 @@ export class Apis implements OnInit {
           disabled: !selected,
           tooltip:  !selected ? this.t.translate('api.toolbar.selectToViewDocs') : undefined,
           action:   () => { if (selected) this.openDocumentation(selected); },
+        },
+        {
+          label:    this.t.translate('api.action.changeRequest'),
+          icon:     'edit_note',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('api.toolbar.selectForChangeRequest') : undefined,
+          action:   () => { if (selected) this.openChangeRequestDialog(selected); },
         },
         ...(this.canCreate() ? [{
         label: this.t.translate('api.action.new'),

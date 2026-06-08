@@ -1,0 +1,85 @@
+<ng-container *transloco="let t; scope: 'changeRequest'">
+
+  <div class="cr-dlg-header">
+    <div class="cr-dlg-header__icon-wrap" [class.cr-dlg-header__icon-wrap--implement]="data.mode === 'implement'">
+      <mat-icon class="cr-dlg-header__icon">
+        @if (data.mode === 'implement') { check_circle } @else { rate_review }
+      </mat-icon>
+    </div>
+    <div class="cr-dlg-header__text">
+      <span class="cr-dlg-header__sub">{{ data.changeRequest.apiName }}</span>
+      <span class="cr-dlg-header__title">
+        @if (data.mode === 'implement') {
+          {{ t('changeRequest.review.titleImplement') }}
+        } @else {
+          {{ t('changeRequest.review.title') }}
+        }
+      </span>
+    </div>
+    <button mat-icon-button class="cr-dlg-close" (click)="close()" [disabled]="saving()" aria-label="Close">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content>
+    <p class="cr-request-title">{{ data.changeRequest.title }}</p>
+
+    <form [formGroup]="form" class="review-form">
+      @if (data.mode === 'review') {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ t('changeRequest.review.decision') }}</mat-label>
+          <mat-select formControlName="decision">
+            @for (d of decisions; track d) {
+              <mat-option [value]="d">{{ t('changeRequest.decision.' + d) }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+      }
+
+      @if (showPlannedFields) {
+        <div class="row-2col">
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('changeRequest.review.plannedDate') }}</mat-label>
+            <input matInput [matDatepicker]="picker" formControlName="plannedImplementationDate" />
+            <mat-datepicker-toggle matIconSuffix [for]="picker" />
+            <mat-datepicker #picker />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>{{ t('changeRequest.review.plannedVersion') }}</mat-label>
+            <input matInput formControlName="plannedVersion" maxlength="50" />
+          </mat-form-field>
+        </div>
+      }
+
+      @if (data.mode === 'implement') {
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>{{ t('changeRequest.review.implementedVersion') }}</mat-label>
+          <input matInput formControlName="implementedVersion" maxlength="50" />
+        </mat-form-field>
+      }
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>{{ t('changeRequest.review.comment') }}</mat-label>
+        <textarea matInput formControlName="comment" rows="4" maxlength="4000"></textarea>
+        <mat-hint align="end">{{ form.value.comment?.length ?? 0 }}/4000</mat-hint>
+      </mat-form-field>
+    </form>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="cr-dlg-actions">
+    <button mat-stroked-button (click)="close()" [disabled]="saving()">
+      <mat-icon>close</mat-icon>
+      {{ t('changeRequest.action.cancel') }}
+    </button>
+    <button mat-flat-button color="primary" (click)="submit()" [disabled]="form.invalid || saving()">
+      @if (saving()) {
+        {{ t('changeRequest.action.saving') }}
+      } @else if (data.mode === 'implement') {
+        {{ t('changeRequest.action.markImplemented') }}
+      } @else {
+        {{ t('changeRequest.action.submitReview') }}
+      }
+    </button>
+  </mat-dialog-actions>
+
+</ng-container>

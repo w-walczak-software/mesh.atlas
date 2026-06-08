@@ -35,7 +35,8 @@
       "analysis": "Analiza",
       "blastRadius": "Blast Radius",
       "deprecationImpact": "Raport Deprecacji",
-      "whatIf": "Analiza What-if"
+      "whatIf": "Analiza What-if",
+      "changeRequests": "Żądania zmian"
     }
   },
   "common": {
