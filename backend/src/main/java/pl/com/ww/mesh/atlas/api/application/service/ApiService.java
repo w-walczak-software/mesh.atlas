@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiEnvironmentRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiMessagingEndpointCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
@@ -20,6 +21,7 @@ import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiConsumerConflictExcepti
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiDuplicateCodeException;
 import pl.com.ww.mesh.atlas.api.domain.exception.AtlasApiNotFoundException;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiEnvironmentEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiMessagingEndpointEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiOwnerEntity;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiMessagingEndpointRepository;
@@ -46,6 +48,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -179,7 +182,7 @@ public class ApiService {
                 request.messageFormatId(), request.slaTierId(), request.contractTypeId());
 
         entity.getDataDomains().addAll(resolveDataDomains(request.dataDomainIds()));
-        entity.getEnvironments().addAll(resolveEnvironments(request.environmentIds()));
+        entity.getEnvironments().addAll(buildEnvironments(request.environments(), entity));
         entity.getConsumerSystems().addAll(
                 resolveConsumerSystems(request.consumerSystemIds(), request.producerSystemId()));
 
@@ -287,8 +290,7 @@ public class ApiService {
 
         entity.getDataDomains().clear();
         entity.getDataDomains().addAll(resolveDataDomains(request.dataDomainIds()));
-        entity.getEnvironments().clear();
-        entity.getEnvironments().addAll(resolveEnvironments(request.environmentIds()));
+        applyEnvironmentsDiff(entity, request.environments());
         // Use element-level mutation (not clear+addAll) so Hibernate fires per-element
         // PostCollectionUpdateEvent that Envers needs to audit the join table correctly.
         applyConsumerSystemsDiff(entity, request.consumerSystemIds(), request.producerSystemId());
@@ -350,11 +352,43 @@ public class ApiService {
         return new ArrayList<>(dataDomainRepository.findAllById(ids));
     }
 
-    private List<DictionaryEntryEntity> resolveEnvironments(List<UUID> ids) {
-        if (ids == null || ids.isEmpty()) {
+    private List<ApiEnvironmentEntity> buildEnvironments(List<ApiEnvironmentRequest> requests, ApiEntity api) {
+        if (requests == null || requests.isEmpty()) {
             return Collections.emptyList();
         }
-        return new ArrayList<>(entryRepository.findAllById(ids));
+        return requests.stream().map(r -> {
+            ApiEnvironmentEntity env = new ApiEnvironmentEntity();
+            env.setApi(api);
+            env.setEnvironment(resolveEntry(r.environmentId()));
+            env.setServiceUrl(r.serviceUrl());
+            return env;
+        }).collect(Collectors.toList());
+    }
+
+    private void applyEnvironmentsDiff(ApiEntity entity, List<ApiEnvironmentRequest> requests) {
+        List<ApiEnvironmentRequest> incoming = requests != null ? requests : Collections.emptyList();
+
+        Map<UUID, ApiEnvironmentEntity> existing = entity.getEnvironments().stream()
+                .collect(Collectors.toMap(e -> e.getEnvironment().getId(), e -> e));
+
+        Set<UUID> incomingIds = incoming.stream()
+                .map(ApiEnvironmentRequest::environmentId)
+                .collect(Collectors.toSet());
+
+        entity.getEnvironments().removeIf(e -> !incomingIds.contains(e.getEnvironment().getId()));
+
+        for (ApiEnvironmentRequest r : incoming) {
+            ApiEnvironmentEntity env = existing.get(r.environmentId());
+            if (env != null) {
+                env.setServiceUrl(r.serviceUrl());
+            } else {
+                ApiEnvironmentEntity newEnv = new ApiEnvironmentEntity();
+                newEnv.setApi(entity);
+                newEnv.setEnvironment(resolveEntry(r.environmentId()));
+                newEnv.setServiceUrl(r.serviceUrl());
+                entity.getEnvironments().add(newEnv);
+            }
+        }
     }
 
     private List<ItSystemEntity> resolveConsumerSystems(List<UUID> ids, UUID producerSystemId) {

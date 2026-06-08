@@ -1,5 +1,6 @@
 package pl.com.ww.mesh.atlas.api.application.dto;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -56,7 +57,7 @@ public record ApiUpdateRequest(
 
         List<String> tags,
         List<UUID> dataDomainIds,
-        List<UUID> environmentIds,
+        @Valid List<ApiEnvironmentRequest> environments,
 
         @Size(max = 50)
         String externalId

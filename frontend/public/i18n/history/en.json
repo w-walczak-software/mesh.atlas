@@ -71,6 +71,9 @@
     "documentationUrl": "Documentation URL",
     "dataDomains": "Data Domains",
     "environments": "Environments",
+    "environmentCode": "Environment",
+    "environmentName": "Environment Name",
+    "serviceUrl": "Service URL",
     "group": "Group"
   }
 }

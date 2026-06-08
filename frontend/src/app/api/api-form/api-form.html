@@ -454,7 +454,36 @@
           <atlas-card-header icon="dns" iconColor="environments" [title]="t('api.section.environments')" [subtitle]="t('api.section.environmentsHint')" />
 
           <div class="card-body">
-            <atlas-select-dictionary class="field-full" controlName="environmentIds" [label]="t('api.field.environments')" dictionaryCode="API_ENVIRONMENT" [multiple]="true" />
+            <div formArrayName="environments" class="environment-list">
+              @for (envGroup of environmentsArray.controls; track $index; let i = $index) {
+                <div [formGroupName]="i" class="environment-row">
+                  <mat-form-field appearance="outline" class="env-select">
+                    <mat-label>{{ t('api.field.environment') }}</mat-label>
+                    <mat-select formControlName="environmentId">
+                      @for (entry of environmentEntries(); track entry.id) {
+                        <mat-option [value]="entry.id">{{ entry.name }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" class="env-url">
+                    <mat-label>{{ t('api.field.serviceUrl') }}</mat-label>
+                    <input matInput formControlName="serviceUrl" [placeholder]="t('api.field.serviceUrlPlaceholder')" />
+                  </mat-form-field>
+
+                  <button mat-icon-button type="button" color="warn"
+                    (click)="removeEnvironment(i)"
+                    [attr.aria-label]="t('api.action.removeEnvironment')">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              }
+            </div>
+
+            <button mat-stroked-button type="button" (click)="addEnvironment()">
+              <mat-icon>add</mat-icon>
+              {{ t('api.action.addEnvironment') }}
+            </button>
           </div>
         </mat-card>
 

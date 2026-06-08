@@ -5,11 +5,13 @@ import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiEnvironmentDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSummaryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.DataDomainRefDto;
 import pl.com.ww.mesh.atlas.api.application.dto.TransportLayerRefDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiUpdateRequest;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiEnvironmentEntity;
 import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
@@ -27,6 +29,8 @@ public interface ApiMapper {
 
     @Mapping(target = "canEdit", constant = "false")
     ApiSummaryDto mapSummary(ApiEntity entity);
+
+    ApiEnvironmentDto mapEnvironment(ApiEnvironmentEntity entity);
 
     DataDomainRefDto mapDomain(DataDomainEntity entity);
 

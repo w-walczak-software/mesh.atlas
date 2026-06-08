@@ -71,6 +71,9 @@
     "contractUrl": "URL kontraktu",
     "dataDomains": "Domeny danych",
     "environments": "Środowiska",
+    "environmentCode": "Środowisko",
+    "environmentName": "Nazwa środowiska",
+    "serviceUrl": "URL usługi",
     "group": "Grupa"
   }
 }

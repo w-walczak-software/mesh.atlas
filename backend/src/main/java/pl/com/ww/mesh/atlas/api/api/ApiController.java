@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiConsumerSystemHistoryDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiEnvironmentHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
@@ -130,6 +131,12 @@ public class ApiController {
     @IsAtlasUser
     public List<ApiConsumerSystemHistoryDto> getConsumerSystemHistory(@PathVariable UUID id) {
         return revisionService.getConsumerSystemHistory(id);
+    }
+
+    @GetMapping(UUID_REGEX + "/environment-history")
+    @IsAtlasUser
+    public List<ApiEnvironmentHistoryDto> getEnvironmentHistory(@PathVariable UUID id) {
+        return revisionService.getEnvironmentHistory(id);
     }
 
     @PutMapping(UUID_REGEX + "/data-domains")

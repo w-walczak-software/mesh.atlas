@@ -192,15 +192,9 @@ public class ApiEntity extends AuditableEntity {
     private List<DataDomainEntity> dataDomains = new ArrayList<>();
 
     @NotAudited
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "api_environment",
-            schema = "atlas",
-            joinColumns = @JoinColumn(name = "api_id"),
-            inverseJoinColumns = @JoinColumn(name = "dictionary_entry_id")
-    )
+    @OneToMany(mappedBy = "api", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @Builder.Default
-    private List<DictionaryEntryEntity> environments = new ArrayList<>();
+    private List<ApiEnvironmentEntity> environments = new ArrayList<>();
 
     /**
      * Systems that consume this API.

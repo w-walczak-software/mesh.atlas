@@ -49,6 +49,9 @@
     "domainGroup": "Filter by Group",
     "domainGroupNone": "No group",
     "environments": "Environments",
+    "environment": "Environment",
+    "serviceUrl": "Service URL",
+    "serviceUrlPlaceholder": "e.g. https://api.example.com/v1",
     "active": "Active"
   },
   "section": {
@@ -106,6 +109,8 @@
     "history": "Change History",
     "addTag": "Add Tag",
     "removeTag": "Remove tag",
+    "addEnvironment": "Add Environment",
+    "removeEnvironment": "Remove environment",
     "graph": "Integration Map",
     "docs": "Documentation"
   },

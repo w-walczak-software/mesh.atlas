@@ -7,11 +7,13 @@ import {
   signal,
 } from '@angular/core';
 import { LowerCasePipe, SlicePipe } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
@@ -49,7 +51,7 @@ import { TransportLayerService } from '../../transportlayer/service/transport-la
 import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
 import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
-import { ApiAttachmentDto, ApiDto, ApiMessagingEndpointDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
+import { ApiAttachmentDto, ApiDto, ApiEnvironmentDto, ApiEnvironmentHistoryDto, ApiMessagingEndpointDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
 import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
 import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiOwnerDialog, ApiOwnerDialogData } from './api-owner.dialog';
@@ -85,6 +87,8 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
     ReactiveFormsModule,
     MatButtonModule,
     MatCardModule,
+    MatFormFieldModule,
+    MatInputModule,
     MatSelectModule,
     MatIconModule,
     MatDialogModule,
@@ -141,6 +145,7 @@ export class ApiForm implements OnInit {
   protected readonly messagingDirections = signal<DictionaryEntryDto[]>([]);
   protected readonly messageFormats = signal<DictionaryEntryDto[]>([]);
   protected readonly messagingEndpoints = signal<ApiMessagingEndpointDto[]>([]);
+  protected readonly environmentEntries = signal<DictionaryEntryDto[]>([]);
   private readonly allTransportLayers = signal<TransportLayerSummaryDto[]>([]);
 
   protected readonly selectedTransportLayer = computed(() => {
@@ -192,7 +197,7 @@ export class ApiForm implements OnInit {
     contractUrl: ['', Validators.maxLength(2000)],
     documentationUrl: ['', Validators.maxLength(2000)],
     dataDomainIds: [[] as string[]],
-    environmentIds: [[] as string[]],
+    environments: this.fb.array([]),
     newTag: [''],
   });
 
@@ -211,6 +216,20 @@ export class ApiForm implements OnInit {
     return id ? [id] : [];
   });
 
+  protected get environmentsArray(): FormArray {
+    return this.form.controls.environments as unknown as FormArray;
+  }
+
+  protected addEnvironment(): void {
+    this.environmentsArray.push(this.fb.group({
+      environmentId: [null as string | null, Validators.required],
+      serviceUrl: ['', Validators.maxLength(2048)],
+    }));
+  }
+
+  protected removeEnvironment(index: number): void {
+    this.environmentsArray.removeAt(index);
+  }
 
   ngOnInit(): void {
     this.loadDictionaries();
@@ -456,7 +475,7 @@ export class ApiForm implements OnInit {
       documentationUrl: v.documentationUrl || null,
       tags: this.tags().length ? this.tags() : null,
       dataDomainIds: (v.dataDomainIds ?? []).length ? v.dataDomainIds : null,
-      environmentIds: (v.environmentIds ?? []).length ? v.environmentIds : null,
+      environments: this.buildEnvironmentsPayload(),
       externalId: v.externalId || null,
     };
 
@@ -465,7 +484,7 @@ export class ApiForm implements OnInit {
         next: () => {
           this.saving.set(false);
           this.toast.success(this.t.translate('api.toast.updated'));
-          this.router.navigate(['/apis']);
+          this.router.navigate(['/apis'], { state: { selectId: this.apiId() } });
         },
         error: (err: HttpErrorResponse) => {
           this.saving.set(false);
@@ -550,7 +569,8 @@ export class ApiForm implements OnInit {
       attachments: this.historyService.getApiAttachmentHistory(id),
       owners: this.historyService.getApiOwnerHistory(id),
       consumers: this.historyService.getApiConsumerSystemHistory(id),
-    }).subscribe(({ api, attachments, owners, consumers }) => {
+      environments: this.historyService.getApiEnvironmentHistory(id),
+    }).subscribe(({ api, attachments, owners, consumers, environments }) => {
       const attachmentEntries: RevisionEntryDto<unknown>[] = attachments.map(a => ({
         revisionNumber: a.revisionNumber,
         revisionType: a.revisionType as RevisionType,
@@ -575,7 +595,15 @@ export class ApiForm implements OnInit {
         userId: c.userId,
         snapshot: { _kind: 'consumerSystem', systemCode: c.systemCode, systemName: c.systemName },
       }));
-      const allEntries = [...api, ...attachmentEntries, ...ownerEntries, ...consumerEntries]
+      const environmentEntries: RevisionEntryDto<unknown>[] = environments.map((e: ApiEnvironmentHistoryDto) => ({
+        revisionNumber: e.revisionNumber,
+        revisionType: e.revisionType as RevisionType,
+        revisionTimestamp: e.revisionTimestamp,
+        username: e.username,
+        userId: e.userId,
+        snapshot: { _kind: 'environment', environmentCode: e.environmentCode, environmentName: e.environmentName, serviceUrl: e.serviceUrl },
+      }));
+      const allEntries = [...api, ...attachmentEntries, ...ownerEntries, ...consumerEntries, ...environmentEntries]
         .sort((a, b) => b.revisionNumber - a.revisionNumber);
       this.matDialog.open(HistoryDialog, {
         data: {
@@ -609,6 +637,8 @@ export class ApiForm implements OnInit {
       firstName: tr('firstName'), lastName: tr('lastName'), email: tr('email'),
       role: tr('role'), validFrom: tr('validFrom'), validTo: tr('validTo'),
       systemCode: tr('systemCode'), systemName: tr('systemName'),
+      environmentCode: tr('environmentCode'), environmentName: tr('environmentName'),
+      serviceUrl: tr('serviceUrl'),
     };
   }
 
@@ -643,8 +673,14 @@ export class ApiForm implements OnInit {
           contractUrl: api.contractUrl ?? '',
           documentationUrl: api.documentationUrl ?? '',
           dataDomainIds: api.dataDomains.map(d => d.id),
-          environmentIds: (api.environments ?? []).map(e => e.id),
           externalId: api.externalId ?? '',
+        });
+        this.environmentsArray.clear();
+        (api.environments ?? []).forEach((e: ApiEnvironmentDto) => {
+          this.environmentsArray.push(this.fb.group({
+            environmentId: [e.environment.id, Validators.required],
+            serviceUrl: [e.serviceUrl ?? ''],
+          }));
         });
         this.form.controls.code.disable();
         this.loading.set(false);
@@ -749,8 +785,16 @@ export class ApiForm implements OnInit {
     this.entryService.findByTypeCode('MESSAGING_ENDPOINT_TYPE').subscribe(e => this.messagingEndpointTypes.set(e));
     this.entryService.findByTypeCode('MESSAGING_DIRECTION').subscribe(e => this.messagingDirections.set(e));
     this.entryService.findByTypeCode('MESSAGE_FORMAT').subscribe(e => this.messageFormats.set(e));
+    this.entryService.findByTypeCode('API_ENVIRONMENT').subscribe(e => this.environmentEntries.set(e));
     this.transportLayerService.findAll({ active: true, size: 200, sort: 'name' })
       .subscribe(p => this.allTransportLayers.set(p.content));
+  }
+
+  private buildEnvironmentsPayload() {
+    const items = (this.environmentsArray.getRawValue() as { environmentId: string | null; serviceUrl: string }[])
+      .filter(e => !!e.environmentId)
+      .map(e => ({ environmentId: e.environmentId!, serviceUrl: e.serviceUrl || null }));
+    return items.length ? items : null;
   }
 
   private handleError(err: HttpErrorResponse): void {

@@ -65,6 +65,16 @@ export interface DataDomainRef {
   name: string;
 }
 
+export interface ApiEnvironmentDto {
+  environment: DictionaryEntryRef;
+  serviceUrl: string | null;
+}
+
+export interface ApiEnvironmentRequest {
+  environmentId: string;
+  serviceUrl: string | null;
+}
+
 export interface ApiOwnerDto {
   id: string;
   role: DictionaryEntryRef;
@@ -137,7 +147,7 @@ export interface ApiDto {
   documentationUrl: string | null;
   tags: string[] | null;
   dataDomains: DataDomainRef[];
-  environments: DictionaryEntryRef[];
+  environments: ApiEnvironmentDto[];
   externalId: string | null;
   active: boolean;
   governanceStatus: GovernanceStatus;
@@ -177,7 +187,7 @@ export interface ApiCreateRequest {
   documentationUrl: string | null;
   tags: string[] | null;
   dataDomainIds: string[] | null;
-  environmentIds: string[] | null;
+  environments: ApiEnvironmentRequest[] | null;
   externalId: string | null;
   owners: ApiOwnerCreateRequest[] | null;
   messagingEndpoints: ApiMessagingEndpointCreateRequest[] | null;
@@ -208,7 +218,7 @@ export interface ApiUpdateRequest {
   documentationUrl: string | null;
   tags: string[] | null;
   dataDomainIds: string[] | null;
-  environmentIds: string[] | null;
+  environments: ApiEnvironmentRequest[] | null;
   externalId: string | null;
 }
 
@@ -258,6 +268,17 @@ export interface ApiAttachmentHistoryDto {
   attachmentVersion: string | null;
   attachmentStatusId: string | null;
   attachmentStatusName: string | null;
+}
+
+export interface ApiEnvironmentHistoryDto {
+  revisionNumber: number;
+  revisionType: string;
+  revisionTimestamp: string;
+  username: string | null;
+  userId: string | null;
+  environmentCode: string | null;
+  environmentName: string | null;
+  serviceUrl: string | null;
 }
 
 export interface ApiConsumerSystemHistoryDto {

@@ -84,7 +84,15 @@
       "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; npx ng build --configuration development 2>&1 | Where-Object { $_ -match 'error TS|ERROR|complete' } | Select-Object -First 15)",
       "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; \\(npm run build 2>&1\\) | Where-Object { $_ -match \"TS\\\\d{4}\" } | Select-Object -First 20)",
       "PowerShell(cd C:\\\\DEV\\\\mesh-atlas\\\\frontend; $output = npm run build 2>&1; $tsErrors = $output | Where-Object { $_ -match \"TS\\\\d{4}:\" }; if \\($tsErrors\\) { $tsErrors } else { \"No TypeScript errors\" })",
-      "Bash(cmd /c \"mvnw.cmd compile -q 2>&1\")"
+      "Bash(cmd /c \"mvnw.cmd compile -q 2>&1\")",
+      "Bash(./mvnw spring-boot:run -Dspring-boot.run.profiles=dev)",
+      "Bash(Start-Sleep -Seconds 30)",
+      "Bash(Select-String -Path \"C:\\\\Users\\\\wwalc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--DEV-mesh-atlas\\\\e79efe93-fca5-4024-9af5-5f8f025ffebc\\\\tasks\\\\b9036o362.output\" -Pattern \"Started Application|ERROR|BUILD FAILURE\")",
+      "Bash(Select-Object -Last 20)",
+      "PowerShell(Start-Process -FilePath \"cmd.exe\" -ArgumentList \"/c cd C:\\\\DEV\\\\mesh-atlas\\\\backend && mvnw.cmd spring-boot:run -Dspring-boot.run.profiles=dev > C:\\\\Temp\\\\atlas-backend.log 2>&1\" -WindowStyle Hidden)",
+      "PowerShell($start = Get-Date; do { Start-Sleep -Seconds 5; $content = if \\(Test-Path C:\\\\Temp\\\\atlas-backend.log\\) { Get-Content C:\\\\Temp\\\\atlas-backend.log -Tail 5 -ErrorAction SilentlyContinue } else { \"\" }; $elapsed = [int]\\(\\(Get-Date\\) - $start\\).TotalSeconds; Write-Output \"[$elapsed s] $\\($content -join ' | '\\)\" } while \\(\\($content -notmatch \"Started Application|BUILD FAILURE|ERROR\\\\s\"\\) -and \\($elapsed -lt 90\\)\\))",
+      "PowerShell(Start-Process -FilePath \"C:\\\\DEV\\\\mesh-atlas\\\\backend\\\\mvnw.cmd\" -ArgumentList \"spring-boot:run\", \"-Dspring-boot.run.profiles=dev\" -WorkingDirectory \"C:\\\\DEV\\\\mesh-atlas\\\\backend\" -RedirectStandardOutput \"C:\\\\Temp\\\\atlas-backend.log\" -RedirectStandardError \"C:\\\\Temp\\\\atlas-backend-err.log\" -WindowStyle Hidden; Write-Output \"Process started\")",
+      "PowerShell($start = Get-Date; do { Start-Sleep -Seconds 8; $out = if \\(Test-Path C:\\\\Temp\\\\atlas-backend.log\\) { Get-Content C:\\\\Temp\\\\atlas-backend.log -Tail 4 -ErrorAction SilentlyContinue } else { @\\(\\) }; $err = if \\(Test-Path C:\\\\Temp\\\\atlas-backend-err.log\\) { Get-Content C:\\\\Temp\\\\atlas-backend-err.log -Tail 3 -ErrorAction SilentlyContinue } else { @\\(\\) }; $all = \\($out + $err\\) -join \" | \"; $elapsed = [int]\\(\\(Get-Date\\) - $start\\).TotalSeconds; Write-Output \"[$elapsed s] $all\" } while \\(\\($all -notmatch \"Started Application|BUILD FAILURE|BUILD SUCCESS|java.lang\"\\) -and \\($elapsed -lt 120\\)\\))"
     ]
   }
 }

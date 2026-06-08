@@ -155,7 +155,7 @@ public class ApiGraphService {
             if (!CollectionUtils.isEmpty(criteria.environmentIds())) {
                 query.distinct(true);
                 Join<ApiEntity, Object> envJoin = root.join("environments", JoinType.INNER);
-                predicates.add(envJoin.get("id").in(criteria.environmentIds()));
+                predicates.add(envJoin.get("environment").get("id").in(criteria.environmentIds()));
             }
 
             if (!CollectionUtils.isEmpty(criteria.dataDomainIds())) {
@@ -248,7 +248,7 @@ public class ApiGraphService {
                 .map(DataDomainEntity::getName)
                 .toList();
         List<String> environmentNames = api.getEnvironments().stream()
-                .map(DictionaryEntryEntity::getName)
+                .map(e -> e.getEnvironment().getName())
                 .toList();
         return new ApiGraphEdgeDto(
                 api.getId(),

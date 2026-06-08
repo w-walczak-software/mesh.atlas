@@ -100,7 +100,7 @@ public class ApiSpecification implements Specification<ApiEntity> {
         if (criteria.environmentId() != null) {
             query.distinct(true);
             Join<Object, Object> envJoin = root.join("environments", JoinType.INNER);
-            predicates.add(cb.equal(envJoin.get("id"), criteria.environmentId()));
+            predicates.add(cb.equal(envJoin.get("environment").get("id"), criteria.environmentId()));
         }
 
         if (StringUtils.hasText(criteria.description())) {

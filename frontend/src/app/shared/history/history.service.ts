@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '@environments/environment';
 import { RevisionEntryDto } from './history.model';
 import { DataDomainAttachmentHistoryDto } from '../../datadomain/model/data-domain.model';
-import { ApiAttachmentHistoryDto, ApiConsumerSystemHistoryDto, ApiOwnerHistoryDto } from '../../api/model/api.model';
+import { ApiAttachmentHistoryDto, ApiConsumerSystemHistoryDto, ApiEnvironmentHistoryDto, ApiOwnerHistoryDto } from '../../api/model/api.model';
 
 @Injectable({ providedIn: 'root' })
 export class HistoryService {
@@ -74,6 +74,12 @@ export class HistoryService {
   getApiConsumerSystemHistory(id: string): Observable<ApiConsumerSystemHistoryDto[]> {
     return this.http.get<ApiConsumerSystemHistoryDto[]>(
       `${this.base}/api/v1/apis/${id}/consumer-system-history`,
+    );
+  }
+
+  getApiEnvironmentHistory(id: string): Observable<ApiEnvironmentHistoryDto[]> {
+    return this.http.get<ApiEnvironmentHistoryDto[]>(
+      `${this.base}/api/v1/apis/${id}/environment-history`,
     );
   }
 

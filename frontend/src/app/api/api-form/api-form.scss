@@ -416,6 +416,42 @@
   margin: 0 0 8px;
 }
 
+// ── Environments ──────────────────────────────────────────────────────────────
+
+.environment-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.environment-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+
+  .env-select {
+    flex: 0 0 180px;
+  }
+
+  .env-url {
+    flex: 1;
+  }
+
+  button[mat-icon-button] {
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+
+  @media (max-width: 600px) {
+    flex-wrap: wrap;
+
+    .env-select,
+    .env-url {
+      flex: 1 1 100%;
+    }
+  }
+}
+
 // ── Messaging endpoints ────────────────────────────────────────────────────────
 
 .endpoint-name-cell {

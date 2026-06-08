@@ -12,10 +12,12 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiAttachmentHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiConsumerSystemHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiEnvironmentHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerHistoryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.TransportLayerRefDto;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiAttachmentEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiEnvironmentEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiOwnerEntity;
 import pl.com.ww.mesh.atlas.dictionary.application.dto.DictionaryEntryRefDto;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
@@ -282,6 +284,75 @@ public class ApiRevisionService {
                 entity.getAttachmentVersion(),
                 attachmentStatus != null ? attachmentStatus.getId() : null,
                 attachmentStatus != null ? attachmentStatus.getName() : null
+        );
+    }
+
+    // ── Environment history ──────────────────────────────────────────────────
+
+    @Transactional(readOnly = true)
+    public List<ApiEnvironmentHistoryDto> getEnvironmentHistory(UUID apiId) {
+        AuditReader reader = AuditReaderFactory.get(entityManager);
+
+        // Step 1: collect all ApiEnvironmentEntity IDs ever linked to this API.
+        // DEL entries have api_id = NULL in Envers, so we only query non-deleted
+        // revisions here to gather the surrogate IDs.
+        @SuppressWarnings("unchecked")
+        List<Object[]> linked = reader.createQuery()
+                .forRevisionsOfEntity(ApiEnvironmentEntity.class, false, false)
+                .add(AuditEntity.relatedId("api").eq(apiId))
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        if (linked.isEmpty()) {
+            return List.of();
+        }
+
+        Map<UUID, ApiEnvironmentEntity> lastKnown = new LinkedHashMap<>();
+        Set<UUID> envEntityIds = new LinkedHashSet<>();
+        for (Object[] row : linked) {
+            ApiEnvironmentEntity e = (ApiEnvironmentEntity) row[0];
+            envEntityIds.add(e.getId());
+            lastKnown.putIfAbsent(e.getId(), e);
+        }
+
+        // Step 2: fetch all revisions for those IDs, including DEL entries.
+        var disjunction = AuditEntity.disjunction();
+        envEntityIds.forEach(id -> disjunction.add(AuditEntity.id().eq(id)));
+
+        @SuppressWarnings("unchecked")
+        List<Object[]> rows = reader.createQuery()
+                .forRevisionsOfEntity(ApiEnvironmentEntity.class, false, true)
+                .add(disjunction)
+                .addOrder(AuditEntity.revisionNumber().desc())
+                .getResultList();
+
+        return rows.stream().map(row -> toEnvironmentHistoryDto(row, lastKnown)).toList();
+    }
+
+    private ApiEnvironmentHistoryDto toEnvironmentHistoryDto(Object[] row,
+                                                              Map<UUID, ApiEnvironmentEntity> lastKnown) {
+        ApiEnvironmentEntity entity = (ApiEnvironmentEntity) row[0];
+        AtlasRevisionEntity rev = (AtlasRevisionEntity) row[1];
+        RevisionType revType = (RevisionType) row[2];
+        String timestamp = Instant.ofEpochMilli(rev.getRevtstmp())
+                .atOffset(ZoneOffset.UTC)
+                .format(DateTimeFormatter.ISO_OFFSET_DATE_TIME);
+
+        if (revType == RevisionType.DEL && entity.getEnvironment() == null) {
+            ApiEnvironmentEntity last = lastKnown.get(entity.getId());
+            if (last != null) entity = last;
+        }
+
+        DictionaryEntryEntity envEntry = resolveEntry(entity.getEnvironment());
+        return new ApiEnvironmentHistoryDto(
+                rev.getRev(),
+                mapType(revType).name(),
+                timestamp,
+                rev.getUsername(),
+                rev.getUserId(),
+                envEntry != null ? envEntry.getCode() : null,
+                envEntry != null ? envEntry.getName() : null,
+                entity.getServiceUrl()
         );
     }
 

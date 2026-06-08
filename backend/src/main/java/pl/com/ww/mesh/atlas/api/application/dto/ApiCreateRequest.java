@@ -63,7 +63,7 @@ public record ApiCreateRequest(
 
         List<String> tags,
         List<UUID> dataDomainIds,
-        List<UUID> environmentIds,
+        @Valid List<ApiEnvironmentRequest> environments,
 
         @Size(max = 50)
         String externalId,
