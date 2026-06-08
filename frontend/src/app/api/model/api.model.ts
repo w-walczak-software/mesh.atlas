@@ -102,6 +102,24 @@ export interface ApiAttachmentDto {
   createdBy: string;
 }
 
+export type RaterType = 'INTERNAL_USER' | 'DEVELOPER_PORTAL';
+
+export interface ApiRatingDto {
+  id: string;
+  score: number;
+  raterId: string;
+  raterType: RaterType;
+  createdAt: string;
+  updatedAt: string | null;
+}
+
+export interface ApiRatingSummaryDto {
+  ratingCount: number;
+  averageRating: number;
+  weightedScore: number;
+  distribution: Partial<Record<string, number>>;
+}
+
 export interface ApiSummaryDto {
   id: string;
   code: string;
@@ -116,6 +134,7 @@ export interface ApiSummaryDto {
   active: boolean;
   governanceStatus: GovernanceStatus;
   canEdit: boolean;
+  ratingsSummary: ApiRatingSummaryDto | null;
 }
 
 export type GovernanceStatus = 'PENDING_VERIFICATION' | 'VERIFIED' | 'REQUIRES_MODIFICATION' | 'PENDING_REVIEW';
@@ -159,6 +178,7 @@ export interface ApiDto {
   createdBy: string;
   updatedAt: string;
   updatedBy: string;
+  ratingsSummary: ApiRatingSummaryDto | null;
 }
 
 export interface ApiCreateRequest {

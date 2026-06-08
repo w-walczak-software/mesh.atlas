@@ -155,7 +155,8 @@ public class ApiRevisionService {
                 entity.getCreatedAt(),
                 entity.getCreatedBy(),
                 entity.getUpdatedAt(),
-                entity.getUpdatedBy()
+                entity.getUpdatedBy(),
+                null
         );
     }
 

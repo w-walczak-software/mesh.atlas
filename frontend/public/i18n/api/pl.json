@@ -263,6 +263,27 @@
     "verificationQueueTitle": "Kolejka weryfikacji — API oczekujące na Twój przegląd",
     "exitQueue": "Wróć do wszystkich API"
   },
+  "rating": {
+    "sectionTitle": "Ocena",
+    "columnLabel": "Ocena",
+    "dialogTitle": "Oceń to API",
+    "noRatings": "To API nie zostało jeszcze ocenione.",
+    "countLabel": "{{ count }} ocen(y)",
+    "myRatingLabel": "Twoja ocena:",
+    "addRating": "Oceń",
+    "changeRating": "Zmień ocenę",
+    "pickLabel": "Kliknij gwiazdkę, aby ocenić",
+    "remove": "Usuń moją ocenę",
+    "save": "Zapisz ocenę",
+    "toastSaved": "Twoja ocena została zapisana.",
+    "toastRemoved": "Twoja ocena została usunięta.",
+    "rateAction": "Oceń to API",
+    "label1": "Słabe",
+    "label2": "Przeciętne",
+    "label3": "Dobre",
+    "label4": "Bardzo dobre",
+    "label5": "Doskonałe"
+  },
   "subscription": {
     "subscribe": "Subskrybuj zmiany",
     "unsubscribe": "Wypisz się",

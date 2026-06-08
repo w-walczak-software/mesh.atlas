@@ -16,6 +16,8 @@ import {
   ApiOwnerCreateRequest,
   ApiOwnerDto,
   ApiOwnerUpdateRequest,
+  ApiRatingDto,
+  ApiRatingSummaryDto,
   ApiSearchParams,
   ApiStatsDto,
   ApiSummaryDto,
@@ -147,6 +149,22 @@ export class ApiService {
 
   reject(apiId: string, request: ApiVerifyRequest): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/governance/${apiId}/reject`, request);
+  }
+
+  getRatingSummary(apiId: string): Observable<ApiRatingSummaryDto> {
+    return this.http.get<ApiRatingSummaryDto>(`${this.baseUrl}/${apiId}/ratings/summary`);
+  }
+
+  getMyRating(apiId: string): Observable<ApiRatingDto | null> {
+    return this.http.get<ApiRatingDto>(`${this.baseUrl}/${apiId}/ratings/my`);
+  }
+
+  rateApi(apiId: string, score: number): Observable<ApiRatingDto> {
+    return this.http.post<ApiRatingDto>(`${this.baseUrl}/${apiId}/ratings`, { score });
+  }
+
+  deleteMyRating(apiId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/${apiId}/ratings/my`);
   }
 
   findMessagingEndpoints(apiId: string): Observable<ApiMessagingEndpointDto[]> {

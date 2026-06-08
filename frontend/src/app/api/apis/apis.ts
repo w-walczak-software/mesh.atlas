@@ -27,11 +27,12 @@ import { TransportLayerService } from '../../transportlayer/service/transport-la
 import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
 import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
-import { ApiSearchParams, ApiSummaryDto } from '../model/api.model';
+import { ApiRatingDto, ApiSearchParams, ApiSummaryDto } from '../model/api.model';
 import { ApiFilterStateService } from '../service/api-filter-state.service';
 import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiDocumentationDialog, ApiDocumentationDialogData } from '../api-documentation-dialog/api-documentation-dialog';
 import { ApiVerifyDialog, ApiVerifyDialogData } from '../api-form/api-verify.dialog';
+import { ApiRatingDialog, ApiRatingDialogData } from '../api-rating-dialog/api-rating.dialog';
 
 @Component({
   selector: 'app-apis',
@@ -153,6 +154,25 @@ export class Apis implements OnInit {
     });
   }
 
+  protected openRatingDialog(row: ApiSummaryDto): void {
+    this.service.getMyRating(row.id).subscribe({
+      next: (myRatingDto: ApiRatingDto | null) => {
+        this.dialog.open(ApiRatingDialog, {
+          width: '400px',
+          maxWidth: '95vw',
+          data: {
+            apiId: row.id,
+            apiName: row.name,
+            myRating: myRatingDto?.score ?? null,
+            summary: row.ratingsSummary ?? null,
+          } satisfies ApiRatingDialogData,
+        }).afterClosed().subscribe((changed: boolean) => {
+          if (changed) this.load();
+        });
+      },
+    });
+  }
+
   protected goToGraph(): void {
     const checked = this.checkedRows();
     const current = this.filterState.snapshot();
@@ -213,6 +233,22 @@ export class Apis implements OnInit {
             if (consumers.length === 0) return { text: '–' };
             if (consumers.length === 1) return { text: consumers[0].name };
             return { text: `${consumers[0].name} (+${consumers.length - 1})` };
+          },
+        },
+        {
+          key: 'ratingsSummary',
+          label: this.t.translate('api.rating.columnLabel'),
+          width: '140px',
+          cellRender: (row) => {
+            const r = row.ratingsSummary;
+            if (!r || r.ratingCount === 0) return { text: '–' };
+            return {
+              icon: {
+                name: 'star',
+                style: { color: '#F59E0B' },
+                label: `${r.weightedScore.toFixed(1)}  (${r.ratingCount})`,
+              },
+            };
           },
         },
         {
@@ -289,6 +325,11 @@ export class Apis implements OnInit {
       ],
       rowDblClick: (row) => this.router.navigate(['/apis', row.id, 'edit']),
       actions: [
+        {
+          label: this.t.translate('api.rating.rateAction'),
+          icon: 'star',
+          action: (row) => this.openRatingDialog(row),
+        },
         {
           label: this.t.translate('api.action.edit'),
           icon: 'edit',

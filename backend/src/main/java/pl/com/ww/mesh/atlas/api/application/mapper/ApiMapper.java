@@ -25,9 +25,11 @@ public interface ApiMapper {
     @Mapping(target = "canVerify", constant = "false")
     @Mapping(target = "canEdit", constant = "false")
     @Mapping(target = "canChangeProducerSystem", constant = "false")
+    @Mapping(target = "ratingsSummary", ignore = true)
     ApiDto map(ApiEntity entity);
 
     @Mapping(target = "canEdit", constant = "false")
+    @Mapping(target = "ratingsSummary", ignore = true)
     ApiSummaryDto mapSummary(ApiEntity entity);
 
     ApiEnvironmentDto mapEnvironment(ApiEnvironmentEntity entity);

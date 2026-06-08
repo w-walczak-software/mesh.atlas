@@ -505,6 +505,49 @@
 
       </form>
 
+      <!-- ── Rating ──────────────────────────────────────────────────────── -->
+      @if (isEditMode()) {
+        <mat-card appearance="outlined" class="form-card rating-card">
+          <atlas-card-header icon="star" iconColor="rating" [title]="t('api.rating.sectionTitle')" />
+          <div class="card-body rating-body">
+
+            @if (api()?.ratingsSummary && api()!.ratingsSummary!.ratingCount > 0) {
+              <div class="rating-summary">
+                <div class="rating-score-block">
+                  <span class="rating-score-value">{{ api()!.ratingsSummary!.weightedScore.toFixed(1) }}</span>
+                  <app-star-rating [value]="api()!.ratingsSummary!.weightedScore" [interactive]="false" size="md" />
+                  <span class="rating-count">{{ t('api.rating.countLabel', { count: api()!.ratingsSummary!.ratingCount }) }}</span>
+                </div>
+                <div class="rating-distribution">
+                  @for (star of [5,4,3,2,1]; track star) {
+                    <div class="dist-row">
+                      <span class="dist-label">{{ star }}</span>
+                      <mat-icon class="dist-star" aria-hidden="true">star</mat-icon>
+                      <div class="dist-bar-wrap">
+                        <div class="dist-bar" [style.width.%]="getDistributionPct(api()!.ratingsSummary!, star)"></div>
+                      </div>
+                      <span class="dist-count">{{ api()!.ratingsSummary!.distribution[star] ?? 0 }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            } @else {
+              <p class="no-ratings">{{ t('api.rating.noRatings') }}</p>
+            }
+
+            <div class="my-rating-row">
+              <span class="my-rating-label">{{ t('api.rating.myRatingLabel') }}</span>
+              <app-star-rating [value]="myRating()" [interactive]="false" size="sm" />
+              <button mat-stroked-button type="button" (click)="openRatingDialog()">
+                <mat-icon>{{ myRating() !== null ? 'edit' : 'star_rate' }}</mat-icon>
+                {{ myRating() !== null ? t('api.rating.changeRating') : t('api.rating.addRating') }}
+              </button>
+            </div>
+
+          </div>
+        </mat-card>
+      }
+
       <!-- ── Governance status ────────────────────────────────────────────── -->
       @if (isEditMode() && api()?.governanceStatus && api()?.governanceStatus !== 'VERIFIED') {
         <mat-card class="form-section governance-card"

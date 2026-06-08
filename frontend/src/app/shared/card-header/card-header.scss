@@ -45,6 +45,10 @@
     background: color-mix(in srgb, #0284c7 14%, var(--mat-sys-surface));
     color: #0369a1;
   }
+  &--rating {
+    background: color-mix(in srgb, #F59E0B 16%, var(--mat-sys-surface));
+    color: #B45309;
+  }
 }
 
 .ch-text {

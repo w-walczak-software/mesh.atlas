@@ -1,6 +1,7 @@
 package pl.com.ww.mesh.atlas.api.application.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiEnvironmentRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiMessagingEndpointCreateRequest;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiOwnerCreateRequest;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiRatingSummaryDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSearchCriteria;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiStatsDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiSummaryDto;
@@ -24,23 +26,22 @@ import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEnvironmentEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiMessagingEndpointEntity;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiOwnerEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiMessagingEndpointRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiOwnerRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiRepository;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiSpecification;
-import org.springframework.context.ApplicationEventPublisher;
-import pl.com.ww.mesh.atlas.api.domain.model.GovernanceStatus;
-import pl.com.ww.mesh.atlas.global.GovernanceService;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasAccessForbiddenException;
-import pl.com.ww.mesh.atlas.global.domain.exception.AtlasGovernanceViolationException;
-import pl.com.ww.mesh.atlas.security.auth.UserContextService;
 import pl.com.ww.mesh.atlas.datadomain.domain.model.DataDomainEntity;
 import pl.com.ww.mesh.atlas.datadomain.infrastructure.persistance.DataDomainRepository;
 import pl.com.ww.mesh.atlas.dictionary.domain.exception.AtlasDictionaryEntryNotFoundException;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 import pl.com.ww.mesh.atlas.dictionary.infrastructure.persistance.DictionaryEntryRepository;
+import pl.com.ww.mesh.atlas.global.GovernanceService;
+import pl.com.ww.mesh.atlas.global.domain.exception.AtlasAccessForbiddenException;
+import pl.com.ww.mesh.atlas.global.domain.exception.AtlasGovernanceViolationException;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
+import pl.com.ww.mesh.atlas.security.auth.UserContextService;
 import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 import pl.com.ww.mesh.atlas.transportlayer.infrastructure.persistance.TransportLayerRepository;
 
@@ -72,6 +73,7 @@ public class ApiService {
     private final UserContextService userContextService;
     private final ApiGovernanceNotificationService notificationService;
     private final ApplicationEventPublisher eventPublisher;
+    private final ApiRatingService ratingService;
 
     @Transactional(readOnly = true)
     public Page<ApiSummaryDto> findAll(ApiSearchCriteria criteria, Pageable pageable) {
@@ -79,18 +81,24 @@ public class ApiService {
         var verifiable = governanceService.getVerifiableSystemIds(user.email());
         Set<UUID> defineApiSystemIds = user.isPrivileged() ? Set.of() : governanceService.getDefineApiSystemIds(user.email());
         Set<UUID> editableApiIds = user.isPrivileged() ? Set.of() : ownerRepository.findEditableApiIdsByEmail(user.email());
-        return apiRepository.findAll(new ApiSpecification(criteria, user.email(), verifiable), pageable)
-                .map(entity -> enrichSummary(mapper.mapSummary(entity), entity, user.isPrivileged(), defineApiSystemIds, editableApiIds));
+
+        Page<ApiEntity> page = apiRepository.findAll(new ApiSpecification(criteria, user.email(), verifiable), pageable);
+        List<UUID> ids = page.map(ApiEntity::getId).getContent();
+        Map<UUID, ApiRatingSummaryDto> ratingsMap = ratingService.getSummaryMap(ids);
+
+        return page.map(entity -> enrichSummary(mapper.mapSummary(entity), entity,
+                user.isPrivileged(), defineApiSystemIds, editableApiIds, ratingsMap.get(entity.getId())));
     }
 
     private ApiSummaryDto enrichSummary(ApiSummaryDto base, ApiEntity entity, boolean privileged,
-                                        Set<UUID> defineApiSystemIds, Set<UUID> editableApiIds) {
+                                        Set<UUID> defineApiSystemIds, Set<UUID> editableApiIds,
+                                        ApiRatingSummaryDto ratingsSummary) {
         boolean canEdit = privileged
                 || (entity.getProducerSystem() != null && defineApiSystemIds.contains(entity.getProducerSystem().getId()))
                 || editableApiIds.contains(entity.getId());
         return new ApiSummaryDto(base.id(), base.code(), base.name(), base.apiVersion(),
                 base.type(), base.status(), base.producerSystem(), base.consumerSystems(),
-                base.transportLayer(), base.tags(), base.active(), base.governanceStatus(), canEdit);
+                base.transportLayer(), base.tags(), base.active(), base.governanceStatus(), canEdit, ratingsSummary);
     }
 
     @Transactional(readOnly = true)
@@ -139,6 +147,8 @@ public class ApiService {
             canChangeProducerSystem = canDefineForSystem;
         }
         ApiDto base = mapper.map(entity);
+        var rawSummary = ratingService.getSummary(entity.getId());
+        ApiRatingSummaryDto ratingsSummary = rawSummary.ratingCount() == 0 ? null : rawSummary;
         return new ApiDto(base.id(), base.code(), base.name(), base.description(), base.apiVersion(),
                 base.type(), base.status(), base.producerSystem(), base.dataFlowDirection(),
                 base.consumerSystems(), base.transportLayer(), base.protocol(), base.authenticationMethod(),
@@ -147,7 +157,7 @@ public class ApiService {
                 base.contractType(), base.contractVersion(), base.contractUrl(), base.documentationUrl(),
                 base.tags(), base.dataDomains(), base.environments(), base.externalId(), base.active(),
                 base.governanceStatus(), base.governanceNote(), canVerify, canEdit, canChangeProducerSystem,
-                base.createdAt(), base.createdBy(), base.updatedAt(), base.updatedBy());
+                base.createdAt(), base.createdBy(), base.updatedAt(), base.updatedBy(), ratingsSummary);
     }
 
     public ApiDto create(ApiCreateRequest request) {

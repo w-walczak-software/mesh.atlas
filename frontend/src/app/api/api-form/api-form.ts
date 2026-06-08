@@ -51,7 +51,7 @@ import { TransportLayerService } from '../../transportlayer/service/transport-la
 import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
 import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
-import { ApiAttachmentDto, ApiDto, ApiEnvironmentDto, ApiEnvironmentHistoryDto, ApiMessagingEndpointDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
+import { ApiAttachmentDto, ApiDto, ApiEnvironmentDto, ApiEnvironmentHistoryDto, ApiMessagingEndpointDto, ApiOwnerCreateRequest, ApiOwnerDto, ApiRatingSummaryDto } from '../model/api.model';
 import { SubscriptionService } from '../../subscription/service/subscription.service';
 import { ApiSubscriptionSummaryDto } from '../../subscription/model/subscription.model';
 import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
@@ -62,6 +62,8 @@ import { ApiMessagingEndpointDialog, ApiMessagingEndpointDialogData } from './ap
 import { GovernanceService } from '@shared/governance/governance.service';
 import { ApiUploadDialog, ApiUploadDialogData, ApiUploadDialogResult } from '../api-upload-dialog/api-upload-dialog';
 import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachmentDialogResult } from '../api-edit-attachment-dialog/api-edit-attachment-dialog';
+import { ApiRatingDialog, ApiRatingDialogData } from '../api-rating-dialog/api-rating.dialog';
+import { StarRating } from '@shared/star-rating/star-rating';
 
 @Component({
   selector: 'app-api-form',
@@ -99,6 +101,7 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
     MatProgressBarModule,
     MatDividerModule,
     ItSystemSelectComponent,
+    StarRating,
   ],
   providers: [provideTranslocoScope('api')],
   templateUrl: './api-form.html',
@@ -137,6 +140,7 @@ export class ApiForm implements OnInit {
   protected readonly loading = signal(false);
   protected readonly uploading = signal(false);
   protected readonly api = signal<ApiDto | null>(null);
+  protected readonly myRating = signal<number | null>(null);
   protected readonly owners = signal<ApiOwnerDto[]>([]);
   protected readonly attachments = signal<ApiAttachmentDto[]>([]);
   protected readonly governanceEnabled = signal(false);
@@ -257,6 +261,7 @@ export class ApiForm implements OnInit {
       this.loadAttachments(id);
       this.loadMessagingEndpoints(id);
       this.loadMySubscription(id);
+      this.service.getMyRating(id).subscribe({ next: (dto) => this.myRating.set(dto?.score ?? null) });
     } else {
       this.form.controls.code.enable();
     }
@@ -272,6 +277,32 @@ export class ApiForm implements OnInit {
 
   protected removeTag(tag: string): void {
     this.tags.update(t => t.filter(x => x !== tag));
+  }
+
+  protected getDistributionPct(summary: ApiRatingSummaryDto, star: number): number {
+    if (!summary || summary.ratingCount === 0) return 0;
+    const count = summary.distribution[star] ?? 0;
+    return Math.round((count / summary.ratingCount) * 100);
+  }
+
+  protected openRatingDialog(): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.matDialog.open(ApiRatingDialog, {
+      width: '400px',
+      maxWidth: '95vw',
+      data: {
+        apiId: id,
+        apiName: this.api()?.name ?? '',
+        myRating: this.myRating(),
+        summary: this.api()?.ratingsSummary ?? null,
+      } satisfies ApiRatingDialogData,
+    }).afterClosed().subscribe((changed: boolean) => {
+      if (changed) {
+        this.service.getMyRating(id).subscribe({ next: (dto) => this.myRating.set(dto?.score ?? null) });
+        this.service.findById(id).subscribe({ next: (api) => this.api.set(api) });
+      }
+    });
   }
 
   protected openAddOwnerDialog(): void {

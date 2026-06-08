@@ -263,6 +263,27 @@
     "verificationQueueTitle": "Verification Queue — APIs awaiting your review",
     "exitQueue": "Back to all APIs"
   },
+  "rating": {
+    "sectionTitle": "Rating",
+    "columnLabel": "Rating",
+    "dialogTitle": "Rate this API",
+    "noRatings": "This API has not been rated yet.",
+    "countLabel": "{{ count }} rating(s)",
+    "myRatingLabel": "Your rating:",
+    "addRating": "Rate",
+    "changeRating": "Change rating",
+    "pickLabel": "Click a star to rate",
+    "remove": "Remove my rating",
+    "save": "Save rating",
+    "toastSaved": "Your rating has been saved.",
+    "toastRemoved": "Your rating has been removed.",
+    "rateAction": "Rate this API",
+    "label1": "Poor",
+    "label2": "Fair",
+    "label3": "Good",
+    "label4": "Very good",
+    "label5": "Excellent"
+  },
   "subscription": {
     "subscribe": "Subscribe to changes",
     "unsubscribe": "Unsubscribe",

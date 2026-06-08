@@ -20,5 +20,6 @@ public record ApiSummaryDto(
         List<String> tags,
         boolean active,
         GovernanceStatus governanceStatus,
-        boolean canEdit
+        boolean canEdit,
+        ApiRatingSummaryDto ratingsSummary
 ) {}

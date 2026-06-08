@@ -1,0 +1,52 @@
+<ng-container *transloco="let t; scope: 'api'">
+  <div mat-dialog-title class="dialog-title">
+    <mat-icon class="title-icon" aria-hidden="true">star</mat-icon>
+    <span>{{ t('api.rating.dialogTitle') }}</span>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <p class="api-name">{{ data.apiName }}</p>
+
+    <div class="stars-wrap">
+      <app-star-rating
+        [value]="selectedScore()"
+        [interactive]="true"
+        size="lg"
+        (rateChange)="onRate($event)"
+      />
+    </div>
+
+    @if (selectedScore(); as score) {
+      <p class="score-label">{{ labelFor(score) }}</p>
+    } @else {
+      <p class="score-label score-label--empty">{{ t('api.rating.pickLabel') }}</p>
+    }
+
+    @if (data.summary && data.summary.ratingCount > 0) {
+      <div class="summary">
+        <span class="summary-score">{{ data.summary.weightedScore.toFixed(1) }}</span>
+        <app-star-rating [value]="data.summary.weightedScore" [interactive]="false" size="sm" />
+        <span class="summary-count">{{ t('api.rating.countLabel', { count: data.summary.ratingCount }) }}</span>
+      </div>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    @if (data.myRating !== null || selectedScore() !== null) {
+      <button mat-button type="button" color="warn" [disabled]="saving()" (click)="remove()">
+        {{ t('api.rating.remove') }}
+      </button>
+    }
+    <button mat-button type="button" [disabled]="saving()" (click)="close()">
+      {{ t('api.action.cancel') }}
+    </button>
+    <button
+      mat-flat-button
+      type="button"
+      [disabled]="saving() || selectedScore() === null"
+      (click)="save()"
+    >
+      {{ t('api.rating.save') }}
+    </button>
+  </mat-dialog-actions>
+</ng-container>

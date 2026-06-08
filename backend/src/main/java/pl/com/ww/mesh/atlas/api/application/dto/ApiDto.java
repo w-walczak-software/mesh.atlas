@@ -47,5 +47,6 @@ public record ApiDto(
         LocalDateTime createdAt,
         String createdBy,
         LocalDateTime updatedAt,
-        String updatedBy
+        String updatedBy,
+        ApiRatingSummaryDto ratingsSummary
 ) {}
