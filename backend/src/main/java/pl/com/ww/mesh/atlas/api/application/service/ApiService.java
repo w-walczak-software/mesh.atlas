@@ -304,6 +304,12 @@ public class ApiService {
                     producerSystemId, sysName,
                     saved.getCode(), saved.getName(), saved.getApiVersion(),
                     user.email(), saved.getUpdatedAt()));
+        } else {
+            // API stays VERIFIED (governance off, or auto-approved by verifier) → notify subscribers immediately
+            String sysName = saved.getProducerSystem() != null ? saved.getProducerSystem().getName() : null;
+            eventPublisher.publishEvent(new ApiSubscriptionChangeEvent(
+                    saved.getId(), saved.getCode(), saved.getName(), saved.getApiVersion(),
+                    sysName, "Modyfikacja API", user.email(), saved.getUpdatedAt()));
         }
 
         return toApiDto(saved);
@@ -311,8 +317,13 @@ public class ApiService {
 
     public void deactivate(UUID id) {
         ApiEntity entity = getApiOrThrow(id);
+        var user = userContextService.getCurrentUser();
+        String sysName = entity.getProducerSystem() != null ? entity.getProducerSystem().getName() : null;
         entity.setActive(false);
-        apiRepository.save(entity);
+        ApiEntity saved = apiRepository.save(entity);
+        eventPublisher.publishEvent(new ApiSubscriptionChangeEvent(
+                saved.getId(), saved.getCode(), saved.getName(), saved.getApiVersion(),
+                sysName, "Dezaktywacja API", user.email(), saved.getUpdatedAt()));
     }
 
     public ApiDto updateDataDomains(UUID id, List<UUID> dataDomainIds) {

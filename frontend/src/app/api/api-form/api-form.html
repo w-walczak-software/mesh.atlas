@@ -538,5 +538,53 @@
       }
 
     </div>
+
+    @if (isEditMode()) {
+      <div class="subscription-row">
+        @if (mySubscriptionId()) {
+          <button mat-stroked-button type="button" color="warn" (click)="onUnsubscribe()">
+            <mat-icon>notifications_off</mat-icon>
+            {{ t('api.subscription.unsubscribe') }}
+          </button>
+        } @else {
+          <button mat-stroked-button type="button" color="primary" (click)="onSubscribe()">
+            <mat-icon>notifications_active</mat-icon>
+            {{ t('api.subscription.subscribe') }}
+          </button>
+        }
+      </div>
+    }
+
+    @if (canViewSubscribers()) {
+      <mat-card class="section-card">
+        <atlas-card-header
+          [title]="t('api.subscription.subscribersTitle')"
+          icon="group"
+        />
+        <mat-card-content>
+          @if (subscribersLoading()) {
+            <mat-progress-bar mode="indeterminate" />
+          } @else if (subscribers().length === 0) {
+            <p class="no-data-text">{{ t('api.subscription.noSubscribers') }}</p>
+          } @else {
+            <app-simple-table [dataSource]="subscribers()">
+              <app-column name="subscriberEmail" [header]="t('api.subscription.field.email')">
+                <ng-template #cell let-row>{{ row.subscriberEmail }}</ng-template>
+              </app-column>
+              <app-column name="subscriberName" [header]="t('api.subscription.field.name')">
+                <ng-template #cell let-row>{{ row.subscriberName ?? '—' }}</ng-template>
+              </app-column>
+              <app-column name="subscriberType" [header]="t('api.subscription.field.type')">
+                <ng-template #cell let-row>{{ row.subscriberType }}</ng-template>
+              </app-column>
+              <app-column name="subscribedAt" [header]="t('api.subscription.field.subscribedAt')">
+                <ng-template #cell let-row>{{ row.subscribedAt | date:'yyyy-MM-dd' }}</ng-template>
+              </app-column>
+            </app-simple-table>
+          }
+        </mat-card-content>
+      </mat-card>
+    }
+
   </div>
 </ng-container>

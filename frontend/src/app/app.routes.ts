@@ -23,8 +23,8 @@ export const routes: Routes = [
       },
       {
         path: 'subscriptions',
-        loadComponent: () => import('./placeholder/placeholder').then(m => m.Placeholder),
-        data: { title: 'Subscriptions' },
+        loadChildren: () =>
+          import('./subscription/subscription.routes').then(m => m.subscriptionRoutes),
       },
       {
         path: 'analytics',

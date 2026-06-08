@@ -6,7 +6,7 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { LowerCasePipe, SlicePipe } from '@angular/common';
+import { DatePipe, LowerCasePipe, SlicePipe } from '@angular/common';
 import { FormArray, FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin } from 'rxjs';
@@ -52,6 +52,8 @@ import { DataDomainSummaryDto } from '../../datadomain/model/data-domain.model';
 import { DataDomainService } from '../../datadomain/service/data-domain.service';
 import { ApiService } from '../service/api.service';
 import { ApiAttachmentDto, ApiDto, ApiEnvironmentDto, ApiEnvironmentHistoryDto, ApiMessagingEndpointDto, ApiOwnerCreateRequest, ApiOwnerDto } from '../model/api.model';
+import { SubscriptionService } from '../../subscription/service/subscription.service';
+import { ApiSubscriptionSummaryDto } from '../../subscription/model/subscription.model';
 import { ItSystemSummaryDto } from '../../itsystem/model/itsystem.model';
 import { ItSystemService } from '../../itsystem/service/itsystem.service';
 import { ApiOwnerDialog, ApiOwnerDialogData } from './api-owner.dialog';
@@ -81,6 +83,7 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
     AppSimpleTable,
     AppSimpleTableColumn,
     AppToolbar,
+    DatePipe,
     LowerCasePipe,
     SlicePipe,
     TranslocoDirective,
@@ -104,6 +107,7 @@ import { ApiEditAttachmentDialog, ApiEditAttachmentDialogData, ApiEditAttachment
 })
 export class ApiForm implements OnInit {
   private readonly service = inject(ApiService);
+  private readonly subscriptionService = inject(SubscriptionService);
   private readonly itSystemService = inject(ItSystemService);
   private readonly historyService = inject(HistoryService);
   private readonly entryService = inject(DictionaryEntryService);
@@ -146,6 +150,12 @@ export class ApiForm implements OnInit {
   protected readonly messageFormats = signal<DictionaryEntryDto[]>([]);
   protected readonly messagingEndpoints = signal<ApiMessagingEndpointDto[]>([]);
   protected readonly environmentEntries = signal<DictionaryEntryDto[]>([]);
+  protected readonly mySubscriptionId = signal<string | null>(null);
+  protected readonly subscribers = signal<ApiSubscriptionSummaryDto[]>([]);
+  protected readonly subscribersLoading = signal(false);
+  protected readonly canViewSubscribers = computed(() =>
+    this.isEditMode() && (this.isAdmin() || (this.api()?.canEdit ?? false))
+  );
   private readonly allTransportLayers = signal<TransportLayerSummaryDto[]>([]);
 
   protected readonly selectedTransportLayer = computed(() => {
@@ -246,6 +256,7 @@ export class ApiForm implements OnInit {
       this.loadOwners(id);
       this.loadAttachments(id);
       this.loadMessagingEndpoints(id);
+      this.loadMySubscription(id);
     } else {
       this.form.controls.code.enable();
     }
@@ -684,6 +695,10 @@ export class ApiForm implements OnInit {
         });
         this.form.controls.code.disable();
         this.loading.set(false);
+        // Load subscribers after API is loaded (permission check depends on canEdit from API response)
+        if (api.canEdit || this.isAdmin()) {
+          this.loadSubscribers();
+        }
       },
       error: () => {
         this.loading.set(false);
@@ -703,6 +718,52 @@ export class ApiForm implements OnInit {
 
   private loadMessagingEndpoints(id: string): void {
     this.service.findMessagingEndpoints(id).subscribe(list => this.messagingEndpoints.set(list));
+  }
+
+  private loadMySubscription(apiId: string): void {
+    this.subscriptionService.getMySubscriptions(0, 100).subscribe(page => {
+      const found = page.content.find(s => s.apiId === apiId && s.status === 'ACTIVE');
+      this.mySubscriptionId.set(found?.id ?? null);
+    });
+  }
+
+  protected loadSubscribers(): void {
+    const id = this.apiId();
+    if (!id || !this.canViewSubscribers()) return;
+    this.subscribersLoading.set(true);
+    this.subscriptionService.getSubscribersForApi(id, 0, 50).subscribe({
+      next: (page) => {
+        this.subscribers.set(page.content);
+        this.subscribersLoading.set(false);
+      },
+      error: () => this.subscribersLoading.set(false),
+    });
+  }
+
+  protected onSubscribe(): void {
+    const id = this.apiId();
+    if (!id) return;
+    this.subscriptionService.subscribe({ apiId: id }).subscribe({
+      next: (sub) => {
+        this.mySubscriptionId.set(sub.id);
+        this.toast.success(this.t.translate('api.subscription.toast.subscribed'));
+        this.loadSubscribers();
+      },
+      error: () => this.toast.error(this.t.translate('api.subscription.toast.error')),
+    });
+  }
+
+  protected onUnsubscribe(): void {
+    const subId = this.mySubscriptionId();
+    if (!subId) return;
+    this.subscriptionService.unsubscribe(subId).subscribe({
+      next: () => {
+        this.mySubscriptionId.set(null);
+        this.toast.success(this.t.translate('api.subscription.toast.unsubscribed'));
+        this.loadSubscribers();
+      },
+      error: () => this.toast.error(this.t.translate('api.subscription.toast.error')),
+    });
   }
 
   protected openAddMessagingEndpointDialog(): void {

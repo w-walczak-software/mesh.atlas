@@ -262,5 +262,23 @@
     "pendingGoTo": "Przejdź do kolejki weryfikacji",
     "verificationQueueTitle": "Kolejka weryfikacji — API oczekujące na Twój przegląd",
     "exitQueue": "Wróć do wszystkich API"
+  },
+  "subscription": {
+    "subscribe": "Subskrybuj zmiany",
+    "unsubscribe": "Wypisz się",
+    "subscribersTitle": "Subskrybenci",
+    "refresh": "Odśwież",
+    "noSubscribers": "Brak aktywnych subskrybentów dla tego API.",
+    "field": {
+      "email": "Email",
+      "name": "Nazwa",
+      "type": "Typ",
+      "subscribedAt": "Data subskrypcji"
+    },
+    "toast": {
+      "subscribed": "Subskrypcja aktywna. Będziesz otrzymywać powiadomienia o zmianach tego API.",
+      "unsubscribed": "Subskrypcja anulowana.",
+      "error": "Wystąpił błąd. Spróbuj ponownie."
+    }
   }
 }

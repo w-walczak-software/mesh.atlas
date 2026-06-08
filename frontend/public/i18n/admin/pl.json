@@ -273,7 +273,63 @@
       "DICTIONARY_ENTRY": "Pozycja słownika",
       "CONFIGURATION": "Konfiguracja",
       "EMAIL_CONFIG": "Konfiguracja email",
-      "EMAIL_TEMPLATE": "Szablon email"
+      "EMAIL_TEMPLATE": "Szablon email",
+      "API_SUBSCRIPTION": "Subskrypcja API"
+    }
+  },
+  "subscription": {
+    "title": "Subskrypcje API",
+    "field": {
+      "apiName": "Nazwa API",
+      "apiCode": "Kod API",
+      "subscriberEmail": "Email",
+      "subscriberName": "Nazwa",
+      "subscriberType": "Typ",
+      "status": "Status",
+      "source": "Źródło",
+      "subscribedAt": "Data subskrypcji",
+      "apiId": "ID API",
+      "notificationsEnabled": "Powiadomienia włączone"
+    },
+    "type": {
+      "internal": "Wewnętrzny",
+      "external": "Zewnętrzny"
+    },
+    "status": {
+      "active": "Aktywna",
+      "inactive": "Nieaktywna",
+      "pendingConfirmation": "Oczekuje potwierdzenia"
+    },
+    "source": {
+      "internalPortal": "Portal wewnętrzny",
+      "developerPortal": "Portal developerski"
+    },
+    "action": {
+      "add": "Dodaj",
+      "edit": "Edytuj",
+      "delete": "Usuń",
+      "cancel": "Anuluj",
+      "save": "Zapisz",
+      "saving": "Zapisywanie..."
+    },
+    "dialog": {
+      "addTitle": "Dodaj subskrypcję",
+      "editTitle": "Edytuj subskrypcję"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Usuń subskrypcję",
+        "message": "Czy na pewno chcesz usunąć subskrypcję dla \"{{ email }}\"?"
+      }
+    },
+    "validation": {
+      "apiIdRequired": "ID API jest wymagane",
+      "emailRequired": "Wymagany prawidłowy adres email"
+    },
+    "toast": {
+      "saved": "Subskrypcja zapisana pomyślnie.",
+      "deleted": "Subskrypcja usunięta.",
+      "error": "Wystąpił błąd. Spróbuj ponownie."
     }
   }
 }

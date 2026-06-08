@@ -43,5 +43,13 @@
     "type": "Type",
     "producer": "Producer",
     "transport": "Transport"
+  },
+  "subscriptions": {
+    "title": "Subscriptions",
+    "mySubscriptions": "My subscriptions",
+    "managedApisSubscribers": "Subscribers to my APIs",
+    "newLastWeek": "New this week",
+    "goToSubscriptions": "My subscriptions",
+    "none": "No active subscriptions"
   }
 }

@@ -273,7 +273,63 @@
       "DICTIONARY_ENTRY": "Dictionary Entry",
       "CONFIGURATION": "Configuration",
       "EMAIL_CONFIG": "Email Configuration",
-      "EMAIL_TEMPLATE": "Email Template"
+      "EMAIL_TEMPLATE": "Email Template",
+      "API_SUBSCRIPTION": "API Subscription"
+    }
+  },
+  "subscription": {
+    "title": "API Subscriptions",
+    "field": {
+      "apiName": "API Name",
+      "apiCode": "API Code",
+      "subscriberEmail": "Email",
+      "subscriberName": "Name",
+      "subscriberType": "Type",
+      "status": "Status",
+      "source": "Source",
+      "subscribedAt": "Subscribed at",
+      "apiId": "API ID",
+      "notificationsEnabled": "Notifications enabled"
+    },
+    "type": {
+      "internal": "Internal",
+      "external": "External"
+    },
+    "status": {
+      "active": "Active",
+      "inactive": "Inactive",
+      "pendingConfirmation": "Pending Confirmation"
+    },
+    "source": {
+      "internalPortal": "Internal Portal",
+      "developerPortal": "Developer Portal"
+    },
+    "action": {
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "dialog": {
+      "addTitle": "Add Subscription",
+      "editTitle": "Edit Subscription"
+    },
+    "confirm": {
+      "delete": {
+        "title": "Delete Subscription",
+        "message": "Are you sure you want to delete the subscription for \"{{ email }}\"?"
+      }
+    },
+    "validation": {
+      "apiIdRequired": "API ID is required",
+      "emailRequired": "Valid email is required"
+    },
+    "toast": {
+      "saved": "Subscription saved successfully.",
+      "deleted": "Subscription deleted.",
+      "error": "An error occurred. Please try again."
     }
   }
 }

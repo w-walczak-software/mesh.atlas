@@ -30,6 +30,8 @@
       "adminSettings": "Parametry systemowe",
       "adminEmailSettings": "Ustawienia email",
       "adminEmailTemplates": "Szablony email",
+      "adminSubscriptions": "Subskrypcje",
+      "mySubscriptions": "Moje subskrypcje",
       "analysis": "Analiza",
       "blastRadius": "Blast Radius",
       "deprecationImpact": "Raport Deprecacji",

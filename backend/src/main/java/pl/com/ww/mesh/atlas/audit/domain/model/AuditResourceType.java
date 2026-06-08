@@ -14,5 +14,6 @@ public enum AuditResourceType {
     DICTIONARY_ENTRY,
     CONFIGURATION,
     EMAIL_CONFIG,
-    EMAIL_TEMPLATE
+    EMAIL_TEMPLATE,
+    API_SUBSCRIPTION
 }

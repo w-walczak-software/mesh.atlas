@@ -1,6 +1,7 @@
 package pl.com.ww.mesh.atlas.api.application.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -35,6 +36,7 @@ public class ApiGovernanceService {
     private final ApiMapper mapper;
     private final GovernanceService governanceService;
     private final UserContextService userContextService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional(readOnly = true)
     public ApiGovernancePendingCountDto getPendingCount() {
@@ -65,6 +67,12 @@ public class ApiGovernanceService {
         api.setGovernanceNote(null);
         apiRepository.save(api);
         saveReview(api, "APPROVED", prev, GovernanceStatus.VERIFIED, request.note());
+
+        var user = userContextService.getCurrentUser();
+        String sysName = api.getProducerSystem() != null ? api.getProducerSystem().getName() : null;
+        eventPublisher.publishEvent(new ApiSubscriptionChangeEvent(
+                api.getId(), api.getCode(), api.getName(), api.getApiVersion(),
+                sysName, "Zmiana API zatwierdzona (governance)", user.email(), LocalDateTime.now()));
     }
 
     public void reject(UUID apiId, ApiVerifyRequest request) {

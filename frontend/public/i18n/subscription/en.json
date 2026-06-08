@@ -1,0 +1,30 @@
+{
+  "mySubscriptions": {
+    "title": "My Subscriptions"
+  },
+  "field": {
+    "apiName": "API Name",
+    "apiCode": "API Code",
+    "apiVersion": "Version",
+    "producerSystem": "Producer System",
+    "notifications": "Notifications",
+    "subscribedAt": "Subscribed at"
+  },
+  "badge": {
+    "enabled": "Enabled",
+    "disabled": "Disabled"
+  },
+  "action": {
+    "unsubscribe": "Unsubscribe"
+  },
+  "confirm": {
+    "unsubscribe": {
+      "title": "Unsubscribe",
+      "message": "Are you sure you want to unsubscribe from \"{{ api }}\"?"
+    }
+  },
+  "toast": {
+    "unsubscribed": "Unsubscribed successfully.",
+    "error": "An error occurred. Please try again."
+  }
+}

@@ -119,6 +119,46 @@
           </mat-card-content>
         </mat-card>
 
+        <!-- Subscriptions widget -->
+        <mat-card class="summary-card" appearance="outlined">
+          <mat-card-header>
+            <mat-card-title>{{ t('dashboard.subscriptions.title') }}</mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            @if (subStats() === null) {
+              <div class="coverage-skeleton">
+                @for (_ of [1,2,3]; track $index) {
+                  <div class="cov-skel-row"></div>
+                }
+              </div>
+            } @else {
+              <div class="summary-list">
+                <div class="summary-item">
+                  <mat-icon class="summary-icon summary-icon--primary">subscriptions</mat-icon>
+                  <span class="summary-label">{{ t('dashboard.subscriptions.mySubscriptions') }}</span>
+                  <span class="summary-value">{{ subStats()?.myActiveSubscriptions ?? 0 }}</span>
+                </div>
+                @if ((subStats()?.managedApisSubscribersCount ?? 0) > 0) {
+                  <div class="summary-item">
+                    <mat-icon class="summary-icon summary-icon--surface">group</mat-icon>
+                    <span class="summary-label">{{ t('dashboard.subscriptions.managedApisSubscribers') }}</span>
+                    <span class="summary-value">{{ subStats()?.managedApisSubscribersCount }}</span>
+                  </div>
+                }
+                <div class="summary-item">
+                  <mat-icon class="summary-icon summary-icon--success">new_releases</mat-icon>
+                  <span class="summary-label">{{ t('dashboard.subscriptions.newLastWeek') }}</span>
+                  <span class="summary-value">{{ subStats()?.newSubscriptionsLastWeek ?? 0 }}</span>
+                </div>
+              </div>
+              <button mat-stroked-button class="deprecated-btn" (click)="router.navigate(['/subscriptions'])">
+                <mat-icon>subscriptions</mat-icon>
+                {{ t('dashboard.subscriptions.goToSubscriptions') }}
+              </button>
+            }
+          </mat-card-content>
+        </mat-card>
+
         <!-- Summary counts -->
         <mat-card class="summary-card" appearance="outlined">
           <mat-card-header>

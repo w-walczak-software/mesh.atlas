@@ -45,6 +45,14 @@
     },
 
     {
+      "id": "subscriptions",
+      "label": "nav.menu.mySubscriptions",
+      "icon": "subscriptions",
+      "route": "/subscriptions",
+      "roles": ["atlas_admin", "atlas_user"]
+    },
+
+    {
       "id": "analysis",
       "label": "nav.menu.analysis",
       "icon": "crisis_alert",
@@ -127,6 +135,13 @@
           "label": "nav.menu.adminEmailTemplates",
           "icon": "article",
           "route": "/admin/email-templates",
+          "roles": ["atlas_admin"]
+        },
+        {
+          "id": "admin-subscriptions",
+          "label": "nav.menu.adminSubscriptions",
+          "icon": "manage_accounts",
+          "route": "/admin/subscriptions",
           "roles": ["atlas_admin"]
         }
       ]

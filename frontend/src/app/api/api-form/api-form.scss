@@ -503,3 +503,15 @@
     color: #4338ca;
   }
 }
+
+.subscription-row {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0 4px;
+}
+
+.no-data-text {
+  color: var(--mat-sys-on-surface-variant);
+  font-size: 14px;
+  padding: 8px 0;
+}

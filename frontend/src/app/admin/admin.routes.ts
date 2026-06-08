@@ -37,4 +37,9 @@ export const adminRoutes: Routes = [
     canActivate: [atlasAdminGuard],
     loadComponent: () => import('./email-template/email-templates').then(m => m.EmailTemplates),
   },
+  {
+    path: 'subscriptions',
+    canActivate: [atlasAdminGuard],
+    loadComponent: () => import('./subscriptions/admin-subscriptions').then(m => m.AdminSubscriptions),
+  },
 ];

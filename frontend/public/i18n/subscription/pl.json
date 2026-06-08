@@ -1,0 +1,30 @@
+{
+  "mySubscriptions": {
+    "title": "Moje subskrypcje"
+  },
+  "field": {
+    "apiName": "Nazwa API",
+    "apiCode": "Kod API",
+    "apiVersion": "Wersja",
+    "producerSystem": "System producenta",
+    "notifications": "Powiadomienia",
+    "subscribedAt": "Data subskrypcji"
+  },
+  "badge": {
+    "enabled": "Włączone",
+    "disabled": "Wyłączone"
+  },
+  "action": {
+    "unsubscribe": "Wypisz się"
+  },
+  "confirm": {
+    "unsubscribe": {
+      "title": "Wypisz się",
+      "message": "Czy na pewno chcesz anulować subskrypcję API \"{{ api }}\"?"
+    }
+  },
+  "toast": {
+    "unsubscribed": "Subskrypcja anulowana.",
+    "error": "Wystąpił błąd. Spróbuj ponownie."
+  }
+}

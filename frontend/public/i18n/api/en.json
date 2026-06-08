@@ -262,5 +262,23 @@
     "pendingGoTo": "Go to Verification Queue",
     "verificationQueueTitle": "Verification Queue — APIs awaiting your review",
     "exitQueue": "Back to all APIs"
+  },
+  "subscription": {
+    "subscribe": "Subscribe to changes",
+    "unsubscribe": "Unsubscribe",
+    "subscribersTitle": "Subscribers",
+    "refresh": "Refresh",
+    "noSubscribers": "No active subscribers for this API.",
+    "field": {
+      "email": "Email",
+      "name": "Name",
+      "type": "Type",
+      "subscribedAt": "Subscribed at"
+    },
+    "toast": {
+      "subscribed": "Successfully subscribed. You will receive notifications about changes to this API.",
+      "unsubscribed": "Unsubscribed successfully.",
+      "error": "An error occurred. Please try again."
+    }
   }
 }

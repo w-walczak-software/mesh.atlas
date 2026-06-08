@@ -17,6 +17,7 @@ import { TableConfig } from '@shared/data-table/data-table.models';
 import { ApiService } from '../api/service/api.service';
 import { ApiSummaryDto } from '../api/model/api.model';
 import { ItSystemService } from '../itsystem/service/itsystem.service';
+import { SubscriptionService } from '../subscription/service/subscription.service';
 
 interface KpiCard {
   labelKey: string;
@@ -52,14 +53,16 @@ interface CoverageItem {
 })
 export class Dashboard {
   private readonly t  = inject(TranslocoService);
-  private readonly router = inject(Router);
+  protected readonly router = inject(Router);
   private readonly apiService = inject(ApiService);
   private readonly itSystemService = inject(ItSystemService);
+  private readonly subscriptionService = inject(SubscriptionService);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
 
-  private readonly apiStats     = toSignal(this.apiService.getStats(),         { initialValue: null });
-  private readonly itStats      = toSignal(this.itSystemService.getStats(),     { initialValue: null });
+  private readonly apiStats     = toSignal(this.apiService.getStats(),            { initialValue: null });
+  private readonly itStats      = toSignal(this.itSystemService.getStats(),      { initialValue: null });
+  protected readonly subStats   = toSignal(this.subscriptionService.getStats(),  { initialValue: null });
   private readonly recentPage   = toSignal(
     this.apiService.findAll({ page: 0, size: 10, sort: 'createdAt,desc' }),
     { initialValue: null },

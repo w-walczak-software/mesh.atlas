@@ -1,0 +1,13 @@
+<ng-container *transloco="let t; scope: 'subscription'; lang: lang()">
+  <div class="page-container">
+    <atlas-page-title [title]="t('subscription.mySubscriptions.title')" icon="subscriptions" />
+
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+      (pageChange)="onPage($event)"
+      (rowSelect)="_selectedRow.set($event)"
+    />
+  </div>
+</ng-container>
