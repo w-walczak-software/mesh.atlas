@@ -402,6 +402,18 @@ export interface ApiGraphEdgeDto {
   dataDomains: string[];
   environments: string[];
   active: boolean;
+  securityPolicy: DictionaryEntryRef | null;
+  integrationPattern: DictionaryEntryRef | null;
+  messageFormat: DictionaryEntryRef | null;
+  slaResponseTimeMs: number | null;
+  slaUptimePct: number | null;
+  slaTier: DictionaryEntryRef | null;
+  slaDescription: string | null;
+  owners: ApiGraphSystemOwnerRef[];
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
 }
 
 export interface ApiGraphResultDto {

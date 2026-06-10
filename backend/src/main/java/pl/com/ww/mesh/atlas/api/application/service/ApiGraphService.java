@@ -268,6 +268,15 @@ public class ApiGraphService {
         List<String> environmentNames = api.getEnvironments().stream()
                 .map(e -> e.getEnvironment().getName())
                 .toList();
+        List<ApiGraphSystemOwnerDto> owners = api.getOwners().stream()
+                .filter(o -> o.getValidTo() == null || !o.getValidTo().isBefore(LocalDate.now()))
+                .map(o -> new ApiGraphSystemOwnerDto(
+                        o.getFirstName(),
+                        o.getLastName(),
+                        o.getEmail(),
+                        o.getRole() != null ? o.getRole().getName() : null
+                ))
+                .toList();
         return new ApiGraphEdgeDto(
                 api.getId(),
                 api.getCode(),
@@ -284,7 +293,19 @@ public class ApiGraphService {
                 api.getTags(),
                 dataDomainNames,
                 environmentNames,
-                api.isActive()
+                api.isActive(),
+                mapEntry(api.getSecurityPolicy()),
+                mapEntry(api.getIntegrationPattern()),
+                mapEntry(api.getMessageFormat()),
+                api.getSlaResponseTimeMs(),
+                api.getSlaUptimePct(),
+                mapEntry(api.getSlaTier()),
+                api.getSlaDescription(),
+                owners,
+                api.getCreatedAt(),
+                api.getCreatedBy(),
+                api.getUpdatedAt(),
+                api.getUpdatedBy()
         );
     }
 
