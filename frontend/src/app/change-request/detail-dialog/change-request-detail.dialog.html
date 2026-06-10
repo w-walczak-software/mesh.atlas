@@ -33,10 +33,10 @@
           {{ t('changeRequest.status.' + dto.status) }}
         </span>
         <span class="cr-meta-item">
-          <mat-icon>category</mat-icon>{{ dto.changeType?.name ?? '—' }}
+          <mat-icon>category</mat-icon>{{ dto.changeType.name }}
         </span>
         <span class="cr-meta-item">
-          <mat-icon>flag</mat-icon>{{ dto.priority?.name ?? '—' }}
+          <mat-icon>flag</mat-icon>{{ dto.priority.name }}
         </span>
         <span class="cr-meta-item">
           <mat-icon>person</mat-icon>{{ dto.requesterName ?? dto.requesterEmail }}

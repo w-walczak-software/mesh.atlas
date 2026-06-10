@@ -16,8 +16,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.envers.AuditTable;
 import org.hibernate.envers.Audited;
+import org.hibernate.type.SqlTypes;
 import org.hibernate.envers.RelationTargetAuditMode;
 import pl.com.ww.mesh.atlas.global.domain.common.AuditableEntity;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
@@ -65,7 +67,8 @@ public class TransportLayerEntity extends AuditableEntity {
             foreignKey = @ForeignKey(name = "fk_transport_layer_it_system"))
     private ItSystemEntity itSystem;
 
-    @Column(name = "metadata", columnDefinition = "jsonb")
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "metadata")
     private Map<String, Object> metadata;
 
     @Column(name = "active", nullable = false)

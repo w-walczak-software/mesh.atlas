@@ -24,6 +24,27 @@
         [disabled]="loading()">
         <mat-icon>refresh</mat-icon>
       </button>
+      <button
+        mat-icon-button
+        [matMenuTriggerFor]="exportMenu"
+        [matTooltip]="t('api.graph.export')"
+        [disabled]="loading() || nodes().length === 0 || exporting()">
+        <mat-icon>{{ exporting() ? 'hourglass_empty' : 'download' }}</mat-icon>
+      </button>
+      <mat-menu #exportMenu="matMenu">
+        <button mat-menu-item (click)="exportAs('png')">
+          <mat-icon>image</mat-icon>
+          <span>{{ t('api.graph.exportPng') }}</span>
+        </button>
+        <button mat-menu-item (click)="exportAs('jpg')">
+          <mat-icon>photo</mat-icon>
+          <span>{{ t('api.graph.exportJpg') }}</span>
+        </button>
+        <button mat-menu-item (click)="exportAs('pdf')">
+          <mat-icon>picture_as_pdf</mat-icon>
+          <span>{{ t('api.graph.exportPdf') }}</span>
+        </button>
+      </mat-menu>
     </div>
 
     <!-- ── Loading ──────────────────────────────────────────────────────────── -->
@@ -43,7 +64,7 @@
     }
 
     @else {
-      <div class="graph-canvas">
+      <div class="graph-canvas" #graphCanvas>
 
         @if (edges().length === 0) {
           <div class="graph-no-edges" role="status">

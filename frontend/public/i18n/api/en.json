@@ -140,7 +140,11 @@
     "layoutLayered": "Hierarchical layout (by role)",
     "layoutCircular": "Circular layout",
     "activeFilters": "Filtered view",
-    "activeFiltersHint": "Showing only APIs matching the active search filters from the list"
+    "activeFiltersHint": "Showing only APIs matching the active search filters from the list",
+    "export": "Export view",
+    "exportPng": "Export as PNG",
+    "exportJpg": "Export as JPG",
+    "exportPdf": "Export as PDF"
   },
   "preview": {
     "close":                "Close",

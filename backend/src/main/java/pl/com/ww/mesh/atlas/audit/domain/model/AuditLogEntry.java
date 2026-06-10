@@ -74,7 +74,7 @@ public class AuditLogEntry {
     private String message;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "context", columnDefinition = "jsonb")
+    @Column(name = "context")
     private Map<String, Object> context;
 
     @Column(name = "ip_address", length = 45)

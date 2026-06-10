@@ -87,18 +87,21 @@ public class ApiService {
         Map<UUID, ApiRatingSummaryDto> ratingsMap = ratingService.getSummaryMap(ids);
 
         return page.map(entity -> enrichSummary(mapper.mapSummary(entity), entity,
-                user.isPrivileged(), defineApiSystemIds, editableApiIds, ratingsMap.get(entity.getId())));
+                user.isPrivileged(), defineApiSystemIds, editableApiIds, verifiable, ratingsMap.get(entity.getId())));
     }
 
     private ApiSummaryDto enrichSummary(ApiSummaryDto base, ApiEntity entity, boolean privileged,
                                         Set<UUID> defineApiSystemIds, Set<UUID> editableApiIds,
-                                        ApiRatingSummaryDto ratingsSummary) {
+                                        Set<UUID> verifiableSystemIds, ApiRatingSummaryDto ratingsSummary) {
         boolean canEdit = privileged
                 || (entity.getProducerSystem() != null && defineApiSystemIds.contains(entity.getProducerSystem().getId()))
                 || editableApiIds.contains(entity.getId());
+        boolean canVerify = entity.getProducerSystem() != null
+                && verifiableSystemIds.contains(entity.getProducerSystem().getId())
+                && entity.getGovernanceStatus() != GovernanceStatus.VERIFIED;
         return new ApiSummaryDto(base.id(), base.code(), base.name(), base.apiVersion(),
                 base.type(), base.status(), base.producerSystem(), base.consumerSystems(),
-                base.transportLayer(), base.tags(), base.active(), base.governanceStatus(), canEdit, ratingsSummary);
+                base.transportLayer(), base.tags(), base.active(), base.governanceStatus(), canEdit, canVerify, ratingsSummary);
     }
 
     @Transactional(readOnly = true)

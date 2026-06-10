@@ -126,11 +126,11 @@ public class ItSystemEntity extends AuditableEntity {
     private List<ItSystemOwnerEntity> owners = new ArrayList<>();
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "tags", columnDefinition = "jsonb")
+    @Column(name = "tags")
     private List<String> tags;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
+    @Column(name = "metadata")
     private Map<String, Object> metadata;
 
     @Column(name = "icon", length = 100)

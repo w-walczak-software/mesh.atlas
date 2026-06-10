@@ -97,7 +97,12 @@
       "PowerShell($env:JAVA_HOME = \"C:\\\\Program Files\\\\Java\\\\jdk-21\"; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 30)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;\" + $env:PATH; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw compile -q 2>&1 | Select-Object -Last 30)",
       "PowerShell($env:JAVA_HOME = \"C:\\\\java\\\\jdk-21\"; $env:PATH = \"C:\\\\java\\\\jdk-21\\\\bin;\" + $env:PATH; cd C:\\\\DEV\\\\mesh-atlas\\\\backend; .\\\\mvnw flyway:repair -q 2>&1 | Select-Object -Last 10)",
-      "Bash(dir C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\public\\\\i18n *)"
+      "Bash(dir C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\public\\\\i18n *)",
+      "Bash(dir C:\\\\DEV\\\\mesh-atlas\\\\frontend\\\\src\\\\app)",
+      "PowerShell(Receive-Job *)",
+      "PowerShell(Get-Command *)",
+      "Bash(findstr \"\\\\\"version\\\\\"\")",
+      "mcp__ide__getDiagnostics"
     ]
   }
 }

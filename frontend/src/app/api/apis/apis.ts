@@ -356,14 +356,14 @@ export class Apis implements OnInit {
         {
           label: this.t.translate('api.governance.approve'),
           icon: 'check_circle',
-          visible: (row) => row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW',
+          visible: (row) => row.canVerify && (row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW'),
           action: (row) => this.openVerifyDialog(row, 'approve'),
         },
         {
           label: this.t.translate('api.governance.reject'),
           icon: 'cancel',
           color: 'error',
-          visible: (row) => row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW',
+          visible: (row) => row.canVerify && (row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW'),
           action: (row) => this.openVerifyDialog(row, 'reject'),
         },
         {

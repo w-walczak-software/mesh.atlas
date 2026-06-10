@@ -67,6 +67,7 @@ public class ApiSubscriptionEntity extends AuditableEntity {
     @Column(name = "source", nullable = false, length = 30)
     private SubscriptionSource source;
 
+    @Builder.Default
     @Column(name = "notifications_enabled", nullable = false)
     private boolean notificationsEnabled = true;
 

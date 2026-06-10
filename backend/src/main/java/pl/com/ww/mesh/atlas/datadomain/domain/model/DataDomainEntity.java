@@ -62,11 +62,11 @@ public class DataDomainEntity extends AuditableEntity {
     private String documentationUrl;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "tags", columnDefinition = "jsonb")
+    @Column(name = "tags")
     private List<String> tags;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
+    @Column(name = "metadata")
     private Map<String, Object> metadata;
 
     @Audited(targetAuditMode = RelationTargetAuditMode.NOT_AUDITED)

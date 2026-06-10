@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
+  ElementRef,
   inject,
   OnInit,
   signal,
@@ -10,10 +11,13 @@ import {
 import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatMenuModule } from '@angular/material/menu';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog } from '@angular/material/dialog';
 import { provideTranslocoScope, TranslocoDirective, TranslocoService } from '@jsverse/transloco';
+import { getFontEmbedCSS } from 'html-to-image';
+import jsPDF from 'jspdf';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {
   createEdges,
@@ -80,6 +84,7 @@ const EDGE_PALETTE = [
     TranslocoDirective,
     MatButtonModule,
     MatIconModule,
+    MatMenuModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
     VflowComponent,
@@ -99,6 +104,7 @@ export class ApiGraph implements OnInit {
   private readonly dialog       = inject(MatDialog);
   private readonly t            = inject(TranslocoService);
   private readonly vflow        = viewChild(VflowComponent);
+  private readonly graphCanvas  = viewChild<ElementRef<HTMLElement>>('graphCanvas');
 
   protected readonly lang         = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly loading      = signal(true);
@@ -108,6 +114,7 @@ export class ApiGraph implements OnInit {
   protected readonly animateEdges = signal(false);
   protected readonly hasFilters   = computed(() => this.filterState.hasActiveFilters());
   protected readonly hoverTooltip = signal<HoverTooltip | null>(null);
+  protected readonly exporting    = signal(false);
   protected readonly backTooltip  = computed(() => {
     const route = this.filterState.getSourceRoute();
     if (route === '/it-systems')   return this.t.translate('api.graph.backToItSystems');
@@ -436,6 +443,174 @@ export class ApiGraph implements OnInit {
   protected goBack(): void {
     this.router.navigate([this.filterState.getSourceRoute()]);
   }
+
+  // ── Export ────────────────────────────────────────────────────────────────
+
+  protected async exportAs(format: 'png' | 'jpg' | 'pdf'): Promise<void> {
+    const canvas = this.graphCanvas()?.nativeElement;
+    if (!canvas || this.exporting()) return;
+
+    // The whole graph is rendered inside a single root <svg> (nodes as foreignObject
+    // HTML, edges as SVG paths). The on-screen <svg> is only viewport-sized, so
+    // rasterizing it directly clips everything outside the visible area. Instead we
+    // clone that SVG, neutralise the pan/zoom transform and resize it via viewBox to
+    // the full content bounds, inline every computed style and embed the fonts — the
+    // export then is a self-contained SVG containing every node and edge, drawn at the
+    // exact on-screen styling.
+    const rootSvg = canvas.querySelector<SVGSVGElement>('svg.root-svg');
+    if (!rootSvg) return;
+
+    this.clearTooltip();
+    this.exporting.set(true);
+    const filename = `mesh-atlas-integration-map-${new Date().toISOString().slice(0, 10)}`;
+
+    try {
+      const { dataUrl, width, height } = await this.renderGraphImage(
+        rootSvg, format === 'jpg' ? 'image/jpeg' : 'image/png',
+      );
+
+      if (format === 'png' || format === 'jpg') {
+        triggerDownload(dataUrl, `${filename}.${format}`);
+      } else {
+        const pdf = new jsPDF({
+          orientation: width >= height ? 'landscape' : 'portrait',
+          unit: 'px',
+          format: [width, height],
+          hotfixes: ['px_scaling'],
+        });
+        pdf.addImage(dataUrl, 'PNG', 0, 0, width, height);
+        pdf.save(`${filename}.pdf`);
+      }
+    } finally {
+      this.exporting.set(false);
+    }
+  }
+
+  /** Padding (px) around the graph content in exported images. */
+  private static readonly EXPORT_PADDING = 48;
+  /** Bitmap upscaling factor for crisp exports (capped so the canvas stays within limits). */
+  private static readonly EXPORT_PIXEL_RATIO = 2;
+  /** Browser canvas dimension limit (px). */
+  private static readonly CANVAS_LIMIT = 16384;
+
+  /**
+   * Produces a raster data-URL of the entire graph at on-screen 1:1 styling.
+   *
+   * Builds a self-contained clone of the root <svg>: viewport transform reset to 1:1,
+   * `viewBox` sized to the full content bounds, every computed style inlined onto the
+   * inner foreignObject HTML (html-to-image can't reach across the <svg> boundary), and
+   * the web fonts embedded as base64 so icons render as glyphs. The clone is then drawn
+   * onto a canvas.
+   */
+  private async renderGraphImage(
+    rootSvg: SVGSVGElement,
+    mime: 'image/png' | 'image/jpeg',
+  ): Promise<{ dataUrl: string; width: number; height: number }> {
+    const pad = ApiGraph.EXPORT_PADDING;
+
+    // Content bounds in flow coordinates — independent of the current pan/zoom.
+    const box    = (this.findViewportGroup(rootSvg) ?? rootSvg).getBBox();
+    const width  = Math.max(1, Math.ceil(box.width  + pad * 2));
+    const height = Math.max(1, Math.ceil(box.height + pad * 2));
+
+    const clone = rootSvg.cloneNode(true) as SVGSVGElement;
+    // Render at natural scale, origin-independent, so the viewBox controls framing.
+    this.findViewportGroup(clone)?.setAttribute('transform', 'translate(0,0) scale(1)');
+    clone.setAttribute('width',  `${width}`);
+    clone.setAttribute('height', `${height}`);
+    clone.setAttribute('viewBox', `${box.x - pad} ${box.y - pad} ${width} ${height}`);
+
+    // Inline computed styles onto the foreignObject HTML so the SVG is self-contained
+    // (an <img> rendering an SVG data-URL does not apply the document's stylesheets).
+    this.inlineComputedStyles(rootSvg, clone);
+
+    // Embed fonts (Material Symbols Outlined, Inter) so icons render as glyphs.
+    const fontEmbedCSS = await getFontEmbedCSS(rootSvg as unknown as HTMLElement);
+    if (fontEmbedCSS) {
+      const style = document.createElementNS('http://www.w3.org/2000/svg', 'style');
+      style.textContent = fontEmbedCSS;
+      clone.insertBefore(style, clone.firstChild);
+    }
+
+    const surface = getComputedStyle(document.documentElement)
+      .getPropertyValue('--mat-sys-surface').trim() || '#ffffff';
+
+    const xml   = new XMLSerializer().serializeToString(clone);
+    const svgUrl = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(xml)}`;
+    const img   = await loadImage(svgUrl);
+
+    // Cap the upscaling so the bitmap never exceeds the browser canvas limit.
+    const ratio = Math.min(ApiGraph.EXPORT_PIXEL_RATIO, ApiGraph.CANVAS_LIMIT / Math.max(width, height));
+    const out   = document.createElement('canvas');
+    out.width   = Math.round(width  * ratio);
+    out.height  = Math.round(height * ratio);
+    const ctx   = out.getContext('2d')!;
+    // Solid surface background so the export matches the on-screen canvas (and JPEG,
+    // which has no alpha channel, gets the right colour in both light and dark mode).
+    ctx.fillStyle = surface;
+    ctx.fillRect(0, 0, out.width, out.height);
+    ctx.drawImage(img, 0, 0, out.width, out.height);
+
+    return {
+      dataUrl: out.toDataURL(mime, mime === 'image/jpeg' ? 0.95 : undefined),
+      width,
+      height,
+    };
+  }
+
+  /** Locates the vflow viewport <g> (the element carrying the d3-zoom transform). */
+  private findViewportGroup(svg: SVGSVGElement): SVGGElement | null {
+    const direct = svg.querySelector<SVGGElement>('g[mapContext]');
+    if (direct) return direct;
+    return [...svg.querySelectorAll<SVGGElement>('g')]
+      .find(g => /matrix|translate|scale/.test(g.getAttribute('transform') ?? '')) ?? null;
+  }
+
+  /**
+   * Walks `liveRoot` and its structural clone `cloneRoot` in lock-step, copying the
+   * resolved computed style of every HTML element onto the clone. Only HTML elements
+   * (the foreignObject node/label markup) need this — SVG paths/markers are already
+   * fully described by their presentation attributes.
+   */
+  private inlineComputedStyles(liveRoot: Element, cloneRoot: Element): void {
+    const liveWalker  = document.createTreeWalker(liveRoot,  NodeFilter.SHOW_ELEMENT);
+    const cloneWalker = document.createTreeWalker(cloneRoot, NodeFilter.SHOW_ELEMENT);
+
+    // `Node` is shadowed by the ngx-vflow import, so use the DOM type explicitly.
+    let live: globalThis.Node | null  = liveRoot;
+    let clone: globalThis.Node | null = cloneRoot;
+    while (live && clone) {
+      if (live instanceof HTMLElement && clone instanceof HTMLElement) {
+        const cs = getComputedStyle(live);
+        let cssText = cs.cssText;
+        if (!cssText) {
+          for (let i = 0; i < cs.length; i++) {
+            const p = cs[i];
+            cssText += `${p}:${cs.getPropertyValue(p)};`;
+          }
+        }
+        clone.style.cssText = cssText;
+      }
+      live  = liveWalker.nextNode();
+      clone = cloneWalker.nextNode();
+    }
+  }
+}
+
+function triggerDownload(dataUrl: string, filename: string): void {
+  const a = document.createElement('a');
+  a.href = dataUrl;
+  a.download = filename;
+  a.click();
+}
+
+function loadImage(src: string): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
 }
 
 // ══════════════════════════════════════════════════════════════════════════════

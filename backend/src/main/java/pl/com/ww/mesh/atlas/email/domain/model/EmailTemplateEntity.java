@@ -43,10 +43,12 @@ public class EmailTemplateEntity extends AuditableEntity {
     @Column(name = "description", length = 2000)
     private String description;
 
+    @Builder.Default
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "tags", nullable = false, columnDefinition = "jsonb")
+    @Column(name = "tags", nullable = false)
     private List<String> tags = new ArrayList<>();
 
+    @Builder.Default
     @Column(name = "active", nullable = false)
     private boolean active = true;
 }

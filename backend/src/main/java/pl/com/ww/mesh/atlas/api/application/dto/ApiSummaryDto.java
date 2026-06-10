@@ -21,5 +21,6 @@ public record ApiSummaryDto(
         boolean active,
         GovernanceStatus governanceStatus,
         boolean canEdit,
+        boolean canVerify,
         ApiRatingSummaryDto ratingsSummary
 ) {}

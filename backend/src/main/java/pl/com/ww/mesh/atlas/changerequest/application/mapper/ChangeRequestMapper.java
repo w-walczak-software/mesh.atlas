@@ -24,6 +24,7 @@ public interface ChangeRequestMapper {
     @Mapping(target = "apiName",           source = "api.name")
     @Mapping(target = "apiVersion",        source = "api.apiVersion")
     @Mapping(target = "currentUserIsOwner", constant = "false")
+    @Mapping(target = "currentUserIsRequester", constant = "false")
     ChangeRequestSummaryDto mapSummary(ChangeRequestEntity entity);
 
     default ChangeRequestSummaryDto mapSummary(ChangeRequestEntity entity, boolean currentUserIsOwner, boolean currentUserIsRequester) {

@@ -29,6 +29,7 @@ public interface ApiMapper {
     ApiDto map(ApiEntity entity);
 
     @Mapping(target = "canEdit", constant = "false")
+    @Mapping(target = "canVerify", constant = "false")
     @Mapping(target = "ratingsSummary", ignore = true)
     ApiSummaryDto mapSummary(ApiEntity entity);
 
@@ -61,6 +62,8 @@ public interface ApiMapper {
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "dataDomains", ignore = true)
     @Mapping(target = "environments", ignore = true)
+    @Mapping(target = "governanceStatus", ignore = true)
+    @Mapping(target = "governanceNote", ignore = true)
     ApiEntity map(ApiCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -83,5 +86,7 @@ public interface ApiMapper {
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "dataDomains", ignore = true)
     @Mapping(target = "environments", ignore = true)
+    @Mapping(target = "governanceStatus", ignore = true)
+    @Mapping(target = "governanceNote", ignore = true)
     void updateEntity(ApiUpdateRequest request, @MappingTarget ApiEntity entity);
 }

@@ -134,6 +134,7 @@ export interface ApiSummaryDto {
   active: boolean;
   governanceStatus: GovernanceStatus;
   canEdit: boolean;
+  canVerify: boolean;
   ratingsSummary: ApiRatingSummaryDto | null;
 }
 

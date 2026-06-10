@@ -167,7 +167,7 @@ public class ApiEntity extends AuditableEntity {
     private String documentationUrl;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "tags", columnDefinition = "jsonb")
+    @Column(name = "tags")
     private List<String> tags;
 
     @NotAudited
@@ -226,6 +226,7 @@ public class ApiEntity extends AuditableEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "governance_status", nullable = false, length = 30)
+    @Builder.Default
     private GovernanceStatus governanceStatus = GovernanceStatus.VERIFIED;
 
     @Column(name = "governance_note", columnDefinition = "TEXT")

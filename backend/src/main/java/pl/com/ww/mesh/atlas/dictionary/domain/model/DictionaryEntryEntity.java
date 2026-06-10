@@ -73,6 +73,6 @@ public class DictionaryEntryEntity extends AuditableEntity {
     private boolean systemDefined;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    @Column(name = "metadata", columnDefinition = "jsonb")
+    @Column(name = "metadata")
     private Map<String, Object> metadata;
 }

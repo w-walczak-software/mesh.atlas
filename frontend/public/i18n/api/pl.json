@@ -140,7 +140,11 @@
     "layoutLayered": "Układ hierarchiczny (wg roli)",
     "layoutCircular": "Układ kołowy",
     "activeFilters": "Widok z filtrami",
-    "activeFiltersHint": "Wyświetlane są tylko API pasujące do aktywnych filtrów z listy"
+    "activeFiltersHint": "Wyświetlane są tylko API pasujące do aktywnych filtrów z listy",
+    "export": "Eksportuj widok",
+    "exportPng": "Eksportuj jako PNG",
+    "exportJpg": "Eksportuj jako JPG",
+    "exportPdf": "Eksportuj jako PDF"
   },
   "preview": {
     "close":                "Zamknij",

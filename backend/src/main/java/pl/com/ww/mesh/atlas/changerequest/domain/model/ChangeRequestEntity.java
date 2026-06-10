@@ -100,6 +100,7 @@ public class ChangeRequestEntity extends AuditableEntity {
     @Column(name = "implemented_version", length = 50)
     private String implementedVersion;
 
+    @Builder.Default
     @Column(name = "active", nullable = false)
     private boolean active = true;
 
