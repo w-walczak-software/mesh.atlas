@@ -1,4 +1,4 @@
-import { ApiGraphEdgeDto, TransportLayerRef } from '../model/api.model';
+import { ApiGraphEdgeDto, ApiGraphSystemOwnerRef, TransportLayerRef } from '../model/api.model';
 
 export interface SystemNodeData {
   systemId: string;
@@ -16,6 +16,12 @@ export interface SystemNodeData {
   businessCriticalityName: string | null;
   dataClassificationName: string | null;
   architectureStyleName: string | null;
+  tags: string[] | null;
+  owners: ApiGraphSystemOwnerRef[];
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
 }
 
 export interface ApiEdgeGroupData {

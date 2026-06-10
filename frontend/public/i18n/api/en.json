@@ -162,7 +162,15 @@
     "businessCriticality":  "Criticality",
     "dataClassification":   "Data class.",
     "architectureStyle":    "Architecture",
-    "documentation":        "Documentation"
+    "documentation":        "Documentation",
+    "tags":                 "Tags",
+    "noTags":               "No tags",
+    "sectionOwners":        "Owners",
+    "noOwners":             "No owners assigned",
+    "sectionAudit":         "Audit",
+    "createdAt":            "Created",
+    "updatedAt":            "Modified",
+    "by":                   "by"
   },
   "toolbar": {
     "selectToEdit": "Select an API to edit",

@@ -18,6 +18,7 @@ import pl.com.ww.mesh.atlas.api.application.dto.ApiGraphEdgeDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiGraphResultDto;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiGraphSearchCriteria;
 import pl.com.ww.mesh.atlas.api.application.dto.ApiGraphSystemDto;
+import pl.com.ww.mesh.atlas.api.application.dto.ApiGraphSystemOwnerDto;
 import pl.com.ww.mesh.atlas.api.application.dto.TransportLayerRefDto;
 import pl.com.ww.mesh.atlas.api.domain.model.ApiEntity;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiRepository;
@@ -28,6 +29,7 @@ import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
 import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -223,6 +225,16 @@ public class ApiGraphService {
     }
 
     private ApiGraphSystemDto toSystemDto(ItSystemEntity system) {
+        List<ApiGraphSystemOwnerDto> owners = system.getOwners().stream()
+                .filter(o -> o.getValidTo() == null || !o.getValidTo().isBefore(LocalDate.now()))
+                .map(o -> new ApiGraphSystemOwnerDto(
+                        o.getFirstName(),
+                        o.getLastName(),
+                        o.getEmail(),
+                        o.getRole() != null ? o.getRole().getName() : null
+                ))
+                .toList();
+
         return new ApiGraphSystemDto(
                 system.getId(),
                 system.getCode(),
@@ -235,7 +247,13 @@ public class ApiGraphService {
                 mapEntry(system.getBusinessCriticality()),
                 mapEntry(system.getDataClassification()),
                 mapEntry(system.getArchitectureStyle()),
-                system.isActive()
+                system.isActive(),
+                system.getTags(),
+                owners,
+                system.getCreatedAt(),
+                system.getCreatedBy(),
+                system.getUpdatedAt(),
+                system.getUpdatedBy()
         );
     }
 

@@ -226,6 +226,12 @@ export class ApiGraph implements OnInit {
             businessCriticalityName: s.businessCriticality?.name ?? null,
             dataClassificationName:  s.dataClassification?.name ?? null,
             architectureStyleName:   s.architectureStyle?.name ?? null,
+            tags:                    s.tags,
+            owners:                  s.owners,
+            createdAt:               s.createdAt,
+            createdBy:               s.createdBy,
+            updatedAt:               s.updatedAt,
+            updatedBy:               s.updatedBy,
           } satisfies SystemNodeData,
         };
       }),
@@ -318,7 +324,7 @@ export class ApiGraph implements OnInit {
     this.dialog
       .open<SystemPreviewDialog, SystemPreviewDialogData, SystemPreviewDialogResult>(
         SystemPreviewDialog,
-        { data: { system: data }, width: '500px', autoFocus: false },
+        { data: { system: data }, width: '750px', autoFocus: false },
       )
       .afterClosed()
       .subscribe(result => {

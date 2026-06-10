@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, inject, ViewEncapsulation } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +15,7 @@ export type SystemPreviewDialogResult = 'details' | undefined;
 
 @Component({
   selector: 'app-system-preview-dialog',
-  imports: [MatDialogModule, MatButtonModule, MatIconModule, TranslocoDirective],
+  imports: [MatDialogModule, MatButtonModule, MatIconModule, TranslocoDirective, DatePipe],
   providers: [provideTranslocoScope('api')],
   changeDetection: ChangeDetectionStrategy.OnPush,
   encapsulation: ViewEncapsulation.None,
@@ -85,6 +86,56 @@ export type SystemPreviewDialogResult = 'details' | undefined;
           </div>
         }
 
+        <!-- ── Tags ─────────────────────────────────────────────────── -->
+        @if (data.system.tags && data.system.tags.length) {
+          <div class="prev-dlg-row prev-dlg-row--tags">
+            <span class="prev-dlg-row__label">{{ t('api.preview.tags') }}</span>
+            <span class="prev-dlg-tags">
+              @for (tag of data.system.tags; track tag) {
+                <span class="prev-dlg-tag">{{ tag }}</span>
+              }
+            </span>
+          </div>
+        }
+
+        <!-- ── Owners ────────────────────────────────────────────────── -->
+        <div class="prev-dlg-section">{{ t('api.preview.sectionOwners') }}</div>
+
+        @if (data.system.owners.length) {
+          @for (owner of data.system.owners; track owner.email) {
+            <div class="prev-dlg-owner">
+              <div class="prev-dlg-owner__main">
+                @if (owner.roleName) {
+                  <span class="prev-dlg-owner__role">{{ owner.roleName }}</span>
+                }
+                <span class="prev-dlg-owner__name">{{ owner.firstName }} {{ owner.lastName }}</span>
+              </div>
+              <a class="prev-dlg-owner__email" [href]="'mailto:' + owner.email">{{ owner.email }}</a>
+            </div>
+          }
+        } @else {
+          <div class="prev-dlg-empty">{{ t('api.preview.noOwners') }}</div>
+        }
+
+        <!-- ── Audit ─────────────────────────────────────────────────── -->
+        <div class="prev-dlg-section">{{ t('api.preview.sectionAudit') }}</div>
+
+        <div class="prev-dlg-row">
+          <span class="prev-dlg-row__label">{{ t('api.preview.createdAt') }}</span>
+          <span class="prev-dlg-row__value">
+            {{ data.system.createdAt | date:'yyyy-MM-dd HH:mm' }}
+            <span class="prev-dlg-by">{{ t('api.preview.by') }} {{ data.system.createdBy }}</span>
+          </span>
+        </div>
+
+        <div class="prev-dlg-row">
+          <span class="prev-dlg-row__label">{{ t('api.preview.updatedAt') }}</span>
+          <span class="prev-dlg-row__value">
+            {{ data.system.updatedAt | date:'yyyy-MM-dd HH:mm' }}
+            <span class="prev-dlg-by">{{ t('api.preview.by') }} {{ data.system.updatedBy }}</span>
+          </span>
+        </div>
+
       </mat-dialog-content>
 
       <!-- ── Actions ───────────────────────────────────────────────────── -->
@@ -133,7 +184,7 @@ export type SystemPreviewDialogResult = 'details' | undefined;
 
     .prev-dlg-body {
       display: flex; flex-direction: column; gap: 0;
-      padding: 4px 24px 8px !important; max-height: 50vh;
+      padding: 4px 24px 8px !important; max-height: 60vh;
     }
     .prev-dlg-row {
       display: flex; gap: 12px; padding: 10px 0;
@@ -141,14 +192,69 @@ export type SystemPreviewDialogResult = 'details' | undefined;
       &:last-child { border-bottom: none; }
     }
     .prev-dlg-row--desc { flex-direction: column; gap: 4px; }
+    .prev-dlg-row--tags { align-items: flex-start; }
     .prev-dlg-row__label {
       font-size: 11px; font-weight: 600; color: var(--mat-sys-on-surface-variant);
       text-transform: uppercase; letter-spacing: .04em;
-      min-width: 80px; flex-shrink: 0; padding-top: 1px;
+      min-width: 80px; flex-shrink: 0; padding-top: 2px;
     }
     .prev-dlg-row--desc .prev-dlg-row__label { min-width: unset; }
     .prev-dlg-row__value {
       font-size: 13px; color: var(--mat-sys-on-surface); line-height: 1.5;
+    }
+
+    .prev-dlg-tags {
+      display: flex; flex-wrap: wrap; gap: 4px;
+    }
+    .prev-dlg-tag {
+      display: inline-flex; align-items: center;
+      padding: 2px 8px; border-radius: 20px;
+      font-size: 11px; font-weight: 500;
+      background: color-mix(in srgb, var(--mat-sys-primary) 12%, transparent);
+      color: var(--mat-sys-primary);
+    }
+
+    .prev-dlg-section {
+      padding: 10px 0 4px;
+      margin-top: 4px;
+      font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--mat-sys-on-surface-variant);
+      border-top: 1px dashed var(--mat-sys-outline-variant);
+    }
+
+    .prev-dlg-owner {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--mat-sys-outline-variant);
+      &:last-of-type { border-bottom: none; }
+    }
+    .prev-dlg-owner__main {
+      display: flex; align-items: center; gap: 8px;
+    }
+    .prev-dlg-owner__role {
+      font-size: 10px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+      padding: 1px 6px; border-radius: 4px;
+      background: color-mix(in srgb, var(--mat-sys-secondary) 14%, transparent);
+      color: var(--mat-sys-secondary); flex-shrink: 0;
+    }
+    .prev-dlg-owner__name {
+      font-size: 13px; font-weight: 500; color: var(--mat-sys-on-surface);
+    }
+    .prev-dlg-owner__email {
+      font-size: 11px; color: var(--mat-sys-on-surface-variant);
+      text-decoration: none;
+      &:hover { text-decoration: underline; color: var(--mat-sys-primary); }
+    }
+
+    .prev-dlg-empty {
+      padding: 8px 0;
+      font-size: 12px; color: var(--mat-sys-on-surface-variant);
+      font-style: italic;
+    }
+
+    .prev-dlg-by {
+      display: inline; margin-left: 6px;
+      font-size: 11px; color: var(--mat-sys-on-surface-variant);
     }
 
     .prev-dlg-actions {

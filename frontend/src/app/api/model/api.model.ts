@@ -357,6 +357,13 @@ export interface ApiStatsDto {
 
 // ── Graph ──────────────────────────────────────────────────────────────────────
 
+export interface ApiGraphSystemOwnerRef {
+  firstName: string;
+  lastName: string;
+  email: string;
+  roleName: string | null;
+}
+
 export interface ApiGraphSystemDto {
   id: string;
   code: string;
@@ -370,6 +377,12 @@ export interface ApiGraphSystemDto {
   dataClassification: DictionaryEntryRef | null;
   architectureStyle: DictionaryEntryRef | null;
   active: boolean;
+  tags: string[] | null;
+  owners: ApiGraphSystemOwnerRef[];
+  createdAt: string;
+  createdBy: string;
+  updatedAt: string;
+  updatedBy: string;
 }
 
 export interface ApiGraphEdgeDto {
