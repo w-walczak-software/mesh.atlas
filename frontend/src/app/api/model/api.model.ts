@@ -331,6 +331,8 @@ export interface ApiSearchParams {
   size?: number;
   sort?: string;
   pendingVerificationOnly?: boolean;
+  attachmentContent?: string;
+  ownerName?: string;
 }
 
 export interface ApiVerifyRequest {

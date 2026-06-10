@@ -49,6 +49,8 @@ export class ApiService {
     if (params.integrationPatternId) p = p.set('integrationPatternId', params.integrationPatternId);
     if (params.dataDomainIds?.length) params.dataDomainIds.forEach(id => { p = p.append('dataDomainIds', id); });
     if (params.pendingVerificationOnly) p = p.set('pendingVerificationOnly', 'true');
+    if (params.attachmentContent) p = p.set('attachmentContent', params.attachmentContent);
+    if (params.ownerName) p = p.set('ownerName', params.ownerName);
     return this.http.get<Page<ApiSummaryDto>>(this.baseUrl, { params: p });
   }
 

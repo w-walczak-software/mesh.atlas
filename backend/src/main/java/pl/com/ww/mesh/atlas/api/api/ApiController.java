@@ -68,10 +68,13 @@ public class ApiController {
             @RequestParam(required = false) UUID integrationPatternId,
             @RequestParam(required = false) List<UUID> dataDomainIds,
             @RequestParam(required = false) Boolean pendingVerificationOnly,
+            @RequestParam(required = false) String attachmentContent,
+            @RequestParam(required = false) String ownerName,
             @PageableDefault(size = 20, sort = "name") Pageable pageable) {
         var criteria = new ApiSearchCriteria(query, statusId, typeId, transportLayerId,
                 active, producerSystemIds, consumerSystemIds, tag, environmentId,
-                description, integrationPatternId, dataDomainIds, pendingVerificationOnly);
+                description, integrationPatternId, dataDomainIds, pendingVerificationOnly,
+                attachmentContent, ownerName);
         return service.findAll(criteria, pageable);
     }
 

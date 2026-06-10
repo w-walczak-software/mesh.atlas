@@ -113,13 +113,15 @@ export class Apis implements OnInit {
     integrationPatternId:[null as string | null],
     dataDomainIds:       [[] as string[]],
     environmentId:       [null as string | null],
+    attachmentContent:   [''],
+    ownerName:           [''],
   });
 
   private readonly formValue = toSignal(this.searchForm.valueChanges, { initialValue: this.searchForm.value });
 
   protected readonly hasAdvancedFilters = computed(() => {
     const v = this.formValue();
-    return !!(v.description || v.transportLayerId || v.integrationPatternId ||
+    return !!(v.description || v.attachmentContent || v.transportLayerId || v.integrationPatternId ||
               (v.dataDomainIds as string[] | null)?.length ||
               (v.producerSystemIds as string[] | null)?.length ||
               (v.consumerSystemIds as string[] | null)?.length || v.environmentId);
@@ -423,6 +425,8 @@ export class Apis implements OnInit {
         integrationPatternId: saved.form.integrationPatternId,
         dataDomainIds:       saved.form.dataDomainIds ?? [],
         environmentId:       saved.form.environmentId,
+        attachmentContent:   saved.form.attachmentContent ?? '',
+        ownerName:           saved.form.ownerName ?? '',
       });
       this.pageIndex.set(saved.pageIndex);
       this.pageSize.set(saved.pageSize);
@@ -470,6 +474,8 @@ export class Apis implements OnInit {
         integrationPatternId: v.integrationPatternId,
         dataDomainIds:       v.dataDomainIds ?? [],
         environmentId:       v.environmentId,
+        attachmentContent:   v.attachmentContent || null,
+        ownerName:           v.ownerName || null,
       },
       pageIndex: this.pageIndex(),
       pageSize:  this.pageSize(),
@@ -491,6 +497,8 @@ export class Apis implements OnInit {
       dataDomainIds: v.dataDomainIds?.length ? v.dataDomainIds : undefined,
       environmentId: v.environmentId || undefined,
       pendingVerificationOnly: this.pendingVerificationOnly() || undefined,
+      attachmentContent: v.attachmentContent || undefined,
+      ownerName: v.ownerName || undefined,
     };
     this.service.findAll(params).subscribe({
       next: (page) => {

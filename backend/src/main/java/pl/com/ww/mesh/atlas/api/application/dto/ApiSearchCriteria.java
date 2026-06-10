@@ -16,5 +16,7 @@ public record ApiSearchCriteria(
         String description,
         UUID integrationPatternId,
         List<UUID> dataDomainIds,
-        Boolean pendingVerificationOnly
+        Boolean pendingVerificationOnly,
+        String attachmentContent,
+        String ownerName
 ) {}

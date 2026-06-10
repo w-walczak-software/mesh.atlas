@@ -13,7 +13,9 @@
     "reset": "Resetuj",
     "search": "Szukaj",
     "tabBasic": "Podstawowe",
-    "tabAdvanced": "Zaawansowane"
+    "tabAdvanced": "Zaawansowane",
+    "attachmentContent": "Treść załącznika",
+    "ownerName": "Właściciel"
   },
   "field": {
     "code": "Kod",

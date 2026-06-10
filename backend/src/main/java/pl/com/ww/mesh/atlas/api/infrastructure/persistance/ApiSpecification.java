@@ -2,10 +2,16 @@ package pl.com.ww.mesh.atlas.api.infrastructure.persistance;
 
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiAttachmentEntity;
+import pl.com.ww.mesh.atlas.api.domain.model.ApiOwnerEntity;
+
+import java.time.LocalDate;
 import org.hibernate.query.criteria.HibernateCriteriaBuilder;
 import org.hibernate.query.criteria.JpaRoot;
 import org.jspecify.annotations.NonNull;
@@ -116,6 +122,44 @@ public class ApiSpecification implements Specification<ApiEntity> {
             query.distinct(true);
             Join<Object, Object> ddJoin = root.join("dataDomains", JoinType.INNER);
             predicates.add(ddJoin.get("id").in(criteria.dataDomainIds()));
+        }
+
+        if (StringUtils.hasText(criteria.attachmentContent())) {
+            Subquery<Integer> sub = query.subquery(Integer.class);
+            Root<ApiAttachmentEntity> att = sub.from(ApiAttachmentEntity.class);
+            sub.select(cb.literal(1));
+            // safe_convert_from returns NULL instead of throwing on invalid byte sequences
+            // (e.g. binary files like PNG/PDF stored alongside text contracts)
+            Expression<String> contentText = cb.function(
+                    "atlas.safe_convert_from", String.class,
+                    att.get("content"), cb.literal("UTF8")
+            );
+            String attachmentPattern = "%" + criteria.attachmentContent().toLowerCase() + "%";
+            sub.where(cb.and(
+                    cb.equal(att.get("api"), root),
+                    cb.like(cb.lower(contentText), attachmentPattern)
+            ));
+            predicates.add(cb.exists(sub));
+        }
+
+        if (StringUtils.hasText(criteria.ownerName())) {
+            query.distinct(true);
+            Join<ApiEntity, ApiOwnerEntity> ownerJoin = root.join("owners", JoinType.INNER);
+            String ownerPattern = "%" + criteria.ownerName().toLowerCase() + "%";
+            Expression<String> fullName = cb.concat(
+                    cb.concat(cb.lower(ownerJoin.get("firstName")), cb.literal(" ")),
+                    cb.lower(ownerJoin.get("lastName"))
+            );
+            Predicate nameMatch = cb.or(
+                    cb.like(cb.lower(ownerJoin.get("firstName")), ownerPattern),
+                    cb.like(cb.lower(ownerJoin.get("lastName")), ownerPattern),
+                    cb.like(fullName, ownerPattern)
+            );
+            Predicate isCurrentOwner = cb.or(
+                    cb.isNull(ownerJoin.get("validTo")),
+                    cb.greaterThanOrEqualTo(ownerJoin.<LocalDate>get("validTo"), LocalDate.now())
+            );
+            predicates.add(cb.and(nameMatch, isCurrentOwner));
         }
 
         if (Boolean.TRUE.equals(criteria.pendingVerificationOnly())) {

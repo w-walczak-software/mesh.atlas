@@ -15,6 +15,8 @@ export interface ApiListFormSnapshot {
   integrationPatternId: string | null;
   dataDomainIds:       string[];
   environmentId:       string | null;
+  attachmentContent:   string | null;
+  ownerName:           string | null;
 }
 
 /** Full list state: form values + pagination */
@@ -70,6 +72,7 @@ export class ApiFilterStateService {
         query: null, tag: null, statusId: null, typeId: null, active: null,
         description: null, producerSystemIds: [], consumerSystemIds: [], transportLayerId: null,
         integrationPatternId: null, dataDomainIds: [], environmentId: null,
+        attachmentContent: null, ownerName: null,
       },
       pageIndex:   0,
       pageSize:    20,
@@ -88,6 +91,7 @@ export class ApiFilterStateService {
         query: null, tag: null, statusId: null, typeId: null, active: null,
         description: null, producerSystemIds: [], consumerSystemIds: [], transportLayerId: null,
         integrationPatternId: null, dataDomainIds, environmentId: null,
+        attachmentContent: null, ownerName: null,
       },
       pageIndex:   0,
       pageSize:    20,
@@ -113,8 +117,8 @@ export class ApiFilterStateService {
     const s = this._snapshot();
     if (!s) return false;
     const f = s.form;
-    return !!(f.query || f.tag || f.statusId || f.typeId || f.active !== null ||
-              f.description || f.transportLayerId || f.integrationPatternId ||
+    return !!(f.query || f.tag || f.ownerName || f.statusId || f.typeId || f.active !== null ||
+              f.description || f.attachmentContent || f.transportLayerId || f.integrationPatternId ||
               f.producerSystemIds?.length || f.consumerSystemIds?.length ||
               f.dataDomainIds?.length || f.environmentId || s.systemIds?.length);
   }

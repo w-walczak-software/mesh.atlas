@@ -55,7 +55,7 @@ public class ApiGovernanceService {
     public Page<ApiSummaryDto> findPending(Pageable pageable) {
         var user = userContextService.getCurrentUser();
         Set<UUID> verifiableIds = governanceService.getVerifiableSystemIds(user.email());
-        var criteria = new ApiSearchCriteria(null, null, null, null, null, null, null, null, null, null, null, null, true);
+        var criteria = new ApiSearchCriteria(null, null, null, null, null, null, null, null, null, null, null, null, true, null, null);
         var spec = new ApiSpecification(criteria, user.email(), verifiableIds);
         return apiRepository.findAll(spec, pageable).map(mapper::mapSummary);
     }

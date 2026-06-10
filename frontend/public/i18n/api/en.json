@@ -13,7 +13,9 @@
     "reset": "Reset",
     "search": "Search",
     "tabBasic": "Basic",
-    "tabAdvanced": "Advanced"
+    "tabAdvanced": "Advanced",
+    "attachmentContent": "Attachment Content",
+    "ownerName": "Owner"
   },
   "field": {
     "code": "Code",

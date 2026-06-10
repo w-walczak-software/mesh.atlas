@@ -87,6 +87,7 @@ logging:
     path: ./logs/
   level:
     pl.com.ww.mesh.atlas: debug
+    org.springframework.data.web.config.SpringDataJacksonConfiguration: ERROR
     org:
       springframework.security: DEBUG
       springframework.web.filter.CommonsRequestLoggingFilter: DEBUG

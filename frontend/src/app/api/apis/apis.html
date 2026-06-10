@@ -49,12 +49,17 @@
 
             <atlas-select-active class="search-field search-field--narrow" controlName="active"
               [label]="t('api.search.activeLabel')" />
+
+            <atlas-text-input class="search-field search-field--narrow" controlName="ownerName"
+              [label]="t('api.search.ownerName')" icon="person" />
           </div>
         }
 
         @if (activeTab() === 'advanced') {
           <div class="search-row">
             <atlas-text-input class="search-field" controlName="description" [label]="t('api.field.description')" />
+
+            <atlas-text-input class="search-field" controlName="attachmentContent" [label]="t('api.search.attachmentContent')" icon="article" />
 
             <mat-form-field appearance="outline" class="search-field search-field--narrow">
               <mat-label>{{ t('api.field.transportLayer') }}</mat-label>
