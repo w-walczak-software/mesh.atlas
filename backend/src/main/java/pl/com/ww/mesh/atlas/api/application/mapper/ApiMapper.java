@@ -45,6 +45,7 @@ public interface ApiMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", constant = "true")
+    @Mapping(target = "source", ignore = true)
     @Mapping(target = "producerSystem", ignore = true)
     @Mapping(target = "dataFlowDirection", ignore = true)
     @Mapping(target = "consumerSystems", ignore = true)
@@ -69,6 +70,7 @@ public interface ApiMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "code", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "source", ignore = true)
     @Mapping(target = "producerSystem", ignore = true)
     @Mapping(target = "dataFlowDirection", ignore = true)
     @Mapping(target = "consumerSystems", ignore = true)

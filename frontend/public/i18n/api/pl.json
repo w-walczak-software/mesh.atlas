@@ -46,6 +46,7 @@
     "tags": "Tagi",
     "externalId": "ID zewnętrzny",
     "externalIdHint": "Identyfikator obiektu w systemie źródłowym (np. CMDB)",
+    "source": "Źródło",
     "codeHint": "Pozostaw puste, aby wygenerować automatycznie na podstawie systemu producenta i transportu",
     "dataDomains": "Domeny danych",
     "domainGroup": "Filtruj po grupie",

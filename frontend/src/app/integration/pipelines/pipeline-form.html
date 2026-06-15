@@ -1,0 +1,210 @@
+<ng-container *transloco="let t; scope: 'integration'; lang: lang()">
+  <div class="form-page">
+    <app-toolbar
+      [title]="isEditMode() ? t('integration.page.pipeline.editTitle') : t('integration.page.pipeline.newTitle')"
+      [subtitle]="t('integration.page.pipelines.title')"
+      [cancelLabel]="t('integration.action.cancel')"
+      [saveLabel]="t('integration.action.save')"
+      [saveDisabled]="saving()"
+      (back)="cancel()"
+      (cancel)="cancel()"
+      (save)="save()" />
+
+    <mat-tab-group animationDuration="150ms" class="pipeline-tabs">
+
+      <!-- TAB 1: Podstawowe -->
+      <mat-tab [label]="t('integration.pipeline.tab.basic')">
+        <mat-card class="tab-card">
+          <atlas-card-header
+            icon="account_tree"
+            iconColor="primary"
+            [title]="t('integration.pipeline.cardTitle')"
+            [subtitle]="t('integration.pipeline.cardSubtitle')"
+          />
+          @if (isEditMode() && pipeline()?.status === 'ACTIVE') {
+            <div class="pipeline-sync-action">
+              <button mat-flat-button color="accent" [disabled]="syncing()" (click)="triggerSync()">
+                <mat-icon>sync</mat-icon>
+                {{ t('integration.action.sync') }}
+              </button>
+            </div>
+          }
+          <form [formGroup]="form" class="form-grid">
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('integration.pipeline.code') }}</mat-label>
+              <input matInput formControlName="code" />
+              @if (form.get('code')?.hasError('required')) {
+                <mat-error>{{ t('integration.error.required') }}</mat-error>
+              }
+              @if (form.get('code')?.hasError('pattern')) {
+                <mat-error>{{ t('integration.error.codePattern') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('integration.pipeline.name') }}</mat-label>
+              <input matInput formControlName="name" />
+              @if (form.get('name')?.hasError('required')) {
+                <mat-error>{{ t('integration.error.required') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>{{ t('integration.pipeline.description') }}</mat-label>
+              <textarea matInput formControlName="description" rows="2"></textarea>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('integration.pipeline.targetEntity') }}</mat-label>
+              <mat-select formControlName="targetEntity">
+                @for (et of targetEntityTypes; track et) {
+                  <mat-option [value]="et">{{ t('integration.targetEntity.' + et.toLowerCase()) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>{{ t('integration.pipeline.status') }}</mat-label>
+              <mat-select formControlName="status">
+                @for (s of pipelineStatuses; track s) {
+                  <mat-option [value]="s">{{ t('integration.pipelineStatus.' + s.toLowerCase()) }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="col-span-2">
+              <mat-label>{{ t('integration.pipeline.datasource') }}</mat-label>
+              <mat-select formControlName="datasourceId">
+                @for (ds of datasources(); track ds.id) {
+                  <mat-option [value]="ds.id">{{ ds.name }} ({{ ds.type }} / {{ ds.host }}:{{ ds.port }})</mat-option>
+                }
+              </mat-select>
+              @if (form.get('datasourceId')?.hasError('required')) {
+                <mat-error>{{ t('integration.error.required') }}</mat-error>
+              }
+            </mat-form-field>
+          </form>
+        </mat-card>
+      </mat-tab>
+
+      <!-- TAB 2: Camel XML DSL -->
+      @if (isEditMode()) {
+        <mat-tab [label]="t('integration.pipeline.tab.dsl')">
+          <mat-card class="tab-card">
+            <atlas-card-header
+              icon="code"
+              iconColor="secondary"
+              [title]="t('integration.dsl.cardTitle')"
+              [subtitle]="t('integration.dsl.cardSubtitle')"
+            />
+            <div class="dsl-actions">
+              <label mat-stroked-button class="upload-btn">
+                <mat-icon>upload_file</mat-icon>
+                {{ t('integration.action.importDsl') }}
+                <input type="file" accept=".xml" hidden (change)="importDslFile($event)" />
+              </label>
+              <button mat-stroked-button (click)="downloadDsl()">
+                <mat-icon>download</mat-icon>
+                {{ t('integration.action.downloadDsl') }}
+              </button>
+              <span class="dsl-spacer"></span>
+              @if (dslModified()) {
+                <span class="dsl-unsaved-hint">
+                  <mat-icon>edit_note</mat-icon>
+                  {{ t('integration.dsl.unsavedChanges') }}
+                </span>
+              }
+              <button mat-flat-button [disabled]="!dslModified()" (click)="saveDsl()">
+                <mat-icon>save</mat-icon>
+                {{ t('integration.action.saveDsl') }}
+              </button>
+            </div>
+            @if (loadingDsl()) {
+              <div class="dsl-spinner"><mat-spinner diameter="32" /></div>
+            } @else {
+              <div #monacoContainer class="dsl-monaco"></div>
+            }
+          </mat-card>
+        </mat-tab>
+
+        <!-- TAB 3: Mapowania słowników -->
+        <mat-tab [label]="t('integration.pipeline.tab.mappings')">
+          <mat-card class="tab-card">
+            <atlas-card-header
+              icon="swap_horiz"
+              iconColor="tertiary"
+              [title]="t('integration.mapping.cardTitle')"
+              [subtitle]="t('integration.mapping.cardSubtitle')"
+            />
+            <app-data-table
+              [config]="mappingsTableConfig()"
+              [data]="mappings()"
+              [loading]="false"
+            />
+          </mat-card>
+        </mat-tab>
+
+        <!-- TAB 4: Podgląd staging -->
+        <mat-tab [label]="t('integration.pipeline.tab.staging')">
+          <mat-card class="tab-card">
+            <atlas-card-header
+              icon="table_view"
+              iconColor="secondary"
+              [title]="t('integration.staging.cardTitle')"
+              [subtitle]="t('integration.staging.cardSubtitle')"
+            />
+            @if (pipeline()?.targetEntity === 'IT_SYSTEM') {
+              @if (stagingItSystems().length === 0) {
+                <p class="empty-msg">{{ t('integration.staging.empty') }}</p>
+              } @else {
+                <table mat-table [dataSource]="stagingItSystems()" class="staging-table">
+                  <ng-container matColumnDef="externalId">
+                    <th mat-header-cell *matHeaderCellDef>External ID</th>
+                    <td mat-cell *matCellDef="let row">{{ row.externalId }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="code">
+                    <th mat-header-cell *matHeaderCellDef>Code</th>
+                    <td mat-cell *matCellDef="let row">{{ row.code }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="name">
+                    <th mat-header-cell *matHeaderCellDef>Name</th>
+                    <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="stagingStatus">
+                    <th mat-header-cell *matHeaderCellDef>Status</th>
+                    <td mat-cell *matCellDef="let row">{{ row.stagingStatus }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="errorMessage">
+                    <th mat-header-cell *matHeaderCellDef>Error</th>
+                    <td mat-cell *matCellDef="let row">{{ row.errorMessage }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="['externalId','code','name','stagingStatus','errorMessage']"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['externalId','code','name','stagingStatus','errorMessage'];"></tr>
+                </table>
+              }
+            } @else {
+              <p class="empty-msg">{{ t('integration.staging.selectPipeline') }}</p>
+            }
+          </mat-card>
+        </mat-tab>
+
+        <!-- TAB 5: Historia synchronizacji -->
+        <mat-tab [label]="t('integration.pipeline.tab.syncHistory')">
+          <mat-card class="tab-card">
+            <atlas-card-header
+              icon="history"
+              iconColor="secondary"
+              [title]="t('integration.syncHistory.cardTitle')"
+              [subtitle]="t('integration.syncHistory.cardSubtitle')"
+            />
+            <app-data-table
+              [config]="syncHistoryTableConfig()"
+              [data]="syncHistory()"
+              [loading]="false"
+            />
+          </mat-card>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </div>
+</ng-container>

@@ -22,6 +22,7 @@
     "group": "Group",
     "tags": "Tags",
     "attachments": "Attachments",
+    "source": "Source",
     "active": "Active"
   },
   "section": {

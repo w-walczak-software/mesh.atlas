@@ -19,7 +19,7 @@ import { EditTypeDialog } from './edit-type.dialog';
 @Component({
   selector: 'app-dictionary-types',
   imports: [AtlasPageTitle, DataTable, TranslocoDirective, MatIconModule, MatButtonModule],
-  providers: [provideTranslocoScope('dictionary')],
+  providers: [provideTranslocoScope('dictionary'), provideTranslocoScope('history')],
   templateUrl: './dictionary-types.html',
   styleUrl: './dictionary-types.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,12 +36,14 @@ export class DictionaryTypes {
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly data = signal<DictionaryTypeDto[]>([]);
   protected readonly loading = signal(false);
+  protected readonly selectedRow = signal<DictionaryTypeDto | null>(null);
   private readonly totalItems = signal(0);
   private readonly pageIndex = signal(0);
   private readonly pageSize = signal(20);
 
   protected readonly tableConfig = computed<TableConfig<DictionaryTypeDto>>(() => {
     const _lang = this.lang();
+    const selected = this.selectedRow();
     const selectedId = this.service.lastSelectedId();
     return {
       tableId: 'dictionary-types',
@@ -77,29 +79,38 @@ export class DictionaryTypes {
         pageSizeOptions: [10, 20, 50],
       },
       showFilter: true,
+      toolbar: [
+        {
+          label:   this.t.translate('dictionary.action.edit'),
+          icon:    'edit',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('dictionary.toolbar.selectToEdit') : undefined,
+          action:  () => { if (selected) this.openEditDialog(selected); },
+        },
+        {
+          label:   this.t.translate('dictionary.action.history'),
+          icon:    'history',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('dictionary.toolbar.selectToEdit') : undefined,
+          action:  () => { if (selected) this.openTypeHistory(selected); },
+        },
+        {
+          label:    this.t.translate('dictionary.action.deactivate'),
+          icon:     'block',
+          color:    'error',
+          disabled: !selected || selected.systemDefined || !selected.active,
+          tooltip:  !selected
+            ? this.t.translate('dictionary.toolbar.selectToEdit')
+            : selected.systemDefined || !selected.active
+              ? this.t.translate('dictionary.toolbar.cannotDeactivate')
+              : undefined,
+          action:  () => { if (selected) this.confirmDeactivate(selected); },
+        },
+      ],
       rowDblClick: (row) => this.viewEntries(row),
       rowStyle: (row): Record<string, string> => row.id === selectedId
         ? { background: 'var(--mat-sys-secondary-container)' }
         : {},
-      actions: [
-        {
-          label: this.t.translate('dictionary.action.edit'),
-          icon: 'edit',
-          action: (row) => this.openEditDialog(row),
-        },
-        {
-          label: this.t.translate('dictionary.action.history'),
-          icon: 'history',
-          action: (row) => this.openTypeHistory(row),
-        },
-        {
-          label: this.t.translate('dictionary.action.deactivate'),
-          icon: 'block',
-          color: 'error',
-          disabled: (row) => row.systemDefined || !row.active,
-          action: (row) => this.confirmDeactivate(row),
-        },
-      ],
     };
   });
 

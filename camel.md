@@ -1,0 +1,186 @@
+# Konfiguracja potoku synchronizacji — Apache Camel XML DSL
+
+## Jak działa potok
+
+1. Admin tworzy **Źródło danych** (połączenie JDBC do zewnętrznej bazy).
+2. Admin tworzy **Potok** (pipeline) wskazując źródło i encję docelową (`IT_SYSTEM`, `API` lub `DATA_DOMAIN`).
+3. Admin wgrywa plik XML z definicją trasy Camel (DSL).
+4. Opcjonalnie — definiuje **Mapowania słowników** (zewnętrzna wartość → wpis słownika Atlas).
+5. Po ustawieniu statusu potoku na **ACTIVE** — uruchamia synchronizację przyciskiem „Synchronizuj".
+6. Silnik (izolowany `DefaultCamelContext`) wykonuje XML DSL, zapisując wiersze do tabel stagingowych.
+7. Dane staging są automatycznie promowane do tabel biznesowych (IT System, API, Domena Danych).
+8. Wynik każdego uruchomienia widoczny w **Rejestrze synchronizacji**.
+
+---
+
+## Dostępne beany w SimpleRegistry
+
+| Nazwa beana              | Typ                  | Opis                                               |
+|--------------------------|----------------------|----------------------------------------------------|
+| `sourceDataSource`       | `javax.sql.DataSource` | Połączenie do zewnętrznej bazy (hasło odszyfrowane) |
+| `targetDataSource`       | `javax.sql.DataSource` | Główna baza Atlas (schemat `atlas`)                |
+| `camelDictionaryMapper`  | `CamelDictionaryMapper` | Tłumaczenie zewnętrznych wartości na UUID wpisów  |
+| `pipelineId`             | `String` (UUID)      | ID bieżącego potoku                                |
+| `syncRegistryId`         | `String` (UUID)      | ID bieżącego uruchomienia synchronizacji           |
+
+---
+
+## Tabele stagingowe
+
+Dane z zewnętrznej bazy trafiają najpierw do tabel stagingowych (schemat `atlas`):
+
+| Tabela                    | Encja docelowa | Kluczowe kolumny                                                       |
+|---------------------------|----------------|------------------------------------------------------------------------|
+| `staging_it_system`       | `IT_SYSTEM`    | `external_id`, `code`, `name`, `raw_system_type`, `raw_lifecycle_stage`, `raw_business_criticality`, `description`, `tags` |
+| `staging_api`             | `API`          | `external_id`, `code`, `name`, `raw_api_type`, `raw_status`, `description`, `api_version` |
+| `staging_data_domain`     | `DATA_DOMAIN`  | `code`, `name`, `raw_group`, `description`, `tags`                     |
+
+Każda tabela stagingowa zawiera też: `pipeline_id`, `staging_status` (`PENDING`), `error_message`, `processed_at`, `created_at`.
+
+> **Uwaga:** Kolumna `external_id` jest kluczem dopasowania dla IT System i API — musi być unikalna w ramach systemu źródłowego. Dla Domeny Danych dopasowanie odbywa się po `code`.
+
+---
+
+## Szablon XML DSL — IT System
+
+```xml
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="sync-it-systems">
+    <from uri="timer:startup?repeatCount=1&amp;delay=0"/>
+
+    <!-- Pobierz dane ze źródła zewnętrznego -->
+    <setBody>
+      <constant>
+        SELECT id, name, system_type, lifecycle, criticality, description
+        FROM source_schema.systems
+        WHERE active = 1
+      </constant>
+    </setBody>
+    <to uri="jdbc:sourceDataSource?outputType=SelectList"/>
+
+    <!-- Dla każdego wiersza wstaw do tabeli stagingowej -->
+    <split>
+      <simple>${body}</simple>
+      <to uri="sql:INSERT INTO atlas.staging_it_system
+                 (pipeline_id, external_id, code, name,
+                  raw_system_type, raw_lifecycle_stage, raw_business_criticality,
+                  description, staging_status)
+               VALUES
+                 (:?pipelineId, :?${body[id]}, :?${body[id]}, :?${body[name]},
+                  :?${body[system_type]}, :?${body[lifecycle]}, :?${body[criticality]},
+                  :?${body[description]}, 'PENDING')
+               ?dataSource=#targetDataSource"/>
+    </split>
+  </route>
+</routes>
+```
+
+---
+
+## Szablon XML DSL — API
+
+```xml
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="sync-apis">
+    <from uri="timer:startup?repeatCount=1&amp;delay=0"/>
+
+    <setBody>
+      <constant>
+        SELECT id, name, api_type, status, version, description
+        FROM source_schema.apis
+      </constant>
+    </setBody>
+    <to uri="jdbc:sourceDataSource?outputType=SelectList"/>
+
+    <split>
+      <simple>${body}</simple>
+      <to uri="sql:INSERT INTO atlas.staging_api
+                 (pipeline_id, external_id, code, name,
+                  raw_api_type, raw_status, api_version,
+                  description, staging_status)
+               VALUES
+                 (:?pipelineId, :?${body[id]}, :?${body[id]}, :?${body[name]},
+                  :?${body[api_type]}, :?${body[status]}, :?${body[version]},
+                  :?${body[description]}, 'PENDING')
+               ?dataSource=#targetDataSource"/>
+    </split>
+  </route>
+</routes>
+```
+
+---
+
+## Szablon XML DSL — Domena Danych
+
+```xml
+<routes xmlns="http://camel.apache.org/schema/spring">
+  <route id="sync-data-domains">
+    <from uri="timer:startup?repeatCount=1&amp;delay=0"/>
+
+    <setBody>
+      <constant>
+        SELECT domain_code, domain_name, group_code, description
+        FROM source_schema.data_domains
+      </constant>
+    </setBody>
+    <to uri="jdbc:sourceDataSource?outputType=SelectList"/>
+
+    <split>
+      <simple>${body}</simple>
+      <to uri="sql:INSERT INTO atlas.staging_data_domain
+                 (pipeline_id, code, name, raw_group, description, staging_status)
+               VALUES
+                 (:?pipelineId, :?${body[domain_code]}, :?${body[domain_name]},
+                  :?${body[group_code]}, :?${body[description]}, 'PENDING')
+               ?dataSource=#targetDataSource"/>
+    </split>
+  </route>
+</routes>
+```
+
+---
+
+## Mapowania słowników
+
+Jeśli zewnętrzna baza przechowuje wartości słownikowe jako stringi (np. `"WEB_APP"`, `"PROD"`), a Atlas używa własnych wpisów słownikowych, należy zdefiniować mapowania w zakładce **Mapowania słowników** w formularzu potoku.
+
+| Typ słownika Atlas      | Przykładowa wartość zewnętrzna | Wpis Atlas (przykład)  |
+|-------------------------|-------------------------------|------------------------|
+| `SYSTEM_TYPE`           | `WEB_APP`                     | Aplikacja webowa       |
+| `LIFECYCLE_STAGE`       | `PROD`                        | Produkcja              |
+| `BUSINESS_CRITICALITY`  | `HIGH`                        | Wysoka                 |
+| `API_STYLE`             | `REST`                        | REST                   |
+
+Silnik synchronizacji automatycznie rozwiązuje te mapowania podczas promocji danych ze stagingu do tabel biznesowych. **Brak mapowania** powoduje ustawienie pola na `null` (nie blokuje synchronizacji).
+
+---
+
+## Użycie CamelDictionaryMapper w DSL (zaawansowane)
+
+Bean `camelDictionaryMapper` dostępny jest do ręcznego tłumaczenia wartości bezpośrednio w DSL:
+
+```xml
+<bean ref="camelDictionaryMapper"
+      method="translateValue('SYSTEM_TYPE', ${body[system_type]})"/>
+```
+
+Zwraca `String` (UUID wpisu Atlas) lub `null` jeśli mapowanie nie istnieje.
+
+---
+
+## Obsługa błędów
+
+- Błąd w trakcie wykonania Camel XML DSL → cały sync run otrzymuje status `FAILED`.
+- Błąd przy promocji konkretnego wiersza (np. brak wymaganego pola) → wiersz dostaje `staging_status = ERROR`, pozostałe wiersze są kontynuowane.
+- Wyniki widoczne w Rejestrze synchronizacji → zakładka „Pozycje synchronizacji".
+
+---
+
+## Ograniczenia i uwagi
+
+- Potok musi mieć status **ACTIVE** żeby uruchomić synchronizację.
+- Nie można uruchomić dwóch synchronizacji jednocześnie dla tego samego potoku.
+- Przed każdym uruchomieniem staging jest czyszczony (`DELETE` wszystkich wierszy dla `pipeline_id`).
+- Timeout trasy Camel: **30 minut**. Trasy muszą używać `timer:startup?repeatCount=1` — potok kończy się sam po jednej iteracji.
+- Pole `source` na zsynchronizowanych rekordach (IT System, API, Domena Danych) jest ustawiane automatycznie na `code` potoku i **nie można go edytować z GUI**.
+- Hasło do źródła danych jest szyfrowane (AES-256/GCM) — nigdy nie jest widoczne w API ani w GUI.

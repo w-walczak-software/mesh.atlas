@@ -141,22 +141,6 @@ export class TransportLayers implements OnInit {
         },
       ] : [],
       rowDblClick: (row) => this.router.navigate(['/transport-layers', row.id, 'edit']),
-      actions: [
-        {
-          label: this.t.translate('transportlayer.action.edit'),
-          icon: 'edit',
-          visible: () => this.canWrite(),
-          action: (row) => this.router.navigate(['/transport-layers', row.id, 'edit']),
-        },
-        {
-          label: this.t.translate('transportlayer.action.deactivate'),
-          icon: 'block',
-          color: 'error',
-          visible: () => this.canWrite(),
-          disabled: (row) => !row.active,
-          action: (row) => this.confirmDeactivate(row),
-        },
-      ],
     };
   });
 

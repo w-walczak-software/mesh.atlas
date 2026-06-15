@@ -158,7 +158,7 @@ public class ApiService {
                 base.securityPolicy(), base.integrationPattern(), base.messageFormat(),
                 base.slaResponseTimeMs(), base.slaUptimePct(), base.slaTier(), base.slaDescription(),
                 base.contractType(), base.contractVersion(), base.contractUrl(), base.documentationUrl(),
-                base.tags(), base.dataDomains(), base.environments(), base.externalId(), base.active(),
+                base.tags(), base.dataDomains(), base.environments(), base.externalId(), base.source(), base.active(),
                 base.governanceStatus(), base.governanceNote(), canVerify, canEdit, canChangeProducerSystem,
                 base.createdAt(), base.createdBy(), base.updatedAt(), base.updatedBy(), ratingsSummary);
     }

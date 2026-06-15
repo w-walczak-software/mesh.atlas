@@ -33,6 +33,7 @@
     "icon": "Icon",
     "externalId": "External ID",
     "externalIdHint": "Identifier from external source system (e.g. CMDB)",
+    "source": "Source",
     "active": "Active"
   },
   "iconPicker": {

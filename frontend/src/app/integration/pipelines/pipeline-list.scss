@@ -1,0 +1,11 @@
+.integration-page {
+  padding: 28px 32px;
+
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+}
+
+atlas-page-title {
+  margin-bottom: 28px;
+}

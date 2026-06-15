@@ -1,0 +1,66 @@
+<ng-container *transloco="let t; scope: 'integration'; lang: lang()">
+  <div class="detail-page">
+    <app-toolbar
+      [title]="t('integration.page.syncRegistryDetail.title')"
+      [subtitle]="t('integration.page.syncRegistry.subtitle')"
+      [backLabel]="t('integration.action.cancel')"
+      (back)="goBack()" />
+
+    @if (registry(); as reg) {
+      <mat-card class="summary-card">
+        <atlas-card-header
+          icon="history"
+          iconColor="primary"
+          [title]="t('integration.registry.summaryTitle')"
+          [subtitle]="reg.executedAt"
+        />
+        <div class="registry-pipeline-action">
+          <button mat-stroked-button (click)="goToPipeline()">
+            <mat-icon>account_tree</mat-icon>
+            {{ reg.pipelineName }}
+          </button>
+        </div>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <span class="label">{{ t('integration.registry.status') }}</span>
+            <span class="value status-{{ reg.status.toLowerCase() }}">{{ t('integration.syncStatus.' + reg.status.toLowerCase()) }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">{{ t('integration.registry.executedBy') }}</span>
+            <span class="value">{{ reg.executedBy }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">{{ t('integration.registry.pipeline') }}</span>
+            <span class="value">{{ reg.pipelineCode }} — {{ reg.pipelineName }}</span>
+          </div>
+          <div class="summary-item">
+            <span class="label">{{ t('integration.registry.completedAt') }}</span>
+            <span class="value">{{ reg.completedAt ?? '—' }}</span>
+          </div>
+          <div class="summary-counts">
+            <span class="count total">{{ t('integration.registry.totalCount') }}: <strong>{{ reg.totalCount }}</strong></span>
+            <span class="count success">{{ t('integration.registry.successCount') }}: <strong>{{ reg.successCount }}</strong></span>
+            <span class="count failed">{{ t('integration.registry.failedCount') }}: <strong>{{ reg.failedCount }}</strong></span>
+            <span class="count skipped">{{ t('integration.registry.skippedCount') }}: <strong>{{ reg.skippedCount }}</strong></span>
+          </div>
+        </div>
+        @if (reg.executionLog) {
+          <details class="log-section">
+            <summary>{{ t('integration.registry.executionLog') }}</summary>
+            <pre class="log-content">{{ reg.executionLog }}</pre>
+          </details>
+        }
+      </mat-card>
+
+      <mat-card class="items-card">
+        <atlas-card-header icon="list_alt" [title]="t('integration.registry.itemsTitle')" />
+        <app-data-table
+          [config]="itemsTableConfig()"
+          [data]="items()"
+          [loading]="loadingItems()"
+          (pageChange)="onPageChange($event)"
+        />
+      </mat-card>
+    }
+  </div>
+</ng-container>

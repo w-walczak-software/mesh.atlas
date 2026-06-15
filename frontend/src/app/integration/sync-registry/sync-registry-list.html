@@ -1,0 +1,14 @@
+<ng-container *transloco="let t; scope: 'integration'; lang: lang()">
+  <div class="integration-page">
+    <atlas-page-title
+      [title]="t('integration.page.syncRegistry.title')"
+      [subtitle]="t('integration.page.syncRegistry.subtitle')"
+    />
+    <app-data-table
+      [config]="tableConfig()"
+      [data]="data()"
+      [loading]="loading()"
+      (pageChange)="onPageChange($event)"
+    />
+  </div>
+</ng-container>

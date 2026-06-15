@@ -27,7 +27,7 @@ import {
 @Component({
   selector: 'app-email-templates',
   imports: [AtlasPageTitle, DataTable, TranslocoDirective, MatButtonModule, MatIconModule],
-  providers: [provideTranslocoScope('admin')],
+  providers: [provideTranslocoScope('admin'), provideTranslocoScope('history')],
   templateUrl: './email-templates.html',
   styleUrl: './email-templates.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -43,6 +43,7 @@ export class EmailTemplates {
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly data = signal<EmailTemplateSummaryDto[]>([]);
   protected readonly loading = signal(false);
+  protected readonly selectedRow = signal<EmailTemplateSummaryDto | null>(null);
   protected readonly pageIndex = signal(0);
   private readonly totalItems = signal(0);
   private readonly pageSize = signal(25);
@@ -51,6 +52,7 @@ export class EmailTemplates {
 
   protected readonly tableConfig = computed<TableConfig<EmailTemplateSummaryDto>>(() => {
     const _lang = this.lang();
+    const selected = this.selectedRow();
     const columns: ColumnDef<EmailTemplateSummaryDto>[] = [
       {
         key: 'code',
@@ -90,22 +92,6 @@ export class EmailTemplates {
       },
     ];
 
-    const actions = [
-      {
-        label: this.t.translate('admin.emailTemplate.action.history'),
-        icon: 'history',
-        action: (row: EmailTemplateSummaryDto) => this.openHistory(row),
-      },
-    ];
-
-    if (this.isAdmin()) {
-      actions.unshift({
-        label: this.t.translate('admin.emailTemplate.action.edit'),
-        icon: 'edit',
-        action: (row: EmailTemplateSummaryDto) => this.openEditDialog(row),
-      });
-    }
-
     return {
       tableId: 'email-templates',
       columns,
@@ -116,7 +102,22 @@ export class EmailTemplates {
         pageSizeOptions: [25, 50, 100],
       },
       showFilter: false,
-      actions,
+      toolbar: [
+        ...(this.isAdmin() ? [{
+          label:   this.t.translate('admin.emailTemplate.action.edit'),
+          icon:    'edit',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('admin.toolbar.selectTemplate') : undefined,
+          action:  () => { if (selected) this.openEditDialog(selected); },
+        }] : []),
+        {
+          label:   this.t.translate('admin.emailTemplate.action.history'),
+          icon:    'history',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('admin.toolbar.selectTemplate') : undefined,
+          action:  () => { if (selected) this.openHistory(selected); },
+        },
+      ],
       rowDblClick: this.isAdmin() ? row => this.openEditDialog(row) : undefined,
     };
   });

@@ -103,7 +103,7 @@ import { StarRating } from '@shared/star-rating/star-rating';
     ItSystemSelectComponent,
     StarRating,
   ],
-  providers: [provideTranslocoScope('api')],
+  providers: [provideTranslocoScope('api'), provideTranslocoScope('history')],
   templateUrl: './api-form.html',
   styleUrl: './api-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

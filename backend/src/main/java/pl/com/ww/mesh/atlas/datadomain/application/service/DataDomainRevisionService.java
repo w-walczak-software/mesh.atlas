@@ -84,6 +84,7 @@ public class DataDomainRevisionService {
                 mapEntry(resolveEntry(entity.getGroup())),
                 entity.getTags(),
                 entity.getMetadata(),
+                null,
                 entity.isActive(),
                 attachments,
                 entity.getCreatedAt(),

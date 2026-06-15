@@ -28,6 +28,7 @@ public interface DataDomainMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", constant = "true")
+    @Mapping(target = "source", ignore = true)
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "group", ignore = true)
     DataDomainEntity map(DataDomainCreateRequest request);
@@ -35,6 +36,7 @@ public interface DataDomainMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "code", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "source", ignore = true)
     @Mapping(target = "attachments", ignore = true)
     @Mapping(target = "group", ignore = true)
     void updateEntity(DataDomainUpdateRequest request, @MappingTarget DataDomainEntity entity);

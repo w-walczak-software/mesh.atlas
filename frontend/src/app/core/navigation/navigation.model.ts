@@ -5,6 +5,7 @@ export interface NavItem {
   route?: string;
   roles: string[];
   children?: NavItem[];
+  exactMatch?: boolean;
 }
 
 export interface NavigationConfig {

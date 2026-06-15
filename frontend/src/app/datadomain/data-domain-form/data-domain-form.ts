@@ -67,7 +67,7 @@ import {
     MatProgressBarModule,
     MatDialogModule,
   ],
-  providers: [provideTranslocoScope('datadomain')],
+  providers: [provideTranslocoScope('datadomain'), provideTranslocoScope('history')],
   templateUrl: './data-domain-form.html',
   styleUrl: './data-domain-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import pl.com.ww.mesh.atlas.dictionary.domain.model.DictionaryEntryEntity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -25,4 +26,6 @@ public interface DictionaryEntryRepository extends JpaRepository<DictionaryEntry
     boolean existsByDictionaryTypeIdAndCodeAndIdNot(UUID typeId, String code, UUID id);
 
     boolean existsByIdAndDictionaryTypeCodeAndActiveTrue(UUID id, String typeCode);
+
+    Optional<DictionaryEntryEntity> findFirstByDictionaryTypeCodeAndCodeIgnoreCaseAndActiveTrue(String typeCode, String code);
 }

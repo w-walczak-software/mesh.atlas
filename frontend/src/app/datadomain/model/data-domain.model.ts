@@ -41,6 +41,7 @@ export interface DataDomainDto {
   group: DictionaryEntryRef | null;
   tags: string[] | null;
   metadata: Record<string, unknown> | null;
+  source: string | null;
   active: boolean;
   attachments: DataDomainAttachmentDto[];
   createdAt: string;

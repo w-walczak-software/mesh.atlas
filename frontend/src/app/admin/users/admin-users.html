@@ -13,6 +13,7 @@
       [loading]="loading()"
       [currentPage]="pageIndex()"
       (pageChange)="onPageChange($event)"
+      (rowSelect)="selectedRow.set($event)"
     />
   </div>
 </ng-container>

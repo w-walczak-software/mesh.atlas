@@ -90,6 +90,37 @@
     },
 
     {
+      "id": "integration",
+      "label": "nav.menu.integration",
+      "icon": "sync_alt",
+      "roles": ["atlas_admin"],
+      "children": [
+        {
+          "id": "integration-pipelines",
+          "label": "nav.menu.integrationPipelines",
+          "icon": "account_tree",
+          "route": "/integracje",
+          "exactMatch": true,
+          "roles": ["atlas_admin"]
+        },
+        {
+          "id": "integration-datasources",
+          "label": "nav.menu.integrationDatasources",
+          "icon": "storage",
+          "route": "/integracje/datasources",
+          "roles": ["atlas_admin"]
+        },
+        {
+          "id": "integration-sync-registry",
+          "label": "nav.menu.integrationSyncRegistry",
+          "icon": "history",
+          "route": "/integracje/sync-registry",
+          "roles": ["atlas_admin"]
+        }
+      ]
+    },
+
+    {
       "id": "admin",
       "label": "nav.menu.admin",
       "icon": "admin_panel_settings",

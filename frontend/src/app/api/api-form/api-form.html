@@ -16,6 +16,14 @@
       (save)="save()"
       (history)="openHistory()" />
 
+    <!-- Source badge -->
+    @if (isEditMode() && api()?.source) {
+      <div class="source-badge">
+        <mat-icon class="source-icon">sync_alt</mat-icon>
+        <span>{{ t('api.field.source') }}: <strong>{{ api()!.source }}</strong></span>
+      </div>
+    }
+
     <!-- Main content -->
     <div class="form-content">
       <form [formGroup]="form">

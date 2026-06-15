@@ -38,6 +38,7 @@ public record ApiDto(
         List<DataDomainRefDto> dataDomains,
         List<ApiEnvironmentDto> environments,
         String externalId,
+        String source,
         boolean active,
         GovernanceStatus governanceStatus,
         String governanceNote,

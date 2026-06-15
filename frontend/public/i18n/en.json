@@ -36,7 +36,11 @@
       "blastRadius": "Blast Radius",
       "deprecationImpact": "Deprecation Impact",
       "whatIf": "What-if Analysis",
-      "changeRequests": "Change Requests"
+      "changeRequests": "Change Requests",
+      "integration": "Integrations",
+      "integrationPipelines": "Pipelines",
+      "integrationDatasources": "Data Sources",
+      "integrationSyncRegistry": "Sync Registry"
     }
   },
   "common": {

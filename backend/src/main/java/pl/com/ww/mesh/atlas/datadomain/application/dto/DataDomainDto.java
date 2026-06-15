@@ -16,6 +16,7 @@ public record DataDomainDto(
         DictionaryEntryRefDto group,
         List<String> tags,
         Map<String, Object> metadata,
+        String source,
         boolean active,
         List<DataDomainAttachmentDto> attachments,
         LocalDateTime createdAt,

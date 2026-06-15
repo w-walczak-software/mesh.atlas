@@ -139,6 +139,9 @@ public class ItSystemEntity extends AuditableEntity {
     @Column(name = "external_id", length = 50)
     private String externalId;
 
+    @Column(name = "source", length = 255)
+    private String source;
+
     @Column(name = "active", nullable = false)
     private boolean active;
 }

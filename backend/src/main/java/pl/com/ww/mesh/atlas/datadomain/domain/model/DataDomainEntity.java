@@ -74,6 +74,9 @@ public class DataDomainEntity extends AuditableEntity {
     @JoinColumn(name = "group_id")
     private DictionaryEntryEntity group;
 
+    @Column(name = "source", length = 255)
+    private String source;
+
     @Column(name = "active", nullable = false)
     private boolean active;
 

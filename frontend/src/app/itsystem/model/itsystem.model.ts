@@ -60,6 +60,7 @@ export interface ItSystemDto {
   metadata: Record<string, unknown> | null;
   icon: string | null;
   externalId: string | null;
+  source: string | null;
   active: boolean;
   createdAt: string;
   createdBy: string;

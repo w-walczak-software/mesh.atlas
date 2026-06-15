@@ -55,7 +55,7 @@ import {
     MatTooltipModule,
     ItSystemSelectComponent,
   ],
-  providers: [provideTranslocoScope('transportlayer')],
+  providers: [provideTranslocoScope('transportlayer'), provideTranslocoScope('history')],
   templateUrl: './transport-layer-form.html',
   styleUrl: './transport-layer-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

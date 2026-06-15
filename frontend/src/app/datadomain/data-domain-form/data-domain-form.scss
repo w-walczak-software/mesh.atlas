@@ -7,6 +7,24 @@
   background: var(--mat-sys-surface-container-lowest);
 }
 
+// ─── Source badge ─────────────────────────────────────────────────────────────
+
+.source-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 32px;
+  background: var(--mat-sys-secondary-container);
+  color: var(--mat-sys-on-secondary-container);
+  font-size: 13px;
+
+  .source-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
 // ─── Content area ─────────────────────────────────────────────────────────────
 
 .form-content {

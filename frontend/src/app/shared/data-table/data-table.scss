@@ -381,40 +381,9 @@
   }
 }
 
-// Actions column
-.dt-th--actions {
-  width: 48px;
-  text-align: center;
-}
-
-.dt-td--actions {
-  width: 48px;
-  padding: 0 4px;
-  text-align: center;
-  vertical-align: middle;
-}
-
-.dt-action-trigger {
-  opacity: 0;
-  transition: opacity 100ms ease;
-
-  .dt-row:hover & {
-    opacity: 1;
-  }
-}
-
-.dt-row:focus-visible .dt-action-trigger {
-  opacity: 1;
-}
-
-.dt-action-item {
-  &.dt-action--primary   { color: var(--mat-sys-primary); }
-  &.dt-action--secondary { color: var(--mat-sys-secondary); }
-  &.dt-action--tertiary  { color: var(--mat-sys-tertiary); }
-  &.dt-action--error     { color: var(--mat-sys-error); }
-  &.dt-action--success   { color: var(--toast-success); }
-  &.dt-action--warn      { color: var(--toast-warn); }
-  &.dt-action--neutral   { color: var(--mat-sys-on-surface-variant); }
+.dt-toolbar-btn--error {
+  color: var(--mat-sys-error) !important;
+  border-color: var(--mat-sys-error) !important;
 }
 
 // Footer

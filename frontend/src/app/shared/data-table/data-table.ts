@@ -18,7 +18,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoService } from '@jsverse/transloco';
-import { ActionDef, BadgeColor, CellDisplay, ColumnDef, IconConfig, PageEvent, PaginationConfig, SortDirection, SortState, TableConfig } from './data-table.models';
+import { BadgeColor, CellDisplay, ColumnDef, IconConfig, PageEvent, PaginationConfig, SortDirection, SortState, TableConfig } from './data-table.models';
 
 const PREDEFINED_COLORS = new Set<BadgeColor>([
   'primary', 'secondary', 'tertiary', 'error', 'success', 'warn', 'neutral',
@@ -76,7 +76,6 @@ export class DataTable<T extends object> implements OnDestroy {
       nextPage: this.t.translate<string>('common.table.nextPage'),
       selectAll: this.t.translate<string>('common.table.selectAll'),
       selectRow: this.t.translate<string>('common.table.selectRow'),
-      rowActions: this.t.translate<string>('common.table.rowActions'),
     };
   });
 
@@ -223,7 +222,7 @@ export class DataTable<T extends object> implements OnDestroy {
       const p = this.currentPage();
       if (p === null) return;
       untracked(() => { if (this.pageIndex() !== p) this.pageIndex.set(p); });
-    }, { allowSignalWrites: true });
+    });
 
     // One-shot restore of pre-checked rows from `checkedRowIds` input
     effect(() => {
@@ -242,7 +241,7 @@ export class DataTable<T extends object> implements OnDestroy {
         this.checkedRows.set(new Set(matching));
         this.rowsSelect.emit(matching);
       });
-    }, { allowSignalWrites: true });
+    });
   }
 
   ngOnDestroy(): void {
@@ -413,37 +412,10 @@ export class DataTable<T extends object> implements OnDestroy {
     return !!this.config().pagination;
   }
 
-  protected get hasActions(): boolean {
-    return !!this.config().actions?.length;
-  }
-
   protected readonly colspanTotal = computed(() =>
     this.visibleColumns().length
     + (this.config().showCheckboxes ? 1 : 0)
-    + (this.config().actions?.length ? 1 : 0)
   );
-
-  protected isActionDisabled(action: ActionDef<T>, row: T): boolean {
-    if (typeof action.disabled === 'function') return action.disabled(row);
-    return action.disabled ?? false;
-  }
-
-  protected isActionVisible(action: ActionDef<T>, row: T): boolean {
-    if (typeof action.visible === 'function') return action.visible(row);
-    return action.visible ?? true;
-  }
-
-  protected getActionColorClass(action: ActionDef<T>): string {
-    if (!action.color) return '';
-    return PREDEFINED_COLORS.has(action.color as BadgeColor)
-      ? `dt-action--${action.color}`
-      : '';
-  }
-
-  protected getActionColorStyle(action: ActionDef<T>): Record<string, string> {
-    if (!action.color || PREDEFINED_COLORS.has(action.color as BadgeColor)) return {};
-    return { color: action.color };
-  }
 
   private storageKey(suffix: string): string {
     return `dt_${this.config().tableId}_${suffix}`;

@@ -8,7 +8,7 @@ import {
   input,
   signal,
 } from '@angular/core';
-import { NavigationEnd, Router, RouterLink, RouterLinkActive } from '@angular/router';
+import { NavigationEnd, Router, RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatRippleModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -21,7 +21,7 @@ import { ShellStateService } from '@shared/services/shell-state.service';
 @Component({
   selector: 'app-nav-item',
   // Self-referential import for recursive two-level rendering
-  imports: [RouterLink, RouterLinkActive, MatIconModule, MatRippleModule, MatTooltipModule, TranslocoDirective],
+  imports: [RouterLink, MatIconModule, MatRippleModule, MatTooltipModule, TranslocoDirective],
   templateUrl: './nav-item.html',
   styleUrl: './nav-item.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -53,6 +53,14 @@ export class NavItemComponent {
     return (this.item().children ?? []).some(
       c => c.route != null && url.startsWith(c.route)
     );
+  });
+
+  readonly isLeafActive = computed(() => {
+    const route = this.item().route;
+    if (!route) return false;
+    const url = this.routerUrl().split('?')[0].split('#')[0];
+    if (this.item().exactMatch) return url === route;
+    return url === route || url.startsWith(route + '/');
   });
 
   readonly expanded = signal(false);

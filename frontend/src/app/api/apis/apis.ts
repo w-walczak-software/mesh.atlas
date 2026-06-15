@@ -312,71 +312,66 @@ export class Apis implements OnInit {
           tooltip:  !selected ? this.t.translate('api.toolbar.selectForChangeRequest') : undefined,
           action:   () => { if (selected) this.openChangeRequestDialog(selected); },
         },
+        {
+          label:    this.t.translate('api.rating.rateAction'),
+          icon:     'star',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('api.toolbar.selectToRate') : undefined,
+          action:   () => { if (selected) this.openRatingDialog(selected); },
+        },
         ...(this.canCreate() ? [{
-        label: this.t.translate('api.action.new'),
-        icon: 'add',
-        action: () => this.router.navigate(['/apis/new']),
-      }] : []),
-      {
-        label: this.t.translate('api.action.edit'),
-        icon: 'edit',
-        disabled: !selected || !selected.canEdit,
-        tooltip: !selected
-          ? this.t.translate('api.toolbar.selectToEdit')
-          : !selected.canEdit
-            ? this.t.translate('api.toolbar.noPermissionToEdit')
-            : undefined,
-        action: () => { if (selected) this.router.navigate(['/apis', selected.id, 'edit']); },
-      },
-      {
-        label: this.t.translate('api.action.deactivate'),
-        icon: 'block',
-        disabled: !selected || !selected.canEdit || !selected.active,
-        tooltip: !selected
-          ? this.t.translate('api.toolbar.selectToDeactivate')
-          : !selected.canEdit
-            ? this.t.translate('api.toolbar.noPermissionToEdit')
-            : !selected.active
-              ? this.t.translate('api.toolbar.alreadyInactive')
+          label:  this.t.translate('api.action.new'),
+          icon:   'add',
+          action: () => this.router.navigate(['/apis/new']),
+        }] : []),
+        {
+          label:    this.t.translate('api.action.edit'),
+          icon:     'edit',
+          disabled: !selected || !selected.canEdit,
+          tooltip:  !selected
+            ? this.t.translate('api.toolbar.selectToEdit')
+            : !selected.canEdit
+              ? this.t.translate('api.toolbar.noPermissionToEdit')
               : undefined,
-        action: () => { if (selected) this.confirmDeactivate(selected); },
-      },
+          action:   () => { if (selected) this.router.navigate(['/apis', selected.id, 'edit']); },
+        },
+        {
+          label:    this.t.translate('api.governance.approve'),
+          icon:     'check_circle',
+          visible:  !!selected?.canVerify,
+          disabled: !selected || (selected.governanceStatus !== 'PENDING_VERIFICATION' && selected.governanceStatus !== 'PENDING_REVIEW'),
+          tooltip:  selected?.canVerify && selected.governanceStatus !== 'PENDING_VERIFICATION' && selected.governanceStatus !== 'PENDING_REVIEW'
+            ? this.t.translate('api.toolbar.noVerificationPending')
+            : undefined,
+          action:   () => { if (selected) this.openVerifyDialog(selected, 'approve'); },
+        },
+        {
+          label:    this.t.translate('api.governance.reject'),
+          icon:     'cancel',
+          color:    'error',
+          visible:  !!selected?.canVerify,
+          disabled: !selected || (selected.governanceStatus !== 'PENDING_VERIFICATION' && selected.governanceStatus !== 'PENDING_REVIEW'),
+          tooltip:  selected?.canVerify && selected.governanceStatus !== 'PENDING_VERIFICATION' && selected.governanceStatus !== 'PENDING_REVIEW'
+            ? this.t.translate('api.toolbar.noVerificationPending')
+            : undefined,
+          action:   () => { if (selected) this.openVerifyDialog(selected, 'reject'); },
+        },
+        {
+          label:    this.t.translate('api.action.deactivate'),
+          icon:     'block',
+          color:    'error',
+          disabled: !selected || !selected.canEdit || !selected.active,
+          tooltip:  !selected
+            ? this.t.translate('api.toolbar.selectToDeactivate')
+            : !selected.canEdit
+              ? this.t.translate('api.toolbar.noPermissionToEdit')
+              : !selected.active
+                ? this.t.translate('api.toolbar.alreadyInactive')
+                : undefined,
+          action:   () => { if (selected) this.confirmDeactivate(selected); },
+        },
       ],
       rowDblClick: (row) => this.router.navigate(['/apis', row.id, 'edit']),
-      actions: [
-        {
-          label: this.t.translate('api.rating.rateAction'),
-          icon: 'star',
-          action: (row) => this.openRatingDialog(row),
-        },
-        {
-          label: this.t.translate('api.action.edit'),
-          icon: 'edit',
-          visible: (row) => row.canEdit,
-          action: (row) => this.router.navigate(['/apis', row.id, 'edit']),
-        },
-        {
-          label: this.t.translate('api.governance.approve'),
-          icon: 'check_circle',
-          visible: (row) => row.canVerify && (row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW'),
-          action: (row) => this.openVerifyDialog(row, 'approve'),
-        },
-        {
-          label: this.t.translate('api.governance.reject'),
-          icon: 'cancel',
-          color: 'error',
-          visible: (row) => row.canVerify && (row.governanceStatus === 'PENDING_VERIFICATION' || row.governanceStatus === 'PENDING_REVIEW'),
-          action: (row) => this.openVerifyDialog(row, 'reject'),
-        },
-        {
-          label: this.t.translate('api.action.deactivate'),
-          icon: 'block',
-          color: 'error',
-          visible: (row) => row.canEdit,
-          disabled: (row) => !row.active,
-          action: (row) => this.confirmDeactivate(row),
-        },
-      ],
     };
   });
 

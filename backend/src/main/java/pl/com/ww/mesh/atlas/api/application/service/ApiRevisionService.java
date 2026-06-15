@@ -146,6 +146,7 @@ public class ApiRevisionService {
                 Collections.emptyList(),
                 Collections.emptyList(),
                 entity.getExternalId(),
+                null,
                 entity.isActive(),
                 entity.getGovernanceStatus(),
                 entity.getGovernanceNote(),

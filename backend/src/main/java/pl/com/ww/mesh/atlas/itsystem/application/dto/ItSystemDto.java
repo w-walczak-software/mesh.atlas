@@ -28,6 +28,7 @@ public record ItSystemDto(
         Map<String, Object> metadata,
         String icon,
         String externalId,
+        String source,
         boolean active,
         LocalDateTime createdAt,
         String createdBy,

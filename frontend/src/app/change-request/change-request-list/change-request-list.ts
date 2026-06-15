@@ -19,7 +19,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
 import { AtlasSelectDictionary } from '@shared/select/select-dictionary';
 import { AtlasPanelHeader } from '@shared/panel-header/panel-header';
-import { ActionDef, PageEvent, TableConfig } from '@shared/data-table/data-table.models';
+import { PageEvent, TableConfig } from '@shared/data-table/data-table.models';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { ChangeRequestService } from '../service/change-request.service';
@@ -143,7 +143,6 @@ export class ChangeRequestList implements OnInit {
           cellRender: (r) => ({ text: r.plannedVersion ?? '—' }),
         },
       ],
-      actions: this.buildActions(row),
       toolbar: [
         {
           label: this.t.translate('changeRequest.action.details'),
@@ -199,36 +198,6 @@ export class ChangeRequestList implements OnInit {
     this.filterForm.reset();
     this.pageIndex.set(0);
     this.load();
-  }
-
-  private buildActions(selected: ChangeRequestSummaryDto | null): ActionDef<ChangeRequestSummaryDto>[] {
-    return [
-      {
-        label: this.t.translate('changeRequest.action.details'),
-        icon: 'open_in_new',
-        visible: () => true,
-        action: (r) => this.openDetail(r),
-      },
-      {
-        label: this.t.translate('changeRequest.action.review'),
-        icon: 'rate_review',
-        visible: (r) => r.currentUserIsOwner && (r.status === 'SUBMITTED' || r.status === 'UNDER_REVIEW'),
-        action: (r) => this.openReview(r, 'review'),
-      },
-      {
-        label: this.t.translate('changeRequest.action.markImplemented'),
-        icon: 'check_circle',
-        visible: (r) => r.currentUserIsOwner && r.status === 'APPROVED',
-        action: (r) => this.openReview(r, 'implement'),
-      },
-      {
-        label: this.t.translate('changeRequest.action.cancel'),
-        icon: 'cancel',
-        color: 'error',
-        visible: (r) => r.currentUserIsOwner && !['IMPLEMENTED', 'CANCELLED', 'REJECTED'].includes(r.status),
-        action: (r) => this.cancelRequest(r),
-      },
-    ];
   }
 
   private load(): void {

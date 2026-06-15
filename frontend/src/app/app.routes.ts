@@ -61,6 +61,11 @@ export const routes: Routes = [
         loadChildren: () => import('./analysis/analysis.routes').then(m => m.analysisRoutes),
       },
       {
+        path: 'integracje',
+        loadChildren: () =>
+          import('./integration/integration.routes').then(m => m.integrationRoutes),
+      },
+      {
         path: 'admin',
         loadChildren: () => import('./admin/admin.routes').then(m => m.adminRoutes),
       },

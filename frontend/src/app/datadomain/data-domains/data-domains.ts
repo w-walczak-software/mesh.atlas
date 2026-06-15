@@ -156,22 +156,6 @@ export class DataDomains implements OnInit {
         ] : []),
       ],
       rowDblClick: (row) => this.router.navigate(['/data-domains', row.id, 'edit']),
-      actions: [
-        {
-          label: this.t.translate('datadomain.action.edit'),
-          icon: 'edit',
-          visible: () => this.canWrite(),
-          action: (row) => this.router.navigate(['/data-domains', row.id, 'edit']),
-        },
-        {
-          label: this.t.translate('datadomain.action.deactivate'),
-          icon: 'block',
-          color: 'error',
-          visible: () => this.canWrite(),
-          disabled: (row) => !row.active,
-          action: (row) => this.confirmDeactivate(row),
-        },
-      ],
     };
   });
 

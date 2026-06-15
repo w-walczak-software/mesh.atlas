@@ -26,4 +26,6 @@ public interface ItSystemRepository extends JpaRepository<ItSystemEntity, UUID>,
     List<ItSystemEntity> findAllByActive(boolean active);
 
     List<ItSystemEntity> findAllByIdInAndActive(Set<UUID> ids, boolean active);
+
+    Optional<ItSystemEntity> findByExternalId(String externalId);
 }

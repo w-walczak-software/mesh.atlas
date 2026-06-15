@@ -22,6 +22,7 @@ public interface ItSystemMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", constant = "true")
+    @Mapping(target = "source", ignore = true)
     @Mapping(target = "owners", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "lifecycleStage", ignore = true)
@@ -37,6 +38,7 @@ public interface ItSystemMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "code", ignore = true)
     @Mapping(target = "active", ignore = true)
+    @Mapping(target = "source", ignore = true)
     @Mapping(target = "owners", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "lifecycleStage", ignore = true)

@@ -68,23 +68,6 @@ export interface ColumnDef<T extends object> {
   cellRender?: (row: T) => CellDisplay;
 }
 
-// ── Actions ───────────────────────────────────────────────────────────────────
-
-export interface ActionDef<T extends object> {
-  /** Etykieta pozycji menu. */
-  label: string;
-  /** Nazwa ikony Material Symbols (opcjonalna). */
-  icon?: string;
-  /** Kolor ikony i etykiety — predefiniowany token M3 lub kolor CSS. */
-  color?: BadgeColor | string;
-  /** Gdy `true` (lub gdy funkcja zwraca `true`), pozycja jest wyszarzona i nieklikalna. */
-  disabled?: boolean | ((row: T) => boolean);
-  /** Gdy `false` (lub gdy funkcja zwraca `false`), pozycja jest ukryta w menu. */
-  visible?: boolean | ((row: T) => boolean);
-  /** Funkcja wykonywana po kliknięciu akcji. */
-  action: (row: T) => void;
-}
-
 // ── Table config ──────────────────────────────────────────────────────────────
 
 export type SortDirection = 'asc' | 'desc' | null;
@@ -109,8 +92,12 @@ export interface PaginationConfig {
 export interface ToolbarButton {
   label: string;
   icon?: string;
+  /** Gdy `false` przycisk jest ukryty. Domyślnie `true`. */
+  visible?: boolean;
   disabled?: boolean;
   tooltip?: string;
+  /** Predefiniowany kolor — aktualnie obsługiwany: 'error' */
+  color?: string;
   action: () => void;
 }
 
@@ -124,10 +111,6 @@ export interface TableConfig<T extends object> {
   rowClick?: (row: T) => void;
   rowDblClick?: (row: T) => void;
   rowStyle?: (row: T) => Record<string, string>;
-  /** Definicje akcji menu kontekstowego — dodaje kolumnę z przyciskiem ⋮ na końcu tabeli. */
-  actions?: ActionDef<T>[];
-  /** Etykieta nagłówka kolumny akcji. Domyślnie pusta. */
-  actionsLabel?: string;
   /**
    * Function that returns a stable string identifier for each row.
    * Required when using the `checkedRowIds` input on `DataTable` to restore

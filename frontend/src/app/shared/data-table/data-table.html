@@ -24,17 +24,20 @@
     @if (config().toolbar?.length) {
       <div class="dt-toolbar-btns">
         @for (btn of config().toolbar!; track btn.label) {
-          <button
-            mat-stroked-button
-            [disabled]="btn.disabled ?? false"
-            [matTooltip]="btn.tooltip ?? ''"
-            (click)="btn.action()"
-          >
-            @if (btn.icon) {
-              <mat-icon>{{ btn.icon }}</mat-icon>
-            }
-            {{ btn.label }}
-          </button>
+          @if (btn.visible !== false) {
+            <button
+              mat-stroked-button
+              [disabled]="btn.disabled ?? false"
+              [matTooltip]="btn.tooltip ?? ''"
+              [class.dt-toolbar-btn--error]="btn.color === 'error'"
+              (click)="btn.action()"
+            >
+              @if (btn.icon) {
+                <mat-icon>{{ btn.icon }}</mat-icon>
+              }
+              {{ btn.label }}
+            </button>
+          }
         }
       </div>
     }
@@ -99,13 +102,6 @@
             </th>
           }
 
-          @if (hasActions) {
-            <th class="dt-th dt-th--actions" scope="col">
-              <span class="dt-th-inner">
-                <span class="dt-th-label">{{ config().actionsLabel ?? '' }}</span>
-              </span>
-            </th>
-          }
         </tr>
       </thead>
 
@@ -171,37 +167,6 @@
                 </td>
               }
 
-              @if (hasActions) {
-                <td class="dt-td dt-td--actions" (click)="$event.stopPropagation()">
-                  <button
-                    mat-icon-button
-                    class="dt-action-trigger"
-                    [matMenuTriggerFor]="rowMenu"
-                    [attr.aria-label]="ui().rowActions"
-                  >
-                    <mat-icon>more_vert</mat-icon>
-                  </button>
-                  <mat-menu #rowMenu="matMenu">
-                    @for (action of config().actions!; track action.label) {
-                      @if (isActionVisible(action, row)) {
-                        <button
-                          mat-menu-item
-                          class="dt-action-item"
-                          [class]="getActionColorClass(action)"
-                          [style]="getActionColorStyle(action)"
-                          [disabled]="isActionDisabled(action, row)"
-                          (click)="action.action(row)"
-                        >
-                          @if (action.icon) {
-                            <mat-icon>{{ action.icon }}</mat-icon>
-                          }
-                          <span>{{ action.label }}</span>
-                        </button>
-                      }
-                    }
-                  </mat-menu>
-                </td>
-              }
             </tr>
           }
         }

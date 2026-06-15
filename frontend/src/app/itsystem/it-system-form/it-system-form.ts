@@ -66,7 +66,7 @@ import {
     MatDialogModule,
     MatTooltipModule,
   ],
-  providers: [provideTranslocoScope('itsystem')],
+  providers: [provideTranslocoScope('itsystem'), provideTranslocoScope('history')],
   templateUrl: './it-system-form.html',
   styleUrl: './it-system-form.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,

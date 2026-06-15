@@ -27,7 +27,7 @@ type SystemParameterRow = SystemParameterDto & { currentValue: string };
     DataTable,
     TranslocoDirective,
   ],
-  providers: [provideTranslocoScope('admin')],
+  providers: [provideTranslocoScope('admin'), provideTranslocoScope('history')],
   templateUrl: './system-parameters.html',
   styleUrl: './system-parameters.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -42,6 +42,7 @@ export class SystemParameters {
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly data = signal<SystemParameterRow[]>([]);
   protected readonly loading = signal(false);
+  protected readonly selectedRow = signal<SystemParameterRow | null>(null);
   protected readonly pageIndex = signal(0);
   private readonly totalItems = signal(0);
   private readonly pageSize = signal(50);
@@ -50,6 +51,7 @@ export class SystemParameters {
 
   protected readonly tableConfig = computed<TableConfig<SystemParameterRow>>(() => {
     const _lang = this.lang();
+    const selected = this.selectedRow();
     const columns: ColumnDef<SystemParameterRow>[] = [
       {
         key: 'parameterKey',
@@ -105,11 +107,13 @@ export class SystemParameters {
         pageSizeOptions: [25, 50, 100],
       },
       showFilter: false,
-      actions: [
+      toolbar: [
         {
-          label: this.t.translate('admin.systemParam.action.history'),
-          icon: 'history',
-          action: (row: SystemParameterRow) => this.openHistory(row),
+          label:    this.t.translate('admin.systemParam.action.history'),
+          icon:     'history',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('admin.toolbar.selectParam') : undefined,
+          action:   () => { if (selected) this.openHistory(selected); },
         },
       ],
       rowDblClick: this.isAdmin() ? (row) => this.openEditDialog(row) : undefined,

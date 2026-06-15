@@ -20,7 +20,7 @@ import { AddEntryDialog, AddEntryDialogData } from './add-entry.dialog';
 @Component({
   selector: 'app-dictionary-entries',
   imports: [DataTable, TranslocoDirective, MatIconModule, MatButtonModule],
-  providers: [provideTranslocoScope('dictionary')],
+  providers: [provideTranslocoScope('dictionary'), provideTranslocoScope('history')],
   templateUrl: './dictionary-entries.html',
   styleUrl: './dictionary-entries.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -95,32 +95,27 @@ export class DictionaryEntries {
           label: this.t.translate('dictionary.action.edit'),
           icon: 'edit',
           disabled: !selected,
+          tooltip: !selected ? this.t.translate('dictionary.toolbar.selectToEdit') : undefined,
           action: () => { if (selected) this.openEditDialog(selected); },
-        },
-        {
-          label: this.t.translate('dictionary.action.deactivate'),
-          icon: 'block',
-          disabled: !selected || selected.systemDefined || !selected.active,
-          action: () => { if (selected) this.confirmDeactivate(selected); },
-        },
-      ],
-      actions: [
-        {
-          label: this.t.translate('dictionary.action.edit'),
-          icon: 'edit',
-          action: (row) => this.openEditDialog(row),
         },
         {
           label: this.t.translate('dictionary.action.history'),
           icon: 'history',
-          action: (row) => this.openEntryHistory(row),
+          disabled: !selected,
+          tooltip: !selected ? this.t.translate('dictionary.toolbar.selectToEdit') : undefined,
+          action: () => { if (selected) this.openEntryHistory(selected); },
         },
         {
           label: this.t.translate('dictionary.action.deactivate'),
           icon: 'block',
           color: 'error',
-          disabled: (row) => row.systemDefined || !row.active,
-          action: (row) => this.confirmDeactivate(row),
+          disabled: !selected || selected.systemDefined || !selected.active,
+          tooltip: !selected
+            ? this.t.translate('dictionary.toolbar.selectToEdit')
+            : selected.systemDefined || !selected.active
+              ? this.t.translate('dictionary.toolbar.cannotDeactivate')
+              : undefined,
+          action: () => { if (selected) this.confirmDeactivate(selected); },
         },
       ],
     };

@@ -204,22 +204,6 @@ export class ItSystems implements OnInit {
         },
       ],
       rowDblClick: (row) => this.router.navigate(['/it-systems', row.id, 'edit']),
-      actions: [
-        {
-          label:   this.t.translate('itsystem.action.edit'),
-          icon:    'edit',
-          visible: (row) => row.canEdit,
-          action:  (row) => this.router.navigate(['/it-systems', row.id, 'edit']),
-        },
-        {
-          label:    this.t.translate('itsystem.action.deactivate'),
-          icon:     'block',
-          color:    'error',
-          visible:  (row) => row.canEdit,
-          disabled: (row) => !row.active,
-          action:   (row) => this.confirmDeactivate(row),
-        },
-      ],
     };
   });
 

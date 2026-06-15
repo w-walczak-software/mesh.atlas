@@ -1,0 +1,101 @@
+<ng-container *transloco="let t; scope: 'integration'; lang: lang()">
+  <div class="form-page">
+    <app-toolbar
+      [title]="isEditMode() ? t('integration.page.datasource.editTitle') : t('integration.page.datasource.newTitle')"
+      [subtitle]="t('integration.page.datasources.title')"
+      [cancelLabel]="t('integration.action.cancel')"
+      [saveLabel]="t('integration.action.save')"
+      [saveDisabled]="saving()"
+      (back)="cancel()"
+      (cancel)="cancel()"
+      (save)="save()" />
+
+    <mat-card class="form-card">
+      <atlas-card-header
+        icon="storage"
+        iconColor="primary"
+        [title]="t('integration.datasource.cardTitle')"
+        [subtitle]="t('integration.datasource.cardSubtitle')"
+      />
+      @if (isEditMode()) {
+        <div class="datasource-actions">
+          <button mat-stroked-button [disabled]="testing()" (click)="testConnection()">
+            <mat-icon>wifi_tethering</mat-icon>
+            {{ t('integration.action.testConnection') }}
+          </button>
+        </div>
+      }
+      <form [formGroup]="form" class="form-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.code') }}</mat-label>
+          <input matInput formControlName="code" />
+          @if (form.get('code')?.hasError('required')) {
+            <mat-error>{{ t('integration.error.required') }}</mat-error>
+          }
+          @if (form.get('code')?.hasError('pattern')) {
+            <mat-error>{{ t('integration.error.codePattern') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.name') }}</mat-label>
+          <input matInput formControlName="name" />
+          @if (form.get('name')?.hasError('required')) {
+            <mat-error>{{ t('integration.error.required') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="col-span-2">
+          <mat-label>{{ t('integration.datasource.description') }}</mat-label>
+          <textarea matInput formControlName="description" rows="2"></textarea>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.type') }}</mat-label>
+          <mat-select formControlName="type">
+            @for (dt of datasourceTypes; track dt) {
+              <mat-option [value]="dt">{{ dt }}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.databaseName') }}</mat-label>
+          <input matInput formControlName="databaseName" />
+          @if (form.get('databaseName')?.hasError('required')) {
+            <mat-error>{{ t('integration.error.required') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.host') }}</mat-label>
+          <input matInput formControlName="host" />
+          @if (form.get('host')?.hasError('required')) {
+            <mat-error>{{ t('integration.error.required') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.port') }}</mat-label>
+          <input matInput type="number" formControlName="port" />
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.username') }}</mat-label>
+          <input matInput formControlName="username" autocomplete="username" />
+          @if (form.get('username')?.hasError('required')) {
+            <mat-error>{{ t('integration.error.required') }}</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ t('integration.datasource.password') }}{{ isEditMode() ? ' ' + t('integration.datasource.passwordHint') : '' }}</mat-label>
+          <input matInput type="password" formControlName="password" autocomplete="new-password" />
+          @if (form.get('password')?.hasError('required')) {
+            <mat-error>{{ t('integration.error.required') }}</mat-error>
+          }
+        </mat-form-field>
+      </form>
+    </mat-card>
+  </div>
+</ng-container>

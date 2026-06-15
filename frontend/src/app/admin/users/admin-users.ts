@@ -50,6 +50,7 @@ export class AdminUsers {
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly data = signal<AdminUserDto[]>([]);
   protected readonly loading = signal(false);
+  protected readonly selectedRow = signal<AdminUserDto | null>(null);
   protected readonly pageIndex = signal(0);
   private readonly totalItems = signal(0);
   private readonly pageSize = signal(20);
@@ -58,6 +59,7 @@ export class AdminUsers {
 
   protected readonly tableConfig = computed<TableConfig<AdminUserDto>>(() => {
     const _lang = this.lang();
+    const selected = this.selectedRow();
     return {
       tableId: 'admin-users',
       columns: [
@@ -83,11 +85,13 @@ export class AdminUsers {
         pageSizeOptions: [10, 20, 50],
       },
       showFilter: false,
-      actions: [
+      toolbar: [
         {
-          label: this.t.translate('admin.action.manageRoles'),
-          icon: 'manage_accounts',
-          action: (row) => this.openRolesDialog(row),
+          label:   this.t.translate('admin.action.manageRoles'),
+          icon:    'manage_accounts',
+          disabled: !selected,
+          tooltip:  !selected ? this.t.translate('admin.toolbar.selectUser') : undefined,
+          action:  () => { if (selected) this.openRolesDialog(selected); },
         },
       ],
     };

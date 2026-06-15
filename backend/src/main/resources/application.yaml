@@ -81,6 +81,15 @@ spring:
     create-schemas: true
     placeholder-replacement: false
 
+atlas:
+  integration:
+    encryption-key: ${ATLAS_INTEGRATION_KEY:atlas-integration-key-change-in-prod}
+
+camel:
+  springboot:
+    main-run-controller: false
+    auto-startup: false
+
 logging:
   appender: default
   file:

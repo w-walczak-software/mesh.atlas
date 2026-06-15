@@ -1,0 +1,197 @@
+{
+  "page": {
+    "pipelines": {
+      "title": "Potoki integracji",
+      "subtitle": "Zarządzaj potokami importu danych"
+    },
+    "pipeline": {
+      "newTitle": "Nowy potok",
+      "editTitle": "Edytuj potok"
+    },
+    "datasources": {
+      "title": "Źródła danych",
+      "subtitle": "Zewnętrzne połączenia bazodanowe"
+    },
+    "datasource": {
+      "newTitle": "Nowe źródło danych",
+      "editTitle": "Edytuj źródło danych"
+    },
+    "syncRegistry": {
+      "title": "Rejestr synchronizacji",
+      "subtitle": "Historia uruchomień synchronizacji"
+    },
+    "syncRegistryDetail": {
+      "title": "Rejestr synchronizacji — Szczegóły"
+    }
+  },
+  "pipeline": {
+    "code": "Kod",
+    "name": "Nazwa",
+    "description": "Opis",
+    "targetEntity": "Encja docelowa",
+    "status": "Status",
+    "datasource": "Źródło danych",
+    "hasDsl": "Posiada DSL",
+    "cardTitle": "Szczegóły potoku",
+    "cardSubtitle": "Podstawowa konfiguracja potoku",
+    "tab": {
+      "basic": "Podstawowe",
+      "dsl": "Camel XML DSL",
+      "mappings": "Mapowania słowników",
+      "staging": "Podgląd stagingu",
+      "syncHistory": "Historia synchronizacji"
+    }
+  },
+  "datasource": {
+    "code": "Kod",
+    "name": "Nazwa",
+    "description": "Opis",
+    "type": "Typ",
+    "host": "Host",
+    "port": "Port",
+    "databaseName": "Nazwa bazy danych",
+    "username": "Użytkownik",
+    "password": "Hasło",
+    "passwordHint": "(pozostaw puste, aby nie zmieniać)",
+    "cardTitle": "Szczegóły źródła danych",
+    "cardSubtitle": "Konfiguracja połączenia z zewnętrzną bazą danych"
+  },
+  "dsl": {
+    "cardTitle": "Camel XML DSL",
+    "cardSubtitle": "Edytuj lub importuj definicję trasy Apache Camel XML DSL",
+    "noDsl": "Brak wgranego pliku DSL.",
+    "unsavedChanges": "Masz niezapisane zmiany"
+  },
+  "mapping": {
+    "dictionaryTypeCode": "Typ słownika",
+    "externalValue": "Wartość zewnętrzna",
+    "atlasEntryCode": "Kod wpisu Atlas",
+    "atlasEntryName": "Nazwa wpisu Atlas",
+    "cardTitle": "Mapowania słowników",
+    "cardSubtitle": "Mapuj zewnętrzne wartości na wpisy słowników Atlas",
+    "editValueTitle": "Ustaw wartość źródłową",
+    "externalValueHint": "Wartość z systemu zewnętrznego (np. 'Production')",
+    "notSet": "Nie ustawiono"
+  },
+  "staging": {
+    "cardTitle": "Podgląd stagingu",
+    "cardSubtitle": "Dane załadowane w ostatnim uruchomieniu potoku",
+    "empty": "Brak danych w stagingu.",
+    "selectPipeline": "Brak danych stagingowych dla tego typu potoku."
+  },
+  "syncHistory": {
+    "cardTitle": "Historia synchronizacji",
+    "cardSubtitle": "Ostatnie 10 uruchomień synchronizacji dla tego potoku"
+  },
+  "registry": {
+    "executedAt": "Data uruchomienia",
+    "executedBy": "Uruchomił",
+    "pipelineCode": "Kod potoku",
+    "pipelineName": "Nazwa potoku",
+    "pipeline": "Potok",
+    "status": "Status",
+    "completedAt": "Data zakończenia",
+    "totalCount": "Łącznie",
+    "successCount": "Sukces",
+    "failedCount": "Błędy",
+    "skippedCount": "Pominięte",
+    "executionLog": "Dziennik wykonania",
+    "summaryTitle": "Podsumowanie synchronizacji",
+    "itemsTitle": "Pozycje synchronizacji"
+  },
+  "registryItem": {
+    "entityType": "Typ encji",
+    "externalId": "Zewnętrzne ID",
+    "action": "Akcja",
+    "status": "Status",
+    "errorMessage": "Błąd",
+    "createdAt": "Data"
+  },
+  "pipelineStatus": {
+    "active": "Aktywny",
+    "draft": "Szkic",
+    "paused": "Wstrzymany"
+  },
+  "syncStatus": {
+    "completed": "Zakończono",
+    "partial": "Częściowy",
+    "failed": "Błąd",
+    "running": "W toku",
+    "pending": "Oczekuje"
+  },
+  "stagingStatus": {
+    "synced": "Zsynchronizowano",
+    "error": "Błąd",
+    "skipped": "Pominięto",
+    "pending": "Oczekuje"
+  },
+  "syncAction": {
+    "create": "Utwórz",
+    "update": "Aktualizuj",
+    "skip": "Pomiń"
+  },
+  "targetEntity": {
+    "itSystem": "System IT",
+    "api": "API",
+    "dataDomain": "Domena danych",
+    "it_system": "System IT",
+    "data_domain": "Domena danych"
+  },
+  "common": {
+    "active": "Aktywny"
+  },
+  "badge": {
+    "active": "Aktywny",
+    "inactive": "Nieaktywny",
+    "yes": "Tak",
+    "no": "Nie"
+  },
+  "action": {
+    "create": "Nowy",
+    "edit": "Edytuj",
+    "save": "Zapisz",
+    "cancel": "Anuluj",
+    "deactivate": "Dezaktywuj",
+    "testConnection": "Test połączenia",
+    "sync": "Synchronizuj",
+    "importDsl": "Importuj z pliku",
+    "downloadDsl": "Pobierz DSL",
+    "saveDsl": "Zapisz DSL",
+    "initializeMappings": "Inicjuj mapowania"
+  },
+  "confirm": {
+    "deactivateDatasource": "Czy na pewno chcesz dezaktywować to źródło danych?",
+    "deactivatePipeline": "Czy na pewno chcesz dezaktywować ten potok?",
+    "sync": "Czy na pewno chcesz uruchomić synchronizację tego potoku? Dane stagingowe zostaną wyczyszczone i rozpocznie się nowe uruchomienie."
+  },
+  "toast": {
+    "datasourceCreated": "Źródło danych zostało utworzone.",
+    "datasourceUpdated": "Źródło danych zostało zaktualizowane.",
+    "datasourceDeactivated": "Źródło danych zostało dezaktywowane.",
+    "connectionOk": "Połączenie nawiązano pomyślnie.",
+    "connectionFailed": "Połączenie nie powiodło się",
+    "pipelineCreated": "Potok został utworzony.",
+    "pipelineUpdated": "Potok został zaktualizowany.",
+    "pipelineDeactivated": "Potok został dezaktywowany.",
+    "dslUploaded": "DSL wgrany pomyślnie.",
+    "dslUploadFailed": "Nie udało się wgrać DSL.",
+    "syncStarted": "Synchronizacja uruchomiona",
+    "syncFailed": "Nie udało się uruchomić synchronizacji.",
+    "mappingsInitialized": "Zainicjowano mapowania: {{ created }} nowych, {{ skipped }} pominiętych.",
+    "mappingsInitFailed": "Nie udało się zainicjować mapowań.",
+    "mappingValueSaved": "Wartość źródłowa została zapisana.",
+    "mappingValueFailed": "Nie udało się zapisać wartości źródłowej."
+  },
+  "tooltip": {
+    "pipelineNotActive": "Potok musi być Aktywny, aby uruchomić synchronizację."
+  },
+  "error": {
+    "required": "To pole jest wymagane.",
+    "codePattern": "Kod musi zaczynać się od dużej litery i zawierać tylko duże litery, cyfry i podkreślenia.",
+    "maxLength500": "Wartość nie może przekraczać 500 znaków."
+  },
+  "source": {
+    "label": "Źródło",
+    "tooltip": "Ten rekord został zaimportowany z zewnętrznego potoku"
+  }
+}

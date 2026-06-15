@@ -469,6 +469,7 @@ class ApiServiceTest {
                 null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null, null,
                 null, null, null, null, null, null, null,
+                null,
                 true, GovernanceStatus.VERIFIED, null,
                 false, false, false,
                 null, null, null, null, null);

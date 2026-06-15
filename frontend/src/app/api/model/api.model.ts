@@ -169,6 +169,7 @@ export interface ApiDto {
   dataDomains: DataDomainRef[];
   environments: ApiEnvironmentDto[];
   externalId: string | null;
+  source: string | null;
   active: boolean;
   governanceStatus: GovernanceStatus;
   governanceNote: string | null;

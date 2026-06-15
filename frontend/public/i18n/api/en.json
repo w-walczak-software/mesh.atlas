@@ -46,6 +46,7 @@
     "tags": "Tags",
     "externalId": "External ID",
     "externalIdHint": "Identifier from external source system (e.g. CMDB)",
+    "source": "Source",
     "codeHint": "Leave blank to auto-generate from producer system and transport layer",
     "dataDomains": "Data Domains",
     "domainGroup": "Filter by Group",
