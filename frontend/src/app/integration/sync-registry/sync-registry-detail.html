@@ -4,6 +4,10 @@
       [title]="t('integration.page.syncRegistryDetail.title')"
       [subtitle]="t('integration.page.syncRegistry.subtitle')"
       [backLabel]="t('integration.action.cancel')"
+      [cancelLabel]="t('integration.action.cancel')"
+      [saveLabel]="t('integration.action.save')"
+      [cancelDisabled]="true"
+      [saveDisabled]="true"
       (back)="goBack()" />
 
     @if (registry(); as reg) {

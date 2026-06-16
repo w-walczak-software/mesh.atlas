@@ -19,7 +19,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
-import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
@@ -36,14 +35,13 @@ import { ThemeService } from '@shared/services/theme.service';
 import { IntegrationPipelineService } from '../service/integration-pipeline.service';
 import { IntegrationDatasourceService } from '../service/integration-datasource.service';
 import { IntegrationDictionaryMappingService } from '../service/integration-dictionary-mapping.service';
+import { IntegrationStagingService } from '../service/integration-staging.service';
 import { SyncRegistryService } from '../service/sync-registry.service';
 import {
   IntegrationDatasourceSummaryDto,
   IntegrationPipelineDto,
   PipelineDictionaryMappingDto,
   PipelineStatus,
-  StagingApiDto,
-  StagingDataDomainDto,
   StagingItSystemDto,
   SyncRegistrySummaryDto,
   TargetEntityType,
@@ -90,7 +88,6 @@ const DSL_TEMPLATE = `<routes xmlns="http://camel.apache.org/schema/spring">
     MatSelectModule,
     MatIconModule,
     MatTabsModule,
-    MatTableModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
   ],
@@ -104,6 +101,7 @@ export class PipelineForm implements OnInit, OnDestroy {
   protected readonly pipelineService = inject(IntegrationPipelineService);
   private readonly datasourceService = inject(IntegrationDatasourceService);
   private readonly mappingService = inject(IntegrationDictionaryMappingService);
+  private readonly stagingService = inject(IntegrationStagingService);
   private readonly syncRegistryService = inject(SyncRegistryService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
@@ -127,9 +125,18 @@ export class PipelineForm implements OnInit, OnDestroy {
   protected readonly datasources = signal<IntegrationDatasourceSummaryDto[]>([]);
   protected readonly mappings = signal<PipelineDictionaryMappingDto[]>([]);
   protected readonly stagingItSystems = signal<StagingItSystemDto[]>([]);
-  protected readonly stagingApis = signal<StagingApiDto[]>([]);
-  protected readonly stagingDataDomains = signal<StagingDataDomainDto[]>([]);
+  protected readonly stagingApis = signal<StagingItSystemDto[]>([]);
+  protected readonly stagingDataDomains = signal<StagingItSystemDto[]>([]);
   protected readonly syncHistory = signal<SyncRegistrySummaryDto[]>([]);
+
+  protected readonly stagingData = computed<StagingItSystemDto[]>(() => {
+    switch (this.pipeline()?.targetEntity) {
+      case 'IT_SYSTEM': return this.stagingItSystems();
+      case 'API': return this.stagingApis();
+      case 'DATA_DOMAIN': return this.stagingDataDomains();
+      default: return [];
+    }
+  });
   protected readonly dslContent = signal<string | null>(null);
 
   protected readonly pipelineStatuses: PipelineStatus[] = ['DRAFT', 'ACTIVE', 'PAUSED'];
@@ -197,6 +204,28 @@ export class PipelineForm implements OnInit, OnDestroy {
     rowStyle: (row): Record<string, string> => row.externalValue == null ? { opacity: '0.65' } : {},
   }));
 
+  protected readonly stagingTableConfig = computed<TableConfig<StagingItSystemDto>>(() => ({
+    tableId: 'pipeline-staging',
+    columns: [
+      { key: 'externalId', label: this.t.translate('integration.staging.externalId'), width: '160px' },
+      { key: 'code', label: this.t.translate('integration.staging.code'), width: '130px' },
+      { key: 'name', label: this.t.translate('integration.staging.name') },
+      {
+        key: 'stagingStatus',
+        label: this.t.translate('integration.staging.stagingStatus'),
+        width: '100px',
+        badges: {
+          'SYNCED': { label: this.t.translate('integration.stagingStatus.synced'), color: 'success' },
+          'ERROR': { label: this.t.translate('integration.stagingStatus.error'), color: 'error' },
+          'SKIPPED': { label: this.t.translate('integration.stagingStatus.skipped'), color: 'neutral' },
+          'PENDING': { label: this.t.translate('integration.stagingStatus.pending'), color: 'warning' },
+        } as Record<string, BadgeConfig>,
+      },
+      { key: 'errorMessage', label: this.t.translate('integration.staging.errorMessage'), width: '220px' },
+      { key: 'processedAt', label: this.t.translate('integration.staging.processedAt'), width: '160px' },
+    ],
+  }));
+
   protected readonly syncHistoryTableConfig = computed<TableConfig<SyncRegistrySummaryDto>>(() => ({
     tableId: 'pipeline-sync-history',
     columns: [
@@ -258,8 +287,29 @@ export class PipelineForm implements OnInit, OnDestroy {
         } else {
           this.loadingDsl.set(false);
         }
+        this.loadStaging(id, p.targetEntity);
       },
     });
+  }
+
+  private loadStaging(pipelineId: string, targetEntity: TargetEntityType): void {
+    switch (targetEntity) {
+      case 'IT_SYSTEM':
+        this.stagingService.findItSystems(pipelineId).subscribe({
+          next: (data) => this.stagingItSystems.set(data),
+        });
+        break;
+      case 'API':
+        this.stagingService.findApis(pipelineId).subscribe({
+          next: (data) => this.stagingApis.set(data as StagingItSystemDto[]),
+        });
+        break;
+      case 'DATA_DOMAIN':
+        this.stagingService.findDataDomains(pipelineId).subscribe({
+          next: (data) => this.stagingDataDomains.set(data as StagingItSystemDto[]),
+        });
+        break;
+    }
   }
 
   private loadDslContent(id: string): void {

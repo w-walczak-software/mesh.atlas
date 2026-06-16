@@ -77,7 +77,12 @@
     "cardTitle": "Staging Preview",
     "cardSubtitle": "Data loaded from last pipeline run",
     "empty": "No staging data available.",
-    "selectPipeline": "No staging data for this pipeline type."
+    "externalId": "External ID",
+    "code": "Code",
+    "name": "Name",
+    "stagingStatus": "Status",
+    "errorMessage": "Error",
+    "processedAt": "Processed At"
   },
   "syncHistory": {
     "cardTitle": "Synchronization History",
@@ -102,6 +107,8 @@
   "registryItem": {
     "entityType": "Entity Type",
     "externalId": "External ID",
+    "targetCode": "Record Code",
+    "targetName": "Record Name",
     "action": "Action",
     "status": "Status",
     "errorMessage": "Error",

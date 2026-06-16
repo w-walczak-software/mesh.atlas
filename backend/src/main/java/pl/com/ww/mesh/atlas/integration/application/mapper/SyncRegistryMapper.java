@@ -21,5 +21,7 @@ public interface SyncRegistryMapper {
     @Mapping(target = "pipelineName", source = "pipeline.name")
     SyncRegistrySummaryDto mapSummary(SyncRegistryEntity entity);
 
+    @Mapping(target = "targetCode", ignore = true)
+    @Mapping(target = "targetName", ignore = true)
     SyncRegistryItemDto mapItem(SyncRegistryItemEntity entity);
 }

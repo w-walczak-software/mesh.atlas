@@ -22,6 +22,7 @@ export class AppToolbar {
   readonly showHistory = input(false);
   readonly readonly = input(false);
   readonly saveDisabled = input(false);
+  readonly cancelDisabled = input(false);
 
   readonly back = output<void>();
   readonly cancel = output<void>();

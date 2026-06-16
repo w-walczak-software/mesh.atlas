@@ -14,15 +14,17 @@
       <mat-icon>history</mat-icon>
     </button>
   }
-  <button mat-stroked-button type="button" (click)="cancel.emit()">
-    {{ cancelLabel() }}
-  </button>
+  @if (cancelLabel()) {
+    <button mat-stroked-button type="button" [disabled]="cancelDisabled()" (click)="cancel.emit()">
+      {{ cancelLabel() }}
+    </button>
+  }
   @if (readonly()) {
     <span class="tb-readonly-badge">
       <mat-icon>lock</mat-icon>
       {{ readonlyLabel() }}
     </span>
-  } @else {
+  } @else if (saveLabel()) {
     <button mat-flat-button type="button" [disabled]="saveDisabled()" (click)="save.emit()">
       <mat-icon>save</mat-icon>
       {{ saveLabel() }}

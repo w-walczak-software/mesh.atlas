@@ -202,6 +202,8 @@ export interface SyncRegistryItemDto {
   entityType: TargetEntityType;
   externalId: string | null;
   targetId: string | null;
+  targetCode: string | null;
+  targetName: string | null;
   action: SyncAction;
   status: StagingStatus;
   errorMessage: string | null;

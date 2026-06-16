@@ -153,37 +153,14 @@
               [title]="t('integration.staging.cardTitle')"
               [subtitle]="t('integration.staging.cardSubtitle')"
             />
-            @if (pipeline()?.targetEntity === 'IT_SYSTEM') {
-              @if (stagingItSystems().length === 0) {
-                <p class="empty-msg">{{ t('integration.staging.empty') }}</p>
-              } @else {
-                <table mat-table [dataSource]="stagingItSystems()" class="staging-table">
-                  <ng-container matColumnDef="externalId">
-                    <th mat-header-cell *matHeaderCellDef>External ID</th>
-                    <td mat-cell *matCellDef="let row">{{ row.externalId }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="code">
-                    <th mat-header-cell *matHeaderCellDef>Code</th>
-                    <td mat-cell *matCellDef="let row">{{ row.code }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="name">
-                    <th mat-header-cell *matHeaderCellDef>Name</th>
-                    <td mat-cell *matCellDef="let row">{{ row.name }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="stagingStatus">
-                    <th mat-header-cell *matHeaderCellDef>Status</th>
-                    <td mat-cell *matCellDef="let row">{{ row.stagingStatus }}</td>
-                  </ng-container>
-                  <ng-container matColumnDef="errorMessage">
-                    <th mat-header-cell *matHeaderCellDef>Error</th>
-                    <td mat-cell *matCellDef="let row">{{ row.errorMessage }}</td>
-                  </ng-container>
-                  <tr mat-header-row *matHeaderRowDef="['externalId','code','name','stagingStatus','errorMessage']"></tr>
-                  <tr mat-row *matRowDef="let row; columns: ['externalId','code','name','stagingStatus','errorMessage'];"></tr>
-                </table>
-              }
+            @if (stagingData().length === 0) {
+              <p class="empty-msg">{{ t('integration.staging.empty') }}</p>
             } @else {
-              <p class="empty-msg">{{ t('integration.staging.selectPipeline') }}</p>
+              <app-data-table
+                [config]="stagingTableConfig()"
+                [data]="stagingData()"
+                [loading]="false"
+              />
             }
           </mat-card>
         </mat-tab>

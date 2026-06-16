@@ -77,7 +77,12 @@
     "cardTitle": "Podgląd stagingu",
     "cardSubtitle": "Dane załadowane w ostatnim uruchomieniu potoku",
     "empty": "Brak danych w stagingu.",
-    "selectPipeline": "Brak danych stagingowych dla tego typu potoku."
+    "externalId": "Zewnętrzne ID",
+    "code": "Kod",
+    "name": "Nazwa",
+    "stagingStatus": "Status",
+    "errorMessage": "Błąd",
+    "processedAt": "Przetworzono"
   },
   "syncHistory": {
     "cardTitle": "Historia synchronizacji",
@@ -102,6 +107,8 @@
   "registryItem": {
     "entityType": "Typ encji",
     "externalId": "Zewnętrzne ID",
+    "targetCode": "Kod rekordu",
+    "targetName": "Nazwa rekordu",
     "action": "Akcja",
     "status": "Status",
     "errorMessage": "Błąd",

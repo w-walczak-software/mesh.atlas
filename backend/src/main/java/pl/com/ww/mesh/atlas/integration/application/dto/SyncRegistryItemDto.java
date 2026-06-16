@@ -12,6 +12,8 @@ public record SyncRegistryItemDto(
         TargetEntityType entityType,
         String externalId,
         UUID targetId,
+        String targetCode,
+        String targetName,
         SyncAction action,
         StagingStatus status,
         String errorMessage,

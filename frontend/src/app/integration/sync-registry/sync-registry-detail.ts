@@ -52,9 +52,11 @@ export class SyncRegistryDetail implements OnInit {
       {
         key: 'entityType',
         label: this.t.translate('integration.registryItem.entityType'),
-        width: '130px',
+        width: '110px',
       },
-      { key: 'externalId', label: this.t.translate('integration.registryItem.externalId'), width: '160px' },
+      { key: 'externalId', label: this.t.translate('integration.registryItem.externalId'), width: '140px' },
+      { key: 'targetCode', label: this.t.translate('integration.registryItem.targetCode'), width: '130px' },
+      { key: 'targetName', label: this.t.translate('integration.registryItem.targetName') },
       {
         key: 'action',
         label: this.t.translate('integration.registryItem.action'),
@@ -76,8 +78,7 @@ export class SyncRegistryDetail implements OnInit {
           'PENDING': { label: this.t.translate('integration.stagingStatus.pending'), color: 'warning' },
         } as Record<string, BadgeConfig>,
       },
-      { key: 'errorMessage', label: this.t.translate('integration.registryItem.errorMessage') },
-      { key: 'createdAt', label: this.t.translate('integration.registryItem.createdAt'), width: '160px' },
+      { key: 'errorMessage', label: this.t.translate('integration.registryItem.errorMessage'), width: '200px' },
     ],
     pagination: {
       mode: 'backend',
