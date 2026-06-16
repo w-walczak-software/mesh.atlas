@@ -1,8 +1,8 @@
 export type DatasourceType = 'POSTGRESQL' | 'SQLSERVER' | 'ORACLE';
 export type PipelineStatus = 'DRAFT' | 'ACTIVE' | 'PAUSED';
 export type TargetEntityType = 'IT_SYSTEM' | 'API' | 'DATA_DOMAIN';
-export type SyncStatus = 'PENDING' | 'RUNNING' | 'COMPLETED' | 'FAILED' | 'PARTIAL';
-export type StagingStatus = 'PENDING' | 'SYNCED' | 'ERROR' | 'SKIPPED';
+export type SyncStatus = 'PENDING' | 'RUNNING' | 'PENDING_REVIEW' | 'COMPLETED' | 'FAILED' | 'PARTIAL' | 'ABANDONED';
+export type StagingStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED' | 'SYNCED' | 'ERROR' | 'SKIPPED';
 export type SyncAction = 'CREATE' | 'UPDATE' | 'SKIP';
 
 export interface IntegrationDatasourceSummaryDto {
@@ -66,9 +66,12 @@ export interface IntegrationPipelineSummaryDto {
   name: string;
   status: PipelineStatus;
   targetEntity: TargetEntityType;
-  datasource: IntegrationDatasourceSummaryDto | null;
+  datasourceId: string | null;
+  datasourceName: string | null;
   hasDsl: boolean;
   active: boolean;
+  scheduleEnabled: boolean;
+  nextExecutionAt: string | null;
 }
 
 export interface IntegrationPipelineDto {
@@ -81,6 +84,9 @@ export interface IntegrationPipelineDto {
   datasource: IntegrationDatasourceSummaryDto | null;
   hasDsl: boolean;
   active: boolean;
+  cronExpression: string | null;
+  scheduleEnabled: boolean;
+  nextExecutionAt: string | null;
   createdAt: string;
   createdBy: string;
   updatedAt: string;
@@ -93,6 +99,8 @@ export interface IntegrationPipelineCreateRequest {
   description?: string | null;
   targetEntity: TargetEntityType;
   datasourceId: string;
+  cronExpression?: string | null;
+  scheduleEnabled: boolean;
 }
 
 export interface IntegrationPipelineUpdateRequest {
@@ -100,6 +108,8 @@ export interface IntegrationPipelineUpdateRequest {
   description?: string | null;
   status: PipelineStatus;
   datasourceId: string;
+  cronExpression?: string | null;
+  scheduleEnabled: boolean;
 }
 
 export interface SyncTriggerDto {
@@ -171,6 +181,7 @@ export interface SyncRegistrySummaryDto {
   pipelineId: string;
   pipelineCode: string;
   pipelineName: string;
+  pipelineTargetEntity: TargetEntityType;
   status: SyncStatus;
   executedBy: string;
   executedAt: string;
@@ -186,6 +197,7 @@ export interface SyncRegistryDto {
   pipelineId: string;
   pipelineCode: string;
   pipelineName: string;
+  pipelineTargetEntity: TargetEntityType;
   status: SyncStatus;
   executedBy: string;
   executedAt: string;
@@ -208,6 +220,16 @@ export interface SyncRegistryItemDto {
   status: StagingStatus;
   errorMessage: string | null;
   createdAt: string;
+}
+
+export interface StagingBulkActionRequest {
+  ids: string[];
+}
+
+export interface StagingPromoteResultDto {
+  promoted: number;
+  rejected: number;
+  failed: number;
 }
 
 export interface Page<T> {

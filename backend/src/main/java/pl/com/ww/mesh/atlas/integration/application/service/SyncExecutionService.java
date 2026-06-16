@@ -35,6 +35,8 @@ import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.SyncRegistryI
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.SyncRegistryRepository;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
+import pl.com.ww.mesh.atlas.systemparameter.domain.model.SystemParameterEntity;
+import pl.com.ww.mesh.atlas.systemparameter.infrastructure.persistence.SystemParameterRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -57,6 +59,8 @@ public class SyncExecutionService {
     private final DataDomainRepository dataDomainRepository;
     private final DictionaryEntryRepository dictionaryEntryRepository;
     private final CamelSyncEngine camelSyncEngine;
+    private final SystemParameterRepository systemParameterRepository;
+    private final SyncReportEmailService syncReportEmailService;
 
     @Transactional
     public SyncTriggerDto triggerSync(UUID pipelineId, String executedBy) {
@@ -66,7 +70,7 @@ public class SyncExecutionService {
             throw new IntegrationPipelineNotActiveException(pipeline.getCode());
         }
         if (syncRegistryRepository.existsByPipelineIdAndStatusIn(pipelineId,
-                List.of(SyncStatus.PENDING, SyncStatus.RUNNING))) {
+                List.of(SyncStatus.PENDING, SyncStatus.RUNNING, SyncStatus.PENDING_REVIEW))) {
             throw new IntegrationSyncAlreadyRunningException(pipelineId);
         }
 
@@ -98,15 +102,29 @@ public class SyncExecutionService {
             if (!camelResult.success()) {
                 log.error("Camel execution failed for pipeline {}: {}", pipeline.getCode(), camelResult.errorDetails());
                 finishRegistry(registryId, SyncStatus.FAILED, camelResult.log() + "\nERROR: " + camelResult.errorDetails());
+                syncReportEmailService.sendSyncReport(registryId);
                 return;
             }
 
-            promoteAllStaging(pipeline, registryId);
-            recalculateCounts(registryId, camelResult.log());
+            boolean autoPromote = systemParameterRepository
+                    .findByParameterKey("SYNC_AUTO_PROMOTE")
+                    .map(SystemParameterEntity::getBooleanValue)
+                    .filter(v -> v != null)
+                    .orElse(true);
+
+            if (autoPromote) {
+                promoteAllStaging(pipeline, registryId);
+                recalculateCounts(registryId, camelResult.log());
+                syncReportEmailService.sendSyncReport(registryId);
+            } else {
+                long pendingCount = countPendingStaging(pipeline);
+                setPendingReview(registryId, pendingCount, camelResult.log());
+            }
 
         } catch (Exception e) {
             log.error("Sync execution error for registry {}", registryId, e);
             finishRegistry(registryId, SyncStatus.FAILED, "Unexpected error: " + e.getMessage());
+            syncReportEmailService.sendSyncReport(registryId);
         }
     }
 
@@ -365,5 +383,44 @@ public class SyncExecutionService {
             case API -> stagingApiRepository.deleteAllByPipelineId(pipeline.getId());
             case DATA_DOMAIN -> stagingDataDomainRepository.deleteAllByPipelineId(pipeline.getId());
         }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markStagingSkipped(StagingItSystemEntity row) {
+        row.setStagingStatus(StagingStatus.SKIPPED);
+        stagingItSystemRepository.save(row);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markStagingSkipped(StagingApiEntity row) {
+        row.setStagingStatus(StagingStatus.SKIPPED);
+        stagingApiRepository.save(row);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markStagingSkipped(StagingDataDomainEntity row) {
+        row.setStagingStatus(StagingStatus.SKIPPED);
+        stagingDataDomainRepository.save(row);
+    }
+
+    private long countPendingStaging(IntegrationPipelineEntity pipeline) {
+        return switch (pipeline.getTargetEntity()) {
+            case IT_SYSTEM -> stagingItSystemRepository
+                    .findAllByPipelineIdAndStagingStatus(pipeline.getId(), StagingStatus.PENDING).size();
+            case API -> stagingApiRepository
+                    .findAllByPipelineIdAndStagingStatus(pipeline.getId(), StagingStatus.PENDING).size();
+            case DATA_DOMAIN -> stagingDataDomainRepository
+                    .findAllByPipelineIdAndStagingStatus(pipeline.getId(), StagingStatus.PENDING).size();
+        };
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void setPendingReview(UUID registryId, long pendingCount, String camelLog) {
+        syncRegistryRepository.findById(registryId).ifPresent(r -> {
+            r.setStatus(SyncStatus.PENDING_REVIEW);
+            r.setTotalCount((int) pendingCount);
+            r.setExecutionLog(camelLog);
+            syncRegistryRepository.save(r);
+        });
     }
 }

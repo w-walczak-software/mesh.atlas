@@ -17,6 +17,7 @@ public interface IntegrationPipelineMapper {
 
     @Mapping(target = "datasourceId", source = "datasource.id")
     @Mapping(target = "datasourceName", source = "datasource.name")
+    @Mapping(target = "hasDsl", expression = "java(entity.getCamelXmlDsl() != null && !entity.getCamelXmlDsl().isBlank())")
     IntegrationPipelineSummaryDto mapSummary(IntegrationPipelineEntity entity);
 
     @Mapping(target = "id", ignore = true)
@@ -24,6 +25,7 @@ public interface IntegrationPipelineMapper {
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "datasource", ignore = true)
     @Mapping(target = "camelXmlDsl", ignore = true)
+    @Mapping(target = "nextExecutionAt", ignore = true)
     IntegrationPipelineEntity map(IntegrationPipelineCreateRequest request);
 
     @Mapping(target = "id", ignore = true)
@@ -32,5 +34,6 @@ public interface IntegrationPipelineMapper {
     @Mapping(target = "targetEntity", ignore = true)
     @Mapping(target = "datasource", ignore = true)
     @Mapping(target = "camelXmlDsl", ignore = true)
+    @Mapping(target = "nextExecutionAt", ignore = true)
     void updateEntity(IntegrationPipelineUpdateRequest request, @MappingTarget IntegrationPipelineEntity entity);
 }

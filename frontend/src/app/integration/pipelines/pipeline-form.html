@@ -83,6 +83,38 @@
                 <mat-error>{{ t('integration.error.required') }}</mat-error>
               }
             </mat-form-field>
+
+            <!-- Schedule section -->
+            <div class="col-span-2 schedule-section">
+              <atlas-card-header
+                icon="schedule"
+                iconColor="secondary"
+                [title]="t('integration.schedule.cardTitle')"
+                [subtitle]="t('integration.schedule.cardSubtitle')"
+              />
+              <div class="schedule-fields">
+                <mat-form-field appearance="outline" class="cron-field">
+                  <mat-label>{{ t('integration.schedule.cronExpression') }}</mat-label>
+                  <input matInput formControlName="cronExpression"
+                         [placeholder]="t('integration.schedule.cronPlaceholder')" />
+                  <mat-hint>{{ t('integration.schedule.cronHint') }}</mat-hint>
+                  @if (form.get('cronExpression')?.hasError('maxlength')) {
+                    <mat-error>{{ t('integration.error.maxLength500') }}</mat-error>
+                  }
+                </mat-form-field>
+
+                <mat-slide-toggle formControlName="scheduleEnabled" class="schedule-toggle">
+                  {{ t('integration.schedule.enabled') }}
+                </mat-slide-toggle>
+              </div>
+
+              @if (pipeline()?.scheduleEnabled && pipeline()?.nextExecutionAt) {
+                <div class="next-execution-hint">
+                  <mat-icon>event</mat-icon>
+                  <span>{{ t('integration.schedule.nextExecution') }}: <strong>{{ pipeline()!.nextExecutionAt | date:'yyyy-MM-dd HH:mm:ss' }}</strong></span>
+                </div>
+              }
+            </div>
           </form>
         </mat-card>
       </mat-tab>
@@ -160,6 +192,7 @@
                 [config]="stagingTableConfig()"
                 [data]="stagingData()"
                 [loading]="false"
+                (rowsSelect)="onStagingRowsSelect($event)"
               />
             }
           </mat-card>

@@ -16,8 +16,23 @@ export class IntegrationPipelineService {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = `${environment.APIUrl}/api/v1/integration/pipelines`;
 
-  findAll(page = 0, size = 20): Observable<Page<IntegrationPipelineSummaryDto>> {
-    const params = new HttpParams().set('page', page).set('size', size);
+  findAll(
+    page = 0,
+    size = 20,
+    filters: {
+      active?: boolean | null;
+      code?: string | null;
+      name?: string | null;
+      status?: string | null;
+      targetEntity?: string | null;
+    } = {},
+  ): Observable<Page<IntegrationPipelineSummaryDto>> {
+    let params = new HttpParams().set('page', page).set('size', size);
+    if (filters.active != null) params = params.set('active', String(filters.active));
+    if (filters.code?.trim()) params = params.set('code', filters.code.trim());
+    if (filters.name?.trim()) params = params.set('name', filters.name.trim());
+    if (filters.status) params = params.set('status', filters.status);
+    if (filters.targetEntity) params = params.set('targetEntity', filters.targetEntity);
     return this.http.get<Page<IntegrationPipelineSummaryDto>>(this.baseUrl, { params });
   }
 

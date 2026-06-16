@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog } from '@angular/material/dialog';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
@@ -79,6 +81,7 @@ const DSL_TEMPLATE = `<routes xmlns="http://camel.apache.org/schema/spring">
     AtlasCardHeader,
     AppToolbar,
     DataTable,
+    DatePipe,
     TranslocoDirective,
     ReactiveFormsModule,
     MatButtonModule,
@@ -90,6 +93,7 @@ const DSL_TEMPLATE = `<routes xmlns="http://camel.apache.org/schema/spring">
     MatTabsModule,
     MatTooltipModule,
     MatProgressSpinnerModule,
+    MatSlideToggleModule,
   ],
   providers: [provideTranslocoScope('integration')],
   templateUrl: './pipeline-form.html',
@@ -119,6 +123,7 @@ export class PipelineForm implements OnInit, OnDestroy {
   protected readonly syncing = signal(false);
   protected readonly initializingMappings = signal(false);
   protected readonly loadingDsl = signal(false);
+  protected readonly promoting = signal(false);
   protected readonly pipeline = signal<IntegrationPipelineDto | null>(null);
   protected readonly dslModified = signal(false);
 
@@ -137,6 +142,12 @@ export class PipelineForm implements OnInit, OnDestroy {
       default: return [];
     }
   });
+
+  protected readonly selectedStagingItems = signal<StagingItSystemDto[]>([]);
+  protected readonly hasPendingStagingItems = computed(() =>
+    this.stagingData().some(i => i.stagingStatus === 'PENDING'));
+  protected readonly hasAcceptedStagingItems = computed(() =>
+    this.stagingData().some(i => i.stagingStatus === 'ACCEPTED'));
   protected readonly dslContent = signal<string | null>(null);
 
   protected readonly pipelineStatuses: PipelineStatus[] = ['DRAFT', 'ACTIVE', 'PAUSED'];
@@ -149,6 +160,8 @@ export class PipelineForm implements OnInit, OnDestroy {
     targetEntity: ['IT_SYSTEM' as TargetEntityType, Validators.required],
     datasourceId: ['', Validators.required],
     status: ['DRAFT' as PipelineStatus, Validators.required],
+    cronExpression: ['' as string | null, Validators.maxLength(100)],
+    scheduleEnabled: [false],
   });
 
   // Monaco
@@ -204,27 +217,56 @@ export class PipelineForm implements OnInit, OnDestroy {
     rowStyle: (row): Record<string, string> => row.externalValue == null ? { opacity: '0.65' } : {},
   }));
 
-  protected readonly stagingTableConfig = computed<TableConfig<StagingItSystemDto>>(() => ({
-    tableId: 'pipeline-staging',
-    columns: [
-      { key: 'externalId', label: this.t.translate('integration.staging.externalId'), width: '160px' },
-      { key: 'code', label: this.t.translate('integration.staging.code'), width: '130px' },
-      { key: 'name', label: this.t.translate('integration.staging.name') },
-      {
-        key: 'stagingStatus',
-        label: this.t.translate('integration.staging.stagingStatus'),
-        width: '100px',
-        badges: {
-          'SYNCED': { label: this.t.translate('integration.stagingStatus.synced'), color: 'success' },
-          'ERROR': { label: this.t.translate('integration.stagingStatus.error'), color: 'error' },
-          'SKIPPED': { label: this.t.translate('integration.stagingStatus.skipped'), color: 'neutral' },
-          'PENDING': { label: this.t.translate('integration.stagingStatus.pending'), color: 'warning' },
-        } as Record<string, BadgeConfig>,
-      },
-      { key: 'errorMessage', label: this.t.translate('integration.staging.errorMessage'), width: '220px' },
-      { key: 'processedAt', label: this.t.translate('integration.staging.processedAt'), width: '160px' },
-    ],
-  }));
+  protected readonly stagingTableConfig = computed<TableConfig<StagingItSystemDto>>(() => {
+    const inReview = this.stagingData().some(i =>
+      i.stagingStatus === 'PENDING' || i.stagingStatus === 'ACCEPTED' || i.stagingStatus === 'REJECTED');
+    const selectedIds = this.selectedStagingItems().map(i => i.id);
+    return {
+      tableId: 'pipeline-staging',
+      showCheckboxes: inReview,
+      rowId: (row) => row.id,
+      columns: [
+        { key: 'externalId', label: this.t.translate('integration.staging.externalId'), width: '160px' },
+        { key: 'code', label: this.t.translate('integration.staging.code'), width: '130px' },
+        { key: 'name', label: this.t.translate('integration.staging.name') },
+        {
+          key: 'stagingStatus',
+          label: this.t.translate('integration.staging.stagingStatus'),
+          width: '110px',
+          badges: {
+            'PENDING': { label: this.t.translate('integration.stagingStatus.pending'), color: 'warning' },
+            'ACCEPTED': { label: this.t.translate('integration.stagingStatus.accepted'), color: 'success' },
+            'REJECTED': { label: this.t.translate('integration.stagingStatus.rejected'), color: 'neutral' },
+            'SYNCED': { label: this.t.translate('integration.stagingStatus.synced'), color: 'success' },
+            'ERROR': { label: this.t.translate('integration.stagingStatus.error'), color: 'error' },
+            'SKIPPED': { label: this.t.translate('integration.stagingStatus.skipped'), color: 'neutral' },
+          } as Record<string, BadgeConfig>,
+        },
+        { key: 'errorMessage', label: this.t.translate('integration.staging.errorMessage'), width: '220px' },
+        { key: 'processedAt', label: this.t.translate('integration.staging.processedAt'), width: '160px' },
+      ],
+      toolbar: inReview ? [
+        {
+          label: this.t.translate('integration.action.accept'),
+          icon: 'check_circle',
+          disabled: selectedIds.length === 0,
+          action: () => this.acceptSelected(),
+        },
+        {
+          label: this.t.translate('integration.action.reject'),
+          icon: 'cancel',
+          disabled: selectedIds.length === 0,
+          action: () => this.rejectSelected(),
+        },
+        {
+          label: this.t.translate('integration.action.promoteData'),
+          icon: 'upload',
+          disabled: !this.hasAcceptedStagingItems() || this.promoting(),
+          action: () => this.promoteAccepted(),
+        },
+      ] : [],
+    };
+  });
 
   protected readonly syncHistoryTableConfig = computed<TableConfig<SyncRegistrySummaryDto>>(() => ({
     tableId: 'pipeline-sync-history',
@@ -241,6 +283,8 @@ export class PipelineForm implements OnInit, OnDestroy {
           'FAILED': { label: this.t.translate('integration.syncStatus.failed'), color: 'error' },
           'RUNNING': { label: this.t.translate('integration.syncStatus.running'), color: 'primary' },
           'PENDING': { label: this.t.translate('integration.syncStatus.pending'), color: 'neutral' },
+          'PENDING_REVIEW': { label: this.t.translate('integration.syncStatus.pending_review'), color: 'secondary' },
+          'ABANDONED': { label: this.t.translate('integration.syncStatus.abandoned'), color: 'neutral' },
         } as Record<string, BadgeConfig>,
       },
       { key: 'totalCount', label: this.t.translate('integration.registry.totalCount'), width: '80px' },
@@ -281,6 +325,8 @@ export class PipelineForm implements OnInit, OnDestroy {
           targetEntity: p.targetEntity,
           datasourceId: p.datasource?.id ?? '',
           status: p.status,
+          cronExpression: p.cronExpression ?? '',
+          scheduleEnabled: p.scheduleEnabled,
         });
         if (p.hasDsl) {
           this.loadDslContent(id);
@@ -460,6 +506,64 @@ export class PipelineForm implements OnInit, OnDestroy {
     });
   }
 
+  protected onStagingRowsSelect(items: StagingItSystemDto[]): void {
+    this.selectedStagingItems.set(items);
+  }
+
+  protected acceptSelected(): void {
+    const id = this.pipelineId();
+    const ids = this.selectedStagingItems().map(i => i.id);
+    if (!id || !ids.length) return;
+    this.stagingService.accept(id, ids).subscribe({
+      next: () => {
+        this.toast.success(this.t.translate('integration.toast.acceptSuccess'));
+        this.selectedStagingItems.set([]);
+        this.loadStaging(id, this.pipeline()!.targetEntity);
+      },
+      error: () => this.toast.error(this.t.translate('integration.toast.stagingActionFailed')),
+    });
+  }
+
+  protected rejectSelected(): void {
+    const id = this.pipelineId();
+    const ids = this.selectedStagingItems().map(i => i.id);
+    if (!id || !ids.length) return;
+    this.stagingService.reject(id, ids).subscribe({
+      next: () => {
+        this.toast.success(this.t.translate('integration.toast.rejectSuccess'));
+        this.selectedStagingItems.set([]);
+        this.loadStaging(id, this.pipeline()!.targetEntity);
+      },
+      error: () => this.toast.error(this.t.translate('integration.toast.stagingActionFailed')),
+    });
+  }
+
+  protected promoteAccepted(): void {
+    const id = this.pipelineId();
+    if (!id) return;
+    this.dialogs.question(
+      this.t.translate('integration.action.promoteData'),
+      this.t.translate('integration.confirm.promoteData'),
+      () => {
+        this.promoting.set(true);
+        this.stagingService.promote(id).subscribe({
+          next: (result) => {
+            this.promoting.set(false);
+            this.toast.success(
+              this.t.translate('integration.toast.promoteSuccess', { promoted: result.promoted })
+            );
+            this.loadStaging(id, this.pipeline()!.targetEntity);
+            this.loadSyncHistory(id);
+          },
+          error: () => {
+            this.promoting.set(false);
+            this.toast.error(this.t.translate('integration.toast.promoteFailed'));
+          },
+        });
+      },
+    );
+  }
+
   protected triggerSync(): void {
     const id = this.pipelineId();
     if (!id) return;
@@ -489,12 +593,17 @@ export class PipelineForm implements OnInit, OnDestroy {
     const v = this.form.getRawValue();
     const id = this.pipelineId();
 
+    const cronExpression = v.cronExpression?.trim() || null;
+    const scheduleEnabled = v.scheduleEnabled ?? false;
+
     const obs = id
       ? this.pipelineService.update(id, {
           name: v.name!,
           description: v.description,
           status: v.status!,
           datasourceId: v.datasourceId!,
+          cronExpression,
+          scheduleEnabled,
         })
       : this.pipelineService.create({
           code: v.code!,
@@ -502,6 +611,8 @@ export class PipelineForm implements OnInit, OnDestroy {
           description: v.description,
           targetEntity: v.targetEntity!,
           datasourceId: v.datasourceId!,
+          cronExpression,
+          scheduleEnabled,
         });
 
     obs.subscribe({

@@ -76,6 +76,8 @@
   "staging": {
     "cardTitle": "Podgląd stagingu",
     "cardSubtitle": "Dane załadowane w ostatnim uruchomieniu potoku",
+    "reviewCardTitle": "Przegląd stagingu",
+    "reviewCardSubtitle": "Zaakceptuj lub odrzuć rekordy przed przeniesieniem do tabel biznesowych",
     "empty": "Brak danych w stagingu.",
     "externalId": "Zewnętrzne ID",
     "code": "Kod",
@@ -124,13 +126,17 @@
     "partial": "Częściowy",
     "failed": "Błąd",
     "running": "W toku",
-    "pending": "Oczekuje"
+    "pending": "Oczekuje",
+    "pending_review": "Oczekuje na przegląd",
+    "abandoned": "Porzucone"
   },
   "stagingStatus": {
     "synced": "Zsynchronizowano",
     "error": "Błąd",
     "skipped": "Pominięto",
-    "pending": "Oczekuje"
+    "pending": "Oczekuje",
+    "accepted": "Zaakceptowano",
+    "rejected": "Odrzucono"
   },
   "syncAction": {
     "create": "Utwórz",
@@ -164,12 +170,18 @@
     "importDsl": "Importuj z pliku",
     "downloadDsl": "Pobierz DSL",
     "saveDsl": "Zapisz DSL",
-    "initializeMappings": "Inicjuj mapowania"
+    "initializeMappings": "Inicjuj mapowania",
+    "accept": "Akceptuj",
+    "reject": "Odrzuć",
+    "promoteData": "Przenieś dane",
+    "abandon": "Porzuć"
   },
   "confirm": {
     "deactivateDatasource": "Czy na pewno chcesz dezaktywować to źródło danych?",
     "deactivatePipeline": "Czy na pewno chcesz dezaktywować ten potok?",
-    "sync": "Czy na pewno chcesz uruchomić synchronizację tego potoku? Dane stagingowe zostaną wyczyszczone i rozpocznie się nowe uruchomienie."
+    "sync": "Czy na pewno chcesz uruchomić synchronizację tego potoku? Dane stagingowe zostaną wyczyszczone i rozpocznie się nowe uruchomienie.",
+    "promoteData": "Tylko zaakceptowane pozycje zostaną przeniesione do tabel biznesowych. Odrzucone i oczekujące zostaną pominięte. Kontynuować?",
+    "abandon": "Czy na pewno chcesz porzucić tę synchronizację? Zostanie oznaczona jako porzucona i będzie możliwe uruchomienie nowej."
   },
   "toast": {
     "datasourceCreated": "Źródło danych zostało utworzone.",
@@ -187,7 +199,14 @@
     "mappingsInitialized": "Zainicjowano mapowania: {{ created }} nowych, {{ skipped }} pominiętych.",
     "mappingsInitFailed": "Nie udało się zainicjować mapowań.",
     "mappingValueSaved": "Wartość źródłowa została zapisana.",
-    "mappingValueFailed": "Nie udało się zapisać wartości źródłowej."
+    "mappingValueFailed": "Nie udało się zapisać wartości źródłowej.",
+    "acceptSuccess": "Pozycje zaakceptowane.",
+    "rejectSuccess": "Pozycje odrzucone.",
+    "stagingActionFailed": "Akcja nie powiodła się.",
+    "promoteSuccess": "Przeniesiono {{ promoted }} rekord(ów) do tabel biznesowych.",
+    "promoteFailed": "Nie udało się przenieść danych.",
+    "abandonSuccess": "Synchronizacja oznaczona jako porzucona.",
+    "abandonFailed": "Nie udało się porzucić synchronizacji."
   },
   "tooltip": {
     "pipelineNotActive": "Potok musi być Aktywny, aby uruchomić synchronizację."
@@ -197,8 +216,26 @@
     "codePattern": "Kod musi zaczynać się od dużej litery i zawierać tylko duże litery, cyfry i podkreślenia.",
     "maxLength500": "Wartość nie może przekraczać 500 znaków."
   },
+  "filter": {
+    "title": "Filtry",
+    "reset": "Wyczyść",
+    "allStatuses": "Wszystkie statusy",
+    "allEntities": "Wszystkie encje",
+    "pipelineCode": "Kod potoku",
+    "onlyActive": "Tylko aktywne"
+  },
   "source": {
     "label": "Źródło",
     "tooltip": "Ten rekord został zaimportowany z zewnętrznego potoku"
+  },
+  "schedule": {
+    "label": "Harmonogram",
+    "cardTitle": "Automatyczny harmonogram",
+    "cardSubtitle": "Skonfiguruj wyrażenie CRON, aby uruchamiać potok automatycznie",
+    "cronExpression": "Wyrażenie CRON",
+    "cronPlaceholder": "np. 0 0 2 * * ?",
+    "cronHint": "Format Quartz CRON: sekundy minuty godziny dzień miesiąc dzień_tygodnia [rok]",
+    "enabled": "Harmonogram aktywny",
+    "nextExecution": "Następne uruchomienie"
   }
 }

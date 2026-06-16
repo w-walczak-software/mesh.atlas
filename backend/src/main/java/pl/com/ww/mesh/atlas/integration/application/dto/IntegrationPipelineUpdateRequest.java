@@ -17,5 +17,10 @@ public record IntegrationPipelineUpdateRequest(
         UUID datasourceId,
 
         @NotNull
-        PipelineStatus status
+        PipelineStatus status,
+
+        @Size(max = 100)
+        String cronExpression,
+
+        boolean scheduleEnabled
 ) {}

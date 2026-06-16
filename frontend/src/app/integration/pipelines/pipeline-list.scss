@@ -1,4 +1,7 @@
 .integration-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
   padding: 28px 32px;
 
   @media (max-width: 768px) {
@@ -6,6 +9,32 @@
   }
 }
 
-atlas-page-title {
-  margin-bottom: 28px;
+.filter-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 8px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 180px;
+  }
+
+  &--secondary {
+    align-items: center;
+    padding: 4px 0;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 4px;
 }

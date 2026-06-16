@@ -24,6 +24,7 @@ import org.hibernate.envers.NotAudited;
 import org.hibernate.envers.RelationTargetAuditMode;
 import pl.com.ww.mesh.atlas.global.domain.common.AuditableEntity;
 
+import java.time.Instant;
 import java.util.UUID;
 
 @Audited
@@ -76,4 +77,15 @@ public class IntegrationPipelineEntity extends AuditableEntity {
     @Column(name = "active", nullable = false)
     @Builder.Default
     private boolean active = true;
+
+    @Column(name = "cron_expression", length = 100)
+    private String cronExpression;
+
+    @Column(name = "schedule_enabled", nullable = false)
+    @Builder.Default
+    private boolean scheduleEnabled = false;
+
+    @NotAudited
+    @Column(name = "next_execution_at")
+    private Instant nextExecutionAt;
 }

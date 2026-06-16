@@ -87,3 +87,51 @@
 .staging-table {
   width: 100%;
 }
+
+.schedule-section {
+  border-top: 1px solid var(--mat-sys-outline-variant);
+  padding-top: 16px;
+  margin-top: 8px;
+}
+
+.schedule-fields {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+
+  .cron-field {
+    flex: 1;
+    min-width: 260px;
+  }
+
+  .schedule-toggle {
+    margin-top: 12px;
+  }
+}
+
+.next-execution-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+  font-size: 13px;
+  color: var(--mat-sys-on-surface-variant);
+  background: var(--mat-sys-surface-variant);
+  padding: 6px 12px;
+  border-radius: 6px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--mat-sys-primary);
+  }
+}
+
+.pipeline-sync-action {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 16px;
+}

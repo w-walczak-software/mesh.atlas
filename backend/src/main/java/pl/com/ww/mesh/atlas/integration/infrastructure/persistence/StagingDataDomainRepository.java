@@ -15,6 +15,8 @@ public interface StagingDataDomainRepository extends JpaRepository<StagingDataDo
 
     List<StagingDataDomainEntity> findAllByPipelineId(UUID pipelineId);
 
+    List<StagingDataDomainEntity> findAllByIdInAndPipelineId(List<UUID> ids, UUID pipelineId);
+
     @Modifying
     @Query("DELETE FROM StagingDataDomainEntity s WHERE s.pipeline.id = :pipelineId")
     void deleteAllByPipelineId(UUID pipelineId);

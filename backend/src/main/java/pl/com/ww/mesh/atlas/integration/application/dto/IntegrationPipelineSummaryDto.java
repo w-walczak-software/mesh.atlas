@@ -3,6 +3,7 @@ package pl.com.ww.mesh.atlas.integration.application.dto;
 import pl.com.ww.mesh.atlas.integration.domain.model.PipelineStatus;
 import pl.com.ww.mesh.atlas.integration.domain.model.TargetEntityType;
 
+import java.time.Instant;
 import java.util.UUID;
 
 public record IntegrationPipelineSummaryDto(
@@ -13,5 +14,8 @@ public record IntegrationPipelineSummaryDto(
         TargetEntityType targetEntity,
         UUID datasourceId,
         String datasourceName,
-        boolean active
+        boolean hasDsl,
+        boolean active,
+        boolean scheduleEnabled,
+        Instant nextExecutionAt
 ) {}

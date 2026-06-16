@@ -15,6 +15,8 @@ public interface StagingApiRepository extends JpaRepository<StagingApiEntity, UU
 
     List<StagingApiEntity> findAllByPipelineId(UUID pipelineId);
 
+    List<StagingApiEntity> findAllByIdInAndPipelineId(List<UUID> ids, UUID pipelineId);
+
     @Modifying
     @Query("DELETE FROM StagingApiEntity s WHERE s.pipeline.id = :pipelineId")
     void deleteAllByPipelineId(UUID pipelineId);

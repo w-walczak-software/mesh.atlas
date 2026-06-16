@@ -1,8 +1,11 @@
 package pl.com.ww.mesh.atlas.integration.application.service;
 
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.api.infrastructure.persistance.ApiRepository;
@@ -11,13 +14,20 @@ import pl.com.ww.mesh.atlas.integration.application.dto.SyncRegistryDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.SyncRegistryItemDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.SyncRegistrySummaryDto;
 import pl.com.ww.mesh.atlas.integration.application.mapper.SyncRegistryMapper;
+import pl.com.ww.mesh.atlas.integration.domain.exception.IntegrationSyncNotAbandonableException;
+import pl.com.ww.mesh.atlas.integration.domain.exception.IntegrationSyncRegistryNotFoundException;
+import pl.com.ww.mesh.atlas.integration.domain.model.IntegrationPipelineEntity;
+import pl.com.ww.mesh.atlas.integration.domain.model.SyncRegistryEntity;
 import pl.com.ww.mesh.atlas.integration.domain.model.SyncRegistryItemEntity;
+import pl.com.ww.mesh.atlas.integration.domain.model.SyncStatus;
 import pl.com.ww.mesh.atlas.integration.domain.model.TargetEntityType;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.SyncRegistryItemRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.SyncRegistryRepository;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -35,18 +45,46 @@ public class SyncRegistryService {
     private final ApiRepository apiRepository;
     private final DataDomainRepository dataDomainRepository;
 
-    public Page<SyncRegistrySummaryDto> findAll(Pageable pageable) {
-        return syncRegistryRepository.findAll(pageable).map(mapper::mapSummary);
+    public Page<SyncRegistrySummaryDto> findAll(SyncStatus status, String pipelineCode, Pageable pageable) {
+        return syncRegistryRepository.findAll(buildSpec(null, status, pipelineCode), pageable).map(mapper::mapSummary);
     }
 
     public Page<SyncRegistrySummaryDto> findByPipeline(UUID pipelineId, Pageable pageable) {
-        return syncRegistryRepository.findAllByPipelineId(pipelineId, pageable).map(mapper::mapSummary);
+        return syncRegistryRepository.findAll(buildSpec(pipelineId, null, null), pageable).map(mapper::mapSummary);
+    }
+
+    private Specification<SyncRegistryEntity> buildSpec(UUID pipelineId, SyncStatus status, String pipelineCode) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (pipelineId != null) {
+                predicates.add(cb.equal(root.get("pipeline").get("id"), pipelineId));
+            }
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (pipelineCode != null && !pipelineCode.isBlank()) {
+                Join<SyncRegistryEntity, IntegrationPipelineEntity> pipeline = root.join("pipeline");
+                predicates.add(cb.like(cb.lower(pipeline.get("code")), "%" + pipelineCode.toLowerCase() + "%"));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
     public SyncRegistryDto findById(UUID id) {
         return syncRegistryRepository.findById(id)
                 .map(mapper::map)
-                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("SyncRegistry not found: " + id));
+                .orElseThrow(() -> new IntegrationSyncRegistryNotFoundException(id));
+    }
+
+    @Transactional
+    public void abandon(UUID id) {
+        SyncRegistryEntity entity = syncRegistryRepository.findById(id)
+                .orElseThrow(() -> new IntegrationSyncRegistryNotFoundException(id));
+        if (entity.getStatus() != SyncStatus.PENDING_REVIEW) {
+            throw new IntegrationSyncNotAbandonableException(id);
+        }
+        entity.setStatus(SyncStatus.ABANDONED);
+        syncRegistryRepository.save(entity);
     }
 
     public Page<SyncRegistryItemDto> findItems(UUID syncRegistryId, Pageable pageable) {

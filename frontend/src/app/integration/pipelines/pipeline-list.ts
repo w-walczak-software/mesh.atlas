@@ -1,7 +1,17 @@
-import { ChangeDetectionStrategy, Component, computed, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, computed, DestroyRef, inject, signal } from '@angular/core';
+import { DatePipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { DataTable } from '@shared/data-table/data-table';
@@ -10,12 +20,25 @@ import { BadgeConfig, PageEvent, TableConfig } from '@shared/data-table/data-tab
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { ToastService } from '@shared/toast/toast.service';
 import { IntegrationPipelineService } from '../service/integration-pipeline.service';
-import { IntegrationPipelineSummaryDto } from '../model/integration.model';
+import { IntegrationPipelineSummaryDto, PipelineStatus, TargetEntityType } from '../model/integration.model';
 
 @Component({
   selector: 'app-pipeline-list',
-  imports: [AtlasPageTitle, DataTable, TranslocoDirective, MatButtonModule, MatIconModule],
-  providers: [provideTranslocoScope('integration')],
+  imports: [
+    AtlasPageTitle,
+    DataTable,
+    TranslocoDirective,
+    ReactiveFormsModule,
+    MatButtonModule,
+    MatExpansionModule,
+    MatFormFieldModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatTooltipModule,
+  ],
+  providers: [provideTranslocoScope('integration'), DatePipe],
   templateUrl: './pipeline-list.html',
   styleUrl: './pipeline-list.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -24,8 +47,11 @@ export class PipelineList {
   private readonly service = inject(IntegrationPipelineService);
   private readonly router = inject(Router);
   private readonly dialogs = inject(DialogService);
+  private readonly datePipe = inject(DatePipe);
   private readonly toast = inject(ToastService);
   private readonly t = inject(TranslocoService);
+  private readonly fb = inject(FormBuilder);
+  private readonly destroyRef = inject(DestroyRef);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
   protected readonly data = signal<IntegrationPipelineSummaryDto[]>([]);
@@ -34,6 +60,18 @@ export class PipelineList {
   private readonly totalItems = signal(0);
   private readonly pageIndex = signal(0);
   private readonly pageSize = signal(20);
+
+  protected readonly pipelineStatuses: PipelineStatus[] = ['DRAFT', 'ACTIVE', 'PAUSED'];
+  protected readonly targetEntityTypes: TargetEntityType[] = ['IT_SYSTEM', 'API', 'DATA_DOMAIN'];
+  protected filtersExpanded = signal(true);
+
+  protected readonly filterForm = this.fb.group({
+    code: [''],
+    name: [''],
+    targetEntity: [null as TargetEntityType | null],
+    status: [null as PipelineStatus | null],
+    active: [true],
+  });
 
   protected readonly tableConfig = computed<TableConfig<IntegrationPipelineSummaryDto>>(() => {
     const _lang = this.lang();
@@ -81,6 +119,23 @@ export class PipelineList {
             'false': { label: this.t.translate('integration.badge.inactive'), color: 'error' },
           } as Record<string, BadgeConfig>,
         },
+        {
+          key: 'scheduleEnabled',
+          label: this.t.translate('integration.schedule.label'),
+          width: '110px',
+          badges: {
+            'true': { label: this.t.translate('integration.badge.yes'), color: 'success' },
+            'false': { label: this.t.translate('integration.badge.no'), color: 'neutral' },
+          } as Record<string, BadgeConfig>,
+        },
+        {
+          key: 'nextExecutionAt',
+          label: this.t.translate('integration.schedule.nextExecution'),
+          width: '175px',
+          cellRender: (row) => row.nextExecutionAt
+            ? { text: this.datePipe.transform(row.nextExecutionAt, 'yyyy-MM-dd HH:mm') ?? row.nextExecutionAt }
+            : { text: '—' },
+        },
       ],
       pagination: {
         mode: 'backend',
@@ -121,6 +176,25 @@ export class PipelineList {
 
   constructor() {
     this.load();
+
+    // debounce text fields; selects/checkbox trigger immediately via valueChanges
+    const code$ = this.filterForm.get('code')!.valueChanges.pipe(debounceTime(350), distinctUntilChanged());
+    const name$ = this.filterForm.get('name')!.valueChanges.pipe(debounceTime(350), distinctUntilChanged());
+
+    code$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
+    name$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.resetAndLoad());
+
+    this.filterForm.get('targetEntity')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.resetAndLoad());
+
+    this.filterForm.get('status')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.resetAndLoad());
+
+    this.filterForm.get('active')!.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.resetAndLoad());
   }
 
   protected onPageChange(event: PageEvent): void {
@@ -129,9 +203,26 @@ export class PipelineList {
     this.load();
   }
 
+  protected resetFilters(): void {
+    this.filterForm.reset({ code: '', name: '', targetEntity: null, status: null, active: true });
+  }
+
+  private resetAndLoad(): void {
+    this.pageIndex.set(0);
+    this.selected.set(null);
+    this.load();
+  }
+
   private load(): void {
     this.loading.set(true);
-    this.service.findAll(this.pageIndex(), this.pageSize()).subscribe({
+    const { code, name, targetEntity, status, active } = this.filterForm.getRawValue();
+    this.service.findAll(this.pageIndex(), this.pageSize(), {
+      active: active ?? true,
+      code,
+      name,
+      status,
+      targetEntity,
+    }).subscribe({
       next: (page) => {
         this.data.set(page.content);
         this.totalItems.set(page.totalElements);

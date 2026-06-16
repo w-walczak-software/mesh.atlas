@@ -1,8 +1,10 @@
 package pl.com.ww.mesh.atlas.integration.application.service;
 
+import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +18,16 @@ import pl.com.ww.mesh.atlas.integration.domain.exception.IntegrationDatasourceNo
 import pl.com.ww.mesh.atlas.integration.domain.exception.IntegrationPipelineNotFoundException;
 import pl.com.ww.mesh.atlas.integration.domain.model.IntegrationDatasourceEntity;
 import pl.com.ww.mesh.atlas.integration.domain.model.IntegrationPipelineEntity;
+import pl.com.ww.mesh.atlas.integration.domain.model.PipelineStatus;
+import pl.com.ww.mesh.atlas.integration.domain.model.TargetEntityType;
 import pl.com.ww.mesh.atlas.integration.infrastructure.camel.CamelDslValidatorService;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.IntegrationDatasourceRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.IntegrationPipelineRepository;
+import pl.com.ww.mesh.atlas.integration.infrastructure.scheduler.PipelineSchedulerService;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -31,9 +39,38 @@ public class IntegrationPipelineService {
     private final IntegrationDatasourceRepository datasourceRepository;
     private final IntegrationPipelineMapper mapper;
     private final CamelDslValidatorService camelDslValidator;
+    private final PipelineSchedulerService schedulerService;
 
-    public Page<IntegrationPipelineSummaryDto> findAll(Pageable pageable) {
-        return pipelineRepository.findAll(pageable).map(mapper::mapSummary);
+    public Page<IntegrationPipelineSummaryDto> findAll(
+            Boolean active, String code, String name,
+            PipelineStatus status, TargetEntityType targetEntity,
+            Pageable pageable) {
+        return pipelineRepository.findAll(buildSpec(active, code, name, status, targetEntity), pageable)
+                .map(mapper::mapSummary);
+    }
+
+    private Specification<IntegrationPipelineEntity> buildSpec(
+            Boolean active, String code, String name,
+            PipelineStatus status, TargetEntityType targetEntity) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (active != null) {
+                predicates.add(cb.equal(root.get("active"), active));
+            }
+            if (code != null && !code.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("code")), "%" + code.toLowerCase() + "%"));
+            }
+            if (name != null && !name.isBlank()) {
+                predicates.add(cb.like(cb.lower(root.get("name")), "%" + name.toLowerCase() + "%"));
+            }
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (targetEntity != null) {
+                predicates.add(cb.equal(root.get("targetEntity"), targetEntity));
+            }
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
     public IntegrationPipelineDto findById(UUID id) {
@@ -60,7 +97,12 @@ public class IntegrationPipelineService {
 
         IntegrationPipelineEntity entity = mapper.map(request);
         entity.setDatasource(datasource);
-        return mapper.map(pipelineRepository.save(entity));
+        entity = pipelineRepository.save(entity);
+
+        Instant nextAt = schedulerService.scheduleOrUpdate(entity);
+        entity.setNextExecutionAt(nextAt);
+
+        return mapper.map(entity);
     }
 
     @Transactional
@@ -71,7 +113,12 @@ public class IntegrationPipelineService {
         mapper.updateEntity(request, entity);
         entity.setDatasource(datasource);
         entity.setStatus(request.status());
-        return mapper.map(pipelineRepository.save(entity));
+        entity = pipelineRepository.save(entity);
+
+        Instant nextAt = schedulerService.scheduleOrUpdate(entity);
+        entity.setNextExecutionAt(nextAt);
+
+        return mapper.map(entity);
     }
 
     @Transactional
@@ -86,7 +133,9 @@ public class IntegrationPipelineService {
     public void deactivate(UUID id) {
         IntegrationPipelineEntity entity = load(id);
         entity.setActive(false);
+        entity.setNextExecutionAt(null);
         pipelineRepository.save(entity);
+        schedulerService.removeJobIfExists(id);
     }
 
     IntegrationPipelineEntity load(UUID id) {

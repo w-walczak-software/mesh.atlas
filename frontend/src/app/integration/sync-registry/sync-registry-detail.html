@@ -16,13 +16,19 @@
           icon="history"
           iconColor="primary"
           [title]="t('integration.registry.summaryTitle')"
-          [subtitle]="reg.executedAt"
+          [subtitle]="(reg.executedAt | date:'yyyy-MM-dd HH:mm:ss') ?? undefined"
         />
         <div class="registry-pipeline-action">
           <button mat-stroked-button (click)="goToPipeline()">
             <mat-icon>account_tree</mat-icon>
             {{ reg.pipelineName }}
           </button>
+          @if (isInReview()) {
+            <button mat-stroked-button color="warn" [disabled]="abandoning()" (click)="abandonSync()">
+              <mat-icon>block</mat-icon>
+              {{ t('integration.action.abandon') }}
+            </button>
+          }
         </div>
         <div class="summary-grid">
           <div class="summary-item">
@@ -39,7 +45,7 @@
           </div>
           <div class="summary-item">
             <span class="label">{{ t('integration.registry.completedAt') }}</span>
-            <span class="value">{{ reg.completedAt ?? '—' }}</span>
+            <span class="value">{{ (reg.completedAt | date:'yyyy-MM-dd HH:mm:ss') ?? '—' }}</span>
           </div>
           <div class="summary-counts">
             <span class="count total">{{ t('integration.registry.totalCount') }}: <strong>{{ reg.totalCount }}</strong></span>
@@ -55,6 +61,23 @@
           </details>
         }
       </mat-card>
+
+      @if (isInReview()) {
+        <mat-card class="staging-review-card">
+          <atlas-card-header
+            icon="pending_actions"
+            iconColor="warn"
+            [title]="t('integration.staging.reviewCardTitle')"
+            [subtitle]="t('integration.staging.reviewCardSubtitle')"
+          />
+          <app-data-table
+            [config]="stagingTableConfig()"
+            [data]="stagingData()"
+            [loading]="loadingStaging()"
+            (rowsSelect)="onStagingRowsSelect($event)"
+          />
+        </mat-card>
+      }
 
       <mat-card class="items-card">
         <atlas-card-header icon="list_alt" [title]="t('integration.registry.itemsTitle')" />

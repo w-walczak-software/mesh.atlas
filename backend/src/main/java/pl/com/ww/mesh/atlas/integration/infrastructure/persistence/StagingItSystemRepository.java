@@ -15,6 +15,8 @@ public interface StagingItSystemRepository extends JpaRepository<StagingItSystem
 
     List<StagingItSystemEntity> findAllByPipelineId(UUID pipelineId);
 
+    List<StagingItSystemEntity> findAllByIdInAndPipelineId(List<UUID> ids, UUID pipelineId);
+
     @Modifying
     @Query("DELETE FROM StagingItSystemEntity s WHERE s.pipeline.id = :pipelineId")
     void deleteAllByPipelineId(UUID pipelineId);

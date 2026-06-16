@@ -81,6 +81,19 @@ spring:
     create-schemas: true
     placeholder-replacement: false
 
+  quartz:
+    job-store-type: jdbc
+    jdbc:
+      initialize-schema: never
+    properties:
+      org.quartz.scheduler.instanceName: AtlasScheduler
+      org.quartz.scheduler.instanceId: AUTO
+      org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.PostgreSQLDelegate
+      org.quartz.jobStore.tablePrefix: atlas.QRTZ_
+      org.quartz.jobStore.isClustered: true
+      org.quartz.jobStore.clusterCheckinInterval: 20000
+      org.quartz.threadPool.threadCount: 3
+
 atlas:
   integration:
     encryption-key: ${ATLAS_INTEGRATION_KEY:atlas-integration-key-change-in-prod}

@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import pl.com.ww.mesh.atlas.integration.domain.model.PipelineStatus;
+import pl.com.ww.mesh.atlas.integration.domain.model.TargetEntityType;
 import pl.com.ww.mesh.atlas.integration.application.dto.IntegrationPipelineCreateRequest;
 import pl.com.ww.mesh.atlas.integration.application.dto.IntegrationPipelineDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.IntegrationPipelineSummaryDto;
@@ -40,8 +43,14 @@ public class IntegrationPipelineController {
 
     @GetMapping
     @IsAtlasAdmin
-    public Page<IntegrationPipelineSummaryDto> findAll(@PageableDefault(size = 20) Pageable pageable) {
-        return pipelineService.findAll(pageable);
+    public Page<IntegrationPipelineSummaryDto> findAll(
+            @RequestParam(required = false) Boolean active,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) PipelineStatus status,
+            @RequestParam(required = false) TargetEntityType targetEntity,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return pipelineService.findAll(active, code, name, status, targetEntity, pageable);
     }
 
     @GetMapping("/{id}")

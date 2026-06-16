@@ -14,11 +14,13 @@ public interface SyncRegistryMapper {
     @Mapping(target = "pipelineId", source = "pipeline.id")
     @Mapping(target = "pipelineCode", source = "pipeline.code")
     @Mapping(target = "pipelineName", source = "pipeline.name")
+    @Mapping(target = "pipelineTargetEntity", source = "pipeline.targetEntity")
     SyncRegistryDto map(SyncRegistryEntity entity);
 
     @Mapping(target = "pipelineId", source = "pipeline.id")
     @Mapping(target = "pipelineCode", source = "pipeline.code")
     @Mapping(target = "pipelineName", source = "pipeline.name")
+    @Mapping(target = "pipelineTargetEntity", source = "pipeline.targetEntity")
     SyncRegistrySummaryDto mapSummary(SyncRegistryEntity entity);
 
     @Mapping(target = "targetCode", ignore = true)

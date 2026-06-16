@@ -21,5 +21,10 @@ public record IntegrationPipelineCreateRequest(
         UUID datasourceId,
 
         @NotNull
-        TargetEntityType targetEntity
+        TargetEntityType targetEntity,
+
+        @Size(max = 100)
+        String cronExpression,
+
+        boolean scheduleEnabled
 ) {}

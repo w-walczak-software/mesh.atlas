@@ -3,6 +3,7 @@ package pl.com.ww.mesh.atlas.integration.application.dto;
 import pl.com.ww.mesh.atlas.integration.domain.model.PipelineStatus;
 import pl.com.ww.mesh.atlas.integration.domain.model.TargetEntityType;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -16,6 +17,9 @@ public record IntegrationPipelineDto(
         IntegrationDatasourceSummaryDto datasource,
         boolean hasDsl,
         boolean active,
+        String cronExpression,
+        boolean scheduleEnabled,
+        Instant nextExecutionAt,
         LocalDateTime createdAt,
         String createdBy,
         LocalDateTime updatedAt,

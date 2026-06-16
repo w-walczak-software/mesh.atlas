@@ -76,6 +76,8 @@
   "staging": {
     "cardTitle": "Staging Preview",
     "cardSubtitle": "Data loaded from last pipeline run",
+    "reviewCardTitle": "Staging Review",
+    "reviewCardSubtitle": "Review and accept or reject staged records before promotion",
     "empty": "No staging data available.",
     "externalId": "External ID",
     "code": "Code",
@@ -124,13 +126,17 @@
     "partial": "Partial",
     "failed": "Failed",
     "running": "Running",
-    "pending": "Pending"
+    "pending": "Pending",
+    "pending_review": "Pending Review",
+    "abandoned": "Abandoned"
   },
   "stagingStatus": {
     "synced": "Synced",
     "error": "Error",
     "skipped": "Skipped",
-    "pending": "Pending"
+    "pending": "Pending",
+    "accepted": "Accepted",
+    "rejected": "Rejected"
   },
   "syncAction": {
     "create": "Create",
@@ -164,12 +170,18 @@
     "importDsl": "Import from file",
     "downloadDsl": "Download DSL",
     "saveDsl": "Save DSL",
-    "initializeMappings": "Initialize Mappings"
+    "initializeMappings": "Initialize Mappings",
+    "accept": "Accept",
+    "reject": "Reject",
+    "promoteData": "Transfer Data",
+    "abandon": "Abandon"
   },
   "confirm": {
     "deactivateDatasource": "Are you sure you want to deactivate this data source?",
     "deactivatePipeline": "Are you sure you want to deactivate this pipeline?",
-    "sync": "Are you sure you want to trigger synchronization for this pipeline? Staging data will be cleared and a new sync run will start."
+    "sync": "Are you sure you want to trigger synchronization for this pipeline? Staging data will be cleared and a new sync run will start.",
+    "promoteData": "Only accepted items will be promoted to business tables. Rejected and pending items will be skipped. Proceed?",
+    "abandon": "Are you sure you want to abandon this synchronization? It will be marked as abandoned and a new sync can be triggered."
   },
   "toast": {
     "datasourceCreated": "Data source created.",
@@ -187,7 +199,14 @@
     "mappingsInitialized": "Mappings initialized: {{ created }} created, {{ skipped }} skipped.",
     "mappingsInitFailed": "Failed to initialize mappings.",
     "mappingValueSaved": "Source value saved.",
-    "mappingValueFailed": "Failed to save source value."
+    "mappingValueFailed": "Failed to save source value.",
+    "acceptSuccess": "Items accepted.",
+    "rejectSuccess": "Items rejected.",
+    "stagingActionFailed": "Action failed.",
+    "promoteSuccess": "{{ promoted }} record(s) promoted to business tables.",
+    "promoteFailed": "Failed to promote data.",
+    "abandonSuccess": "Synchronization abandoned.",
+    "abandonFailed": "Failed to abandon synchronization."
   },
   "tooltip": {
     "pipelineNotActive": "Pipeline must be Active to trigger synchronization."
@@ -197,8 +216,26 @@
     "codePattern": "Code must start with uppercase letter and contain only uppercase letters, digits, and underscores.",
     "maxLength500": "Value cannot exceed 500 characters."
   },
+  "filter": {
+    "title": "Filters",
+    "reset": "Reset",
+    "allStatuses": "All statuses",
+    "allEntities": "All entities",
+    "pipelineCode": "Pipeline code",
+    "onlyActive": "Active only"
+  },
   "source": {
     "label": "Source",
     "tooltip": "This record was imported from an external pipeline"
+  },
+  "schedule": {
+    "label": "Schedule",
+    "cardTitle": "Automatic Schedule",
+    "cardSubtitle": "Configure a CRON expression to run this pipeline automatically",
+    "cronExpression": "CRON Expression",
+    "cronPlaceholder": "e.g. 0 0 2 * * ?",
+    "cronHint": "Quartz cron format: seconds minutes hours day month weekday [year]",
+    "enabled": "Schedule enabled",
+    "nextExecution": "Next execution"
   }
 }
