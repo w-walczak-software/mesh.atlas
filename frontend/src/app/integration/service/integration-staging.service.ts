@@ -7,6 +7,7 @@ import {
   StagingBulkActionRequest,
   StagingDataDomainDto,
   StagingItSystemDto,
+  StagingItSystemOwnerDto,
   StagingPromoteResultDto,
 } from '../model/integration.model';
 
@@ -20,6 +21,10 @@ export class IntegrationStagingService {
 
   findItSystems(pipelineId: string): Observable<StagingItSystemDto[]> {
     return this.http.get<StagingItSystemDto[]>(`${this.stagingUrl(pipelineId)}/it-systems`);
+  }
+
+  findItSystemOwners(pipelineId: string): Observable<StagingItSystemOwnerDto[]> {
+    return this.http.get<StagingItSystemOwnerDto[]>(`${this.stagingUrl(pipelineId)}/it-system-owners`);
   }
 
   findApis(pipelineId: string): Observable<StagingApiDto[]> {

@@ -84,7 +84,20 @@
     "name": "Name",
     "stagingStatus": "Status",
     "errorMessage": "Error",
-    "processedAt": "Processed At"
+    "processedAt": "Processed At",
+    "systemExternalId": "System Ext. ID",
+    "firstName": "First Name",
+    "lastName": "Last Name",
+    "email": "Email",
+    "rawRole": "Role (raw)",
+    "ownersCardTitle": "Business Owners",
+    "ownersCardSubtitle": "Owners synchronized from external source (REPLACE strategy)",
+    "ownersEmpty": "No owner data in staging.",
+    "detailTitle": "Staging Record Details",
+    "ownerDetailTitle": "Owner Details (Staging)",
+    "createdAt": "Created At",
+    "validFrom": "Valid From",
+    "validTo": "Valid To"
   },
   "syncHistory": {
     "cardTitle": "Synchronization History",
@@ -107,6 +120,7 @@
     "itemsTitle": "Sync Items"
   },
   "registryItem": {
+    "detailTitle": "Sync Item Details",
     "entityType": "Entity Type",
     "externalId": "External ID",
     "targetCode": "Record Code",

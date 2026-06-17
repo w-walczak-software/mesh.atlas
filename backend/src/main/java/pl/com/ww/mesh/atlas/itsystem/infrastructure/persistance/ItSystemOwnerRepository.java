@@ -1,12 +1,14 @@
 package pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemOwnerEntity;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,6 +16,12 @@ import java.util.UUID;
 public interface ItSystemOwnerRepository extends JpaRepository<ItSystemOwnerEntity, UUID> {
 
     List<ItSystemOwnerEntity> findByItSystemId(UUID itSystemId);
+
+    Optional<ItSystemOwnerEntity> findByItSystemIdAndEmailIgnoreCaseAndRoleId(UUID itSystemId, String email, UUID roleId);
+
+    @Modifying
+    @Query("DELETE FROM ItSystemOwnerEntity o WHERE o.itSystem.id = :systemId")
+    void deleteAllByItSystemId(@Param("systemId") UUID systemId);
 
     List<ItSystemOwnerEntity> findByEmailIgnoreCase(String email);
 

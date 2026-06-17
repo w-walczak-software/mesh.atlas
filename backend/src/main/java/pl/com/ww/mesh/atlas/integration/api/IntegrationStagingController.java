@@ -14,6 +14,7 @@ import pl.com.ww.mesh.atlas.integration.application.dto.StagingApiDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingBulkActionRequest;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingDataDomainDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingItSystemDto;
+import pl.com.ww.mesh.atlas.integration.application.dto.StagingItSystemOwnerDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingPromoteResultDto;
 import pl.com.ww.mesh.atlas.integration.application.service.IntegrationPipelineService;
 import pl.com.ww.mesh.atlas.integration.application.service.StagingReviewService;
@@ -40,6 +41,13 @@ public class IntegrationStagingController {
     public List<StagingItSystemDto> getItSystems(@PathVariable UUID pipelineId) {
         assertTargetEntity(pipelineId, TargetEntityType.IT_SYSTEM);
         return stagingViewService.findItSystemsByPipeline(pipelineId);
+    }
+
+    @GetMapping("/it-system-owners")
+    @IsAtlasAdmin
+    public List<StagingItSystemOwnerDto> getItSystemOwners(@PathVariable UUID pipelineId) {
+        assertTargetEntity(pipelineId, TargetEntityType.IT_SYSTEM);
+        return stagingViewService.findItSystemOwnersByPipeline(pipelineId);
     }
 
     @GetMapping("/apis")

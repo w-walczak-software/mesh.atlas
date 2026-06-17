@@ -4,8 +4,6 @@ import pl.com.ww.mesh.atlas.integration.domain.model.PipelineDictionaryMappingEn
 
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -15,22 +13,23 @@ import java.util.stream.Collectors;
  */
 public class CamelDictionaryMapper {
 
-    private final Map<String, UUID> index;
+    private final Map<String, String> index;
 
     public CamelDictionaryMapper(List<PipelineDictionaryMappingEntity> mappings) {
         this.index = mappings.stream().collect(Collectors.toMap(
                 m -> key(m.getDictionaryTypeCode(), m.getExternalValue()),
-                m -> m.getAtlasEntry().getId(),
+                m -> m.getAtlasEntry().getCode(),
                 (a, b) -> a
         ));
     }
 
-    public Optional<UUID> translateValue(String dictionaryTypeCode, String externalValue) {
+    public String translateValue(String dictionaryTypeCode, String externalValue) {
         if (externalValue == null) {
-            return Optional.empty();
+            return null;
         }
-        return Optional.ofNullable(index.get(key(dictionaryTypeCode, externalValue)));
+        return String.valueOf(index.get(key(dictionaryTypeCode, externalValue)));
     }
+
 
     private String key(String typeCode, String value) {
         return typeCode + "||" + value;

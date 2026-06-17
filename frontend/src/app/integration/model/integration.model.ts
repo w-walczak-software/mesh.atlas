@@ -154,6 +154,22 @@ export interface StagingItSystemDto {
   createdAt: string;
 }
 
+export interface StagingItSystemOwnerDto {
+  id: string;
+  systemExternalId: string;
+  externalId: string | null;
+  firstName: string;
+  lastName: string;
+  email: string;
+  rawRole: string | null;
+  validFrom: string | null;
+  validTo: string | null;
+  stagingStatus: StagingStatus;
+  errorMessage: string | null;
+  processedAt: string | null;
+  createdAt: string;
+}
+
 export interface StagingApiDto {
   id: string;
   externalId: string | null;

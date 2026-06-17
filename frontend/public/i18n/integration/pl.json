@@ -84,7 +84,20 @@
     "name": "Nazwa",
     "stagingStatus": "Status",
     "errorMessage": "Błąd",
-    "processedAt": "Przetworzono"
+    "processedAt": "Przetworzono",
+    "systemExternalId": "Zewn. ID systemu",
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "email": "E-mail",
+    "rawRole": "Rola (surowa)",
+    "ownersCardTitle": "Właściciele biznesowi",
+    "ownersCardSubtitle": "Właściciele zsynchronizowani z zewnętrznego źródła (strategia REPLACE)",
+    "ownersEmpty": "Brak danych właścicieli w stagingu.",
+    "detailTitle": "Szczegóły rekordu stagingowego",
+    "ownerDetailTitle": "Szczegóły właściciela (staging)",
+    "createdAt": "Utworzono",
+    "validFrom": "Ważny od",
+    "validTo": "Ważny do"
   },
   "syncHistory": {
     "cardTitle": "Historia synchronizacji",
@@ -107,6 +120,7 @@
     "itemsTitle": "Pozycje synchronizacji"
   },
   "registryItem": {
+    "detailTitle": "Szczegóły pozycji synchronizacji",
     "entityType": "Typ encji",
     "externalId": "Zewnętrzne ID",
     "targetCode": "Kod rekordu",

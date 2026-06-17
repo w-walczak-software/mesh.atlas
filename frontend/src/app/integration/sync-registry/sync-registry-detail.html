@@ -88,6 +88,22 @@
           (pageChange)="onPageChange($event)"
         />
       </mat-card>
+
+      @if (reg.pipelineTargetEntity === 'IT_SYSTEM') {
+        <mat-card class="staging-review-card">
+          <atlas-card-header
+            icon="group"
+            iconColor="accent"
+            [title]="t('integration.staging.ownersCardTitle')"
+            [subtitle]="t('integration.staging.ownersCardSubtitle')"
+          />
+          <app-data-table
+            [config]="stagingOwnersTableConfig()"
+            [data]="stagingOwnersData()"
+            [loading]="loadingOwners()"
+          />
+        </mat-card>
+      }
     }
   </div>
 </ng-container>

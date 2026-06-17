@@ -4,6 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTableModule } from '@angular/material/table';
 import { TranslocoDirective, TranslocoService, provideTranslocoScope } from '@jsverse/transloco';
@@ -16,7 +17,8 @@ import { ToastService } from '@shared/toast/toast.service';
 import { DialogService } from '@shared/dialogs/dialog.service';
 import { SyncRegistryService } from '../service/sync-registry.service';
 import { IntegrationStagingService } from '../service/integration-staging.service';
-import { StagingItSystemDto, SyncRegistryDto, SyncRegistryItemDto, TargetEntityType } from '../model/integration.model';
+import { StagingItSystemDto, StagingItSystemOwnerDto, SyncRegistryDto, SyncRegistryItemDto, TargetEntityType } from '../model/integration.model';
+import { IntegrationDetailDialog, IntegrationDetailDialogData } from '../dialogs/integration-detail-dialog';
 
 @Component({
   selector: 'app-sync-registry-detail',
@@ -44,6 +46,7 @@ export class SyncRegistryDetail implements OnInit {
   private readonly router = inject(Router);
   private readonly toast = inject(ToastService);
   private readonly dialogs = inject(DialogService);
+  private readonly dialog = inject(MatDialog);
   private readonly t = inject(TranslocoService);
 
   protected readonly lang = toSignal(this.t.langChanges$, { initialValue: this.t.getActiveLang() });
@@ -55,7 +58,9 @@ export class SyncRegistryDetail implements OnInit {
   private readonly pageSize = signal(50);
 
   protected readonly stagingData = signal<StagingItSystemDto[]>([]);
+  protected readonly stagingOwnersData = signal<StagingItSystemOwnerDto[]>([]);
   protected readonly loadingStaging = signal(false);
+  protected readonly loadingOwners = signal(false);
   protected readonly selectedStagingItems = signal<StagingItSystemDto[]>([]);
   protected readonly promoting = signal(false);
   protected readonly abandoning = signal(false);
@@ -112,6 +117,35 @@ export class SyncRegistryDetail implements OnInit {
           action: () => this.promoteAccepted(),
         },
       ] : [],
+      rowDblClick: (row) => this.openStagingDetail(row),
+    };
+  });
+
+  protected readonly stagingOwnersTableConfig = computed<TableConfig<StagingItSystemOwnerDto>>(() => {
+    const _lang = this.lang();
+    return {
+      tableId: 'sync-staging-owners',
+      rowId: (row) => row.id,
+      columns: [
+        { key: 'systemExternalId', label: this.t.translate('integration.staging.systemExternalId'), width: '140px' },
+        { key: 'firstName', label: this.t.translate('integration.staging.firstName'), width: '120px' },
+        { key: 'lastName', label: this.t.translate('integration.staging.lastName'), width: '140px' },
+        { key: 'email', label: this.t.translate('integration.staging.email') },
+        { key: 'rawRole', label: this.t.translate('integration.staging.rawRole'), width: '120px' },
+        {
+          key: 'stagingStatus',
+          label: this.t.translate('integration.staging.stagingStatus'),
+          width: '120px',
+          badges: {
+            'PENDING': { label: this.t.translate('integration.stagingStatus.pending'), color: 'warning' },
+            'SYNCED': { label: this.t.translate('integration.stagingStatus.synced'), color: 'success' },
+            'ERROR': { label: this.t.translate('integration.stagingStatus.error'), color: 'error' },
+            'SKIPPED': { label: this.t.translate('integration.stagingStatus.skipped'), color: 'neutral' },
+          } as Record<string, BadgeConfig>,
+        },
+        { key: 'errorMessage', label: this.t.translate('integration.staging.errorMessage'), width: '180px' },
+      ],
+      rowDblClick: (row) => this.openOwnerStagingDetail(row),
     };
   });
 
@@ -151,6 +185,7 @@ export class SyncRegistryDetail implements OnInit {
       pageSize: this.pageSize(),
       pageSizeOptions: [20, 50, 100],
     },
+    rowDblClick: (row) => this.openRegistryItemDetail(row),
   }));
 
   ngOnInit(): void {
@@ -160,10 +195,23 @@ export class SyncRegistryDetail implements OnInit {
         this.registry.set(r);
         if (r.status === 'PENDING_REVIEW') {
           this.loadStaging(r.pipelineId, r.pipelineTargetEntity);
+        } else if (r.pipelineTargetEntity === 'IT_SYSTEM') {
+          this.loadOwners(r.pipelineId);
         }
       },
     });
     this.loadItems(id);
+  }
+
+  private loadOwners(pipelineId: string): void {
+    this.loadingOwners.set(true);
+    this.stagingService.findItSystemOwners(pipelineId).subscribe({
+      next: (data) => {
+        this.stagingOwnersData.set(data);
+        this.loadingOwners.set(false);
+      },
+      error: () => this.loadingOwners.set(false),
+    });
   }
 
   private loadStaging(pipelineId: string, targetEntity: TargetEntityType): void {
@@ -181,6 +229,17 @@ export class SyncRegistryDetail implements OnInit {
       },
       error: () => this.loadingStaging.set(false),
     });
+
+    if (targetEntity === 'IT_SYSTEM') {
+      this.loadingOwners.set(true);
+      this.stagingService.findItSystemOwners(pipelineId).subscribe({
+        next: (data) => {
+          this.stagingOwnersData.set(data);
+          this.loadingOwners.set(false);
+        },
+        error: () => this.loadingOwners.set(false),
+      });
+    }
   }
 
   protected onStagingRowsSelect(items: StagingItSystemDto[]): void {
@@ -281,6 +340,66 @@ export class SyncRegistryDetail implements OnInit {
       },
       error: () => this.loadingItems.set(false),
     });
+  }
+
+  protected openRegistryItemDetail(item: SyncRegistryItemDto): void {
+    const t = this.t;
+    const data: IntegrationDetailDialogData = {
+      title: t.translate('integration.registryItem.detailTitle'),
+      icon: 'list_alt',
+      fields: [
+        { label: t.translate('integration.registryItem.entityType'), value: item.entityType },
+        { label: t.translate('integration.registryItem.action'), value: item.action },
+        { label: t.translate('integration.registryItem.status'), value: item.status },
+        { label: t.translate('integration.registryItem.externalId'), value: item.externalId, mono: true },
+        { label: t.translate('integration.registryItem.targetCode'), value: item.targetCode },
+        { label: t.translate('integration.registryItem.targetName'), value: item.targetName },
+        { label: t.translate('integration.registryItem.createdAt'), value: item.createdAt },
+        { label: t.translate('integration.registryItem.errorMessage'), value: item.errorMessage, fullWidth: true },
+      ],
+    };
+    this.dialog.open<IntegrationDetailDialog, IntegrationDetailDialogData>(IntegrationDetailDialog, { data, width: '600px' });
+  }
+
+  protected openStagingDetail(row: StagingItSystemDto): void {
+    const t = this.t;
+    const data: IntegrationDetailDialogData = {
+      title: t.translate('integration.staging.detailTitle'),
+      icon: 'table_view',
+      fields: [
+        { label: t.translate('integration.staging.externalId'), value: row.externalId, mono: true },
+        { label: t.translate('integration.staging.code'), value: row.code },
+        { label: t.translate('integration.staging.name'), value: row.name },
+        { label: t.translate('integration.staging.stagingStatus'), value: row.stagingStatus },
+        { label: t.translate('integration.staging.processedAt'), value: row.processedAt ?? undefined },
+        { label: t.translate('integration.staging.createdAt'), value: row.createdAt },
+        { label: t.translate('integration.staging.errorMessage'), value: row.errorMessage, fullWidth: true },
+      ],
+    };
+    this.dialog.open<IntegrationDetailDialog, IntegrationDetailDialogData>(IntegrationDetailDialog, { data, width: '600px' });
+  }
+
+  protected openOwnerStagingDetail(row: StagingItSystemOwnerDto): void {
+    const t = this.t;
+    const data: IntegrationDetailDialogData = {
+      title: t.translate('integration.staging.ownerDetailTitle'),
+      icon: 'person',
+      fields: [
+        { label: t.translate('integration.staging.systemExternalId'), value: row.systemExternalId, mono: true },
+        { label: t.translate('integration.staging.externalId'), value: row.externalId ?? undefined, mono: true },
+        { label: t.translate('integration.staging.firstName'), value: row.firstName },
+        { label: t.translate('integration.staging.lastName'), value: row.lastName },
+        { label: t.translate('integration.staging.email'), value: row.email },
+        { label: t.translate('integration.staging.rawRole'), value: row.rawRole ?? undefined },
+        { label: t.translate('integration.staging.validFrom'), value: row.validFrom ?? undefined },
+        { label: t.translate('integration.staging.validTo'), value: row.validTo ?? undefined },
+        { label: t.translate('integration.staging.stagingStatus'), value: row.stagingStatus },
+        { label: t.translate('integration.staging.processedAt'), value: row.processedAt ?? undefined },
+        { label: t.translate('integration.staging.createdAt'), value: row.createdAt },
+        { label: t.translate('integration.staging.errorMessage'), value: row.errorMessage ?? undefined, fullWidth: true },
+      ],
+    };
+    this.dialog.open<IntegrationDetailDialog, IntegrationDetailDialogData>(IntegrationDetailDialog, { data, width: '640px' });
   }
 
   protected goBack(): void {

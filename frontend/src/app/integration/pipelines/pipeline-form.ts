@@ -45,10 +45,12 @@ import {
   PipelineDictionaryMappingDto,
   PipelineStatus,
   StagingItSystemDto,
+  StagingItSystemOwnerDto,
   SyncRegistrySummaryDto,
   TargetEntityType,
 } from '../model/integration.model';
 import { MappingValueDialog, MappingValueDialogData, MappingValueDialogResult } from '../mappings/mapping-value-dialog';
+import { IntegrationDetailDialog, IntegrationDetailDialogData } from '../dialogs/integration-detail-dialog';
 
 const DSL_TEMPLATE = `<routes xmlns="http://camel.apache.org/schema/spring">
   <route id="sync-pipeline">
@@ -130,6 +132,7 @@ export class PipelineForm implements OnInit, OnDestroy {
   protected readonly datasources = signal<IntegrationDatasourceSummaryDto[]>([]);
   protected readonly mappings = signal<PipelineDictionaryMappingDto[]>([]);
   protected readonly stagingItSystems = signal<StagingItSystemDto[]>([]);
+  protected readonly stagingItSystemOwners = signal<StagingItSystemOwnerDto[]>([]);
   protected readonly stagingApis = signal<StagingItSystemDto[]>([]);
   protected readonly stagingDataDomains = signal<StagingItSystemDto[]>([]);
   protected readonly syncHistory = signal<SyncRegistrySummaryDto[]>([]);
@@ -193,17 +196,19 @@ export class PipelineForm implements OnInit, OnDestroy {
 
   protected readonly mappingsTableConfig = computed<TableConfig<PipelineDictionaryMappingDto>>(() => ({
     tableId: 'pipeline-mappings',
+    showFilter: true,
     columns: [
-      { key: 'dictionaryTypeCode', label: this.t.translate('integration.mapping.dictionaryTypeCode'), width: '200px' },
+      { key: 'dictionaryTypeCode', label: this.t.translate('integration.mapping.dictionaryTypeCode'), width: '200px', sortable: true },
       {
         key: 'externalValue',
         label: this.t.translate('integration.mapping.externalValue'),
+        sortable: true,
         cellRender: (row) => row.externalValue != null
           ? { text: row.externalValue }
           : { badge: { label: this.t.translate('integration.mapping.notSet'), colorClass: 'warn' } },
       },
-      { key: 'atlasEntryCode', label: this.t.translate('integration.mapping.atlasEntryCode'), width: '160px' },
-      { key: 'atlasEntryName', label: this.t.translate('integration.mapping.atlasEntryName') },
+      { key: 'atlasEntryCode', label: this.t.translate('integration.mapping.atlasEntryCode'), width: '160px', sortable: true },
+      { key: 'atlasEntryName', label: this.t.translate('integration.mapping.atlasEntryName'), sortable: true },
     ],
     toolbar: [
       {
@@ -265,8 +270,33 @@ export class PipelineForm implements OnInit, OnDestroy {
           action: () => this.promoteAccepted(),
         },
       ] : [],
+      rowDblClick: (row) => this.openStagingDetail(row),
     };
   });
+
+  protected readonly stagingOwnerTableConfig = computed<TableConfig<StagingItSystemOwnerDto>>(() => ({
+    tableId: 'pipeline-staging-owners',
+    columns: [
+      { key: 'systemExternalId', label: this.t.translate('integration.staging.systemExternalId'), width: '150px' },
+      { key: 'firstName', label: this.t.translate('integration.staging.firstName'), width: '130px' },
+      { key: 'lastName', label: this.t.translate('integration.staging.lastName'), width: '130px' },
+      { key: 'email', label: this.t.translate('integration.staging.email') },
+      { key: 'rawRole', label: this.t.translate('integration.staging.rawRole'), width: '160px' },
+      {
+        key: 'stagingStatus',
+        label: this.t.translate('integration.staging.stagingStatus'),
+        width: '110px',
+        badges: {
+          'PENDING': { label: this.t.translate('integration.stagingStatus.pending'), color: 'warning' },
+          'SYNCED': { label: this.t.translate('integration.stagingStatus.synced'), color: 'success' },
+          'ERROR': { label: this.t.translate('integration.stagingStatus.error'), color: 'error' },
+          'SKIPPED': { label: this.t.translate('integration.stagingStatus.skipped'), color: 'neutral' },
+        } as Record<string, BadgeConfig>,
+      },
+      { key: 'errorMessage', label: this.t.translate('integration.staging.errorMessage'), width: '220px' },
+    ],
+    rowDblClick: (row) => this.openOwnerStagingDetail(row),
+  }));
 
   protected readonly syncHistoryTableConfig = computed<TableConfig<SyncRegistrySummaryDto>>(() => ({
     tableId: 'pipeline-sync-history',
@@ -343,6 +373,9 @@ export class PipelineForm implements OnInit, OnDestroy {
       case 'IT_SYSTEM':
         this.stagingService.findItSystems(pipelineId).subscribe({
           next: (data) => this.stagingItSystems.set(data),
+        });
+        this.stagingService.findItSystemOwners(pipelineId).subscribe({
+          next: (data) => this.stagingItSystemOwners.set(data),
         });
         break;
       case 'API':
@@ -629,6 +662,47 @@ export class PipelineForm implements OnInit, OnDestroy {
       },
       error: () => this.saving.set(false),
     });
+  }
+
+  protected openStagingDetail(row: StagingItSystemDto): void {
+    const t = this.t;
+    const data: IntegrationDetailDialogData = {
+      title: t.translate('integration.staging.detailTitle'),
+      icon: 'table_view',
+      fields: [
+        { label: t.translate('integration.staging.externalId'), value: row.externalId, mono: true },
+        { label: t.translate('integration.staging.code'), value: row.code },
+        { label: t.translate('integration.staging.name'), value: row.name },
+        { label: t.translate('integration.staging.stagingStatus'), value: row.stagingStatus },
+        { label: t.translate('integration.staging.processedAt'), value: row.processedAt ?? undefined },
+        { label: t.translate('integration.staging.createdAt'), value: row.createdAt },
+        { label: t.translate('integration.staging.errorMessage'), value: row.errorMessage, fullWidth: true },
+      ],
+    };
+    this.dialog.open<IntegrationDetailDialog, IntegrationDetailDialogData>(IntegrationDetailDialog, { data, width: '600px' });
+  }
+
+  protected openOwnerStagingDetail(row: StagingItSystemOwnerDto): void {
+    const t = this.t;
+    const data: IntegrationDetailDialogData = {
+      title: t.translate('integration.staging.ownerDetailTitle'),
+      icon: 'person',
+      fields: [
+        { label: t.translate('integration.staging.systemExternalId'), value: row.systemExternalId, mono: true },
+        { label: t.translate('integration.staging.externalId'), value: row.externalId, mono: true },
+        { label: t.translate('integration.staging.firstName'), value: row.firstName },
+        { label: t.translate('integration.staging.lastName'), value: row.lastName },
+        { label: t.translate('integration.staging.email'), value: row.email },
+        { label: t.translate('integration.staging.rawRole'), value: row.rawRole },
+        { label: t.translate('integration.staging.validFrom'), value: row.validFrom ?? undefined },
+        { label: t.translate('integration.staging.validTo'), value: row.validTo ?? undefined },
+        { label: t.translate('integration.staging.stagingStatus'), value: row.stagingStatus },
+        { label: t.translate('integration.staging.processedAt'), value: row.processedAt ?? undefined },
+        { label: t.translate('integration.staging.createdAt'), value: row.createdAt },
+        { label: t.translate('integration.staging.errorMessage'), value: row.errorMessage, fullWidth: true },
+      ],
+    };
+    this.dialog.open<IntegrationDetailDialog, IntegrationDetailDialogData>(IntegrationDetailDialog, { data, width: '600px' });
   }
 
   protected cancel(): void {

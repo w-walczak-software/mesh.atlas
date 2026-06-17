@@ -30,7 +30,7 @@ public class PipelineDictionaryMappingService {
             TargetEntityType.IT_SYSTEM, List.of(
                     "SYSTEM_STATUS", "LIFECYCLE_STAGE", "BUSINESS_CRITICALITY",
                     "DATA_CLASSIFICATION", "SYSTEM_TYPE", "ARCHITECTURE_STYLE",
-                    "DEPLOYMENT_MODEL", "RUNTIME_ENVIRONMENT"
+                    "DEPLOYMENT_MODEL", "RUNTIME_ENVIRONMENT", "SYSTEM_OWNER_ROLE"
             ),
             TargetEntityType.API, List.of(
                     "API_STYLE", "LIFECYCLE_STAGE", "PROTOCOL",

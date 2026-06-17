@@ -16,6 +16,7 @@ export class AuthService {
   private readonly transloco = inject(TranslocoService);
 
   private readonly _user = signal<AuthUser | null>(null);
+  private loginInProgress = false;
 
   readonly currentUser = this._user.asReadonly();
   readonly isAuthenticated = computed(() => this._user() !== null);
@@ -47,6 +48,12 @@ export class AuthService {
     this.keycloak.logout({ redirectUri: window.location.origin });
   }
 
+  login(): void {
+    if (this.loginInProgress) return;
+    this.loginInProgress = true;
+    this.keycloak.login();
+  }
+
   getToken(): string | undefined {
     return this.keycloak?.token;
   }
@@ -56,7 +63,7 @@ export class AuthService {
       await this.keycloak.updateToken(5);
       return this.keycloak.token;
     } catch {
-      this.keycloak.login();
+      this.login();
       return undefined;
     }
   }
@@ -110,7 +117,7 @@ export class AuthService {
 
   private scheduleTokenRefresh(): void {
     this.keycloak.onTokenExpired = () => {
-      this.keycloak.updateToken(30).catch(() => this.keycloak.logout());
+      this.keycloak.updateToken(30).catch(() => this.login());
     };
   }
 }

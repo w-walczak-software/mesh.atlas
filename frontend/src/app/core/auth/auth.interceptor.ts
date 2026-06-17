@@ -1,6 +1,6 @@
-import { HttpInterceptorFn } from '@angular/common/http';
+import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { EMPTY, from, switchMap } from 'rxjs';
+import { EMPTY, catchError, from, switchMap, throwError } from 'rxjs';
 import { AuthService } from './auth.service';
 
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
@@ -14,6 +14,13 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     switchMap(token => {
       if (!token) return EMPTY;
       return next(req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }));
+    }),
+    catchError(err => {
+      if (err instanceof HttpErrorResponse && err.status === 401) {
+        auth.login();
+        return EMPTY;
+      }
+      return throwError(() => err);
     }),
   );
 };

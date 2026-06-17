@@ -3,6 +3,7 @@ package pl.com.ww.mesh.atlas.integration.application.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.email.application.service.EmailService;
 import pl.com.ww.mesh.atlas.email.application.service.EmailTemplateProcessingService;
@@ -33,7 +34,7 @@ public class SyncReportEmailService {
     private final EmailTemplateProcessingService templateProcessingService;
     private final EmailService emailService;
 
-    @Transactional(readOnly = true)
+    @Transactional(propagation = Propagation.REQUIRES_NEW, readOnly = true)
     public void sendSyncReport(UUID registryId) {
         List<String> recipients = resolveRecipients();
         if (recipients.isEmpty()) {

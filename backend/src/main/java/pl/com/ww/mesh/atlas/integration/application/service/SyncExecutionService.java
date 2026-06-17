@@ -20,6 +20,7 @@ import pl.com.ww.mesh.atlas.integration.domain.model.PipelineStatus;
 import pl.com.ww.mesh.atlas.integration.domain.model.StagingApiEntity;
 import pl.com.ww.mesh.atlas.integration.domain.model.StagingDataDomainEntity;
 import pl.com.ww.mesh.atlas.integration.domain.model.StagingItSystemEntity;
+import pl.com.ww.mesh.atlas.integration.domain.model.StagingItSystemOwnerEntity;
 import pl.com.ww.mesh.atlas.integration.domain.model.StagingStatus;
 import pl.com.ww.mesh.atlas.integration.domain.model.SyncAction;
 import pl.com.ww.mesh.atlas.integration.domain.model.SyncRegistryEntity;
@@ -30,16 +31,21 @@ import pl.com.ww.mesh.atlas.integration.infrastructure.camel.CamelSyncEngine;
 import pl.com.ww.mesh.atlas.integration.infrastructure.camel.SyncExecutionResult;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingApiRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingDataDomainRepository;
+import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingItSystemOwnerRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingItSystemRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.SyncRegistryItemRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.SyncRegistryRepository;
 import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemEntity;
+import pl.com.ww.mesh.atlas.itsystem.domain.model.ItSystemOwnerEntity;
+import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemOwnerRepository;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
 import pl.com.ww.mesh.atlas.systemparameter.domain.model.SystemParameterEntity;
 import pl.com.ww.mesh.atlas.systemparameter.infrastructure.persistence.SystemParameterRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -52,9 +58,11 @@ public class SyncExecutionService {
     private final SyncRegistryRepository syncRegistryRepository;
     private final SyncRegistryItemRepository syncRegistryItemRepository;
     private final StagingItSystemRepository stagingItSystemRepository;
+    private final StagingItSystemOwnerRepository stagingItSystemOwnerRepository;
     private final StagingApiRepository stagingApiRepository;
     private final StagingDataDomainRepository stagingDataDomainRepository;
     private final ItSystemRepository itSystemRepository;
+    private final ItSystemOwnerRepository itSystemOwnerRepository;
     private final ApiRepository apiRepository;
     private final DataDomainRepository dataDomainRepository;
     private final DictionaryEntryRepository dictionaryEntryRepository;
@@ -173,6 +181,8 @@ public class SyncExecutionService {
 
             applyItSystemDictionaries(row, entity, pipeline);
             entity = itSystemRepository.save(entity);
+
+            promoteItSystemOwners(row.getExternalId(), entity.getId(), pipeline);
 
             markStagingSynced(row);
             addRegistryItem(registry, TargetEntityType.IT_SYSTEM, row.getExternalId(), entity.getId(), action, StagingStatus.SYNCED, null);
@@ -379,7 +389,10 @@ public class SyncExecutionService {
     @Transactional
     public void clearStaging(IntegrationPipelineEntity pipeline) {
         switch (pipeline.getTargetEntity()) {
-            case IT_SYSTEM -> stagingItSystemRepository.deleteAllByPipelineId(pipeline.getId());
+            case IT_SYSTEM -> {
+                stagingItSystemOwnerRepository.deleteAllByPipelineId(pipeline.getId());
+                stagingItSystemRepository.deleteAllByPipelineId(pipeline.getId());
+            }
             case API -> stagingApiRepository.deleteAllByPipelineId(pipeline.getId());
             case DATA_DOMAIN -> stagingDataDomainRepository.deleteAllByPipelineId(pipeline.getId());
         }
@@ -403,9 +416,96 @@ public class SyncExecutionService {
         stagingDataDomainRepository.save(row);
     }
 
+    public void promoteItSystemOwners(String systemExternalId, UUID itSystemId,
+                                       IntegrationPipelineEntity pipeline) {
+        if (systemExternalId == null) return;
+        List<StagingItSystemOwnerEntity> ownerRows =
+                stagingItSystemOwnerRepository.findAllByPipelineIdAndSystemExternalId(
+                        pipeline.getId(), systemExternalId);
+        if (ownerRows.isEmpty()) return;
+
+        ItSystemEntity systemRef = itSystemRepository.getReferenceById(itSystemId);
+
+        for (StagingItSystemOwnerEntity row : ownerRows) {
+            try {
+                DictionaryEntryEntity role = lookupEntry(row.getRawRole(), "SYSTEM_OWNER_ROLE")
+                        .orElseThrow(() -> new IllegalStateException("Role not found: " + row.getRawRole()));
+
+                Optional<ItSystemOwnerEntity> existing = itSystemOwnerRepository
+                        .findByItSystemIdAndEmailIgnoreCaseAndRoleId(itSystemId, row.getEmail(), role.getId());
+
+                if (existing.isPresent()) {
+                    upsertItSystemOwner(existing.get(), row);
+                } else {
+                    ItSystemOwnerEntity owner = ItSystemOwnerEntity.builder()
+                            .itSystem(systemRef)
+                            .role(role)
+                            .firstName(row.getFirstName())
+                            .lastName(row.getLastName())
+                            .email(row.getEmail())
+                            .validFrom(row.getValidFrom() != null ? row.getValidFrom() : LocalDate.now())
+                            .validTo(row.getValidTo())
+                            .build();
+                    itSystemOwnerRepository.save(owner);
+                }
+                markStagingItSystemOwnerSynced(row);
+            } catch (Exception e) {
+                log.warn("Failed to promote owner staging row {} for system {}: {}", row.getId(), systemExternalId, e.getMessage());
+                markStagingItSystemOwnerError(row, e.getMessage());
+            }
+        }
+    }
+
+    private void upsertItSystemOwner(ItSystemOwnerEntity owner, StagingItSystemOwnerEntity row) {
+        boolean changed = false;
+
+        if (!Objects.equals(owner.getFirstName(), row.getFirstName())) {
+            owner.setFirstName(row.getFirstName());
+            changed = true;
+        }
+        if (!Objects.equals(owner.getLastName(), row.getLastName())) {
+            owner.setLastName(row.getLastName());
+            changed = true;
+        }
+        if (row.getValidFrom() != null && !Objects.equals(owner.getValidFrom(), row.getValidFrom())) {
+            owner.setValidFrom(row.getValidFrom());
+            changed = true;
+        }
+        if (!Objects.equals(owner.getValidTo(), row.getValidTo())) {
+            owner.setValidTo(row.getValidTo());
+            changed = true;
+        }
+
+        if (changed) {
+            itSystemOwnerRepository.save(owner);
+        }
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markStagingItSystemOwnerSynced(StagingItSystemOwnerEntity row) {
+        row.setStagingStatus(StagingStatus.SYNCED);
+        row.setProcessedAt(LocalDateTime.now());
+        stagingItSystemOwnerRepository.save(row);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markStagingItSystemOwnerError(StagingItSystemOwnerEntity row, String message) {
+        row.setStagingStatus(StagingStatus.ERROR);
+        row.setErrorMessage(message);
+        stagingItSystemOwnerRepository.save(row);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void markStagingItSystemOwnerSkipped(StagingItSystemOwnerEntity row) {
+        row.setStagingStatus(StagingStatus.SKIPPED);
+        stagingItSystemOwnerRepository.save(row);
+    }
+
     private long countPendingStaging(IntegrationPipelineEntity pipeline) {
         return switch (pipeline.getTargetEntity()) {
             case IT_SYSTEM -> stagingItSystemRepository
+                    .findAllByPipelineIdAndStagingStatus(pipeline.getId(), StagingStatus.PENDING).size()
+                    + stagingItSystemOwnerRepository
                     .findAllByPipelineIdAndStagingStatus(pipeline.getId(), StagingStatus.PENDING).size();
             case API -> stagingApiRepository
                     .findAllByPipelineIdAndStagingStatus(pipeline.getId(), StagingStatus.PENDING).size();

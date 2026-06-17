@@ -4,14 +4,18 @@ import org.mapstruct.Mapper;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingApiDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingDataDomainDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingItSystemDto;
+import pl.com.ww.mesh.atlas.integration.application.dto.StagingItSystemOwnerDto;
 import pl.com.ww.mesh.atlas.integration.domain.model.StagingApiEntity;
 import pl.com.ww.mesh.atlas.integration.domain.model.StagingDataDomainEntity;
 import pl.com.ww.mesh.atlas.integration.domain.model.StagingItSystemEntity;
+import pl.com.ww.mesh.atlas.integration.domain.model.StagingItSystemOwnerEntity;
 
 @Mapper(componentModel = "spring")
 public interface StagingMapper {
 
     StagingItSystemDto mapItSystem(StagingItSystemEntity entity);
+
+    StagingItSystemOwnerDto mapItSystemOwner(StagingItSystemOwnerEntity entity);
 
     StagingApiDto mapApi(StagingApiEntity entity);
 

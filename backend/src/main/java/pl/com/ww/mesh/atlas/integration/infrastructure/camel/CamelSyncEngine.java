@@ -89,14 +89,19 @@ public class CamelSyncEngine {
             boolean completed = waitForCompletion(context, Duration.ofMinutes(30));
             context.stop();
 
+            boolean hasFailures = monitor.getFailCount() > 0;
+            String resultLabel = !completed ? "TIMED OUT" : hasFailures ? "FAILED" : "COMPLETED";
+            String errorMessage = !completed ? "Execution timed out after 30 minutes"
+                    : hasFailures ? monitor.getFailCount() + " row(s) failed during sync"
+                    : null;
+
             executionLog.append("---\n");
             executionLog.append(String.format("SELECT rows : %d%n", monitor.getSelectRows()));
             executionLog.append(String.format("INSERT ok   : %d%n", monitor.getInsertCount()));
             executionLog.append(String.format("Failures    : %d%n", monitor.getFailCount()));
-            executionLog.append(completed ? "Result: COMPLETED\n" : "Result: TIMED OUT\n");
+            executionLog.append("Result: ").append(resultLabel).append("\n");
 
-            return new SyncExecutionResult(completed, executionLog.toString(),
-                    completed ? null : "Execution timed out after 30 minutes");
+            return new SyncExecutionResult(completed && !hasFailures, executionLog.toString(), errorMessage);
 
         } catch (Exception e) {
             log.error("Camel execution failed for pipeline {}", pipeline.getCode(), e);

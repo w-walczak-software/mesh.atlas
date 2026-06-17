@@ -14,6 +14,7 @@ import pl.com.ww.mesh.atlas.integration.domain.model.SyncStatus;
 import pl.com.ww.mesh.atlas.integration.domain.model.TargetEntityType;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingApiRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingDataDomainRepository;
+import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingItSystemOwnerRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingItSystemRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.SyncRegistryRepository;
 
@@ -29,6 +30,7 @@ public class StagingReviewService {
     private final IntegrationPipelineService pipelineService;
     private final SyncRegistryRepository syncRegistryRepository;
     private final StagingItSystemRepository stagingItSystemRepository;
+    private final StagingItSystemOwnerRepository stagingItSystemOwnerRepository;
     private final StagingApiRepository stagingApiRepository;
     private final StagingDataDomainRepository stagingDataDomainRepository;
     private final SyncExecutionService syncExecutionService;
@@ -106,6 +108,11 @@ public class StagingReviewService {
                             syncExecutionService.addRegistryItem(registry, TargetEntityType.IT_SYSTEM,
                                     row.getExternalId(), null, SyncAction.SKIP, StagingStatus.SKIPPED, "Rejected by user");
                             syncExecutionService.markStagingSkipped(row);
+                            if (row.getExternalId() != null) {
+                                stagingItSystemOwnerRepository
+                                        .findAllByPipelineIdAndSystemExternalId(pipelineId, row.getExternalId())
+                                        .forEach(syncExecutionService::markStagingItSystemOwnerSkipped);
+                            }
                             rejected.incrementAndGet();
                         });
                 failed.addAndGet((int) stagingItSystemRepository

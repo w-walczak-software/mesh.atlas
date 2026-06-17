@@ -195,6 +195,25 @@
                 (rowsSelect)="onStagingRowsSelect($event)"
               />
             }
+
+            @if (pipeline()?.targetEntity === 'IT_SYSTEM') {
+              <atlas-card-header
+                icon="person"
+                iconColor="tertiary"
+                [title]="t('integration.staging.ownersCardTitle')"
+                [subtitle]="t('integration.staging.ownersCardSubtitle')"
+                class="owners-section-header"
+              />
+              @if (stagingItSystemOwners().length === 0) {
+                <p class="empty-msg">{{ t('integration.staging.ownersEmpty') }}</p>
+              } @else {
+                <app-data-table
+                  [config]="stagingOwnerTableConfig()"
+                  [data]="stagingItSystemOwners()"
+                  [loading]="false"
+                />
+              }
+            }
           </mat-card>
         </mat-tab>
 

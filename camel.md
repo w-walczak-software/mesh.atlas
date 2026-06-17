@@ -176,6 +176,142 @@ Zwraca `String` (UUID wpisu Atlas) lub `null` jeśli mapowanie nie istnieje.
 
 ---
 
+---
+
+## Synchronizacja właścicieli biznesowych systemów IT
+
+Potok `IT_SYSTEM` może opcjonalnie synchronizować właścicieli biznesowych (`it_system_owner`). Właściciele są powiązani z systemem przez pole `system_external_id`, które musi odpowiadać `external_id` w tabeli `staging_it_system`.
+
+### Tabela stagingowa `staging_it_system_owner`
+
+| Kolumna             | Typ          | Opis                                                                 |
+|---------------------|--------------|----------------------------------------------------------------------|
+| `pipeline_id`       | UUID         | ID potoku (FK)                                                       |
+| `system_external_id`| VARCHAR(255) | **Wymagane** — musi odpowiadać `external_id` synchronizowanego systemu |
+| `external_id`       | VARCHAR(255) | Opcjonalny identyfikator zewnętrzny właściciela                      |
+| `first_name`        | VARCHAR(100) | Imię                                                                 |
+| `last_name`         | VARCHAR(100) | Nazwisko                                                             |
+| `email`             | VARCHAR(200) | Adres e-mail                                                         |
+| `raw_role`          | VARCHAR(500) | Zewnętrzna wartość roli — mapowana na słownik `SYSTEM_OWNER_ROLE`    |
+| `valid_from`        | DATE         | Data początku ważności (domyślnie: bieżąca data przy promocji)       |
+| `valid_to`          | DATE         | Data końca ważności (opcjonalna)                                     |
+
+### Strategia synchronizacji: REPLACE
+
+Gdy podczas promocji systemu w tabeli `staging_it_system_owner` istnieją wiersze dla danego `system_external_id`:
+1. **Wszyscy istniejący właściciele systemu są usuwani.**
+2. Nowi właściciele są zapisywani ze stagingu.
+
+Jeśli brak wierszy stagingowych dla systemu — istniejący właściciele pozostają bez zmian.
+
+### Mapowanie słownika SYSTEM_OWNER_ROLE
+
+Wartość `raw_role` jest tłumaczona na wpis słownika `SYSTEM_OWNER_ROLE` podczas promocji. Istnieją dwa sposoby:
+
+**Sposób 1 — tłumaczenie przez mapowania potoku (zalecane):**  
+W zakładce **Mapowania słowników** należy zdefiniować mapowania dla typu `SYSTEM_OWNER_ROLE`. Kliknięcie „Inicjuj" tworzy wpisy dla wszystkich aktywnych ról. Następnie należy uzupełnić pole „wartość zewnętrzna" dla każdej roli.
+
+Po stronie DSL: wartość zewnętrzna jest wstawiana bezpośrednio jako `raw_role`. Silnik podczas promocji rozwiązuje ją przez tabelę mapowań.
+
+**Sposób 2 — bezpośredni kod Atlas:**  
+Jeśli `raw_role` zawiera już kod Atlas (`BUSINESS_OWNER`, `TECHNICAL_OWNER` itd.), mapowanie nie jest wymagane — silnik szuka wpisu bezpośrednio po kodzie.
+
+### Tryb automatyczny i ręczny
+
+Parametr `SYNC_AUTO_PROMOTE` steruje obydwoma typami stagingu:
+
+| Tryb | Zachowanie |
+|------|-----------|
+| `SYNC_AUTO_PROMOTE = true` | Właściciele promowani automatycznie razem z systemem |
+| `SYNC_AUTO_PROMOTE = false` | System + właściciele trafiają do PENDING_REVIEW. Po zaakceptowaniu systemu — właściciele są promowani. Po odrzuceniu systemu — właściciele otrzymują `staging_status = SKIPPED` |
+
+Wiersze właścicieli **nie mają osobnego kroku accept/reject** — zawsze podążają za decyzją dotyczącą systemu nadrzędnego.
+
+### Szablon XML DSL — IT System z właścicielami
+
+Potok zawiera dwie trasy Camel: jedną dla systemów, drugą dla właścicieli. Obie muszą używać `timer` z `repeatCount=1`.
+
+```xml
+<routes xmlns="http://camel.apache.org/schema/spring">
+
+  <!-- Trasa 1: systemy IT -->
+  <route id="sync-it-systems">
+    <from uri="timer:startup?repeatCount=1&amp;delay=0"/>
+
+    <setBody>
+      <constant>
+        SELECT id, name, system_type, lifecycle, criticality, description
+        FROM source_schema.systems
+        WHERE active = 1
+      </constant>
+    </setBody>
+    <to uri="jdbc:sourceDataSource?outputType=SelectList"/>
+
+    <setHeader name="pipelineId">
+      <simple>${ref:pipelineId}</simple>
+    </setHeader>
+
+    <split>
+      <simple>${body}</simple>
+      <to uri="sql:INSERT INTO atlas.staging_it_system
+                 (pipeline_id, external_id, code, name,
+                  raw_system_type, raw_lifecycle_stage, raw_business_criticality,
+                  description, staging_status)
+               VALUES
+                 (:#pipelineId, :#${body[id]}, :#${body[id]}, :#${body[name]},
+                  :#${body[system_type]}, :#${body[lifecycle]}, :#${body[criticality]},
+                  :#${body[description]}, 'PENDING')"/>
+    </split>
+  </route>
+
+  <!-- Trasa 2: właściciele biznesowi -->
+  <route id="sync-it-system-owners">
+    <from uri="timer:owners?repeatCount=1&amp;delay=500"/>
+
+    <setBody>
+      <constant>
+        SELECT sys_id, owner_fname, owner_lname, owner_email, owner_role
+        FROM source_schema.system_owners
+        WHERE active = 1
+      </constant>
+    </setBody>
+    <to uri="jdbc:sourceDataSource?outputType=SelectList"/>
+
+    <setHeader name="pipelineId">
+      <simple>${ref:pipelineId}</simple>
+    </setHeader>
+
+    <split>
+      <simple>${body}</simple>
+      <to uri="sql:INSERT INTO atlas.staging_it_system_owner
+                 (pipeline_id, system_external_id,
+                  first_name, last_name, email, raw_role)
+               VALUES
+                 (:#pipelineId, :#${body[sys_id]},
+                  :#${body[owner_fname]}, :#${body[owner_lname]},
+                  :#${body[owner_email]}, :#${body[owner_role]})"/>
+    </split>
+  </route>
+
+</routes>
+```
+
+> **Uwaga:** Trasa właścicieli używa `delay=500` aby mieć pewność, że uruchamia się po trasie systemów — choć obie są niezależne i kolejność w tabeli stagingowej nie ma znaczenia. Ważne jest, że `system_external_id` musi odpowiadać `external_id` wstawionemu przez trasę systemów.
+
+### Mapowanie roli przez DSL (zaawansowane)
+
+Jeśli wartość roli z systemu zewnętrznego powinna być przetłumaczona bezpośrednio w DSL (przed zapisem do stagingu), można użyć beana `camelDictionaryMapper`:
+
+```xml
+<setBody>
+  <simple>${camelDictionaryMapper.translateValue('SYSTEM_OWNER_ROLE', ${body[owner_role]})}</simple>
+</setBody>
+```
+
+Wynik (kod Atlas lub `null`) można następnie wstawić jako `raw_role`.
+
+---
+
 ## Ograniczenia i uwagi
 
 - Potok musi mieć status **ACTIVE** żeby uruchomić synchronizację.

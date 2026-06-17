@@ -6,9 +6,11 @@ import org.springframework.transaction.annotation.Transactional;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingApiDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingDataDomainDto;
 import pl.com.ww.mesh.atlas.integration.application.dto.StagingItSystemDto;
+import pl.com.ww.mesh.atlas.integration.application.dto.StagingItSystemOwnerDto;
 import pl.com.ww.mesh.atlas.integration.application.mapper.StagingMapper;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingApiRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingDataDomainRepository;
+import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingItSystemOwnerRepository;
 import pl.com.ww.mesh.atlas.integration.infrastructure.persistence.StagingItSystemRepository;
 
 import java.util.List;
@@ -20,6 +22,7 @@ import java.util.UUID;
 public class StagingViewService {
 
     private final StagingItSystemRepository stagingItSystemRepository;
+    private final StagingItSystemOwnerRepository stagingItSystemOwnerRepository;
     private final StagingApiRepository stagingApiRepository;
     private final StagingDataDomainRepository stagingDataDomainRepository;
     private final StagingMapper stagingMapper;
@@ -27,6 +30,11 @@ public class StagingViewService {
     public List<StagingItSystemDto> findItSystemsByPipeline(UUID pipelineId) {
         return stagingItSystemRepository.findAllByPipelineId(pipelineId)
                 .stream().map(stagingMapper::mapItSystem).toList();
+    }
+
+    public List<StagingItSystemOwnerDto> findItSystemOwnersByPipeline(UUID pipelineId) {
+        return stagingItSystemOwnerRepository.findAllByPipelineId(pipelineId)
+                .stream().map(stagingMapper::mapItSystemOwner).toList();
     }
 
     public List<StagingApiDto> findApisByPipeline(UUID pipelineId) {
