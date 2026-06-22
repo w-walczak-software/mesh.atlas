@@ -45,6 +45,7 @@ import pl.com.ww.mesh.atlas.security.auth.UserContextService;
 import pl.com.ww.mesh.atlas.transportlayer.domain.model.TransportLayerEntity;
 import pl.com.ww.mesh.atlas.transportlayer.infrastructure.persistance.TransportLayerRepository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -110,7 +111,7 @@ public class ApiService {
         long active = apiRepository.countByActive(true);
         long inactive = apiRepository.countByActive(false);
         long deprecated = apiRepository.countDeprecated();
-        long addedLastMonth = apiRepository.countByCreatedAtAfter(LocalDateTime.now().minusMonths(1));
+        long addedLastMonth = apiRepository.countByCreatedAtAfter(LocalDate.now().withDayOfMonth(1).atStartOfDay());
         long withSla = apiRepository.countBySlaResponseTimeMsIsNotNull();
         long withDocumentation = apiRepository.countWithDocumentation();
         long withVersion = apiRepository.countByApiVersionIsNotNull();

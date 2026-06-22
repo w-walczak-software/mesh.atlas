@@ -29,6 +29,7 @@ import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemOwnerRep
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemRepository;
 import pl.com.ww.mesh.atlas.itsystem.infrastructure.persistance.ItSystemSpecification;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -136,7 +137,7 @@ public class ItSystemService {
     @Transactional(readOnly = true)
     public ItSystemStatsDto getStats() {
         long total = repository.count();
-        long addedLastMonth = repository.countByCreatedAtAfter(LocalDateTime.now().minusMonths(1));
+        long addedLastMonth = repository.countByCreatedAtAfter(LocalDate.now().withDayOfMonth(1).atStartOfDay());
         return new ItSystemStatsDto(total, addedLastMonth);
     }
 

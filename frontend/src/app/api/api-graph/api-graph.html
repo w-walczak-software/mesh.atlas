@@ -133,8 +133,7 @@
               <svg:path
                 [attr.d]="getOffsetPath(ctx.path(), ctx.data().parallelOffset)"
                 [attr.stroke]="ctx.data().edgeColor"
-                [class.edge-path--animated]="animateEdges() && !ctx.data().reverseFlow"
-                [class.edge-path--animated-reverse]="animateEdges() && ctx.data().reverseFlow"
+                [class.edge-path--animated]="animateEdges()"
                 fill="none"
                 [attr.stroke-width]="ctx.data().strokeWidth"
                 stroke-linecap="round"

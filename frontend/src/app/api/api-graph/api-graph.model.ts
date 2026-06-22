@@ -38,6 +38,4 @@ export interface ApiEdgeGroupData {
   strokeWidth: number;
   /** Vertical bezier control-point offset (px) for rendering parallel edges between the same system pair */
   parallelOffset: number;
-  /** True when dataFlowDirection = PUSH (Consumer → Producer), so the animation runs backward along the edge */
-  reverseFlow: boolean;
 }

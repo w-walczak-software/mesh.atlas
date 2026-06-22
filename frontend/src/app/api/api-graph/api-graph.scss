@@ -333,24 +333,17 @@
 
 // ── Edge animation ─────────────────────────────────────────────────────────────
 //
-// flowDash: offset 16 → 0  ⟹  dashes move forward  (PULL: Producer → Consumer)
-// reversed: offset 0 → 16  ⟹  dashes move backward (PUSH: Consumer → Producer)
+// flowDash: offset 16 → 0  ⟹  dashes move forward along the path (Producer → Consumer)
 
 @keyframes flowDash {
-  to { stroke-dashoffset: 0; }
+  from { stroke-dashoffset: 16; }
+  to   { stroke-dashoffset: 0; }
 }
 
 .edge-path--animated {
   stroke-dasharray: 6 10;
   stroke-dashoffset: 16;
   animation: flowDash 0.8s linear infinite;
-}
-
-.edge-path--animated-reverse {
-  stroke-dasharray: 6 10;
-  stroke-dashoffset: 0;
-  animation: flowDash 0.8s linear infinite;
-  animation-direction: reverse;
 }
 
 // ── Filter indicator chip (toolbar) ────────────────────────────────────────────

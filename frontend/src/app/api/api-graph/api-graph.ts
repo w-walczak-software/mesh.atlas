@@ -259,7 +259,6 @@ export class ApiGraph implements OnInit {
             edgeColor:        tlColor ?? EDGE_PALETTE[edgeColorIdx++ % EDGE_PALETTE.length],
             strokeWidth:      2,
             parallelOffset:   0,
-            reverseFlow:      api.dataFlowDirection?.code === 'PUSH',
           });
         }
         edgeMap.get(key)!.apis.push(api);
